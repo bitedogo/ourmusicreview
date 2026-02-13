@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 interface ProfileEditClientProps {
@@ -19,6 +20,7 @@ export function ProfileEditClient({
   profileImage,
 }: ProfileEditClientProps) {
   const router = useRouter();
+  const { update: updateSession } = useSession();
   const [editingNickname, setEditingNickname] = useState(nickname);
   const [isUpdating, setIsUpdating] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -121,9 +123,17 @@ export function ProfileEditClient({
       }
 
       if (data.profileImage) {
-        setCurrentProfileImage(data.profileImage);
+        const newUrl: string = data.profileImage;
+        setCurrentProfileImage(newUrl);
         setPreviewUrl(null);
         setSelectedImage(null);
+
+        // 헤더 등 NextAuth 세션에도 즉시 반영
+        try {
+          await updateSession?.({ profileImage: newUrl });
+        } catch {
+          // 세션 업데이트 실패는 치명적이지 않으므로 무시
+        }
       }
 
       setImageSuccess("프로필 이미지가 성공적으로 변경되었습니다.");

@@ -64,18 +64,33 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
+      // 로그인 시 사용자 정보 토큰에 주입
       if (user) {
-        const u = user as { role?: "USER" | "ADMIN"; id: string; profileImage?: string | null };
+        const u = user as {
+          role?: "USER" | "ADMIN";
+          id: string;
+          profileImage?: string | null;
+        };
         token.role = u.role;
         token.id = u.id;
         token.profileImage = u.profileImage ?? null;
       }
+
+      // 클라이언트에서 session.update(...) 호출 시 프로필 이미지 갱신
+      if (trigger === "update" && session && "profileImage" in session) {
+        token.profileImage = (session as { profileImage?: string | null }).profileImage ?? null;
+      }
+
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
-        const u = session.user as { role?: string; id?: string; profileImage?: string | null };
+        const u = session.user as {
+          role?: string;
+          id?: string;
+          profileImage?: string | null;
+        };
         u.role = token.role as "USER" | "ADMIN" | undefined;
         u.id = token.id as string;
         u.profileImage = (token.profileImage as string | null) ?? null;
