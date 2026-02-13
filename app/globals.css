@@ -24,3 +24,96 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* 무한 슬라이더 애니메이션 */
+@keyframes marquee-force {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee-force {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  width: max-content;
+  will-change: transform;
+  animation: marquee-force 60s linear infinite;
+}
+
+.group:hover .animate-marquee-force {
+  animation-play-state: paused;
+}
+
+/* 모달 애니메이션 */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes zoom-in-95 {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-in {
+  animation-duration: 200ms;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  animation-fill-mode: both;
+}
+
+.fade-in {
+  animation-name: fade-in;
+}
+
+.zoom-in-95 {
+  animation-name: zoom-in-95;
+}
+
+/* Toast UI Editor */
+.toastui-editor-main,
+.toastui-editor-ww-container,
+.toastui-editor-ww-container .toastui-editor-ww-editor,
+.toastui-editor-ww-container .toastui-editor-ww-editor .prose {
+  height: 100% !important;
+  min-height: 200px !important;
+  cursor: text !important;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.toastui-editor-contents,
+.toastui-editor-contents .prose {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.toastui-editor-contents p {
+  min-height: 1.2em;
+  margin-bottom: 8px;
+}
+
+.toastui-editor-contents p:empty::before,
+.toastui-editor-contents p > br:only-child::before {
+  content: "\00a0";
+}

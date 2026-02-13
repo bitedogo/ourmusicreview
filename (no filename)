@@ -1,0 +1,13 @@
+*** Update File: src/lib/auth/config.ts
+@@
+-import { NextAuthOptions } from "next-auth";
+-import CredentialsProvider from "next-auth/providers/credentials";
+-import { initializeDatabase } from "@/src/lib/db";
+-import { User } from "@/src/lib/db/entities/User";
+-import bcrypt from "bcryptjs";
++import { NextAuthOptions } from "next-auth";
++import CredentialsProvider from "next-auth/providers/credentials";
++import { initializeDatabase } from "@/lib/db";
++import { User } from "@/lib/db/entities/User";
++import bcrypt from "bcryptjs";
+
