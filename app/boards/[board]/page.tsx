@@ -54,7 +54,6 @@ export default async function BoardPage(props: {
   const postRepository = dataSource.getRepository(Post);
   const commentRepository = dataSource.getRepository(Comment);
 
-  // 해당 카테고리의 일반 게시글 + 모든 카테고리의 전체 공지사항(IS_GLOBAL = 'Y') 조회
   const posts = await postRepository.find({
     where: [
       { category: config.category },
@@ -64,7 +63,6 @@ export default async function BoardPage(props: {
     order: { createdAt: "DESC" },
   });
 
-  // 각 포스트의 댓글 수 가져오기 및 공지사항(ADMIN) 처리
   const postsWithMeta = await Promise.all(
     posts.map(async (post) => {
       const count = await commentRepository.count({
@@ -78,13 +76,10 @@ export default async function BoardPage(props: {
     })
   );
 
-  // 전체 공지사항(isGlobal) -> 일반 공지사항(isAdmin) -> 일반 게시물 순으로 정렬
   const sortedPosts = postsWithMeta.sort((a, b) => {
-    // 1순위: 전체 공지사항
     if (a.isGlobal === "Y" && b.isGlobal !== "Y") return -1;
     if (a.isGlobal !== "Y" && b.isGlobal === "Y") return 1;
     
-    // 2순위: 일반 공지사항 (해당 카테고리 관리자 글)
     if (a.isAdmin && !b.isAdmin) return -1;
     if (!a.isAdmin && b.isAdmin) return 1;
     

@@ -7,7 +7,6 @@ import { Post } from "@/src/lib/db/entities/Post";
 import { Review } from "@/src/lib/db/entities/Review";
 import { randomUUID } from "crypto";
 
-// 신고 접수
 export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions);
@@ -33,7 +32,6 @@ export async function POST(request: Request) {
 
     const dataSource = AppDataSource;
 
-    // 본인 글 신고 방지
     if (postId) {
       const postRepository = dataSource.getRepository(Post);
       const post = await postRepository.findOne({ where: { id: postId } });
@@ -57,7 +55,6 @@ export async function POST(request: Request) {
 
     const reportRepository = dataSource.getRepository(Report);
     
-    // 동일 사용자가 동일 게시물/리뷰를 중복 신고하는지 확인 (선택 사항)
     const existingReport = await reportRepository.findOne({
       where: {
         userId: session.user.id,

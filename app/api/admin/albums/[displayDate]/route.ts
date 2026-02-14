@@ -22,7 +22,6 @@ function formatDateForApi(d: Date | string): string {
   return `${y}-${m}-${day}`;
 }
 
-// 관리자: 오늘의 앨범 수정
 export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ displayDate: string }> }
@@ -101,7 +100,6 @@ export async function PATCH(
   }
 }
 
-// 관리자: 오늘의 앨범 삭제
 export async function DELETE(
   _request: Request,
   { params }: { params: Promise<{ displayDate: string }> }

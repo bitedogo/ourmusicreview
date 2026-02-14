@@ -4,7 +4,6 @@ import { authOptions } from "@/src/lib/auth/config";
 import { initializeDatabase } from "@/src/lib/db";
 import { TodayAlbum } from "@/src/lib/db/entities/TodayAlbum";
 
-// 관리자: 전체 오늘의 앨범 목록 조회 (DISPLAY_DATE DESC)
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
@@ -47,7 +46,6 @@ export async function GET() {
   }
 }
 
-// 관리자: 오늘의 앨범 등록/수정 (Upsert)
 export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions);

@@ -29,7 +29,6 @@ export function ReviewWriteClient() {
     setIsSubmitting(true);
     setErrorMessage(null);
 
-    // 에디터에서 HTML 내용 가져오기
     const htmlContent = editorRef.current?.getHTML() || "";
     const trimmedContent = htmlContent.trim();
 
@@ -47,7 +46,6 @@ export function ReviewWriteClient() {
           albumId,
           content: trimmedContent, // HTML 형식으로 저장
           rating,
-          // 앨범 자동 등록을 위한 정보
           albumTitle: albumTitle || undefined,
           albumArtist: albumArtist || undefined,
           albumImageUrl: albumImageUrl || null,
@@ -65,7 +63,6 @@ export function ReviewWriteClient() {
         return;
       }
 
-      // 리뷰 작성 성공 후 리뷰 상세 페이지로 이동
       const reviewId = data.id as string | undefined;
       if (reviewId) {
         router.push(`/review/${encodeURIComponent(reviewId)}`);

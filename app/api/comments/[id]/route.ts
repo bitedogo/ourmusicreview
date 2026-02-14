@@ -4,7 +4,6 @@ import { authOptions } from "@/src/lib/auth/config";
 import { AppDataSource } from "@/src/lib/db/data-source";
 import { Comment } from "@/src/lib/db/entities/Comment";
 
-// 댓글 삭제
 export async function DELETE(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -35,7 +34,6 @@ export async function DELETE(
       );
     }
 
-    // 작성자 본인 또는 관리자만 삭제 가능
     if (comment.userId !== session.user.id && session.user.role !== "ADMIN") {
       return NextResponse.json(
         { ok: false, error: "삭제 권한이 없습니다." },

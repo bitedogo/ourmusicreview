@@ -29,7 +29,6 @@ export default async function CommunityDetailPage({
   const postRepository = dataSource.getRepository(Post);
   const commentRepository = dataSource.getRepository(Comment);
 
-  // 게시글 조회 및 조회수 증가
   const post = await postRepository.findOne({
     where: { id },
     relations: ["user"],
@@ -39,7 +38,6 @@ export default async function CommunityDetailPage({
     notFound();
   }
 
-  // 조회수 증가 (문자열 bigint 대응)
   const currentViews =
     typeof post.views === "number"
       ? post.views
@@ -48,7 +46,6 @@ export default async function CommunityDetailPage({
   post.views = currentViews + 1;
   await postRepository.save(post);
 
-  // 댓글 수 조회
   const commentCount = await commentRepository.count({
     where: { postId: id },
   });

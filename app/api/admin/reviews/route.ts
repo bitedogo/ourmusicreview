@@ -4,7 +4,6 @@ import { authOptions } from "@/src/lib/auth/config";
 import { initializeDatabase } from "@/src/lib/db";
 import { Review } from "@/src/lib/db/entities/Review";
 
-// 승인 대기 중인 리뷰 목록 조회
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
@@ -19,7 +18,6 @@ export async function GET() {
     const dataSource = await initializeDatabase();
     const reviewRepository = dataSource.getRepository(Review);
 
-    // 승인 대기 중인 리뷰 조회
     const reviews = await reviewRepository.find({
       where: { isApproved: "N" },
       relations: ["user", "album"],

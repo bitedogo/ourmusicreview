@@ -9,7 +9,6 @@ import { Report } from "@/src/lib/db/entities/Report";
 import { Comment } from "@/src/lib/db/entities/Comment";
 import { Review } from "@/src/lib/db/entities/Review";
 
-// 계정 삭제 (회원 탈퇴)
 export async function DELETE() {
   try {
     const session = await getServerSession(authOptions);
@@ -24,7 +23,6 @@ export async function DELETE() {
     const userId = session.user.id;
     const dataSource = await initializeDatabase();
 
-    // 관련 데이터 삭제 (FK 제약 순서)
     const favoriteRepo = dataSource.getRepository(UserFavoriteAlbum);
     await favoriteRepo.delete({ userId });
 
@@ -40,7 +38,6 @@ export async function DELETE() {
     const reviewRepo = dataSource.getRepository(Review);
     await reviewRepo.delete({ userId });
 
-    // 사용자 삭제 (POSTS는 ON DELETE SET NULL로 user_id만 null 처리)
     const userRepo = dataSource.getRepository(User);
     const user = await userRepo.findOne({ where: { id: userId } });
 

@@ -32,7 +32,6 @@ export async function GET(
       );
     }
 
-    // 승인된 리뷰만 조회
     const reviews = await reviewRepository.find({
       where: { albumId, isApproved: "Y" },
       relations: ["user"],

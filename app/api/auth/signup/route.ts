@@ -61,7 +61,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: false, error: nickError }, { status: 400 });
     }
 
-    // 프로필 사진 검증 및 Supabase Storage 업로드 (선택사항)
     let profileImagePath: string | null = null;
     if (profileImage && profileImage.size > 0) {
       if (profileImage.size > 5 * 1024 * 1024) {
@@ -92,7 +91,6 @@ export async function POST(request: Request) {
     const dataSource = await initializeDatabase();
     const userRepository = dataSource.getRepository(User);
 
-    // 아이디 중복 검사
     const existingById = await userRepository.findOne({ where: { id } });
     if (existingById) {
       return NextResponse.json(
@@ -101,7 +99,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // 이메일 중복 검사
     const existingByEmail = await userRepository.findOne({ where: { email } });
     if (existingByEmail) {
       return NextResponse.json(
@@ -110,7 +107,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // 닉네임 중복 검사
     const existingByNickname = await userRepository.findOne({ where: { nickname } });
     if (existingByNickname) {
       return NextResponse.json(

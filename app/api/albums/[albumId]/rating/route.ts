@@ -19,7 +19,6 @@ export async function GET(
     const dataSource = await initializeDatabase();
     const reviewRepository = dataSource.getRepository(Review);
 
-    // 승인된 리뷰만 평균 계산
     const reviews = await reviewRepository.find({
       where: { albumId, isApproved: "Y" },
       select: ["rating"],

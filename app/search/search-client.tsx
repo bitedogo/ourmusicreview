@@ -93,7 +93,6 @@ export function SearchClient() {
 
       setAlbums(data.albums || []);
       
-      // 각 앨범의 평균 평점 조회
       if (data.albums && data.albums.length > 0) {
         const ratings: Record<string, { averageRating: number | null; reviewCount: number }> = {};
         await Promise.all(
@@ -104,7 +103,6 @@ export function SearchClient() {
               );
               const ratingData = await ratingResponse.json();
               if (ratingResponse.ok && ratingData?.ok) {
-                // 리뷰가 있으면 평점 표시 (null이 아니고 reviewCount > 0)
                 if (ratingData.reviewCount > 0 && ratingData.averageRating !== null) {
                   ratings[album.collectionId.toString()] = {
                     averageRating: ratingData.averageRating,
@@ -113,7 +111,6 @@ export function SearchClient() {
                 }
               }
             } catch {
-              // 평점 조회 실패는 무시
             }
           })
         );
@@ -132,7 +129,6 @@ export function SearchClient() {
   }
 
   async function handleRegister(album: AlbumResult) {
-    // 리뷰 작성 페이지로 이동 (앨범 정보를 쿼리 파라미터로 전달)
     const params = new URLSearchParams({
       albumId: album.collectionId.toString(),
       title: album.collectionName,
@@ -146,7 +142,6 @@ export function SearchClient() {
     router.push(`/review/write?${params.toString()}`);
   }
 
-  // 좋아요 토글
   async function toggleFavorite(album: AlbumResult) {
     const albumId = album.collectionId.toString();
     const isFavorite = favoriteAlbumIds.has(albumId);
@@ -220,7 +215,6 @@ export function SearchClient() {
     setAlbums([]);
   }
 
-  // 초기 검색어가 있으면 자동 검색
   useEffect(() => {
     if (initialQuery) {
       handleSearch(initialQuery);
@@ -228,7 +222,6 @@ export function SearchClient() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // 앨범 목록이 변경될 때마다 평점 다시 조회
   useEffect(() => {
     async function fetchRatings() {
       if (albums.length === 0) {
@@ -245,7 +238,6 @@ export function SearchClient() {
             );
             const ratingData = await ratingResponse.json();
             if (ratingResponse.ok && ratingData?.ok) {
-              // 리뷰가 있으면 평점 표시
               if (ratingData.reviewCount > 0 && ratingData.averageRating !== null) {
                 ratings[album.collectionId.toString()] = {
                   averageRating: ratingData.averageRating,
@@ -263,13 +255,11 @@ export function SearchClient() {
     fetchRatings();
   }, [albums]);
 
-  // 로그인한 사용자의 좋아요 앨범 목록 가져오기
   useEffect(() => {
     async function fetchFavorites() {
       try {
         const response = await fetch("/api/favorites");
         if (response.status === 401) {
-          // 비로그인 상태면 좋아요 정보는 무시
           return;
         }
         const data = await response.json().catch(() => null);
@@ -284,7 +274,6 @@ export function SearchClient() {
         }
         setFavoriteAlbumIds(ids);
       } catch {
-        // 에러는 조용히 무시 (검색 기능에만 영향 없음)
       }
     }
 

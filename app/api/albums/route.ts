@@ -42,7 +42,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // 날짜 파싱
     let releaseDate: Date | undefined = undefined;
     if (body.releaseDate) {
       const parsed = new Date(body.releaseDate);
@@ -54,7 +53,6 @@ export async function POST(request: Request) {
     const dataSource = await initializeDatabase();
     const albumRepository = dataSource.getRepository(Album);
 
-    // 중복 확인
     const existing = await albumRepository.findOne({
       where: { albumId },
     });

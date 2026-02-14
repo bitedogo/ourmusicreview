@@ -9,7 +9,6 @@ interface RouteParams {
   params: Promise<{ id: string }>;
 }
 
-// 신고 처리 (무시/삭제)
 export async function PATCH(
   request: Request,
   { params }: RouteParams
@@ -50,7 +49,6 @@ export async function PATCH(
       );
     }
 
-    // 신고 무시: 신고 기록만 삭제
     if (action === "dismiss" || !action) {
       await reportRepository.remove(report);
       return NextResponse.json({
@@ -59,7 +57,6 @@ export async function PATCH(
       });
     }
 
-    // 게시글 삭제
     if (action === "delete_post" && report.postId) {
       const postRepository = dataSource.getRepository(
         (await import("@/src/lib/db/entities/Post")).Post
@@ -77,7 +74,6 @@ export async function PATCH(
       });
     }
 
-    // 리뷰 삭제
     if (action === "delete_review" && report.reviewId) {
       const reviewRepository = dataSource.getRepository(Review);
       const review = await reviewRepository.findOne({

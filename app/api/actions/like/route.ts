@@ -5,7 +5,6 @@ import { AppDataSource } from "@/src/lib/db/data-source";
 import { Like } from "@/src/lib/db/entities/Like";
 import { randomUUID } from "crypto";
 
-// 좋아요 토글
 export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions);
@@ -31,7 +30,6 @@ export async function POST(request: Request) {
 
     const likeRepository = AppDataSource.getRepository(Like);
     
-    // 이미 좋아요를 눌렀는지 확인
     const existingLike = await likeRepository.findOne({
       where: {
         userId: session.user.id,
@@ -41,11 +39,9 @@ export async function POST(request: Request) {
     });
 
     if (existingLike) {
-      // 이미 있으면 삭제 (토글)
       await likeRepository.remove(existingLike);
       return NextResponse.json({ ok: true, liked: false });
     } else {
-      // 없으면 추가
       const newLike = likeRepository.create({
         id: randomUUID(),
         userId: session.user.id,
@@ -63,7 +59,6 @@ export async function POST(request: Request) {
   }
 }
 
-// 좋아요 상태 및 개수 조회
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);

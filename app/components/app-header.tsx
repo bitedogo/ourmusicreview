@@ -55,9 +55,7 @@ export function AppHeader() {
   return (
     <header className="relative sticky top-0 z-50 w-full border-b border-zinc-200 bg-white/80 backdrop-blur">
       <div className="mx-auto grid w-full max-w-5xl grid-cols-3 items-center gap-4 px-6 py-3 sm:px-10 md:flex md:justify-between">
-        {/* 모바일: [1] 햄버거 | [2] 로고(가운데) | [3] 프로필 | 데스크톱: [1] 로고+nav [2] 프로필 */}
         <div className="flex items-center gap-6 sm:gap-8 md:gap-8" ref={menuRef}>
-          {/* 모바일 전용: 햄버거 (왼쪽) */}
           <div className="flex md:hidden items-center">
             <button
               type="button"
@@ -72,7 +70,6 @@ export function AppHeader() {
             </button>
           </div>
 
-          {/* 데스크톱 전용: 로고 + 게시판/관리자 메뉴 */}
           <div className="hidden md:flex items-center gap-5 text-xs text-zinc-600 md:gap-8">
             {logoLink}
             <nav className="flex items-center gap-5 md:gap-8">
@@ -105,12 +102,10 @@ export function AppHeader() {
           </div>
         </div>
 
-        {/* 모바일 전용: 로고 가운데 */}
         <div className="flex justify-center md:hidden">
           {logoLink}
         </div>
 
-        {/* 우측 인증 영역 (모바일/데스크톱 공통: 프로필, 로그인) */}
         <nav className="flex shrink-0 items-center justify-end gap-3 text-xs">
             {status === "loading" ? (
               <span className="text-zinc-500">확인 중...</span>
@@ -139,7 +134,6 @@ export function AppHeader() {
                   </span>
                 </button>
 
-                {/* 클릭/탭으로 열리는 드롭다운 (모바일·데스크톱 공통) */}
                 {profileOpen && (
                   <div className="absolute top-full left-1/2 z-50 -translate-x-1/2 animate-in fade-in zoom-in-95 duration-100">
                     <div className="min-w-[8rem] overflow-hidden rounded-lg border border-zinc-200 bg-white py-1 shadow-lg">
@@ -175,7 +169,6 @@ export function AppHeader() {
         </nav>
       </div>
 
-      {/* 모바일 메뉴 패널 (게시판 + 관리자만) */}
       {menuOpen && (
         <div className="absolute left-0 right-0 top-full z-40 border-b border-zinc-200 bg-white shadow-lg md:hidden">
           <nav className="mx-auto max-w-5xl px-6 py-4">

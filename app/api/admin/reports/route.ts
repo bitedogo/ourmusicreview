@@ -4,7 +4,6 @@ import { authOptions } from "@/src/lib/auth/config";
 import { initializeDatabase } from "@/src/lib/db";
 import { Report } from "@/src/lib/db/entities/Report";
 
-// 신고 목록 조회
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);

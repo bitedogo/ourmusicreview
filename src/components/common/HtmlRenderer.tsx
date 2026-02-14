@@ -17,7 +17,6 @@ export function HtmlRenderer({ html, className = "" }: HtmlRendererProps) {
 
   useEffect(() => {
     if (containerRef.current && html) {
-      // DOMPurify로 HTML을 정제하여 안전하게 렌더링
       const sanitizedHtml = DOMPurify.sanitize(html, {
         ALLOWED_TAGS: [
           "p",
@@ -65,7 +64,6 @@ export function HtmlRenderer({ html, className = "" }: HtmlRendererProps) {
 
       containerRef.current.innerHTML = sanitizedHtml;
     } else if (containerRef.current && !html) {
-      // 빈 내용인 경우 빈 문자열로 설정
       containerRef.current.innerHTML = "";
     }
   }, [html]);

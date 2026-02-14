@@ -36,7 +36,6 @@ export function CommunityWriteClient() {
 
   const isAdmin = (session?.user as { role?: string })?.role === "ADMIN";
 
-  // 수정 모드일 때 기존 데이터 불러오기
   useEffect(() => {
     if (!editPostId) return;
 
@@ -49,7 +48,6 @@ export function CommunityWriteClient() {
           setTitle(data.post.title);
           setCategory(data.post.category);
           setIsGlobal(data.post.isGlobal === "Y");
-          // 에디터에 내용 설정 (에디터가 마운트된 후 실행되도록 지연)
           setTimeout(() => {
             editorRef.current?.setHTML(data.post.content);
           }, 500);

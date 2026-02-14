@@ -8,7 +8,6 @@ interface UpdateReviewBody {
   action?: "approve" | "reject";
 }
 
-// 리뷰 승인/거부
 export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -54,11 +53,9 @@ export async function PATCH(
       );
     }
 
-    // 승인 또는 거부 처리
     if (body.action === "approve") {
       review.isApproved = "Y";
     } else {
-      // 거부 시 리뷰 삭제
       await reviewRepository.remove(review);
       return NextResponse.json({
         ok: true,

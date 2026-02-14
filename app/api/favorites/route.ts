@@ -8,14 +8,12 @@ import { randomUUID } from "crypto";
 
 interface ToggleFavoriteBody {
   albumId?: string;
-  // 앨범 자동 등록을 위한 정보 (앨범이 없을 경우)
   albumTitle?: string;
   albumArtist?: string;
   albumImageUrl?: string | null;
   albumReleaseDate?: string;
 }
 
-// 좋아요 추가
 export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions);
@@ -42,7 +40,6 @@ export async function POST(request: Request) {
     const albumRepository = dataSource.getRepository(Album);
     const favoriteRepository = dataSource.getRepository(UserFavoriteAlbum);
 
-    // 앨범이 DB에 없으면 자동 등록 (리뷰 작성 로직과 동일한 패턴)
     let album = await albumRepository.findOne({ where: { albumId } });
 
     if (!album) {
@@ -66,7 +63,6 @@ export async function POST(request: Request) {
         );
       }
 
-      // 날짜 파싱
       let releaseDate: Date | undefined = undefined;
       if (body.albumReleaseDate) {
         const parsed = new Date(body.albumReleaseDate);
@@ -81,20 +77,18 @@ export async function POST(request: Request) {
         artist: albumArtist,
         imageUrl: albumImageUrl || undefined,
         releaseDate,
-        category: "I", // 기본값: 국외
+        category: "I",
       });
 
       await albumRepository.save(newAlbum);
       album = newAlbum;
     }
 
-    // 이미 좋아요 되어 있는지 확인 (USER_FAVORITE_ALBUMS에 UNIQUE 제약을 추가해두는 것이 좋음)
     const existing = await favoriteRepository.findOne({
       where: { userId: session.user.id, albumId },
     });
 
     if (existing) {
-      // 이미 좋아요한 경우 그냥 성공 응답
       return NextResponse.json({ ok: true, favoriteId: existing.id }, { status: 200 });
     }
 
@@ -126,7 +120,6 @@ export async function POST(request: Request) {
   }
 }
 
-// 좋아요 취소
 export async function DELETE(request: Request) {
   try {
     const session = await getServerSession(authOptions);
@@ -177,7 +170,6 @@ export async function DELETE(request: Request) {
   }
 }
 
-// 내가 좋아요한 앨범 목록 조회
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);

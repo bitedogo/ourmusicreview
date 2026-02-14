@@ -50,7 +50,6 @@ export default function FeaturedAlbums() {
     return null;
   }
 
-  // 발매 연도 추출 함수
   const getReleaseYear = (releaseDate: string): string => {
     if (!releaseDate) return "";
     try {
@@ -61,7 +60,6 @@ export default function FeaturedAlbums() {
     }
   };
 
-  // 리스트를 두 번 복제 (반대 방향을 위해 역순으로도 복제)
   const duplicatedAlbums = [...albums, ...albums];
 
   return (

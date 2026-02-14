@@ -13,7 +13,6 @@ interface UpdateMemberBody {
   role?: "USER" | "ADMIN";
 }
 
-// 멤버 권한 변경
 export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -38,7 +37,6 @@ export async function PATCH(
       );
     }
 
-    // 자기 자신의 권한은 변경할 수 없음
     if (id === session.user.id) {
       return NextResponse.json(
         { ok: false, error: "자기 자신의 권한은 변경할 수 없습니다." },
@@ -92,7 +90,6 @@ export async function PATCH(
   }
 }
 
-// 관리자가 멤버 계정 삭제
 export async function DELETE(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }

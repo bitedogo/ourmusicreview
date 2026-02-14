@@ -5,7 +5,6 @@ import { User } from "../db/entities/User";
 import bcrypt from "bcryptjs";
 
 function isBcryptHash(value: string) {
-  // $2a$ / $2b$ / $2y$ + cost(2 digits) + '$'
   return /^\$2[aby]\$\d{2}\$/.test(value);
 }
 
@@ -33,9 +32,6 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
-        // 레거시(평문) 비밀번호 지원:
-        // - 해시인 경우: bcrypt.compare
-        // - 평문인 경우: 문자열 비교 후, 성공 시 즉시 bcrypt 해시로 업그레이드(1회성 마이그레이션)
         const isHashed = isBcryptHash(user.password);
         const isPasswordValid = isHashed
           ? await bcrypt.compare(credentials.password, user.password)
@@ -65,7 +61,6 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async jwt({ token, user, trigger, session }) {
-      // 로그인 시 사용자 정보 토큰에 주입
       if (user) {
         const u = user as {
           role?: "USER" | "ADMIN";
@@ -77,7 +72,6 @@ export const authOptions: NextAuthOptions = {
         token.profileImage = u.profileImage ?? null;
       }
 
-      // 클라이언트에서 session.update(...) 호출 시 프로필 이미지 갱신
       if (trigger === "update" && session && "profileImage" in session) {
         token.profileImage = (session as { profileImage?: string | null }).profileImage ?? null;
       }
@@ -112,7 +106,6 @@ export const authOptions: NextAuthOptions = {
         sameSite: "lax",
         path: "/",
         secure: process.env.NEXTAUTH_URL?.startsWith("https://") ?? process.env.NODE_ENV === "production",
-        // maxAge 생략 → 세션 쿠키로 설정, 브라우저를 닫으면 쿠키 삭제되어 자동 로그아웃
         maxAge: undefined,
       },
     },

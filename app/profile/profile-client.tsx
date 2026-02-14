@@ -134,7 +134,6 @@ export function ProfileClient({
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 px-4 py-3 sm:px-6 sm:py-4 md:h-[calc(100vh-120px)] md:min-h-0 md:gap-6 md:overflow-hidden md:px-10">
-      {/* 상단: 마이페이지 타이틀 */}
       <div className="flex items-center justify-between shrink-0">
         <h1 className="text-lg font-semibold tracking-tight text-zinc-900 md:text-xl">
           마이페이지
@@ -160,11 +159,9 @@ export function ProfileClient({
       </div>
 
       <div className="flex flex-1 flex-col gap-4 overflow-hidden md:flex-row md:gap-10">
-        {/* 왼쪽: 내 정보 — 모바일 컴팩트, 데스크톱 기존 비율 */}
         <aside className="flex shrink-0 flex-col items-center justify-center border-zinc-100 md:w-1/2 md:border-r md:pr-10">
           <div className="w-full max-w-md space-y-4 md:space-y-10">
             <div className="flex flex-col items-center gap-4 md:gap-10">
-              {/* 프로필 이미지: 모바일 작게, 데스크톱 기존 크기 */}
               <div className="h-20 w-20 overflow-hidden rounded-full border-2 border-white bg-zinc-100 shadow-md md:h-48 md:w-48 md:border-4">
                 {profileImage ? (
                   <img
@@ -179,7 +176,6 @@ export function ProfileClient({
                 )}
               </div>
 
-              {/* 텍스트 정보: 모바일 한 줄·작은 글꼴, 데스크톱 기존 */}
               <div className="w-full space-y-2 md:space-y-6">
                 <div className="flex items-center gap-2 border-b border-zinc-100 pb-2 md:justify-between md:pb-4">
                   <span className="shrink-0 text-[10px] font-bold uppercase tracking-wide text-zinc-400 md:text-xs md:tracking-widest">아이디</span>
@@ -204,9 +200,7 @@ export function ProfileClient({
           </div>
         </aside>
 
-        {/* 오른쪽: 리뷰 및 앨범 */}
-        <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden md:w-1/2 md:gap-6">
-          {/* 나의 리뷰 (최대 3개 고정) */}
+        <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden md:w-1/2           md:gap-6">
           <section className="flex shrink-0 flex-col space-y-2 md:space-y-3">
             <div className="flex items-center justify-between">
               <h2 className="text-xs font-semibold tracking-tight text-zinc-900 md:text-sm">나의 리뷰</h2>
@@ -242,7 +236,6 @@ export function ProfileClient({
             </div>
           </section>
 
-          {/* 좋아하는 앨범: 모바일 4개·grid-cols-4, 데스크톱 8개·grid-cols-2 */}
           <section className="flex min-h-0 flex-1 flex-col space-y-2 overflow-hidden md:space-y-3">
             <div className="flex items-center justify-between shrink-0">
               <h2 className="text-xs font-semibold tracking-tight text-zinc-900 md:text-sm">좋아하는 앨범</h2>
@@ -260,7 +253,6 @@ export function ProfileClient({
               <p className="text-xs text-zinc-500">좋아요한 앨범이 없습니다.</p>
             ) : (
               <>
-                {/* 모바일: 최대 4개, 4열 그리드 — 앨범 커버 + 제목·아티스트 표시 */}
                 <div className="grid grid-cols-4 gap-2 md:hidden">
                   {favoriteAlbums.slice(0, 4).map((fav) => (
                     <Link
@@ -286,7 +278,6 @@ export function ProfileClient({
                     </Link>
                   ))}
                 </div>
-                {/* 데스크톱: 최대 8개, 2열 그리드 */}
                 <div className="hidden flex-1 grid-cols-2 grid-rows-4 gap-2 pb-2 md:grid">
                   {favoriteAlbums.slice(0, 8).map((fav) => (
                     <Link

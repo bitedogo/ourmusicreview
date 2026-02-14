@@ -5,7 +5,6 @@ import { AppDataSource } from "@/src/lib/db/data-source";
 import { Comment } from "@/src/lib/db/entities/Comment";
 import { randomUUID } from "crypto";
 
-// 댓글 작성
 export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions);
@@ -49,7 +48,6 @@ export async function POST(request: Request) {
   }
 }
 
-// 댓글 목록 조회
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);

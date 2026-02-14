@@ -4,7 +4,6 @@ import { authOptions } from "@/src/lib/auth/config";
 import { initializeDatabase } from "@/src/lib/db";
 import { Post } from "@/src/lib/db/entities/Post";
 
-// 게시글 수정
 export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -47,7 +46,6 @@ export async function PATCH(
   }
 }
 
-// 게시글 삭제
 export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -81,7 +79,6 @@ export async function DELETE(
   }
 }
 
-// 게시글 단일 조회 (수정 시 데이터 불러오기용)
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }

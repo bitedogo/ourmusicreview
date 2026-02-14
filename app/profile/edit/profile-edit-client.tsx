@@ -128,11 +128,9 @@ export function ProfileEditClient({
         setPreviewUrl(null);
         setSelectedImage(null);
 
-        // 헤더 등 NextAuth 세션에도 즉시 반영
         try {
           await updateSession?.({ profileImage: newUrl });
         } catch {
-          // 세션 업데이트 실패는 치명적이지 않으므로 무시
         }
       }
 

@@ -102,7 +102,6 @@ export function MemberManagementClient() {
         return;
       }
 
-      // 권한 변경된 멤버 업데이트
       setMembers((prev) =>
         prev.map((m) => (m.id === memberId ? { ...m, role: newRole } : m))
       );

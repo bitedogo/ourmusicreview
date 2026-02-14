@@ -71,7 +71,6 @@ export async function GET(
   }
 }
 
-// 리뷰 삭제
 export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -101,7 +100,6 @@ export async function DELETE(
       );
     }
 
-    // 작성자 본인 또는 관리자만 삭제 가능
     if (review.userId !== session.user.id && session.user.role !== "ADMIN") {
       return NextResponse.json(
         { ok: false, error: "삭제 권한이 없습니다." },

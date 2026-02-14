@@ -3,16 +3,18 @@ import { initializeDatabase } from "@/src/lib/db";
 import { TodayAlbum } from "@/src/lib/db/entities/TodayAlbum";
 import { LessThanOrEqual } from "typeorm";
 
-// 메인 페이지용: 오늘 날짜 앨범 또는 가장 최근 과거 앨범 조회
+function getTodayKST(): Date {
+  const kstDateStr = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Seoul" });
+  return new Date(`${kstDateStr}T00:00:00.000Z`);
+}
+
 export async function GET() {
   try {
     const dataSource = await initializeDatabase();
     const repo = dataSource.getRepository(TodayAlbum);
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const today = getTodayKST();
 
-    // 1) 오늘 날짜 앨범 조회
     const todayAlbum = await repo.findOne({
       where: {
         displayDate: today,
@@ -32,7 +34,6 @@ export async function GET() {
       });
     }
 
-    // 2) 오늘 데이터 없으면 가장 최근 과거 앨범 조회
     const pastAlbum = await repo.findOne({
       where: {
         displayDate: LessThanOrEqual(today),

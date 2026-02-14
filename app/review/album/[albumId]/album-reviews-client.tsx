@@ -38,7 +38,6 @@ export function AlbumReviewsClient({ albumId }: { albumId: string }) {
   useEffect(() => {
     async function fetchData() {
       try {
-        // 리뷰 목록 조회
         const reviewsResponse = await fetch(
           `/api/reviews/album/${encodeURIComponent(albumId)}`
         );
@@ -51,7 +50,6 @@ export function AlbumReviewsClient({ albumId }: { albumId: string }) {
 
         setReviews(reviewsData.reviews || []);
 
-        // 평균 평점 조회
         const ratingResponse = await fetch(
           `/api/albums/${encodeURIComponent(albumId)}/rating`
         );
@@ -62,7 +60,6 @@ export function AlbumReviewsClient({ albumId }: { albumId: string }) {
           setReviewCount(ratingData.reviewCount);
         }
 
-        // 앨범 정보 설정
         if (reviewsData.album) {
           setAlbumInfo(reviewsData.album);
         }
