@@ -141,7 +141,7 @@ export default function MyReviewsPage() {
                     )}
                   </div>
                   <p className="mt-2 line-clamp-2 text-sm text-zinc-700">
-                    {review.content.replace(/<[^>]*>/g, "").trim() || "내용 없음"}
+                    {(review.content ?? "").replace(/<[^>]*>/g, "").trim() || "내용 없음"}
                   </p>
                 </div>
               </div>

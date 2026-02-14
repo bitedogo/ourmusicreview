@@ -3,9 +3,9 @@ import Link from "next/link";
 export function Footer() {
   return (
     <footer className="mt-auto w-full border-t border-zinc-200 bg-zinc-100">
-      <div className="mx-auto flex max-w-5xl flex-col gap-10 px-6 py-10 sm:flex-row sm:items-start sm:justify-between sm:gap-16 sm:px-10">
+      <div className="mx-auto flex max-w-5xl flex-row flex-wrap items-start justify-between gap-6 px-4 py-6 sm:gap-16 sm:px-10 sm:py-10">
         {/* 왼쪽: Brand */}
-        <div className="flex shrink-0 flex-col gap-2">
+        <div className="flex min-w-0 shrink flex-col gap-2">
           <Link
             href="/"
             className="text-lg font-semibold tracking-[0.2em] text-zinc-900"

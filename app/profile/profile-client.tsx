@@ -51,10 +51,8 @@ export function ProfileClient({
 }: ProfileClientProps) {
   const [myReviews, setMyReviews] = useState<MyReview[]>([]);
   const [isLoadingReviews, setIsLoadingReviews] = useState(false);
-  const [, setReviewsError] = useState<string | null>(null);
   const [favoriteAlbums, setFavoriteAlbums] = useState<FavoriteAlbum[]>([]);
   const [isLoadingFavorites, setIsLoadingFavorites] = useState(false);
-  const [, setFavoritesError] = useState<string | null>(null);
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const router = useRouter();
 
@@ -90,26 +88,17 @@ export function ProfileClient({
     async function fetchMyReviews() {
       try {
         setIsLoadingReviews(true);
-        setReviewsError(null);
 
         const response = await fetch("/api/reviews");
         const data = await response.json().catch(() => null);
 
         if (!response.ok || !data?.ok) {
-          setReviewsError(
-            data?.error ?? `리뷰 목록을 불러오지 못했습니다. (status: ${response.status})`
-          );
           setMyReviews([]);
           return;
         }
 
         setMyReviews(data.reviews || []);
-      } catch (error) {
-        setReviewsError(
-          error instanceof Error
-            ? `리뷰 목록을 불러오는 중 오류가 발생했습니다: ${error.message}`
-            : "리뷰 목록을 불러오는 중 알 수 없는 오류가 발생했습니다."
-        );
+      } catch {
         setMyReviews([]);
       } finally {
         setIsLoadingReviews(false);
@@ -123,30 +112,17 @@ export function ProfileClient({
     async function fetchFavorites() {
       try {
         setIsLoadingFavorites(true);
-        setFavoritesError(null);
 
         const response = await fetch("/api/favorites");
         const data = await response.json().catch(() => null);
 
         if (!response.ok || !data?.ok) {
-          // 로그인 만료 등의 경우 조용히 무시
-          if (response.status !== 401) {
-            setFavoritesError(
-              data?.error ??
-                `좋아요한 앨범을 불러오지 못했습니다. (status: ${response.status})`
-            );
-          }
           setFavoriteAlbums([]);
           return;
         }
 
         setFavoriteAlbums(data.favorites || []);
-      } catch (error) {
-        setFavoritesError(
-          error instanceof Error
-            ? `좋아요한 앨범을 불러오는 중 오류가 발생했습니다: ${error.message}`
-            : "좋아요한 앨범을 불러오는 중 알 수 없는 오류가 발생했습니다."
-        );
+      } catch {
         setFavoriteAlbums([]);
       } finally {
         setIsLoadingFavorites(false);
@@ -157,16 +133,16 @@ export function ProfileClient({
   }, []);
 
   return (
-    <div className="mx-auto flex h-[calc(100vh-120px)] w-full max-w-5xl flex-col gap-6 px-6 py-4 sm:px-10 overflow-hidden">
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 px-4 py-3 sm:px-6 sm:py-4 md:h-[calc(100vh-120px)] md:min-h-0 md:gap-6 md:overflow-hidden md:px-10">
       {/* 상단: 마이페이지 타이틀 */}
       <div className="flex items-center justify-between shrink-0">
-        <h1 className="text-xl font-semibold tracking-tight text-zinc-900">
+        <h1 className="text-lg font-semibold tracking-tight text-zinc-900 md:text-xl">
           마이페이지
         </h1>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 md:gap-4">
           <Link
             href="/profile/edit"
-            className="text-xs font-medium text-zinc-500 hover:text-zinc-900"
+            className="text-[10px] font-medium text-zinc-500 hover:text-zinc-900 md:text-xs"
           >
             내 정보 수정
           </Link>
@@ -175,7 +151,7 @@ export function ProfileClient({
               type="button"
               onClick={handleDeleteAccount}
               disabled={isDeletingAccount}
-              className="text-xs font-medium text-red-600 hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+              className="text-[10px] font-medium text-red-600 hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-50 md:text-xs"
             >
               {isDeletingAccount ? "처리 중..." : "계정삭제"}
             </button>
@@ -183,13 +159,13 @@ export function ProfileClient({
         </div>
       </div>
 
-      <div className="flex flex-1 gap-10 overflow-hidden">
-        {/* 왼쪽: 내 정보 (화면의 50% 차지) */}
-        <aside className="flex w-1/2 flex-col items-center justify-center border-r border-zinc-100 pr-10">
-          <div className="w-full max-w-md space-y-10">
-            <div className="flex flex-col items-center gap-10">
-              {/* 프로필 이미지 (더 크게) */}
-              <div className="h-48 w-48 overflow-hidden rounded-full bg-zinc-100 shadow-md border-4 border-white">
+      <div className="flex flex-1 flex-col gap-4 overflow-hidden md:flex-row md:gap-10">
+        {/* 왼쪽: 내 정보 — 모바일 컴팩트, 데스크톱 기존 비율 */}
+        <aside className="flex shrink-0 flex-col items-center justify-center border-zinc-100 md:w-1/2 md:border-r md:pr-10">
+          <div className="w-full max-w-md space-y-4 md:space-y-10">
+            <div className="flex flex-col items-center gap-4 md:gap-10">
+              {/* 프로필 이미지: 모바일 작게, 데스크톱 기존 크기 */}
+              <div className="h-20 w-20 overflow-hidden rounded-full border-2 border-white bg-zinc-100 shadow-md md:h-48 md:w-48 md:border-4">
                 {profileImage ? (
                   <img
                     src={profileImage}
@@ -197,43 +173,43 @@ export function ProfileClient({
                     className="h-full w-full object-cover"
                   />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center text-xs font-bold text-zinc-400 uppercase">
+                  <div className="flex h-full w-full items-center justify-center text-[10px] font-bold uppercase text-zinc-400 md:text-xs">
                     No Image
                   </div>
                 )}
               </div>
 
-              {/* 텍스트 정보 (더 큼직하게) */}
-              <div className="w-full space-y-6">
-                <div className="flex items-center justify-between border-b border-zinc-100 pb-4">
-                  <span className="text-xs font-bold uppercase tracking-widest text-zinc-400">아이디</span>
-                  <span className="text-lg font-bold text-zinc-900">{id}</span>
+              {/* 텍스트 정보: 모바일 한 줄·작은 글꼴, 데스크톱 기존 */}
+              <div className="w-full space-y-2 md:space-y-6">
+                <div className="flex items-center gap-2 border-b border-zinc-100 pb-2 md:justify-between md:pb-4">
+                  <span className="shrink-0 text-[10px] font-bold uppercase tracking-wide text-zinc-400 md:text-xs md:tracking-widest">아이디</span>
+                  <span className="min-w-0 truncate text-right text-xs font-bold text-zinc-900 md:text-lg">{id}</span>
                 </div>
-                <div className="flex items-center justify-between border-b border-zinc-100 pb-4">
-                  <span className="text-xs font-bold uppercase tracking-widest text-zinc-400">닉네임</span>
-                  <span className="text-lg font-bold text-zinc-900">{nickname}</span>
+                <div className="flex items-center gap-2 border-b border-zinc-100 pb-2 md:justify-between md:pb-4">
+                  <span className="shrink-0 text-[10px] font-bold uppercase tracking-wide text-zinc-400 md:text-xs md:tracking-widest">닉네임</span>
+                  <span className="min-w-0 truncate text-right text-xs font-bold text-zinc-900 md:text-lg">{nickname}</span>
                 </div>
-                <div className="flex items-center justify-between border-b border-zinc-100 pb-4">
-                  <span className="text-xs font-bold uppercase tracking-widest text-zinc-400">권한</span>
-                  <span className="rounded-full bg-black px-4 py-1 text-xs font-black text-white">
+                <div className="flex items-center gap-2 border-b border-zinc-100 pb-2 md:justify-between md:pb-4">
+                  <span className="shrink-0 text-[10px] font-bold uppercase tracking-wide text-zinc-400 md:text-xs md:tracking-widest">권한</span>
+                  <span className="rounded-full bg-black px-2.5 py-0.5 text-[10px] font-black text-white md:px-4 md:py-1 md:text-xs">
                     {role}
                   </span>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase tracking-widest text-zinc-400">가입일</span>
-                  <span className="text-sm font-medium text-zinc-600">{createdAtText}</span>
+                <div className="flex items-center gap-2 md:justify-between">
+                  <span className="shrink-0 text-[10px] font-bold uppercase tracking-wide text-zinc-400 md:text-xs md:tracking-widest">가입일</span>
+                  <span className="min-w-0 truncate text-right text-[11px] font-medium text-zinc-600 md:text-sm">{createdAtText}</span>
                 </div>
               </div>
             </div>
           </div>
         </aside>
 
-        {/* 오른쪽: 리뷰 및 앨범 (화면의 50% 차지, 상하 배열) */}
-        <div className="flex w-1/2 flex-col gap-6 overflow-hidden">
+        {/* 오른쪽: 리뷰 및 앨범 */}
+        <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden md:w-1/2 md:gap-6">
           {/* 나의 리뷰 (최대 3개 고정) */}
-          <section className="flex flex-col space-y-3 shrink-0">
-            <div className="flex items-center justify-between shrink-0">
-              <h2 className="text-sm font-semibold tracking-tight text-zinc-900">나의 리뷰</h2>
+          <section className="flex shrink-0 flex-col space-y-2 md:space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xs font-semibold tracking-tight text-zinc-900 md:text-sm">나의 리뷰</h2>
               <Link
                 href="/profile/reviews"
                 className="text-[10px] font-medium text-zinc-400 hover:text-zinc-900"
@@ -242,7 +218,7 @@ export function ProfileClient({
               </Link>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-1.5 md:space-y-2">
               {isLoadingReviews ? (
                 <p className="text-xs text-zinc-500">불러오는 중...</p>
               ) : myReviews.length === 0 ? (
@@ -251,14 +227,14 @@ export function ProfileClient({
                 myReviews.slice(0, 3).map((review) => (
                   <div
                     key={review.id}
-                    className="rounded-xl border border-zinc-100 bg-white p-2.5"
+                    className="rounded-xl border border-zinc-100 bg-white p-2 md:p-2.5"
                   >
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 md:gap-3">
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-[9px] font-bold text-zinc-400 uppercase">{review.album?.artist}</p>
-                        <p className="truncate text-xs font-bold text-zinc-900">{review.album?.title}</p>
+                        <p className="truncate text-[9px] font-bold uppercase text-zinc-400 md:text-[9px]">{review.album?.artist}</p>
+                        <p className="truncate text-[11px] font-bold text-zinc-900 md:text-xs">{review.album?.title}</p>
                       </div>
-                      <span className="text-xs font-black text-zinc-900">{review.rating.toFixed(1)}</span>
+                      <span className="shrink-0 text-xs font-black text-zinc-900">{review.rating.toFixed(1)}</span>
                     </div>
                   </div>
                 ))
@@ -266,10 +242,10 @@ export function ProfileClient({
             </div>
           </section>
 
-          {/* 좋아하는 앨범 (최대 8개 고정 - 스크롤 없이 한눈에) */}
-          <section className="flex flex-1 flex-col space-y-3 overflow-hidden">
+          {/* 좋아하는 앨범: 모바일 4개·grid-cols-4, 데스크톱 8개·grid-cols-2 */}
+          <section className="flex min-h-0 flex-1 flex-col space-y-2 overflow-hidden md:space-y-3">
             <div className="flex items-center justify-between shrink-0">
-              <h2 className="text-sm font-semibold tracking-tight text-zinc-900">좋아하는 앨범</h2>
+              <h2 className="text-xs font-semibold tracking-tight text-zinc-900 md:text-sm">좋아하는 앨범</h2>
               <Link
                 href="/profile/albums"
                 className="text-[10px] font-medium text-zinc-400 hover:text-zinc-900"
@@ -278,28 +254,57 @@ export function ProfileClient({
               </Link>
             </div>
 
-            <div className="grid flex-1 grid-cols-2 grid-rows-4 gap-2 pb-2">
-              {isLoadingFavorites ? (
-                <p className="text-xs text-zinc-500 col-span-2">불러오는 중...</p>
-              ) : favoriteAlbums.length === 0 ? (
-                <p className="text-xs text-zinc-500 col-span-2">좋아요한 앨범이 없습니다.</p>
-              ) : (
-                favoriteAlbums.slice(0, 8).map((fav) => (
-                  <Link
-                    key={fav.id}
-                    href={`/review/album/${encodeURIComponent(fav.albumId || (fav.album?.albumId ?? ""))}`}
-                    className="flex h-full items-center gap-2 rounded-xl border border-zinc-100 bg-white p-2 transition hover:border-zinc-300"
-                  >
-                    {fav.album?.imageUrl && (
-                      <img src={fav.album.imageUrl} className="h-8 w-8 rounded-md object-contain shrink-0" alt="" />
-                    )}
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-xs font-bold text-zinc-900">{fav.album?.title}</p>
-                    </div>
-                  </Link>
-                ))
-              )}
-            </div>
+            {isLoadingFavorites ? (
+              <p className="text-xs text-zinc-500">불러오는 중...</p>
+            ) : favoriteAlbums.length === 0 ? (
+              <p className="text-xs text-zinc-500">좋아요한 앨범이 없습니다.</p>
+            ) : (
+              <>
+                {/* 모바일: 최대 4개, 4열 그리드 — 앨범 커버 + 제목·아티스트 표시 */}
+                <div className="grid grid-cols-4 gap-2 md:hidden">
+                  {favoriteAlbums.slice(0, 4).map((fav) => (
+                    <Link
+                      key={fav.id}
+                      href={`/review/album/${encodeURIComponent(fav.albumId || (fav.album?.albumId ?? ""))}`}
+                      className="flex min-w-0 flex-col gap-1.5 rounded-lg border border-zinc-100 bg-white p-2 transition hover:border-zinc-300"
+                    >
+                      {fav.album?.imageUrl ? (
+                        <img src={fav.album.imageUrl} className="aspect-square w-full rounded-md object-cover" alt="" />
+                      ) : (
+                        <div className="aspect-square w-full rounded-md bg-zinc-100" />
+                      )}
+                      <div className="min-h-[2.5rem] min-w-0 space-y-0.5 text-center">
+                        <p className="line-clamp-2 w-full text-[10px] font-semibold leading-tight text-zinc-900">
+                          {fav.album?.title ?? ""}
+                        </p>
+                        {fav.album?.artist && (
+                          <p className="w-full truncate text-[9px] text-zinc-500">
+                            {fav.album.artist}
+                          </p>
+                        )}
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+                {/* 데스크톱: 최대 8개, 2열 그리드 */}
+                <div className="hidden flex-1 grid-cols-2 grid-rows-4 gap-2 pb-2 md:grid">
+                  {favoriteAlbums.slice(0, 8).map((fav) => (
+                    <Link
+                      key={fav.id}
+                      href={`/review/album/${encodeURIComponent(fav.albumId || (fav.album?.albumId ?? ""))}`}
+                      className="flex h-full items-center gap-2 rounded-xl border border-zinc-100 bg-white p-2 transition hover:border-zinc-300"
+                    >
+                      {fav.album?.imageUrl && (
+                        <img src={fav.album.imageUrl} className="h-8 w-8 shrink-0 rounded-md object-contain" alt="" />
+                      )}
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-xs font-bold text-zinc-900">{fav.album?.title}</p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </>
+            )}
           </section>
         </div>
       </div>

@@ -1,10 +1,21 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
-import FeaturedAlbums from "./components/FeaturedAlbums";
-import TodayAlbumCard from "./components/TodayAlbumCard";
+
+const FeaturedAlbums = dynamic(() => import("./components/FeaturedAlbums"), {
+  loading: () => (
+    <section className="mt-10 flex justify-center py-12">
+      <span className="text-sm text-zinc-500">앨범을 불러오는 중...</span>
+    </section>
+  ),
+});
+
+const TodayAlbumCard = dynamic(() => import("./components/TodayAlbumCard"), {
+  loading: () => null,
+});
 
 export default function Home() {
   const router = useRouter();
