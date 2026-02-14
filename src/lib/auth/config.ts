@@ -104,5 +104,18 @@ export const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
   },
+  cookies: {
+    sessionToken: {
+      name: process.env.NEXTAUTH_URL?.startsWith("https://") ? "__Secure-next-auth.session-token" : "next-auth.session-token",
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NEXTAUTH_URL?.startsWith("https://") ?? process.env.NODE_ENV === "production",
+        // maxAge 생략 → 세션 쿠키로 설정, 브라우저를 닫으면 쿠키 삭제되어 자동 로그아웃
+        maxAge: undefined,
+      },
+    },
+  },
   secret: process.env.NEXTAUTH_SECRET,
 };

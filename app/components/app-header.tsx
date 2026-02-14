@@ -1,127 +1,168 @@
 "use client";
 
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
+
+const BOARD_LINKS = [
+  { href: "/boards/domestic", label: "국내게시판" },
+  { href: "/boards/overseas", label: "해외게시판" },
+  { href: "/boards/market", label: "장터게시판" },
+  { href: "/boards/workroom", label: "워크룸" },
+] as const;
+
+const ADMIN_LINKS = [
+  { href: "/admin/reviews", label: "리뷰 승인 관리" },
+  { href: "/admin/members", label: "멤버 관리" },
+  { href: "/admin/reports", label: "신고 관리" },
+  { href: "/admin/albums", label: "오늘의 앨범" },
+] as const;
 
 export function AppHeader() {
   const { data: session, status } = useSession();
   const nickname = session?.user?.name ?? null;
   const profileImage = (session?.user as { profileImage?: string | null })?.profileImage ?? null;
-  return (
-    <header className="sticky top-0 z-50 w-full border-b border-zinc-200 bg-white/80 backdrop-blur">
-      <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-4 px-6 py-3 sm:px-10">
-        {/* 왼쪽: 로고 + 게시판 메뉴 */}
-        <div className="flex items-center gap-6 sm:gap-8">
-          <Link
-            href="/"
-            className="shrink-0 text-lg font-semibold tracking-[0.2em] text-zinc-900"
-          >
-            ORU
-          </Link>
-          <nav className="flex items-center gap-5 text-xs text-zinc-600 sm:gap-8">
-            {/* 개별 게시판 */}
-            <Link
-              href="/boards/domestic"
-              className="hover:text-zinc-900"
-            >
-              국내게시판
-            </Link>
-            <Link
-              href="/boards/overseas"
-              className="hover:text-zinc-900"
-            >
-              해외게시판
-            </Link>
-            <Link
-              href="/boards/market"
-              className="hover:text-zinc-900"
-            >
-              장터게시판
-            </Link>
-            <Link
-              href="/boards/workroom"
-              className="hover:text-zinc-900"
-            >
-              워크룸
-            </Link>
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const profileRef = useRef<HTMLDivElement>(null);
 
-            {session?.user?.role === "ADMIN" && (
-              <div className="relative group flex items-center">
-                <span className="cursor-default font-bold text-zinc-600 hover:text-zinc-900">
-                  관리자
-                </span>
-                <div className="absolute top-full left-0 hidden group-hover:block animate-in fade-in zoom-in-95 duration-100">
-                  <div className="min-w-[9rem] overflow-hidden rounded-lg border border-zinc-200 bg-white py-1 shadow-lg">
-                    <Link
-                      href="/admin/reviews"
-                      className="block w-full px-4 py-3 text-sm font-medium text-zinc-800 hover:bg-zinc-50"
-                    >
-                      리뷰 승인 관리
-                    </Link>
-                    <Link
-                      href="/admin/members"
-                      className="block w-full px-4 py-3 text-sm font-medium text-zinc-800 hover:bg-zinc-50"
-                    >
-                      멤버 관리
-                    </Link>
-                    <Link
-                      href="/admin/reports"
-                      className="block w-full px-4 py-3 text-sm font-medium text-zinc-800 hover:bg-zinc-50"
-                    >
-                      신고 관리
-                    </Link>
-                    <Link
-                      href="/admin/albums"
-                      className="block w-full px-4 py-3 text-sm font-medium text-zinc-800 hover:bg-zinc-50"
-                    >
-                      오늘의 앨범
-                    </Link>
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      const target = event.target as Node;
+      if (menuRef.current && !menuRef.current.contains(target)) {
+        setMenuOpen(false);
+      }
+      if (profileRef.current && !profileRef.current.contains(target)) {
+        setProfileOpen(false);
+      }
+    }
+    if (menuOpen || profileOpen) {
+      document.addEventListener("click", handleClickOutside);
+      return () => document.removeEventListener("click", handleClickOutside);
+    }
+  }, [menuOpen, profileOpen]);
+
+  const logoLink = (
+    <Link
+      href="/"
+      className="shrink-0 text-lg font-semibold tracking-[0.2em] text-zinc-900"
+    >
+      ORU
+    </Link>
+  );
+
+  return (
+    <header className="relative sticky top-0 z-50 w-full border-b border-zinc-200 bg-white/80 backdrop-blur">
+      <div className="mx-auto grid w-full max-w-5xl grid-cols-3 items-center gap-4 px-6 py-3 sm:px-10 md:flex md:justify-between">
+        {/* 모바일: [1] 햄버거 | [2] 로고(가운데) | [3] 프로필 | 데스크톱: [1] 로고+nav [2] 프로필 */}
+        <div className="flex items-center gap-6 sm:gap-8 md:gap-8" ref={menuRef}>
+          {/* 모바일 전용: 햄버거 (왼쪽) */}
+          <div className="flex md:hidden items-center">
+            <button
+              type="button"
+              aria-label="메뉴 열기"
+              aria-expanded={menuOpen}
+              onClick={() => setMenuOpen((prev) => !prev)}
+              className="flex flex-col justify-center gap-1.5 rounded p-2 text-zinc-700 hover:bg-zinc-100"
+            >
+              <span className="block h-0.5 w-5 rounded-full bg-current" />
+              <span className="block h-0.5 w-5 rounded-full bg-current" />
+              <span className="block h-0.5 w-5 rounded-full bg-current" />
+            </button>
+          </div>
+
+          {/* 데스크톱 전용: 로고 + 게시판/관리자 메뉴 */}
+          <div className="hidden md:flex items-center gap-5 text-xs text-zinc-600 md:gap-8">
+            {logoLink}
+            <nav className="flex items-center gap-5 md:gap-8">
+              {BOARD_LINKS.map(({ href, label }) => (
+                <Link key={href} href={href} className="hover:text-zinc-900">
+                  {label}
+                </Link>
+              ))}
+              {session?.user?.role === "ADMIN" && (
+                <div className="relative group flex items-center">
+                  <span className="cursor-default font-bold text-zinc-600 hover:text-zinc-900">
+                    관리자
+                  </span>
+                  <div className="absolute top-full left-0 hidden group-hover:block animate-in fade-in zoom-in-95 duration-100">
+                    <div className="min-w-[9rem] overflow-hidden rounded-lg border border-zinc-200 bg-white py-1 shadow-lg">
+                      {ADMIN_LINKS.map(({ href, label }) => (
+                        <Link
+                          key={href}
+                          href={href}
+                          className="block w-full px-4 py-3 text-sm font-medium text-zinc-800 hover:bg-zinc-50"
+                        >
+                          {label}
+                        </Link>
+                      ))}
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
-          </nav>
+              )}
+            </nav>
+          </div>
         </div>
 
-        {/* 우측 인증 영역 */}
-        <nav className="flex shrink-0 items-center gap-3 text-xs">
+        {/* 모바일 전용: 로고 가운데 */}
+        <div className="flex justify-center md:hidden">
+          {logoLink}
+        </div>
+
+        {/* 우측 인증 영역 (모바일/데스크톱 공통: 프로필, 로그인) */}
+        <nav className="flex shrink-0 items-center justify-end gap-3 text-xs">
             {status === "loading" ? (
               <span className="text-zinc-500">확인 중...</span>
             ) : nickname ? (
-              <div className="relative group flex items-center gap-2 cursor-pointer py-1 pr-1">
-                {profileImage ? (
-                  <img
-                    src={profileImage}
-                    alt={nickname}
-                    className="h-6 w-6 rounded-full border border-zinc-200 object-cover"
-                  />
-                ) : (
-                  <div className="flex h-6 w-6 items-center justify-center rounded-full border border-zinc-200 bg-zinc-100 text-[10px] font-semibold text-zinc-600">
-                    {nickname.charAt(0).toUpperCase()}
+              <div className="relative flex items-center" ref={profileRef}>
+                <button
+                  type="button"
+                  aria-label="프로필 메뉴"
+                  aria-expanded={profileOpen}
+                  onClick={() => setProfileOpen((prev) => !prev)}
+                  className="flex items-center gap-2 rounded-lg py-1 pr-1 text-left hover:bg-zinc-100 md:py-1 md:pr-1"
+                >
+                  {profileImage ? (
+                    <img
+                      src={profileImage}
+                      alt={nickname}
+                      className="h-6 w-6 rounded-full border border-zinc-200 object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-6 w-6 items-center justify-center rounded-full border border-zinc-200 bg-zinc-100 text-[10px] font-semibold text-zinc-600">
+                      {nickname.charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                  <span className="text-xs text-zinc-700 font-medium">
+                    {nickname}님
+                  </span>
+                </button>
+
+                {/* 클릭/탭으로 열리는 드롭다운 (모바일·데스크톱 공통) */}
+                {profileOpen && (
+                  <div className="absolute top-full left-1/2 z-50 -translate-x-1/2 animate-in fade-in zoom-in-95 duration-100">
+                    <div className="min-w-[8rem] overflow-hidden rounded-lg border border-zinc-200 bg-white py-1 shadow-lg">
+                      <Link
+                        href="/profile"
+                        onClick={() => setProfileOpen(false)}
+                        className="block w-full px-4 py-3 text-sm font-medium text-zinc-800 hover:bg-zinc-50"
+                      >
+                        마이페이지
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setProfileOpen(false);
+                          signOut({ callbackUrl: "/" });
+                        }}
+                        className="block w-full px-4 py-3 text-left text-sm font-medium text-zinc-800 hover:bg-zinc-50"
+                      >
+                        로그아웃
+                      </button>
+                    </div>
                   </div>
                 )}
-                <span className="text-xs text-zinc-700 font-medium">
-                  {nickname}님
-                </span>
-
-                {/* 마우스 호버 시 나타나는 드롭다운 메뉴 (hover 유지를 위해 상단 투명 영역 추가) */}
-                <div className="absolute top-full left-1/2 -translate-x-1/2 hidden group-hover:block animate-in fade-in zoom-in-95 duration-100">
-                  <div className="min-w-[8rem] overflow-hidden rounded-lg border border-zinc-200 bg-white py-1 shadow-lg">
-                    <Link
-                      href="/profile"
-                      className="block w-full px-4 py-3 text-sm font-medium text-zinc-800 hover:bg-zinc-50"
-                    >
-                      마이페이지
-                    </Link>
-                    <button
-                      type="button"
-                      onClick={() => signOut({ callbackUrl: "/" })}
-                      className="block w-full px-4 py-3 text-left text-sm font-medium text-zinc-800 hover:bg-zinc-50"
-                    >
-                      로그아웃
-                    </button>
-                  </div>
-                </div>
               </div>
             ) : (
               <Link
@@ -133,6 +174,47 @@ export function AppHeader() {
             )}
         </nav>
       </div>
+
+      {/* 모바일 메뉴 패널 (게시판 + 관리자만) */}
+      {menuOpen && (
+        <div className="absolute left-0 right-0 top-full z-40 border-b border-zinc-200 bg-white shadow-lg md:hidden">
+          <nav className="mx-auto max-w-5xl px-6 py-4">
+            <ul className="space-y-1">
+              {BOARD_LINKS.map(({ href, label }) => (
+                <li key={href}>
+                  <Link
+                    href={href}
+                    onClick={() => setMenuOpen(false)}
+                    className="block rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-800 hover:bg-zinc-50"
+                  >
+                    {label}
+                  </Link>
+                </li>
+              ))}
+              {session?.user?.role === "ADMIN" && (
+                <>
+                  <li className="mt-2 border-t border-zinc-100 pt-2">
+                    <span className="block px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-zinc-400">
+                      관리자
+                    </span>
+                  </li>
+                  {ADMIN_LINKS.map(({ href, label }) => (
+                    <li key={href}>
+                      <Link
+                        href={href}
+                        onClick={() => setMenuOpen(false)}
+                        className="block rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-800 hover:bg-zinc-50"
+                      >
+                        {label}
+                      </Link>
+                    </li>
+                  ))}
+                </>
+              )}
+            </ul>
+          </nav>
+        </div>
+      )}
     </header>
   );
 }
