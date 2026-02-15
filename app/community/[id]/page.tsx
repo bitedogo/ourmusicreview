@@ -66,7 +66,6 @@ export default async function CommunityDetailPage({
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-4xl flex-col gap-8 px-6 py-10 sm:px-10">
-      {/* 상단 네비게이션 */}
       <div className="flex items-center justify-between shrink-0">
         <Link
           href={`/boards/${categoryPath}`}
@@ -77,7 +76,6 @@ export default async function CommunityDetailPage({
       </div>
 
       <article className="space-y-8">
-        {/* 헤더 섹션 (래퍼런스 이미지 스타일) */}
         <header className="space-y-4">
           <div className="text-xs font-medium text-zinc-400">
             {categoryName}
@@ -88,7 +86,6 @@ export default async function CommunityDetailPage({
           </h1>
 
           <div className="flex items-center gap-3 pt-2 pb-4 border-b border-zinc-100">
-            {/* 프로필 이미지 */}
             <div className="h-6 w-6 overflow-hidden rounded-md bg-zinc-100">
               {post.user?.profileImage ? (
                 <img
@@ -102,8 +99,7 @@ export default async function CommunityDetailPage({
                 </div>
               )}
             </div>
-            
-            {/* 메타 정보 */}
+
             <div className="flex items-center gap-2 text-[13px] text-zinc-500">
               <span className="font-semibold text-zinc-900">{post.nickname}</span>
               <span className="text-zinc-300">|</span>
@@ -116,7 +112,6 @@ export default async function CommunityDetailPage({
           </div>
         </header>
 
-        {/* 본문 섹션 */}
         <PostContentClient 
           content={post.content} 
           postId={post.id} 

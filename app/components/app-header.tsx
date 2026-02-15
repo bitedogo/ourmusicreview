@@ -4,12 +4,16 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
 
+const ALBUM_REVIEW_LINK = { href: "/reviews", label: "앨범 리뷰" } as const;
+
 const BOARD_LINKS = [
   { href: "/boards/domestic", label: "국내게시판" },
   { href: "/boards/overseas", label: "해외게시판" },
   { href: "/boards/market", label: "장터게시판" },
   { href: "/boards/workroom", label: "워크룸" },
 ] as const;
+
+const NAV_LINKS = [ALBUM_REVIEW_LINK, ...BOARD_LINKS];
 
 const ADMIN_LINKS = [
   { href: "/admin/reviews", label: "리뷰 승인 관리" },
@@ -73,7 +77,7 @@ export function AppHeader() {
           <div className="hidden md:flex items-center gap-5 text-xs text-zinc-600 md:gap-8">
             {logoLink}
             <nav className="flex items-center gap-5 md:gap-8">
-              {BOARD_LINKS.map(({ href, label }) => (
+              {NAV_LINKS.map(({ href, label }) => (
                 <Link key={href} href={href} className="hover:text-zinc-900">
                   {label}
                 </Link>
@@ -173,7 +177,7 @@ export function AppHeader() {
         <div className="absolute left-0 right-0 top-full z-40 border-b border-zinc-200 bg-white shadow-lg md:hidden">
           <nav className="mx-auto max-w-5xl px-6 py-4">
             <ul className="space-y-1">
-              {BOARD_LINKS.map(({ href, label }) => (
+              {NAV_LINKS.map(({ href, label }) => (
                 <li key={href}>
                   <Link
                     href={href}

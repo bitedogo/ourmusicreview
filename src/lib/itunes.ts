@@ -6,7 +6,7 @@ export interface iTunesAlbum {
   releaseDate: string;
   primaryGenreName: string;
   country?: string;
-  collectionType?: string; // "Album", "EP", "Single" 등
+  collectionType?: string;
   trackCount?: number;
 }
 
@@ -119,7 +119,7 @@ function isFeaturedAlbum(album: iTunesAlbum, searchTerm: string): boolean {
   const hasFeatureMarker = /&|feat\.?|featuring|,/i.test(artistName);
   
   if (!hasFeatureMarker) {
-    return false; // 피처링 표시가 없으면 메인 아티스트
+    return false;
   }
   
   const mainArtist = getMainArtist(artistName).toLowerCase();
@@ -148,7 +148,7 @@ function isRelevantToSearch(album: iTunesAlbum, searchTerm: string): boolean {
   }
 
   const termWords = termLower.split(/\s+/).filter((w) => w.length > 1);
-  if (termWords.length === 0) return true; // 검색어가 너무 짧으면 모두 포함
+  if (termWords.length === 0) return true;
 
   let matchedWords = 0;
   for (const word of termWords) {
@@ -229,7 +229,7 @@ function isArtistRelevantToSearch(artistName: string, searchTerm: string): boole
   }
 
   const termWords = termLower.split(/\s+/).filter((w) => w.length > 1);
-  if (termWords.length === 0) return true; // 검색어가 너무 짧으면 모두 포함
+  if (termWords.length === 0) return true;
 
   let matchedWords = 0;
   for (const word of termWords) {
@@ -292,7 +292,7 @@ export async function searchArtists(
 
     const response = await fetch(url, {
       headers: { Accept: "application/json" },
-      cache: "no-store", // 최근 발매 반영을 위해 캐시 무시
+      cache: "no-store",
     });
 
     if (!response.ok) {
@@ -505,7 +505,7 @@ export async function getArtistAlbums(
 
     const response = await fetch(url, {
       headers: { Accept: "application/json" },
-      cache: "no-store", // 최근 발매 반영
+      cache: "no-store",
     });
 
     if (!response.ok) {
@@ -601,7 +601,7 @@ async function searchAlbumsByEntity(
 
   const response = await fetch(url, {
     headers: { Accept: "application/json" },
-    cache: "no-store", // 최근 발매 반영
+    cache: "no-store",
   });
 
   if (!response.ok) {

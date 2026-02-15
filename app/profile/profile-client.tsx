@@ -133,7 +133,7 @@ export function ProfileClient({
   }, []);
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 px-4 py-3 sm:px-6 sm:py-4 md:h-[calc(100vh-120px)] md:min-h-0 md:gap-6 md:overflow-hidden md:px-10">
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 px-3 py-3 sm:px-6 sm:py-4 md:h-[calc(100vh-120px)] md:min-h-0 md:gap-6 md:overflow-hidden md:px-10">
       <div className="flex items-center justify-between shrink-0">
         <h1 className="text-lg font-semibold tracking-tight text-zinc-900 md:text-xl">
           마이페이지
@@ -160,9 +160,9 @@ export function ProfileClient({
 
       <div className="flex flex-1 flex-col gap-4 overflow-hidden md:flex-row md:gap-10">
         <aside className="flex shrink-0 flex-col items-center justify-center border-zinc-100 md:w-1/2 md:border-r md:pr-10">
-          <div className="w-full max-w-md space-y-4 md:space-y-10">
-            <div className="flex flex-col items-center gap-4 md:gap-10">
-              <div className="h-20 w-20 overflow-hidden rounded-full border-2 border-white bg-zinc-100 shadow-md md:h-48 md:w-48 md:border-4">
+          <div className="w-full max-w-full sm:max-w-md md:max-w-md">
+            <div className="flex flex-row items-center gap-4 md:flex-col md:items-center md:gap-10">
+              <div className="h-28 w-28 shrink-0 overflow-hidden rounded-full border-2 border-white bg-zinc-100 shadow-md md:h-48 md:w-48 md:border-4">
                 {profileImage ? (
                   <img
                     src={profileImage}
@@ -176,22 +176,22 @@ export function ProfileClient({
                 )}
               </div>
 
-              <div className="w-full space-y-2 md:space-y-6">
-                <div className="flex items-center gap-2 border-b border-zinc-100 pb-2 md:justify-between md:pb-4">
+              <div className="min-w-0 flex-1 space-y-2 md:w-full md:flex-none md:space-y-6">
+                <div className="flex items-center justify-between gap-2 border-b border-zinc-100 pb-2 md:pb-4">
                   <span className="shrink-0 text-[10px] font-bold uppercase tracking-wide text-zinc-400 md:text-xs md:tracking-widest">아이디</span>
                   <span className="min-w-0 truncate text-right text-xs font-bold text-zinc-900 md:text-lg">{id}</span>
                 </div>
-                <div className="flex items-center gap-2 border-b border-zinc-100 pb-2 md:justify-between md:pb-4">
+                <div className="flex items-center justify-between gap-2 border-b border-zinc-100 pb-2 md:pb-4">
                   <span className="shrink-0 text-[10px] font-bold uppercase tracking-wide text-zinc-400 md:text-xs md:tracking-widest">닉네임</span>
                   <span className="min-w-0 truncate text-right text-xs font-bold text-zinc-900 md:text-lg">{nickname}</span>
                 </div>
-                <div className="flex items-center gap-2 border-b border-zinc-100 pb-2 md:justify-between md:pb-4">
+                <div className="flex items-center justify-between gap-2 border-b border-zinc-100 pb-2 md:pb-4">
                   <span className="shrink-0 text-[10px] font-bold uppercase tracking-wide text-zinc-400 md:text-xs md:tracking-widest">권한</span>
                   <span className="rounded-full bg-black px-2.5 py-0.5 text-[10px] font-black text-white md:px-4 md:py-1 md:text-xs">
                     {role}
                   </span>
                 </div>
-                <div className="flex items-center gap-2 md:justify-between">
+                <div className="flex items-center justify-between gap-2">
                   <span className="shrink-0 text-[10px] font-bold uppercase tracking-wide text-zinc-400 md:text-xs md:tracking-widest">가입일</span>
                   <span className="min-w-0 truncate text-right text-[11px] font-medium text-zinc-600 md:text-sm">{createdAtText}</span>
                 </div>
@@ -200,7 +200,7 @@ export function ProfileClient({
           </div>
         </aside>
 
-        <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden md:w-1/2           md:gap-6">
+        <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden md:w-1/2 md:gap-6">
           <section className="flex shrink-0 flex-col space-y-2 md:space-y-3">
             <div className="flex items-center justify-between">
               <h2 className="text-xs font-semibold tracking-tight text-zinc-900 md:text-sm">나의 리뷰</h2>

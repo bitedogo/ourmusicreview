@@ -13,7 +13,7 @@ export function CommunityWriteClient() {
   const { data: session } = useSession();
 
   const initialCategoryParam = searchParams.get("category");
-  const editPostId = searchParams.get("edit"); // 수정 모드 확인
+  const editPostId = searchParams.get("edit");
 
   const hasLockedCategory =
     initialCategoryParam === "K" ||
@@ -30,7 +30,7 @@ export function CommunityWriteClient() {
   const [category, setCategory] = useState<Category>(initialCategory);
   const [isGlobal, setIsGlobal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isLoading, setIsLoading] = useState(!!editPostId); // 수정 모드일 때 로딩 상태
+  const [isLoading, setIsLoading] = useState(!!editPostId);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const editorRef = useRef<TuiEditorRef>(null);
 
@@ -110,7 +110,7 @@ export function CommunityWriteClient() {
       const postId = editPostId || data.id;
       if (postId) {
         router.push(`/community/${encodeURIComponent(postId)}`);
-        router.refresh(); // 데이터 갱신 보장
+        router.refresh();
       } else {
         const categoryPath = {
           K: "domestic",
@@ -151,7 +151,6 @@ export function CommunityWriteClient() {
         onSubmit={handleSubmit}
         className="space-y-4 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm"
       >
-        {/* 카테고리 / 게시판 표시 */}
         <div className="space-y-1">
           {hasLockedCategory ? (
             <p className="text-lg font-semibold text-zinc-900">

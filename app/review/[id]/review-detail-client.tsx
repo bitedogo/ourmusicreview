@@ -1,6 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { HtmlRenderer } from "@/src/components/common/HtmlRenderer";
@@ -31,6 +32,10 @@ interface ReviewDetail {
 
 export function ReviewDetailClient({ reviewId }: { reviewId: string }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const fromReviews = searchParams.get("from") === "reviews";
+  const backSort = searchParams.get("sort") || "latest";
+  const backPage = searchParams.get("page") || "1";
   const { data: session } = useSession();
   const [review, setReview] = useState<ReviewDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -125,9 +130,13 @@ export function ReviewDetailClient({ reviewId }: { reviewId: string }) {
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-3xl flex-col gap-6 px-6 py-10 sm:px-16">
       <section className="space-y-2">
-        <button
-          onClick={() => router.back()}
-          className="mb-4 flex items-center gap-2 text-sm text-zinc-600 hover:text-zinc-900"
+        <Link
+          href={
+            fromReviews
+              ? `/reviews?sort=${encodeURIComponent(backSort)}&page=${encodeURIComponent(backPage)}`
+              : `/review/album/${encodeURIComponent(review.albumId)}`
+          }
+          className="mb-4 flex w-fit items-center gap-2 text-sm text-zinc-600 hover:text-zinc-900"
         >
           <svg
             width="16"
@@ -144,12 +153,11 @@ export function ReviewDetailClient({ reviewId }: { reviewId: string }) {
               strokeLinejoin="round"
             />
           </svg>
-          뒤로 가기
-        </button>
+          {fromReviews ? "앨범 리뷰로" : "뒤로가기"}
+        </Link>
         <h1 className="text-xl font-semibold tracking-tight">리뷰 상세</h1>
       </section>
 
-      {/* 앨범 정보 */}
       <div className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
         <div className="flex gap-4">
           {review.album.imageUrl && (
@@ -172,7 +180,6 @@ export function ReviewDetailClient({ reviewId }: { reviewId: string }) {
         </div>
       </div>
 
-      {/* 리뷰 내용 */}
       <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -229,7 +236,6 @@ export function ReviewDetailClient({ reviewId }: { reviewId: string }) {
       <InteractionButtons reviewId={reviewId} authorUserId={review.userId} />
       <CommentSection reviewId={reviewId} />
 
-      {/* 앨범의 다른 리뷰 보기 버튼 */}
       <div className="flex justify-center">
         <button
           onClick={() => router.push(`/review/album/${encodeURIComponent(review.albumId)}`)}

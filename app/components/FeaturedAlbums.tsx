@@ -71,7 +71,6 @@ export default function FeaturedAlbums() {
               key={`${album.collectionId}-${index}`}
               className="flex w-48 shrink-0 flex-col sm:w-56 mx-3 rounded-xl bg-white shadow-sm overflow-hidden transition-transform duration-300 hover:scale-105"
             >
-              {/* 앨범 커버 */}
               <div className="relative aspect-square bg-zinc-100 rounded-t-xl overflow-hidden">
                 {album.imageUrl ? (
                   <img
@@ -86,8 +85,7 @@ export default function FeaturedAlbums() {
                   </div>
                 )}
               </div>
-              
-              {/* 앨범 정보 */}
+
               <div className="p-4 space-y-1">
                 <h3 className="font-bold text-base text-left line-clamp-2">
                   {album.title}

@@ -3,8 +3,7 @@ import Link from "next/link";
 export function Footer() {
   return (
     <footer className="mt-auto w-full border-t border-zinc-200 bg-zinc-100">
-      <div className="mx-auto flex max-w-5xl flex-row flex-wrap items-start justify-between gap-6 px-4 py-6 sm:gap-16 sm:px-10 sm:py-10">
-        {/* 왼쪽: Brand */}
+      <div className="mx-auto flex max-w-5xl flex-row flex-nowrap items-start justify-between gap-4 px-4 py-6 sm:gap-16 sm:px-10 sm:py-10">
         <div className="flex min-w-0 shrink flex-col gap-2">
           <Link
             href="/"
@@ -20,9 +19,7 @@ export function Footer() {
           </p>
         </div>
 
-        {/* 오른쪽: 두 개의 세로 컬럼 (정책 | 문의) */}
-        <div className="flex shrink-0 gap-12 sm:gap-16">
-          {/* 컬럼 1: 정책 */}
+        <div className="flex shrink-0 gap-6 sm:gap-16">
           <div className="flex flex-col gap-3">
             <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
               정책
@@ -42,7 +39,6 @@ export function Footer() {
               </Link>
             </nav>
           </div>
-          {/* 컬럼 2: 문의 */}
           <div className="flex flex-col gap-3">
             <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
               문의

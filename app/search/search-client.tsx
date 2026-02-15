@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 interface ArtistResult {
@@ -23,7 +23,9 @@ interface AlbumResult {
 export function SearchClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const initialQuery = searchParams.get("q") || "";
+  const initialQuery = searchParams.get("artist") || searchParams.get("q") || "";
+  const artistParamFromUrl = searchParams.get("artist");
+  const didAutoSelectArtistRef = useRef(false);
 
   const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [isSearching, setIsSearching] = useState(false);
@@ -34,6 +36,30 @@ export function SearchClient() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [albumRatings, setAlbumRatings] = useState<Record<string, { averageRating: number | null; reviewCount: number }>>({});
   const [favoriteAlbumIds, setFavoriteAlbumIds] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    const q = (artistParamFromUrl || searchParams.get("q") || "").trim();
+    if (q) {
+      setSearchQuery(q);
+      handleSearch(q);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (
+      !artistParamFromUrl ||
+      artists.length === 0 ||
+      selectedArtist !== null ||
+      didAutoSelectArtistRef.current ||
+      isSearching
+    ) {
+      return;
+    }
+    didAutoSelectArtistRef.current = true;
+    handleArtistSelect(artists[0]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [artistParamFromUrl, artists, selectedArtist, isSearching]);
 
   async function handleSearch(term: string) {
     if (!term.trim()) {
@@ -338,7 +364,6 @@ export function SearchClient() {
         )}
       </section>
 
-      {/* 아티스트 목록 */}
       {!selectedArtist && artists.length > 0 && (
         <section>
           <div className="mb-4 flex items-center justify-between">
@@ -389,7 +414,6 @@ export function SearchClient() {
         </section>
       )}
 
-      {/* 선택된 아티스트의 앨범 목록 */}
       {selectedArtist && (
         <section>
           <div className="mb-4 flex items-center gap-3">

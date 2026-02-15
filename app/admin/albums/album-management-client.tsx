@@ -363,7 +363,6 @@ export function AlbumManagementClient() {
         </div>
       )}
 
-      {/* 모달 */}
       {modalOpen && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
@@ -403,7 +402,6 @@ export function AlbumManagementClient() {
                   </button>
                 </div>
 
-                {/* 아티스트 목록 */}
                 {!selectedArtist && artists.length > 0 && (
                   <div className="mt-3 max-h-40 overflow-auto rounded-lg border border-zinc-200">
                     {artists.map((artist) => (
@@ -429,7 +427,6 @@ export function AlbumManagementClient() {
                   </div>
                 )}
 
-                {/* 선택된 아티스트의 앨범 목록 */}
                 {selectedArtist && (
                   <div className="mt-3">
                     <div className="mb-2 flex items-center gap-2">

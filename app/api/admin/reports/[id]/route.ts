@@ -25,7 +25,7 @@ export async function PATCH(
 
     const { id } = await params;
     const body = await request.json().catch(() => ({}));
-    const action = body?.action as string | undefined; // "dismiss" | "delete_post" | "delete_review"
+    const action = body?.action as string | undefined;
 
     if (!id) {
       return NextResponse.json(

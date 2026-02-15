@@ -44,7 +44,7 @@ export function ReviewWriteClient() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           albumId,
-          content: trimmedContent, // HTML 형식으로 저장
+          content: trimmedContent,
           rating,
           albumTitle: albumTitle || undefined,
           albumArtist: albumArtist || undefined,
@@ -104,7 +104,6 @@ export function ReviewWriteClient() {
         </p>
       </section>
 
-      {/* 앨범 정보 표시 */}
       {albumTitle && (
         <div className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
           <div className="flex gap-4">

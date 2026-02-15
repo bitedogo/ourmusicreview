@@ -61,7 +61,6 @@ export function PostContentClient({ content, postId, userId, category, isNotice 
 
   return (
     <div className="space-y-10">
-      {/* 본문 내용 (테두리 제거 및 폰트 최적화) */}
       <section className="text-[15px] leading-relaxed text-zinc-800">
         <HtmlRenderer html={content} />
       </section>

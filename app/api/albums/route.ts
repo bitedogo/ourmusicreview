@@ -70,7 +70,7 @@ export async function POST(request: Request) {
       artist,
       imageUrl: imageUrl || undefined,
       releaseDate,
-      category: "I", // 기본값으로 "I" 설정 (나중에 제거 예정)
+      category: "I",
     });
 
     await albumRepository.save(newAlbum);

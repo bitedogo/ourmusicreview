@@ -37,10 +37,15 @@ const BOARD_CONFIG: Record<BoardType, BoardMeta> = {
   },
 };
 
+const PAGE_SIZE_BOARD = 20;
+
 export default async function BoardPage(props: {
   params: Promise<{ board: BoardType }>;
+  searchParams: Promise<{ page?: string }>;
 }) {
   const { board } = await props.params;
+  const { page: pageParam } = await props.searchParams;
+  const page = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
 
   const config = BOARD_CONFIG[board];
   if (!config) {
@@ -79,12 +84,20 @@ export default async function BoardPage(props: {
   const sortedPosts = postsWithMeta.sort((a, b) => {
     if (a.isGlobal === "Y" && b.isGlobal !== "Y") return -1;
     if (a.isGlobal !== "Y" && b.isGlobal === "Y") return 1;
-    
+
     if (a.isAdmin && !b.isAdmin) return -1;
     if (!a.isAdmin && b.isAdmin) return 1;
-    
+
     return 0;
   });
+
+  const total = sortedPosts.length;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE_BOARD));
+  const currentPage = Math.min(page, totalPages);
+  const paginatedPosts = sortedPosts.slice(
+    (currentPage - 1) * PAGE_SIZE_BOARD,
+    currentPage * PAGE_SIZE_BOARD
+  );
 
   const writeHref = isSignedIn
     ? `/community/write?category=${encodeURIComponent(config.category)}`
@@ -110,7 +123,7 @@ export default async function BoardPage(props: {
       </section>
 
       <section>
-        {posts.length === 0 ? (
+        {total === 0 ? (
           <div className="border border-dashed border-zinc-300 bg-zinc-50 px-4 py-6 text-sm text-zinc-500">
             아직 등록된 게시글이 없습니다.{" "}
             <span className="font-semibold text-zinc-700">
@@ -119,64 +132,109 @@ export default async function BoardPage(props: {
             을 남겨보세요.
           </div>
         ) : (
-          <div className="overflow-hidden border border-zinc-200 bg-white text-xs shadow-sm">
-            <table className="min-w-full table-fixed border-collapse">
-              <thead className="bg-zinc-50">
-                <tr className="border-b border-zinc-200 text-zinc-700">
-                  <th className="w-[60px] px-3 py-2 text-center font-semibold">
-                    번호
-                  </th>
-                  <th className="px-3 py-2 text-left font-semibold">제목</th>
-                  <th className="w-[100px] px-3 py-2 text-center font-semibold">
-                    글쓴이
-                  </th>
-                  <th className="w-[80px] px-3 py-2 text-center font-semibold">
-                    날짜
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-zinc-100">
-                {sortedPosts.map((post) => (
-                  <tr
-                    key={post.id}
-                    className={`hover:bg-zinc-50 ${post.isAdmin ? 'bg-zinc-50/50' : ''}`}
-                  >
-                    <td className="px-3 py-2 text-center text-[11px] text-zinc-400">
-                      {post.isAdmin ? (
-                        <span className="text-base" title="공지사항">📢</span>
-                      ) : (
-                        posts.length - posts.findIndex(p => p.id === post.id)
-                      )}
-                    </td>
-                    <td className="px-3 py-2 text-sm text-zinc-900">
-                      <Link
-                        href={`/community/${encodeURIComponent(post.id)}`}
-                        className={`flex items-center gap-1.5 hover:underline ${post.isAdmin ? 'text-red-600 font-bold' : ''}`}
-                      >
-                        <span className="line-clamp-1">{post.title}</span>
-                        {post.commentCount > 0 && (
-                          <span className="text-[10px] font-bold text-red-500">
-                            [{post.commentCount}]
-                          </span>
-                        )}
-                      </Link>
-                    </td>
-                    <td className="px-3 py-2 text-center text-[11px] text-zinc-700">
-                      <span className={`line-clamp-1 ${post.isAdmin ? 'font-black' : ''}`}>{post.nickname}</span>
-                    </td>
-                    <td className="px-3 py-2 text-center text-[11px] text-zinc-500">
-                      {post.createdAt
-                        ? new Date(post.createdAt).toLocaleDateString("ko-KR", {
-                            month: "2-digit",
-                            day: "2-digit",
-                          })
-                        : ""}
-                    </td>
+          <>
+            <div className="overflow-hidden border border-zinc-200 bg-white text-xs shadow-sm">
+              <table className="min-w-full table-fixed border-collapse">
+                <thead className="bg-zinc-50">
+                  <tr className="border-b border-zinc-200 text-zinc-700">
+                    <th className="w-[60px] px-3 py-2 text-center font-semibold">
+                      번호
+                    </th>
+                    <th className="px-3 py-2 text-left font-semibold">제목</th>
+                    <th className="w-[100px] px-3 py-2 text-center font-semibold">
+                      글쓴이
+                    </th>
+                    <th className="w-[80px] px-3 py-2 text-center font-semibold">
+                      날짜
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-zinc-100">
+                  {paginatedPosts.map((post, index) => (
+                    <tr
+                      key={post.id}
+                      className={`hover:bg-zinc-50 ${post.isAdmin ? "bg-zinc-50/50" : ""}`}
+                    >
+                      <td className="px-3 py-2 text-center text-[11px] text-zinc-400">
+                        {post.isAdmin ? (
+                          <span className="text-base" title="공지사항">
+                            📢
+                          </span>
+                        ) : (
+                          total -
+                            (currentPage - 1) * PAGE_SIZE_BOARD -
+                            index
+                        )}
+                      </td>
+                      <td className="px-3 py-2 text-sm text-zinc-900">
+                        <Link
+                          href={`/community/${encodeURIComponent(post.id)}`}
+                          className={`flex items-center gap-1.5 hover:underline ${post.isAdmin ? "text-red-600 font-bold" : ""}`}
+                        >
+                          <span className="line-clamp-1">{post.title}</span>
+                          {post.commentCount > 0 && (
+                            <span className="text-[10px] font-bold text-red-500">
+                              [{post.commentCount}]
+                            </span>
+                          )}
+                        </Link>
+                      </td>
+                      <td className="px-3 py-2 text-center text-[11px] text-zinc-700">
+                        <span
+                          className={`line-clamp-1 ${post.isAdmin ? "font-black" : ""}`}
+                        >
+                          {post.nickname}
+                        </span>
+                      </td>
+                      <td className="px-3 py-2 text-center text-[11px] text-zinc-500">
+                        {post.createdAt
+                          ? new Date(post.createdAt).toLocaleDateString(
+                              "ko-KR",
+                              { month: "2-digit", day: "2-digit" }
+                            )
+                          : ""}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {totalPages > 1 && (
+              <nav className="mt-4 flex flex-wrap items-center justify-center gap-1">
+                {currentPage > 1 && (
+                  <Link
+                    href={`/boards/${board}?page=${currentPage - 1}`}
+                    className="rounded border border-zinc-300 px-3 py-1.5 text-sm text-zinc-700 hover:bg-zinc-100"
+                  >
+                    이전
+                  </Link>
+                )}
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (p) => (
+                    <Link
+                      key={p}
+                      href={`/boards/${board}?page=${p}`}
+                      className={`rounded px-3 py-1.5 text-sm ${
+                        p === currentPage
+                          ? "bg-zinc-900 font-medium text-white"
+                          : "border border-zinc-300 text-zinc-700 hover:bg-zinc-100"
+                      }`}
+                    >
+                      {p}
+                    </Link>
+                  )
+                )}
+                {currentPage < totalPages && (
+                  <Link
+                    href={`/boards/${board}?page=${currentPage + 1}`}
+                    className="rounded border border-zinc-300 px-3 py-1.5 text-sm text-zinc-700 hover:bg-zinc-100"
+                  >
+                    다음
+                  </Link>
+                )}
+              </nav>
+            )}
+          </>
         )}
       </section>
     </div>

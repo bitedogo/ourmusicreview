@@ -47,7 +47,7 @@ function calculateTitleMatchScore(trackAlbumName: string, targetAlbumName: strin
   const t1 = trackAlbumName.toLowerCase();
   const t2 = targetAlbumName.toLowerCase();
   
-  if (t1 === t2) return 100; // 완전 일치
+  if (t1 === t2) return 100;
   
   let score = 0;
   const keywords = ["anniversary", "deluxe", "remaster", "edition", "live"];
@@ -159,7 +159,7 @@ export async function GET(
           .map((track) => ({
             trackId: track.trackId,
             trackName: track.trackName,
-            trackNumber: track.trackNumber, // 실제 API의 트랙 번호 사용
+            trackNumber: track.trackNumber,
             trackTimeMillis: track.trackTimeMillis,
             previewUrl: track.previewUrl || null,
           })),

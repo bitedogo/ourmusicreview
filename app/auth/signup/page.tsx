@@ -134,7 +134,6 @@ export default function SignupPage() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* 아이디 */}
         <div className="space-y-1">
           <label className="flex items-center gap-1 text-sm font-medium">
             <span className="text-red-600">*</span>
@@ -149,7 +148,6 @@ export default function SignupPage() {
           />
         </div>
 
-        {/* 비밀번호 */}
         <div className="space-y-1">
           <label className="flex items-center gap-1 text-sm font-medium">
             <span className="text-red-600">*</span>
@@ -168,7 +166,6 @@ export default function SignupPage() {
           </p>
         </div>
 
-        {/* 비밀번호 확인 */}
         <div className="space-y-1">
           <label className="flex items-center gap-1 text-sm font-medium">
             <span className="text-red-600">*</span>
@@ -187,7 +184,6 @@ export default function SignupPage() {
           </p>
         </div>
 
-        {/* 이메일 */}
         <div className="space-y-1">
           <label className="flex items-center gap-1 text-sm font-medium">
             <span className="text-red-600">*</span>
@@ -203,7 +199,6 @@ export default function SignupPage() {
           />
         </div>
 
-        {/* 닉네임 */}
         <div className="space-y-1">
           <label className="flex items-center gap-1 text-sm font-medium">
             <span className="text-red-600">*</span>
@@ -222,7 +217,6 @@ export default function SignupPage() {
           </div>
         </div>
 
-        {/* 프로필 사진 */}
         <div className="space-y-1">
           <label className="text-sm font-medium">프로필 사진</label>
           <div className="flex items-center gap-3">

@@ -33,7 +33,6 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-white text-zinc-900">
       <main className="mx-auto w-full max-w-6xl px-6 py-10 sm:px-10">
-        {/* Hero */}
         <section className="relative overflow-hidden rounded-3xl border border-zinc-200 bg-gradient-to-b from-zinc-50 to-white shadow-lg">
           <div className="absolute inset-0 opacity-40">
             <div className="absolute -top-24 -left-24 h-64 w-64 rounded-full bg-purple-100 blur-3xl" />
@@ -94,10 +93,8 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Featured Albums Slider */}
         <FeaturedAlbums />
 
-        {/* 오늘의 앨범 */}
         <TodayAlbumCard />
       </main>
     </div>

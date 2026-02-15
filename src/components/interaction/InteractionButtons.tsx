@@ -19,7 +19,7 @@ interface InteractionButtonsProps {
   postId?: string;
   reviewId?: string;
   isNotice?: boolean;
-  authorUserId?: string; // 글 작성자 ID (본인 글 신고 방지)
+  authorUserId?: string;
 }
 
 export function InteractionButtons({ postId, reviewId, isNotice, authorUserId }: InteractionButtonsProps) {

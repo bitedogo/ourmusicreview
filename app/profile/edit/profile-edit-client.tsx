@@ -148,7 +148,6 @@ export function ProfileEditClient({
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-3xl flex-col gap-8 px-6 py-10 sm:px-16">
-      {/* 상단: 제목 + 뒤로가기 */}
       <section className="flex items-center justify-between gap-3">
         <div>
           <h1 className="text-xl font-semibold tracking-tight">
@@ -167,13 +166,11 @@ export function ProfileEditClient({
         </button>
       </section>
 
-      {/* 계정 정보 요약 + 프로필 이미지 */}
       <section className="rounded-2xl border border-zinc-200 bg-white p-6 text-sm shadow-sm">
         <h2 className="mb-4 text-sm font-semibold tracking-tight">
           계정 정보
         </h2>
         <div className="flex items-center gap-6">
-          {/* 프로필 이미지 + 수정 버튼 */}
           <div className="flex flex-col items-center gap-2">
             <div className="h-24 w-24 overflow-hidden rounded-full bg-zinc-100">
               {previewUrl ? (
@@ -217,7 +214,6 @@ export function ProfileEditClient({
             </div>
           </div>
 
-          {/* 텍스트 정보 */}
           <div className="flex-1 space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-zinc-500">아이디</span>
@@ -253,7 +249,6 @@ export function ProfileEditClient({
         </div>
       </section>
 
-      {/* 닉네임 수정 폼 */}
       <section className="mb-10 rounded-2xl border border-zinc-200 bg-white p-6 text-sm shadow-sm">
         <h2 className="mb-3 text-sm font-semibold tracking-tight">
           닉네임 변경
@@ -288,8 +283,6 @@ export function ProfileEditClient({
           </div>
         )}
       </section>
-
-      {/* (별도 프로필 이미지 섹션은 제거됨) */}
     </div>
   );
 }

@@ -33,7 +33,7 @@ export async function GET(
     }
 
     const sum = reviews.reduce((acc, review) => acc + review.rating, 0);
-    const averageRating = Math.round((sum / reviews.length) * 10) / 10; // 소수점 한 자리
+    const averageRating = Math.round((sum / reviews.length) * 10) / 10;
 
     return NextResponse.json({
       ok: true,
