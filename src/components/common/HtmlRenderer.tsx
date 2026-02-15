@@ -8,10 +8,6 @@ interface HtmlRendererProps {
   className?: string;
 }
 
-/**
- * Toast UI Editor로 작성된 HTML 내용을 안전하게 렌더링하는 컴포넌트
- * DOMPurify를 사용하여 XSS 공격을 방지합니다.
- */
 export function HtmlRenderer({ html, className = "" }: HtmlRendererProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 

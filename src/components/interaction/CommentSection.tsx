@@ -93,7 +93,6 @@ export function CommentSection({ postId, reviewId }: CommentSectionProps) {
         <span className="text-xs text-zinc-400">{comments.length}</span>
       </div>
 
-      {/* 댓글 목록 */}
       <div className="space-y-6">
         {isLoading ? (
           <p className="text-center text-xs text-zinc-400">불러오는 중...</p>
@@ -137,7 +136,6 @@ export function CommentSection({ postId, reviewId }: CommentSectionProps) {
         )}
       </div>
 
-      {/* 댓글 작성 폼 */}
       {session ? (
         <form onSubmit={handleSubmit} className="space-y-3 pt-6 border-t border-zinc-50">
           <textarea

@@ -34,28 +34,15 @@ export interface iTunesLookupResponse {
   results: iTunesAlbum[];
 }
 
-/**
- * artworkUrl100을 600x600 크기로 변환
- * 예: https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/.../100x100bb.jpg
- *  -> https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/.../600x600bb.jpg
- */
 export function getLargeImageUrl(artworkUrl100: string | undefined): string | null {
   if (!artworkUrl100) return null;
   return artworkUrl100.replace(/100x100bb\.jpg$/, "600x600bb.jpg");
 }
 
-/**
- * 한글 검색어인지 확인
- */
 function isKoreanSearch(term: string): boolean {
   return /[가-힣]/.test(term);
 }
 
-/**
- * 비공식/장난스러운 콘텐츠 필터링
- * @param album 앨범 정보
- * @returns true면 유효한 앨범, false면 필터링 대상
- */
 function isValidAlbum(album: iTunesAlbum): boolean {
   const title = (album.collectionName || "").toUpperCase();
   const genre = (album.primaryGenreName || "").toUpperCase();
@@ -89,11 +76,6 @@ function isValidAlbum(album: iTunesAlbum): boolean {
   return true;
 }
 
-/**
- * 메인 아티스트 이름 추출 (피처링 제외)
- * @param artistName 전체 아티스트 이름 (예: "Artist A & Artist B" 또는 "Artist A feat. Artist B")
- * @returns 메인 아티스트 이름
- */
 function getMainArtist(artistName: string): string {
   const separators = [/\s*&\s*/, /\s*feat\.?\s*/i, /\s*featuring\s*/i, /\s*,\s*/];
   
@@ -106,12 +88,6 @@ function getMainArtist(artistName: string): string {
   return artistName.trim();
 }
 
-/**
- * 피처링 앨범인지 확인 (메인 아티스트가 아닌 경우)
- * @param album 앨범 정보
- * @param searchTerm 검색어
- * @returns true면 피처링 앨범 (메인 아티스트가 아님)
- */
 function isFeaturedAlbum(album: iTunesAlbum, searchTerm: string): boolean {
   const artistName = album.artistName || "";
   const termLower = searchTerm.toLowerCase().trim();
@@ -127,12 +103,6 @@ function isFeaturedAlbum(album: iTunesAlbum, searchTerm: string): boolean {
   return mainArtist !== termLower && !mainArtist.includes(termLower);
 }
 
-/**
- * 검색어와 앨범의 관련성 확인 (더 유연한 검색)
- * @param album 앨범 정보
- * @param searchTerm 검색어
- * @returns true면 검색어와 관련이 있음, false면 관련 없음
- */
 function isRelevantToSearch(album: iTunesAlbum, searchTerm: string): boolean {
   const termLower = searchTerm.toLowerCase().trim();
   const titleLower = (album.collectionName || "").toLowerCase();
@@ -160,12 +130,6 @@ function isRelevantToSearch(album: iTunesAlbum, searchTerm: string): boolean {
   return matchedWords >= Math.ceil(termWords.length / 2);
 }
 
-/**
- * 아티스트 이름과 검색어의 유사도 계산 (개선된 버전)
- * @param album 앨범 정보
- * @param searchTerm 검색어
- * @returns 유사도 점수 (높을수록 유사, 최대 1000)
- */
 function calculateRelevanceScore(album: iTunesAlbum, searchTerm: string): number {
   const termLower = searchTerm.toLowerCase().trim();
   const artistLower = (album.artistName || "").toLowerCase();
@@ -214,12 +178,6 @@ function calculateRelevanceScore(album: iTunesAlbum, searchTerm: string): number
   return score;
 }
 
-/**
- * 아티스트 이름과 검색어의 관련성 확인
- * @param artistName 아티스트 이름
- * @param searchTerm 검색어
- * @returns true면 검색어와 관련이 있음
- */
 function isArtistRelevantToSearch(artistName: string, searchTerm: string): boolean {
   const termLower = searchTerm.toLowerCase().trim();
   const artistLower = artistName.toLowerCase();
@@ -241,11 +199,6 @@ function isArtistRelevantToSearch(artistName: string, searchTerm: string): boole
   return matchedWords >= Math.ceil(termWords.length / 2);
 }
 
-/**
- * 아티스트 ID로 프로필 이미지 조회
- * @param artistId 아티스트 ID
- * @returns 프로필 이미지 URL 또는 null
- */
 async function getArtistProfileImage(artistId: number): Promise<string | null> {
   try {
     const url = `https://itunes.apple.com/lookup?id=${artistId}&entity=album&limit=1&country=KR&lang=ko_kr`;
@@ -271,11 +224,6 @@ async function getArtistProfileImage(artistId: number): Promise<string | null> {
   }
 }
 
-/**
- * iTunes Search API로 아티스트 검색
- * @param term 검색어
- * @param limit 결과 개수 제한
- */
 export async function searchArtists(
   term: string,
   limit: number = 20
@@ -458,11 +406,6 @@ export async function searchArtists(
   }
 }
 
-/**
- * collectionId로 한국어 제목 조회
- * @param collectionId 앨범 collectionId
- * @returns 한국어 제목 또는 null
- */
 async function getKoreanAlbumTitle(collectionId: number): Promise<string | null> {
   try {
     const url = `https://itunes.apple.com/lookup?id=${collectionId}&country=KR&lang=ko_kr`;
@@ -491,11 +434,6 @@ async function getKoreanAlbumTitle(collectionId: number): Promise<string | null>
   }
 }
 
-/**
- * iTunes Lookup API로 아티스트의 앨범 목록 조회
- * @param artistId 아티스트 ID
- * @param limit 결과 개수 제한
- */
 export async function getArtistAlbums(
   artistId: number,
   limit: number = 50
@@ -587,9 +525,6 @@ export async function getArtistAlbums(
   }
 }
 
-/**
- * iTunes Search API로 앨범 검색 (단일 엔티티)
- */
 async function searchAlbumsByEntity(
   term: string,
   entity: "album" | "musicTrack",
@@ -624,15 +559,6 @@ async function searchAlbumsByEntity(
   return (data.results || []) as iTunesAlbum[];
 }
 
-/**
- * iTunes Search API로 앨범 검색
- * - entity=album로 먼저 검색, 결과가 적으면 musicTrack도 시도
- * - 한글 검색 시 country=KR 파라미터 추가
- * - 싱글 제외 (EP와 정규 앨범만 포함)
- * - 메인 아티스트 우선 정렬, 피처링 앨범 하단 배치
- * @param term 검색어 (앨범명, 아티스트명 등)
- * @param limit 결과 개수 제한 (기본 20, 내부적으로 50개 검색 후 필터링)
- */
 export async function searchAlbums(
   term: string,
   limit: number = 20

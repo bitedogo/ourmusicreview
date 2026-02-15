@@ -145,7 +145,6 @@ export function InteractionButtons({ postId, reviewId, isNotice, authorUserId }:
         </button>
       )}
 
-      {/* 신고 모달 */}
       {isReportModalOpen && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"

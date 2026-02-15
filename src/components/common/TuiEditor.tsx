@@ -40,7 +40,7 @@ interface TuiEditorProps {
 
 export const TuiEditor = forwardRef<TuiEditorRef, TuiEditorProps>(
   ({ initialValue = "", height = "400px", onChange }, ref) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Toast UI Editor instance
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const editorRef = useRef<any>(null);
 
     useImperativeHandle(ref, () => ({
