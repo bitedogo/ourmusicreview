@@ -1,7 +1,8 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
 
@@ -19,8 +20,10 @@ const TodayAlbumCard = dynamic(() => import("./components/TodayAlbumCard"), {
 
 export default function Home() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   useSession();
 
+  const isAdminView = searchParams.get("admin") === "true";
   const [searchQuery, setSearchQuery] = useState("");
 
   function handleSearchSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -28,6 +31,29 @@ export default function Home() {
     const q = searchQuery.trim();
     if (!q) return;
     router.push(`/search?q=${encodeURIComponent(q)}`);
+  }
+
+  if (!isAdminView) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-white px-6">
+        <div className="flex max-w-md flex-col items-center gap-6 text-center">
+          <Image
+            src="/oru-num6.png"
+            alt="ORU 로고"
+            width={72}
+            height={72}
+            className="h-10 w-auto"
+            priority
+          />
+          <p className="text-base sm:text-lg font-medium tracking-tight text-zinc-900">
+            현재 점검 중입니다. 곧 정식 출시됩니다!
+          </p>
+          <p className="text-xs sm:text-sm text-zinc-500">
+            서비스 안정화를 위해 잠시 문을 닫았습니다. 조금만 기다려 주세요.
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (
