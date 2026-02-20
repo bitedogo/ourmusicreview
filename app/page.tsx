@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import Image from "next/image";
+import { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
@@ -18,7 +19,7 @@ const TodayAlbumCard = dynamic(() => import("./components/TodayAlbumCard"), {
   loading: () => null,
 });
 
-export default function Home() {
+function HomeContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   useSession();
@@ -124,5 +125,17 @@ export default function Home() {
         <TodayAlbumCard />
       </main>
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center bg-white">
+        <div className="text-sm text-zinc-500">로딩 중...</div>
+      </div>
+    }>
+      <HomeContent />
+    </Suspense>
   );
 }
