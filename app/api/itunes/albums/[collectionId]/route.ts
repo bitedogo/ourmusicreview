@@ -46,15 +46,12 @@ function normalizeTitle(title: string): string {
 function calculateTitleMatchScore(trackAlbumName: string, targetAlbumName: string): number {
   const t1 = trackAlbumName.toLowerCase();
   const t2 = targetAlbumName.toLowerCase();
-  
   if (t1 === t2) return 100;
-  
   let score = 0;
   const keywords = ["anniversary", "deluxe", "remaster", "edition", "live"];
-  keywords.forEach(kw => {
+  keywords.forEach((kw) => {
     if (t1.includes(kw) === t2.includes(kw)) score += 10;
   });
-  
   return score;
 }
 
@@ -64,13 +61,15 @@ export async function GET(
 ) {
   try {
     const { collectionId } = await params;
-    const collIdNum = parseInt(collectionId);
-    
-    if (!collectionId) {
+    if (!collectionId?.trim()) {
       return NextResponse.json({ ok: false, error: "앨범 ID가 필요합니다." }, { status: 400 });
     }
+    const collIdNum = parseInt(collectionId, 10);
+    if (!Number.isFinite(collIdNum)) {
+      return NextResponse.json({ ok: false, error: "유효하지 않은 앨범 ID입니다." }, { status: 400 });
+    }
 
-    let url = `https://itunes.apple.com/lookup?id=${collectionId}&entity=song,album&limit=200&country=KR`;
+    let url = `https://itunes.apple.com/lookup?id=${collIdNum}&entity=song,album&limit=200&country=KR`;
     const response = await fetch(url, { headers: { Accept: "application/json" }, next: { revalidate: 3600 } });
     const data = (await response.json()) as iTunesLookupResponse;
     let results = data.results || [];
@@ -79,7 +78,7 @@ export async function GET(
     let rawTracks = results.filter(item => item.wrapperType === "track") as iTunesTrack[];
 
     if (rawTracks.length === 0) {
-      url = `https://itunes.apple.com/lookup?id=${collectionId}&entity=song,album&limit=200`;
+      url = `https://itunes.apple.com/lookup?id=${collIdNum}&entity=song,album&limit=200`;
       const fallbackResponse = await fetch(url, { headers: { Accept: "application/json" } });
       if (fallbackResponse.ok) {
         const fallbackData = await fallbackResponse.json();
@@ -94,10 +93,8 @@ export async function GET(
     if (rawTracks.length < (albumInfo?.trackCount || 1) && albumInfo?.artistId) {
       const targetTitle = normalizeTitle(albumInfo.collectionName);
       const originalTargetName = albumInfo.collectionName;
-      
       url = `https://itunes.apple.com/lookup?id=${albumInfo.artistId}&entity=song&limit=200`;
       const artistResponse = await fetch(url, { headers: { Accept: "application/json" } });
-      
       if (artistResponse.ok) {
         const artistData = await artistResponse.json();
         const allArtistItems = artistData.results || [];
@@ -105,27 +102,22 @@ export async function GET(
         const pooledTracks = allArtistItems.filter((item: { wrapperType?: string; collectionId?: number; collectionName?: string }) => {
           if (item.wrapperType !== "track") return false;
           if (item.collectionId === collIdNum) return true;
-          
           const trackCollName = item.collectionName || "";
           const normalizedTrackCollName = normalizeTitle(trackCollName);
-          
           return normalizedTrackCollName === targetTitle || 
                  normalizedTrackCollName.includes(targetTitle) || 
                  targetTitle.includes(normalizedTrackCollName);
         }) as iTunesTrack[];
 
         const trackGroups = new Map<number, iTunesTrack>();
-        
-        pooledTracks.forEach(track => {
+        pooledTracks.forEach((track) => {
           const num = track.trackNumber;
           const currentBest = trackGroups.get(num);
-          
           if (!currentBest) {
             trackGroups.set(num, track);
           } else {
             const currentScore = calculateTitleMatchScore(currentBest.collectionName || "", originalTargetName);
             const newScore = calculateTitleMatchScore(track.collectionName || "", originalTargetName);
-            
             if (newScore > currentScore) {
               trackGroups.set(num, track);
             }

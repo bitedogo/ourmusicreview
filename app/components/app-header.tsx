@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { signOut, useSession } from "next-auth/react";
 
 const ALBUM_REVIEW_LINK = { href: "/reviews", label: "앨범 리뷰" } as const;
@@ -48,18 +49,22 @@ export function AppHeader() {
   }, [menuOpen, profileOpen]);
 
   const logoLink = (
-    <Link
-      href="/"
-      className="shrink-0 text-lg font-semibold tracking-[0.2em] text-zinc-900"
-    >
-      ORU
+    <Link href="/" className="shrink-0 flex items-center gap-2">
+      <Image
+        src="/oru-num6.png"
+        alt="ORU 로고"
+        width={32}
+        height={32}
+        className="h-6 w-18"
+        priority
+      />
     </Link>
   );
 
   return (
     <header className="relative sticky top-0 z-50 w-full border-b border-zinc-200 bg-white/80 backdrop-blur">
-      <div className="mx-auto grid w-full max-w-5xl grid-cols-3 items-center gap-4 px-6 py-3 sm:px-10 md:flex md:justify-between">
-        <div className="flex items-center gap-6 sm:gap-8 md:gap-8" ref={menuRef}>
+      <div className="mx-auto grid w-full max-w-6xl grid-cols-3 items-center gap-4 px-6 py-3 sm:px-10 md:flex md:justify-between">
+        <div className="flex items-center gap-4 sm:gap-6 md:gap-6" ref={menuRef}>
           <div className="flex md:hidden items-center">
             <button
               type="button"
@@ -74,9 +79,9 @@ export function AppHeader() {
             </button>
           </div>
 
-          <div className="hidden md:flex items-center gap-5 text-xs text-zinc-600 md:gap-8">
+          <div className="hidden md:flex items-center gap-6 text-xs text-zinc-600">
             {logoLink}
-            <nav className="flex items-center gap-5 md:gap-8">
+            <nav className="flex items-center gap-6">
               {NAV_LINKS.map(({ href, label }) => (
                 <Link key={href} href={href} className="hover:text-zinc-900">
                   {label}
@@ -175,7 +180,7 @@ export function AppHeader() {
 
       {menuOpen && (
         <div className="absolute left-0 right-0 top-full z-40 border-b border-zinc-200 bg-white shadow-lg md:hidden">
-          <nav className="mx-auto max-w-5xl px-6 py-4">
+          <nav className="mx-auto max-w-6xl px-6 py-4 sm:px-10">
             <ul className="space-y-1">
               {NAV_LINKS.map(({ href, label }) => (
                 <li key={href}>
