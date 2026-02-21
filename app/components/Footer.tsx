@@ -20,7 +20,7 @@ export function Footer() {
             />
           </Link>
           <p className="mt-4 max-w-xs text-sm leading-relaxed text-zinc-600">
-            음악을 기록하고, 가치를 나누는 공간
+            음악을 기록하고, <wbr />가치를 나누는 공간
           </p>
           <p className="text-xs text-zinc-500">
             © 2026 ORU. All rights reserved.

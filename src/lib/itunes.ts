@@ -295,7 +295,7 @@ export async function searchArtists(term: string, limit: number = 20): Promise<i
           if (matched.length > 0) relevantArtists = matched;
         }
       } catch {
-        /* fallback 실패 시 기존 relevantArtists 유지 */
+        /* fallback failed, keep relevantArtists */
       }
     }
   } else {

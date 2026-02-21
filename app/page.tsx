@@ -69,7 +69,7 @@ function HomeContent() {
           <div className="relative p-8 sm:p-12">
             <div className="space-y-3">
               <h1 className="text-3xl font-semibold tracking-tight text-zinc-900 sm:text-4xl">
-                당신의 음악을 기록하고 공유하세요
+                당신의 음악을 기록하고 <wbr />공유하세요
               </h1>
               <p className="max-w-xl text-sm leading-6 text-zinc-600">
                 좋아하는 앨범을 저장하고, 리뷰로 감상을 남기고, 새로운 음악을

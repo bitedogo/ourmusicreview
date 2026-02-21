@@ -65,15 +65,23 @@ export const authOptions: NextAuthOptions = {
         const u = user as {
           role?: "USER" | "ADMIN";
           id: string;
+          name?: string | null;
           profileImage?: string | null;
         };
         token.role = u.role;
         token.id = u.id;
+        token.name = u.name ?? null;
         token.profileImage = u.profileImage ?? null;
       }
 
-      if (trigger === "update" && session && "profileImage" in session) {
-        token.profileImage = (session as { profileImage?: string | null }).profileImage ?? null;
+      if (trigger === "update" && session) {
+        const s = session as { profileImage?: string | null; name?: string | null };
+        if ("profileImage" in session) {
+          token.profileImage = s.profileImage ?? null;
+        }
+        if ("name" in session) {
+          token.name = s.name ?? null;
+        }
       }
 
       return token;
@@ -83,10 +91,12 @@ export const authOptions: NextAuthOptions = {
         const u = session.user as {
           role?: string;
           id?: string;
+          name?: string | null;
           profileImage?: string | null;
         };
         u.role = token.role as "USER" | "ADMIN" | undefined;
         u.id = token.id as string;
+        u.name = (token.name as string | null) ?? null;
         u.profileImage = (token.profileImage as string | null) ?? null;
       }
       return session;

@@ -13,7 +13,7 @@ const FEATURED_ALBUMS = [
   { artist: "Notorious B.I.G.", title: "Ready to Die" },
   { artist: "D'Angelo", title: "Voodoo" },
   { artist: "Beyoncé", title: "Lemonade" },
-  { artist: "Dr. dre", title: "2001" },
+  { artist: "Frank Ocean", title: "Channel Orange" },
   { artist: "Talking Heads", title: "Remain in Light" },
   { artist: "Nas", title: "Illmatic" },
 ];

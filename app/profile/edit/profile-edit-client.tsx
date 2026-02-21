@@ -22,6 +22,7 @@ export function ProfileEditClient({
   const router = useRouter();
   const { update: updateSession } = useSession();
   const [editingNickname, setEditingNickname] = useState(nickname);
+  const [displayNickname, setDisplayNickname] = useState(nickname);
   const [isUpdating, setIsUpdating] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -67,6 +68,14 @@ export function ProfileEditClient({
         return;
       }
 
+      const newNickname = data.nickname ?? trimmed;
+      setDisplayNickname(newNickname);
+      try {
+        await updateSession?.({ name: newNickname });
+        router.refresh();
+      } catch {
+        /* session refresh failed */
+      }
       setSuccessMessage("닉네임이 성공적으로 변경되었습니다.");
     } catch (error) {
       setErrorMessage(
@@ -224,7 +233,7 @@ export function ProfileEditClient({
             <div className="flex items-center justify-between">
               <span className="text-zinc-500">현재 닉네임</span>
               <span className="font-medium text-zinc-900">
-                {nickname}
+                {displayNickname}
               </span>
             </div>
             <div className="flex items-center justify-between">
@@ -267,7 +276,7 @@ export function ProfileEditClient({
             type="button"
             onClick={handleUpdateNickname}
             disabled={isUpdating}
-            className="inline-flex w-full items-center justify-center rounded-full bg-black px-4 py-2.5 text-xs font-medium text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:bg-zinc-400 sm:w-auto"
+            className="inline-flex w-full min-w-[7rem] shrink-0 items-center justify-center whitespace-nowrap rounded-full bg-black px-4 py-2.5 text-xs font-medium text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:bg-zinc-400 sm:w-auto"
           >
             {isUpdating ? "수정 중..." : "닉네임 저장"}
           </button>
