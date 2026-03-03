@@ -1,0 +1,28 @@
+import Link from "next/link";
+import { TermsContent } from "@/app/components/TermsContent";
+
+export default function TermsPage() {
+  return (
+    <div className="mx-auto min-h-screen max-w-3xl px-6 py-16">
+      <div className="rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm sm:p-12">
+        <h1 className="mb-2 text-2xl font-bold tracking-tight text-zinc-900">
+          이용약관
+        </h1>
+        <p className="mb-10 text-sm text-zinc-500">
+          Terms of Service
+        </p>
+
+        <TermsContent />
+
+        <div className="mt-12 pt-6 border-t border-zinc-200">
+          <Link
+            href="/"
+            className="text-sm font-medium text-zinc-600 underline hover:text-zinc-900"
+          >
+            ← 홈으로 돌아가기
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
