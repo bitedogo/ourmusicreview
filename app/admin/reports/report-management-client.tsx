@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { fetchJson, getApiErrorMessage } from "@/src/lib/http/client";
 
 interface ReportItem {
   id: string;
@@ -33,6 +34,13 @@ interface ReportItem {
   } | null;
 }
 
+interface ReportsResponse {
+  ok: true;
+  data: {
+    reports: ReportItem[];
+  };
+}
+
 export function ReportManagementClient() {
   const router = useRouter();
   const [reports, setReports] = useState<ReportItem[]>([]);
@@ -48,21 +56,10 @@ export function ReportManagementClient() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch("/api/admin/reports");
-      const data = await response.json();
-
-      if (!response.ok || !data?.ok) {
-        setError(data?.error ?? "신고 목록을 불러올 수 없습니다.");
-        return;
-      }
-
-      setReports(data.reports || []);
+      const data = await fetchJson<ReportsResponse>("/api/admin/reports");
+      setReports(data.data.reports || []);
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "신고 목록을 불러오는 중 오류가 발생했습니다."
-      );
+      setError(getApiErrorMessage(err, "신고 목록을 불러오는 중 오류가 발생했습니다."));
     } finally {
       setIsLoading(false);
     }
@@ -71,7 +68,7 @@ export function ReportManagementClient() {
   async function handleDismiss(reportId: string) {
     setProcessingIds((prev) => new Set(prev).add(reportId));
     try {
-      const response = await fetch(
+      await fetchJson<{ ok: true; data: { id: string; action: string } }>(
         `/api/admin/reports/${encodeURIComponent(reportId)}`,
         {
           method: "PATCH",
@@ -79,21 +76,9 @@ export function ReportManagementClient() {
           body: JSON.stringify({ action: "dismiss" }),
         }
       );
-
-      const data = await response.json();
-
-      if (!response.ok || !data?.ok) {
-        alert(data?.error ?? "신고 무시 처리에 실패했습니다.");
-        return;
-      }
-
       setReports((prev) => prev.filter((r) => r.id !== reportId));
     } catch (err) {
-      alert(
-        err instanceof Error
-          ? `신고 처리 중 오류가 발생했습니다: ${err.message}`
-          : "신고 처리 중 알 수 없는 오류가 발생했습니다."
-      );
+      alert(getApiErrorMessage(err, "신고 처리 중 알 수 없는 오류가 발생했습니다."));
     } finally {
       setProcessingIds((prev) => {
         const next = new Set(prev);
@@ -116,7 +101,7 @@ export function ReportManagementClient() {
 
     setProcessingIds((prev) => new Set(prev).add(reportId));
     try {
-      const response = await fetch(
+      await fetchJson<{ ok: true; data: { id: string; action: string } }>(
         `/api/admin/reports/${encodeURIComponent(reportId)}`,
         {
           method: "PATCH",
@@ -124,21 +109,9 @@ export function ReportManagementClient() {
           body: JSON.stringify({ action }),
         }
       );
-
-      const data = await response.json();
-
-      if (!response.ok || !data?.ok) {
-        alert(data?.error ?? "삭제에 실패했습니다.");
-        return;
-      }
-
       setReports((prev) => prev.filter((r) => r.id !== reportId));
     } catch (err) {
-      alert(
-        err instanceof Error
-          ? `처리 중 오류가 발생했습니다: ${err.message}`
-          : "처리 중 알 수 없는 오류가 발생했습니다."
-      );
+      alert(getApiErrorMessage(err, "처리 중 알 수 없는 오류가 발생했습니다."));
     } finally {
       setProcessingIds((prev) => {
         const next = new Set(prev);

@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
+import Image from "next/image";
 
 interface Member {
   id: string;
@@ -194,9 +195,12 @@ export function MemberManagementClient() {
                       <td className="px-3 py-2 align-middle">
                         <div className="flex items-center gap-3">
                           {member.profileImage ? (
-                            <img
+                            <Image
                               src={member.profileImage}
                               alt={member.nickname}
+                              width={32}
+                              height={32}
+                              unoptimized
                               className="h-8 w-8 rounded-full object-cover"
                             />
                           ) : (

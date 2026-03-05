@@ -128,6 +128,8 @@ export function ImageCropModal({
               circularCrop
               className="max-h-[50vh]"
             >
+              {/* react-image-crop은 HTMLImageElement ref를 직접 요구합니다. */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 ref={setImgRef}
                 src={imageSrc}

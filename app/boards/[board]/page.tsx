@@ -2,16 +2,21 @@ import { notFound } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/src/lib/auth/config";
 import { initializeDatabase } from "@/src/lib/db";
-import { Post, PostCategory } from "@/src/lib/db/entities/Post";
+import { Post, PostCategory, NoticeCategory } from "@/src/lib/db/entities/Post";
 import { Comment } from "@/src/lib/db/entities/Comment";
+import {
+  NOTICE_CATEGORY_COLOR,
+  NOTICE_CATEGORY_LABEL,
+} from "@/src/lib/community/notice-category";
 import Link from "next/link";
 
-type BoardType = "domestic" | "overseas" | "market" | "workroom";
+type BoardType = "domestic" | "overseas" | "market" | "workroom" | "notice";
 
 interface BoardMeta {
   title: string;
   description: string;
   category: PostCategory;
+  adminOnlyWrite?: boolean;
 }
 
 const BOARD_CONFIG: Record<BoardType, BoardMeta> = {
@@ -35,9 +40,25 @@ const BOARD_CONFIG: Record<BoardType, BoardMeta> = {
     description: "작업 중인 음악, 가사, 아이디어를 공유하고 피드백을 받아보세요.",
     category: "W",
   },
+  notice: {
+    title: "공지사항",
+    description: "ORU 서비스 관련 공지사항을 확인하세요.",
+    category: "N",
+    adminOnlyWrite: true,
+  },
 };
 
-const PAGE_SIZE_BOARD = 20;
+const PAGE_SIZE_BOARD = 15;
+
+function getNoticeCategoryLabel(post: { noticeCategory?: NoticeCategory | null }): string | null {
+  if (!post.noticeCategory || !(post.noticeCategory in NOTICE_CATEGORY_LABEL)) return null;
+  return NOTICE_CATEGORY_LABEL[post.noticeCategory as NoticeCategory];
+}
+
+function getNoticeCategoryColor(post: { noticeCategory?: NoticeCategory | null }): string | null {
+  if (!post.noticeCategory || !(post.noticeCategory in NOTICE_CATEGORY_COLOR)) return null;
+  return NOTICE_CATEGORY_COLOR[post.noticeCategory as NoticeCategory];
+}
 
 export default async function BoardPage(props: {
   params: Promise<{ board: BoardType }>;
@@ -60,10 +81,13 @@ export default async function BoardPage(props: {
   const commentRepository = dataSource.getRepository(Comment);
 
   const posts = await postRepository.find({
-    where: [
-      { category: config.category },
-      { isGlobal: "Y" }
-    ],
+    where:
+      config.category === "N"
+        ? { category: "N" }
+        : [
+            { category: config.category },
+            { isGlobal: "Y" as const },
+          ],
     relations: ["user"],
     order: { createdAt: "DESC" },
   });
@@ -99,11 +123,16 @@ export default async function BoardPage(props: {
     currentPage * PAGE_SIZE_BOARD
   );
 
-  const writeHref = isSignedIn
+  const canWrite = config.adminOnlyWrite
+    ? session?.user && (session.user as { role?: string }).role === "ADMIN"
+    : isSignedIn;
+  const writeHref = canWrite
     ? `/community/write?category=${encodeURIComponent(config.category)}`
-    : `/auth/signin?callbackUrl=${encodeURIComponent(
-        `/community/write?category=${config.category}`
-      )}`;
+    : config.adminOnlyWrite
+      ? "#"
+      : `/auth/signin?callbackUrl=${encodeURIComponent(
+          `/community/write?category=${config.category}`
+        )}`;
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-4xl flex-col gap-6 px-4 py-10 sm:px-10">
@@ -114,12 +143,14 @@ export default async function BoardPage(props: {
           </h1>
           <p className="mt-1 text-xs text-zinc-500">{config.description}</p>
         </div>
-        <Link
-          href={writeHref}
-          className="rounded-full bg-black px-4 py-2 text-xs font-semibold text-white hover:bg-zinc-800"
-        >
-          글쓰기
-        </Link>
+        {canWrite && (
+          <Link
+            href={writeHref}
+            className="rounded-full bg-black px-4 py-2 text-xs font-semibold text-white hover:bg-zinc-800"
+          >
+            글쓰기
+          </Link>
+        )}
       </section>
 
       <section>
@@ -166,12 +197,21 @@ export default async function BoardPage(props: {
                             index
                         )}
                       </td>
-                      <td className="px-3 py-2 text-sm text-zinc-900">
+                      <td className="px-3 py-2 text-sm">
                         <Link
                           href={`/community/${encodeURIComponent(post.id)}`}
-                          className={`flex items-center gap-1.5 hover:underline ${post.isAdmin ? "text-red-600 font-bold" : ""}`}
+                          className={`flex items-center gap-1.5 hover:underline ${config.category === "N" ? "font-bold text-black" : ""} ${config.category !== "N" && post.isAdmin ? "text-red-600 font-bold" : ""}`}
                         >
-                          <span className="line-clamp-1">{post.title}</span>
+                          {config.category === "N" && (() => {
+                            const label = getNoticeCategoryLabel(post);
+                            const color = getNoticeCategoryColor(post);
+                            return label && color ? (
+                              <span className={`shrink-0 font-semibold ${color}`}>
+                                [{label}]
+                              </span>
+                            ) : null;
+                          })()}
+                          <span className={`line-clamp-1 ${config.category === "N" ? "font-bold text-black" : ""}`}>{post.title}</span>
                           {post.commentCount > 0 && (
                             <span className="text-[10px] font-bold text-red-500">
                               [{post.commentCount}]

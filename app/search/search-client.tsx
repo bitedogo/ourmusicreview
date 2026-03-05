@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Image from "next/image";
 
 interface ArtistResult {
   artistId: number;
@@ -20,17 +21,25 @@ interface AlbumResult {
   imageUrl600: string | null;
 }
 
+const DEBOUNCE_MS = 300;
+
 export function SearchClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const initialQuery = searchParams.get("artist") || searchParams.get("q") || "";
   const artistParamFromUrl = searchParams.get("artist");
   const artistIdFromUrl = searchParams.get("artistId");
+  const initialQuery =
+    artistIdFromUrl != null && artistIdFromUrl !== ""
+      ? ""
+      : artistParamFromUrl || searchParams.get("q") || "";
   const didAutoSelectArtistRef = useRef(false);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [searchQuery, setSearchQuery] = useState(initialQuery);
-  const [isSearching, setIsSearching] = useState(false);
-  const [artists, setArtists] = useState<ArtistResult[]>([]);
+  const [suggestions, setSuggestions] = useState<ArtistResult[]>([]);
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedArtist, setSelectedArtist] = useState<ArtistResult | null>(null);
   const [albums, setAlbums] = useState<AlbumResult[]>([]);
   const [isLoadingAlbums, setIsLoadingAlbums] = useState(false);
@@ -40,10 +49,67 @@ export function SearchClient() {
   >({});
   const [favoriteAlbumIds, setFavoriteAlbumIds] = useState<Set<string>>(new Set());
 
+  const fetchSuggestions = useCallback(async (term: string) => {
+    if (!term.trim()) {
+      setSuggestions([]);
+      setIsDropdownOpen(false);
+      return;
+    }
+    setIsLoadingSuggestions(true);
+    setIsDropdownOpen(true);
+    try {
+      const res = await fetch(
+        `/api/itunes/search-autocomplete?term=${encodeURIComponent(term.trim())}`
+      );
+      const data = await res.json().catch(() => null);
+      if (data?.ok && Array.isArray(data?.results)) {
+        setSuggestions(data.results);
+        setIsDropdownOpen(data.results.length > 0);
+      } else {
+        setSuggestions([]);
+        setIsDropdownOpen(false);
+      }
+    } catch {
+      setSuggestions([]);
+      setIsDropdownOpen(false);
+    } finally {
+      setIsLoadingSuggestions(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    const q = searchQuery.trim();
+    if (!q) {
+      setSuggestions([]);
+      setIsDropdownOpen(false);
+      return;
+    }
+    if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+    debounceTimerRef.current = setTimeout(() => {
+      fetchSuggestions(q);
+    }, DEBOUNCE_MS);
+    return () => {
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+    };
+  }, [searchQuery, fetchSuggestions]);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        searchContainerRef.current &&
+        !searchContainerRef.current.contains(event.target as Node)
+      ) {
+        setIsDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   useEffect(() => {
     const artistId = artistIdFromUrl ? Number(artistIdFromUrl) : NaN;
     if (Number.isFinite(artistId) && artistParamFromUrl) {
-      setSearchQuery(artistParamFromUrl);
+      setSearchQuery("");
       didAutoSelectArtistRef.current = true;
       handleArtistSelect({
         artistId,
@@ -51,43 +117,18 @@ export function SearchClient() {
       });
       return;
     }
-    const q = (artistParamFromUrl || searchParams.get("q") || "").trim();
+    const q = searchParams.get("q")?.trim();
     if (q) {
       setSearchQuery(q);
-      handleSearch(q);
+      handleSearchAndRedirect(q);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [artistIdFromUrl, artistParamFromUrl, searchParams]);
 
-  useEffect(() => {
-    if (artistIdFromUrl) return;
-    if (
-      !artistParamFromUrl ||
-      artists.length === 0 ||
-      selectedArtist !== null ||
-      didAutoSelectArtistRef.current ||
-      isSearching
-    ) {
-      return;
-    }
-    didAutoSelectArtistRef.current = true;
-    handleArtistSelect(artists[0]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [artistParamFromUrl, artists, selectedArtist, isSearching]);
+  async function handleSearchAndRedirect(term: string) {
+    if (!term.trim()) return;
 
-  async function handleSearch(term: string) {
-    if (!term.trim()) {
-      setArtists([]);
-      setSelectedArtist(null);
-      setAlbums([]);
-      return;
-    }
-
-    setIsSearching(true);
     setErrorMessage(null);
-    setSelectedArtist(null);
-    setAlbums([]);
-
     try {
       const response = await fetch(`/api/itunes/artists?term=${encodeURIComponent(term)}`);
       const data = await response.json();
@@ -96,21 +137,40 @@ export function SearchClient() {
         setErrorMessage(
           data?.error ?? `검색에 실패했습니다. (status: ${response.status})`
         );
-        setArtists([]);
         return;
       }
 
-      setArtists(data.artists || []);
+      const artistsList = data.artists || [];
+      if (artistsList.length === 0) {
+        setErrorMessage("검색 결과가 없습니다.");
+        return;
+      }
+      const first = artistsList[0];
+      router.replace(
+        `/search?artistId=${first.artistId}&artist=${encodeURIComponent(first.artistName)}`
+      );
     } catch (error) {
       setErrorMessage(
         error instanceof Error
           ? `검색 중 오류가 발생했습니다: ${error.message}`
           : "검색 중 알 수 없는 오류가 발생했습니다."
       );
-      setArtists([]);
-    } finally {
-      setIsSearching(false);
     }
+  }
+
+  function handleSearchSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const q = searchQuery.trim();
+    if (!q) return;
+    setIsDropdownOpen(false);
+    handleSearchAndRedirect(q);
+  }
+
+  function handleArtistSelectFromDropdown(artist: ArtistResult) {
+    setIsDropdownOpen(false);
+    router.push(
+      `/search?artistId=${artist.artistId}&artist=${encodeURIComponent(artist.artistName)}`
+    );
   }
 
   async function handleArtistSelect(artist: ArtistResult) {
@@ -242,19 +302,6 @@ export function SearchClient() {
     }
   }
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const trimmed = searchQuery.trim();
-    if (!trimmed) return;
-    router.push(`/search?q=${encodeURIComponent(trimmed)}`);
-    handleSearch(trimmed);
-  }
-
-  function handleBackToArtists() {
-    setSelectedArtist(null);
-    setAlbums([]);
-  }
-
   useEffect(() => {
     async function fetchRatings() {
       if (albums.length === 0) {
@@ -314,54 +361,95 @@ export function SearchClient() {
   }, []);
 
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-5xl flex-col gap-6 px-6 py-10 sm:px-10">
+    <div className="mx-auto flex min-h-screen w-[956px] max-w-full flex-col gap-6 px-6 py-10 sm:px-10">
       <section className="space-y-4">
-        <div>
-          <h1 className="text-xl font-semibold tracking-tight text-zinc-900">
-            앨범 검색
-          </h1>
-          <p className="mt-1 text-xs text-zinc-600">
-            아티스트를 검색하고 앨범을 선택하여 등록하세요.
-          </p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="flex flex-col gap-3 sm:flex-row">
-          <div className="relative flex-1">
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-zinc-400">
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
+        <form onSubmit={handleSearchSubmit} className="flex justify-center">
+          <div ref={searchContainerRef} className="relative w-full max-w-[956px]">
+            <div
+              className={`flex flex-col overflow-hidden bg-white transition-[border-radius,box-shadow] ${
+                isDropdownOpen
+                  ? "rounded-t-2xl rounded-b-none"
+                  : "rounded-2xl border-2 border-black"
+              }`}
+            >
+              <div
+                className={`flex h-[68px] cursor-text items-center gap-3 ${
+                  isDropdownOpen ? "border-b-2 border-zinc-400 px-4" : "overflow-hidden px-3"
+                }`}
               >
-                <path
-                  d="M10.5 18.5C14.9183 18.5 18.5 14.9183 18.5 10.5C18.5 6.08172 14.9183 2.5 10.5 2.5C6.08172 2.5 2.5 6.08172 2.5 10.5C2.5 14.9183 6.08172 18.5 10.5 18.5Z"
-                  stroke="currentColor"
-                  strokeWidth="2"
+                <input
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="h-full flex-1 cursor-text bg-transparent pl-2 text-sm text-black caret-black outline-none placeholder:text-zinc-400"
+                  placeholder="아티스트 이름으로 검색해보세요"
                 />
-                <path
-                  d="M21.5 21.5L17.2 17.2"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
-              </svg>
+                <button
+                  type="submit"
+                  className="flex h-[54px] w-[65px] shrink-0 items-center justify-center rounded-xl bg-black text-white transition hover:bg-zinc-800"
+                  aria-label="검색"
+                >
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <circle cx="11" cy="11" r="8" />
+                    <path d="m21 21-4.35-4.35" />
+                  </svg>
+                </button>
+              </div>
+
+              {isDropdownOpen && (
+                <ul role="listbox">
+                  {isLoadingSuggestions ? (
+                    <li className="px-4 py-3 text-sm text-zinc-500">검색 중...</li>
+                  ) : (
+                    suggestions.map((artist) => (
+                      <li
+                        key={artist.artistId}
+                        role="option"
+                        aria-selected="false"
+                        className="border-b border-zinc-100 last:border-b-0"
+                      >
+                        <button
+                          type="button"
+                          onClick={() => handleArtistSelectFromDropdown(artist)}
+                          className="flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-zinc-50"
+                        >
+                          <Image
+                            src={
+                              artist.artworkUrl100 ??
+                              "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Crect fill='%23e4e4e7' width='40' height='40'/%3E%3Cpath fill='%23a1a1aa' d='M20 18a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm0 2c-5 0-8 2.5-8 5v5h16v-5c0-2.5-3-5-8-5z'/%3E%3C/svg%3E"
+                            }
+                            alt={`${artist.artistName} 프로필`}
+                            width={40}
+                            height={40}
+                            unoptimized
+                            className="h-10 w-10 shrink-0 rounded-lg bg-zinc-200 object-cover"
+                          />
+                          <div className="min-w-0 flex-1 text-left">
+                            <div className="truncate text-sm font-medium text-black">
+                              {artist.artistName}
+                            </div>
+                            {artist.primaryGenreName && (
+                              <div className="truncate text-xs text-zinc-400">
+                                {artist.primaryGenreName}
+                              </div>
+                            )}
+                          </div>
+                        </button>
+                      </li>
+                    ))
+                  )}
+                </ul>
+              )}
             </div>
-            <input
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-2xl border border-zinc-200 bg-white px-11 py-3 text-sm text-zinc-900 outline-none placeholder:text-zinc-400 focus:border-zinc-400 focus:ring-2 focus:ring-zinc-200"
-              placeholder="아티스트 이름으로 검색해보세요"
-            />
           </div>
-          <button
-            type="submit"
-            disabled={isSearching}
-            className="inline-flex items-center justify-center rounded-2xl border border-zinc-200 bg-zinc-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-black disabled:cursor-not-allowed disabled:bg-zinc-400"
-          >
-            {isSearching ? "검색 중..." : "검색"}
-          </button>
         </form>
 
         {errorMessage && (
@@ -371,86 +459,12 @@ export function SearchClient() {
         )}
       </section>
 
-      {!selectedArtist && artists.length > 0 && (
-        <section>
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-base font-semibold tracking-tight text-zinc-900">
-              아티스트 검색 결과 ({artists.length}개)
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {artists.map((artist) => (
-              <button
-                key={artist.artistId}
-                type="button"
-                onClick={() => handleArtistSelect(artist)}
-                className="rounded-xl border border-zinc-200 bg-white p-4 text-left shadow-sm transition-all hover:border-zinc-300 hover:shadow-md"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="flex-1 min-w-0">
-                    <h3 className="truncate text-sm font-semibold text-zinc-900">
-                      {artist.artistName}
-                    </h3>
-                    {artist.primaryGenreName && (
-                      <p className="truncate text-xs text-zinc-500">
-                        {artist.primaryGenreName}
-                      </p>
-                    )}
-                  </div>
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="text-zinc-400"
-                  >
-                    <path
-                      d="M9 18L15 12L9 6"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </div>
-              </button>
-            ))}
-          </div>
-        </section>
-      )}
-
       {selectedArtist && (
-        <section>
-          <div className="mb-4 flex items-center gap-3">
-            <button
-              type="button"
-              onClick={handleBackToArtists}
-              className="flex items-center gap-1 rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs font-medium text-zinc-700 transition hover:bg-zinc-50"
-            >
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M15 18L9 12L15 6"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-              아티스트 목록으로
-            </button>
-            <div>
-              <h2 className="text-base font-semibold tracking-tight text-zinc-900">
-                {selectedArtist.artistName}의 앨범
-              </h2>
-            </div>
+        <section className="mt-8">
+          <div className="mb-4">
+            <h2 className="text-xl font-semibold tracking-tight text-zinc-900">
+              {selectedArtist.artistName} 의 앨범
+            </h2>
           </div>
 
           {isLoadingAlbums ? (
@@ -468,11 +482,13 @@ export function SearchClient() {
                     <div className="text-left">
                       <div className="relative mb-3 aspect-square overflow-hidden rounded-xl">
                         {album.imageUrl600 ? (
-                          <img
+                          <Image
                             src={album.imageUrl600}
                             alt={album.collectionName}
+                            fill
+                            unoptimized
+                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                             className="h-full w-full object-contain"
-                            loading="lazy"
                           />
                         ) : (
                           <div className="flex h-full w-full items-center justify-center bg-zinc-100 text-xs text-zinc-400">
@@ -569,16 +585,7 @@ export function SearchClient() {
         </section>
       )}
 
-      {!isSearching && !selectedArtist && artists.length === 0 && searchQuery && (
-        <div className="rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 px-4 py-6 text-center text-sm text-zinc-500">
-          <p className="font-medium text-zinc-700 mb-1">검색 결과가 없습니다.</p>
-          <p className="text-xs">
-            애플 뮤직에 등록되지 않은 아티스트일 수 있습니다. 다른 검색어로 시도해보세요.
-          </p>
-        </div>
-      )}
-
-      {!isSearching && !selectedArtist && artists.length === 0 && !searchQuery && (
+      {!selectedArtist && (
         <div className="rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 px-4 py-6 text-center text-sm text-zinc-500">
           위 검색창에 아티스트 이름을 입력하고 검색해보세요.
         </div>

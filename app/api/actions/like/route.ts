@@ -1,27 +1,21 @@
-import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/src/lib/auth/config";
 import { AppDataSource } from "@/src/lib/db/data-source";
 import { Like } from "@/src/lib/db/entities/Like";
 import { randomUUID } from "crypto";
+import { apiError, apiOk } from "@/src/lib/http/response";
 
 export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { ok: false, error: "로그인이 필요합니다." },
-        { status: 401 }
-      );
+      return apiError("로그인이 필요합니다.", { status: 401 });
     }
 
     const { postId, reviewId } = await request.json();
 
     if (!postId && !reviewId) {
-      return NextResponse.json(
-        { ok: false, error: "postId 또는 reviewId가 필요합니다." },
-        { status: 400 }
-      );
+      return apiError("postId 또는 reviewId가 필요합니다.", { status: 400 });
     }
 
     if (!AppDataSource.isInitialized) {
@@ -40,7 +34,7 @@ export async function POST(request: Request) {
 
     if (existingLike) {
       await likeRepository.remove(existingLike);
-      return NextResponse.json({ ok: true, liked: false });
+      return apiOk({ liked: false });
     } else {
       const newLike = likeRepository.create({
         id: randomUUID(),
@@ -49,13 +43,10 @@ export async function POST(request: Request) {
         reviewId: reviewId || null,
       });
       await likeRepository.save(newLike);
-      return NextResponse.json({ ok: true, liked: true });
+      return apiOk({ liked: true });
     }
   } catch {
-    return NextResponse.json(
-      { ok: false, error: "좋아요 처리 중 오류가 발생했습니다." },
-      { status: 500 }
-    );
+    return apiError("좋아요 처리 중 오류가 발생했습니다.", { status: 500 });
   }
 }
 
@@ -66,10 +57,7 @@ export async function GET(request: Request) {
     const reviewId = searchParams.get("reviewId");
 
     if (!postId && !reviewId) {
-      return NextResponse.json(
-        { ok: false, error: "postId 또는 reviewId가 필요합니다." },
-        { status: 400 }
-      );
+      return apiError("postId 또는 reviewId가 필요합니다.", { status: 400 });
     }
 
     if (!AppDataSource.isInitialized) {
@@ -94,11 +82,8 @@ export async function GET(request: Request) {
       liked = !!myLike;
     }
 
-    return NextResponse.json({ ok: true, count, liked });
+    return apiOk({ count, liked });
   } catch {
-    return NextResponse.json(
-      { ok: false, error: "좋아요 조회 중 오류가 발생했습니다." },
-      { status: 500 }
-    );
+    return apiError("좋아요 조회 중 오류가 발생했습니다.", { status: 500 });
   }
 }

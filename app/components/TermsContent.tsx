@@ -21,61 +21,62 @@ export function TermsContent() {
             <span className="font-semibold">&apos;회원&apos;</span>이라 함은 사이트에 접속하여 본 약관에 동의하고 계정을 생성한 자를 말합니다.
           </li>
           <li>
-            <span className="font-semibold">&apos;게시물&apos;</span>이라 함은 회원이 서비스를 이용함에 있어 게시한 글, 사진, 음원, 영상, 댓글 등을 의미합니다.
+            <span className="font-semibold">&apos;게시물&apos;</span>이라 함은 회원이 서비스를 이용함에 있어 게시한 글, 사진, 음악 데이터, 댓글 등을 의미합니다.
           </li>
           <li>
-            <span className="font-semibold">&apos;장터&apos;</span>라 함은 회원 간 중고 물품을 거래할 수 있도록 사이트가 제공하는 가상의 공간을 말합니다.
+            <span className="font-semibold">&apos;리뷰&apos;</span>라 함은 특정 앨범이나 아티스트에 대해 회원이 작성한 주관적인 평가 및 비평 콘텐츠를 말합니다.
           </li>
         </ul>
       </section>
 
       <section>
-        <h2 className="mb-3 text-base font-bold text-zinc-900">제3조 (이용계약의 성립 및 거절)</h2>
+        <h2 className="mb-3 text-base font-bold text-zinc-900">제3조 (회원가입 및 계정 관리)</h2>
+        <ul className="space-y-3 text-sm sm:text-base">
+          <li>이용계약은 회원이 되고자 하는 자가 약관 내용에 동의하고 가입을 신청하며, 관리자가 이를 승인함으로써 성립합니다.</li>
+          <li>회원은 1인 1계정 원칙을 준수해야 하며, 타인의 정보를 도용하여 가입한 경우 사전 통보 없이 계정이 삭제될 수 있습니다.</li>
+          <li>회원은 자신의 비밀번호 및 계정에 대한 관리 책임을 지며, 본인의 부주의로 인해 발생하는 도용 및 이용상의 불이익은 회원 본인이 부담합니다.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 className="mb-3 text-base font-bold text-zinc-900">제4조 (서비스 이용 및 제한)</h2>
         <p className="mb-4 text-sm sm:text-base">
-          이용계약은 회원이 되고자 하는 자가 약관 내용에 동의하고 가입을 신청하며, 관리자가 이를 승인함으로써 성립합니다.
+          사이트는 회원에게 앨범 검색, 리뷰 작성, 커뮤니티 게시판 이용 등의 서비스를 제공합니다.
         </p>
         <p className="mb-3 text-sm sm:text-base">
-          사이트는 다음 각 호에 해당하는 신청에 대하여 승인을 제한하거나 사후에 계약을 해지할 수 있습니다.
+          사이트는 다음 각 호에 해당하는 경우 서비스 이용을 제한하거나 게시물을 삭제할 수 있습니다.
         </p>
         <ul className="list-inside list-disc space-y-2 text-sm sm:text-base">
-          <li>타인의 명의를 도용하거나 허위 정보를 기재한 경우</li>
-          <li>이전에 회원 자격을 상실한 적이 있는 경우</li>
-          <li>사회의 안녕질서 혹은 미풍양속을 저해할 목적으로 신청한 경우</li>
+          <li>특정 아티스트, 회원 또는 제3자에 대한 비방, 모욕, 명예훼손</li>
+          <li>공공질서 및 미풍양속에 위반되는 음란물이나 폭력적인 게시물 작성</li>
+          <li>사이트의 운영을 방해할 목적으로 동일한 내용을 반복 게시하는 행위(도배)</li>
+          <li>확인되지 않은 허위 사실 유포 및 정치/종교적 분란 조장 행위</li>
         </ul>
       </section>
 
       <section>
-        <h2 className="mb-3 text-base font-bold text-zinc-900">제4조 (이용자의 의무 및 게시물 관리)</h2>
-        <p className="mb-3 text-sm sm:text-base">
-          회원은 다음 각 호의 행위를 해서는 안 됩니다.
-        </p>
-        <ul className="mb-4 list-inside list-disc space-y-2 text-sm sm:text-base">
-          <li>특정 아티스트 및 타인에 대한 비방, 모욕, 명예훼손, 허위사실 유포</li>
-          <li>도배, 광고, 스팸성 게시물 작성 및 정치/종교적 분란 조장</li>
-          <li>타인의 저작권을 침해하는 음원, 영상, 텍스트의 무단 게시</li>
-        </ul>
-        <p className="text-sm sm:text-base">
-          관리자는 위 조항을 위반한 게시물을 사전 통보 없이 삭제, 이동, 수정할 수 있으며 해당 회원의 활동을 제한할 수 있습니다.
-        </p>
-      </section>
-
-      <section>
-        <h2 className="mb-3 text-base font-bold text-zinc-900">제5조 (장터 및 워크룸 특약)</h2>
-        <ul className="space-y-4 text-sm sm:text-base">
-          <li>
-            <span className="font-semibold">장터:</span> 회원은 판매 물품의 실물 사진(닉네임 인증 포함)을 반드시 게시해야 하며, 허위 매물이나 사기 행위 시 모든 책임은 회원에게 있고 즉시 영구 제명됩니다. 사이트는 중개자로서 거래 사고에 대한 법적 책임을 지지 않습니다.
-          </li>
-          <li>
-            <span className="font-semibold">워크룸:</span> 본인이 창작하지 않은 작업물을 무단으로 도용하여 게시할 경우 저작권법에 따라 처벌받을 수 있으며, 사이트는 이에 대한 어떠한 책임도 지지 않습니다.
-          </li>
+        <h2 className="mb-3 text-base font-bold text-zinc-900">제5조 (게시물의 저작권 및 이용)</h2>
+        <ul className="space-y-3 text-sm sm:text-base">
+          <li>회원이 사이트 내에 게시한 게시물의 저작권은 해당 게시물의 저작자에게 귀속됩니다.</li>
+          <li>회원은 자신이 게시한 콘텐츠가 제3자의 저작권을 침해하지 않음을 보증해야 하며, 이와 관련하여 발생하는 법적 책임은 회원 본인에게 있습니다.</li>
+          <li>사이트는 서비스의 홍보 및 운영을 위해 회원의 게시물을 검색 결과에 노출하거나 통계 자료로 활용할 수 있습니다. 단, 이 과정에서 원문이 훼손되지 않도록 최선을 다합니다.</li>
         </ul>
       </section>
 
       <section>
-        <h2 className="mb-3 text-base font-bold text-zinc-900">제6조 (손해배상 및 면책)</h2>
-        <ul className="list-inside list-disc space-y-2 text-sm sm:text-base">
-          <li>사이트는 천재지변, 서버 점검, 통신 장애 등 불가항력적인 사유로 서비스가 중단될 경우 책임을 지지 않습니다.</li>
-          <li>이용자 간 발생한 분쟁(명예훼손, 거래 사기 등)에 대해 사이트는 개입하지 않으며 이를 보상할 의무가 없습니다.</li>
+        <h2 className="mb-3 text-base font-bold text-zinc-900">제6조 (권리의 귀속 및 지적재산권)</h2>
+        <ul className="space-y-3 text-sm sm:text-base">
+          <li>사이트가 제공하는 서비스, 소프트웨어, 이미지, 디자인, UI/UX 등 사이트 자체의 지적재산권은 &apos;ORU&apos;에 귀속됩니다.</li>
+          <li>회원은 사이트를 이용함으로써 얻은 정보를 관리자의 사전 승낙 없이 복제, 송신, 출판, 배포, 방송 기타 방법에 의하여 영리 목적으로 이용하거나 제3자에게 이용하게 하여서는 안 됩니다.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 className="mb-3 text-base font-bold text-zinc-900">제7조 (계정 해지 및 자격 상실)</h2>
+        <ul className="space-y-3 text-sm sm:text-base">
+          <li>회원은 언제든지 서비스 내 설정 메뉴를 통해 이용계약 해지(탈퇴)를 신청할 수 있습니다.</li>
+          <li>회원이 본 약관의 의무를 위반하거나 사이트의 정상적인 운영을 방해한 경우, 관리자는 경고, 일시 정지, 영구 이용 정지 등의 단계별 조치를 취할 수 있습니다.</li>
+          <li>영구 이용 정지 조치를 받은 회원은 향후 재가입이 제한될 수 있습니다.</li>
         </ul>
       </section>
     </article>

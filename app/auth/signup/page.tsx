@@ -167,7 +167,7 @@ export default function SignupPage() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-3">
-          <h2 className="text-base font-semibold text-zinc-900">이용약관</h2>
+          <h2 className="text-sm font-medium text-zinc-900"><span className="text-red-600">*</span> 이용약관</h2>
           <div className="max-h-64 overflow-y-auto rounded border border-zinc-200 bg-zinc-50 p-4">
             <TermsContent />
           </div>
@@ -179,7 +179,7 @@ export default function SignupPage() {
               className="h-4 w-4 rounded border-zinc-300"
             />
             <span className="text-sm font-medium text-zinc-900">
-              <span className="text-red-600">*</span> 이용약관에 동의합니다
+              이용약관에 동의합니다
             </span>
           </label>
         </div>

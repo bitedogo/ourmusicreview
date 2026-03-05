@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/src/lib/auth/config";
 import { initializeDatabase } from "@/src/lib/db";
 import { Post, PostCategory } from "@/src/lib/db/entities/Post";
+import { isNoticeCategory } from "@/src/lib/community/notice-category";
 import { randomUUID } from "crypto";
 
 interface CreatePostBody {
@@ -10,6 +11,7 @@ interface CreatePostBody {
   content?: string;
   category?: PostCategory;
   isGlobal?: boolean;
+  noticeCategory?: NoticeCategory;
 }
 
 export async function POST(request: Request) {
@@ -33,17 +35,36 @@ export async function POST(request: Request) {
     const isGlobal = isAdmin && body.isGlobal === true ? "Y" : "N";
 
     const allowedCategories: PostCategory[] = ["K", "I", "M", "W"];
-    const category: PostCategory = allowedCategories.includes(
-      body.category as PostCategory
-    )
-      ? (body.category as PostCategory)
-      : "K";
+    const requestedCategory = body.category as PostCategory;
+    let category: PostCategory = "K";
+    if (requestedCategory === "N") {
+      if (!isAdmin) {
+        return NextResponse.json(
+          { ok: false, error: "공지사항 작성 권한이 없습니다." },
+          { status: 403 }
+        );
+      }
+      category = "N";
+    } else if (allowedCategories.includes(requestedCategory)) {
+      category = requestedCategory;
+    }
 
     if (!title || !content) {
       return NextResponse.json(
         { ok: false, error: "제목과 내용을 모두 입력해주세요." },
         { status: 400 }
       );
+    }
+
+    let noticeCategory: CreatePostBody["noticeCategory"] | null = null;
+    if (category === "N") {
+      if (!isNoticeCategory(body.noticeCategory)) {
+        return NextResponse.json(
+          { ok: false, error: "공지사항 카테고리를 선택해주세요. (RELEASE NOTE, EVENT, SERVICE, REPORT)" },
+          { status: 400 }
+        );
+      }
+      noticeCategory = body.noticeCategory;
     }
 
     const dataSource = await initializeDatabase();
@@ -57,6 +78,7 @@ export async function POST(request: Request) {
       content,
       category,
       isGlobal,
+      noticeCategory,
       userId: session.user.id!,
       nickname: session.user.name ?? "",
     });

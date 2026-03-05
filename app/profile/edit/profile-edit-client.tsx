@@ -4,6 +4,7 @@ import { useCallback, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { ImageCropModal } from "@/app/components/ImageCropModal";
+import Image from "next/image";
 
 interface ProfileEditClientProps {
   id: string;
@@ -194,15 +195,21 @@ export function ProfileEditClient({
           <div className="flex flex-col items-center gap-2">
             <div className="h-24 w-24 overflow-hidden rounded-full bg-zinc-100">
               {previewUrl ? (
-                <img
+                <Image
                   src={previewUrl}
                   alt="프로필 미리보기"
+                  width={96}
+                  height={96}
+                  unoptimized
                   className="h-full w-full object-cover"
                 />
               ) : currentProfileImage ? (
-                <img
+                <Image
                   src={currentProfileImage}
                   alt="현재 프로필 이미지"
+                  width={96}
+                  height={96}
+                  unoptimized
                   className="h-full w-full object-cover"
                 />
               ) : (

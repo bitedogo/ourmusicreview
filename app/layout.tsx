@@ -1,14 +1,8 @@
 import type { Metadata, Viewport } from "next";
-import { Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import { AppHeader } from "./components/app-header";
 import { Footer } from "./components/Footer";
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "ORU",
@@ -27,7 +21,7 @@ export default function RootLayout({
   return (
     <html lang="ko" suppressHydrationWarning>
       <body
-        className={`${geistMono.variable} font-sans flex min-h-screen flex-col antialiased overflow-x-hidden bg-white text-zinc-900`}
+        className="font-sans flex min-h-screen flex-col antialiased overflow-x-hidden bg-white text-zinc-900"
       >
         <Providers>
           <AppHeader />

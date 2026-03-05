@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 interface FavoriteAlbum {
   id: string;
@@ -98,9 +99,12 @@ export default function FavoriteAlbumsPage() {
             >
               <div className="relative mb-3 aspect-square overflow-hidden rounded-xl bg-zinc-100">
                 {fav.album?.imageUrl ? (
-                  <img
+                  <Image
                     src={fav.album.imageUrl}
                     alt={fav.album.title}
+                    fill
+                    unoptimized
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     className="h-full w-full object-contain"
                   />
                 ) : (

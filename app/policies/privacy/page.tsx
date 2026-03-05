@@ -3,14 +3,16 @@ import Link from "next/link";
 export default function PrivacyPage() {
   return (
     <div className="mx-auto min-h-screen max-w-3xl px-6 py-16">
-      <div className="rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm sm:p-12">
-        <h1 className="mb-2 text-2xl font-bold tracking-tight text-zinc-900">
+      <header className="mb-10 text-center">
+        <h1 className="text-4xl font-bold tracking-tight text-zinc-900">
           개인정보처리방침
         </h1>
-        <p className="mb-10 text-sm text-zinc-500">
+        <p className="mt-2 text-sm text-zinc-500">
           Privacy Policy
         </p>
+      </header>
 
+      <div className="rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm sm:p-12">
         <article className="space-y-10 leading-relaxed text-zinc-700" style={{ letterSpacing: "0.01em", lineHeight: 1.9 }}>
           <section>
             <h2 className="mb-3 text-base font-bold text-zinc-900">

@@ -4,14 +4,16 @@ import { TermsContent } from "@/app/components/TermsContent";
 export default function TermsPage() {
   return (
     <div className="mx-auto min-h-screen max-w-3xl px-6 py-16">
-      <div className="rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm sm:p-12">
-        <h1 className="mb-2 text-2xl font-bold tracking-tight text-zinc-900">
+      <header className="mb-10 text-center">
+        <h1 className="text-4xl font-bold tracking-tight text-zinc-900">
           이용약관
         </h1>
-        <p className="mb-10 text-sm text-zinc-500">
+        <p className="mt-2 text-sm text-zinc-500">
           Terms of Service
         </p>
+      </header>
 
+      <div className="rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm sm:p-12">
         <TermsContent />
 
         <div className="mt-12 pt-6 border-t border-zinc-200">

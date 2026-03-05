@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server";
 import { In } from "typeorm";
 import { initializeDatabase } from "@/src/lib/db";
 import { FeaturedSlideAlbum } from "@/src/lib/db/entities/FeaturedSlideAlbum";
 import { Review } from "@/src/lib/db/entities/Review";
+import { noStoreJson, publicCachedJson } from "@/src/lib/http/cache";
 
 export async function GET() {
   try {
@@ -44,9 +44,9 @@ export async function GET() {
       averageRating: ratingsByAlbumId[row.collectionId] ?? null,
     }));
 
-    return NextResponse.json({ ok: true, albums }, { status: 200 });
+    return publicCachedJson({ ok: true, albums }, 60, 300);
   } catch (error) {
-    return NextResponse.json(
+    return noStoreJson(
       {
         ok: false,
         error:

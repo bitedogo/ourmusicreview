@@ -4,8 +4,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { TuiEditor, TuiEditorRef } from "@/src/components/common/TuiEditor";
+import { NoticeCategory } from "@/src/lib/db/entities/Post";
+import { NOTICE_CATEGORY_OPTIONS } from "@/src/lib/community/notice-category";
 
-type Category = "K" | "I" | "M" | "W";
+type Category = "K" | "I" | "M" | "W" | "N";
 
 export function CommunityWriteClient() {
   const router = useRouter();
@@ -19,7 +21,8 @@ export function CommunityWriteClient() {
     initialCategoryParam === "K" ||
     initialCategoryParam === "I" ||
     initialCategoryParam === "M" ||
-    initialCategoryParam === "W";
+    initialCategoryParam === "W" ||
+    initialCategoryParam === "N";
   const initialCategory: Category =
     hasLockedCategory
       ? (initialCategoryParam as Category)
@@ -28,6 +31,7 @@ export function CommunityWriteClient() {
   const [title, setTitle] = useState("");
   const [, setContent] = useState("");
   const [category, setCategory] = useState<Category>(initialCategory);
+  const [noticeCategory, setNoticeCategory] = useState<NoticeCategory>("RELEASE_NOTE");
   const [isGlobal, setIsGlobal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(!!editPostId);
@@ -47,6 +51,11 @@ export function CommunityWriteClient() {
         if (data.ok && data.post) {
           setTitle(data.post.title);
           setCategory(data.post.category);
+          setNoticeCategory(
+            NOTICE_CATEGORY_OPTIONS.some((o) => o.value === data.post.noticeCategory)
+              ? data.post.noticeCategory
+              : "RELEASE_NOTE"
+          );
           setIsGlobal(data.post.isGlobal === "Y");
           setTimeout(() => {
             editorRef.current?.setHTML(data.post.content);
@@ -79,6 +88,12 @@ export function CommunityWriteClient() {
       return;
     }
 
+    if (category === "N" && !noticeCategory) {
+      setErrorMessage("공지사항 카테고리를 선택해주세요.");
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
       const url = editPostId 
         ? `/api/community/posts/${editPostId}` 
@@ -93,6 +108,7 @@ export function CommunityWriteClient() {
           content: trimmedContent,
           category,
           isGlobal,
+          ...(category === "N" && { noticeCategory }),
         }),
       });
 
@@ -117,6 +133,7 @@ export function CommunityWriteClient() {
           I: "overseas",
           M: "market",
           W: "workroom",
+          N: "notice",
         }[category] || "domestic";
         router.push(`/boards/${categoryPath}`);
       }
@@ -140,25 +157,46 @@ export function CommunityWriteClient() {
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-3xl flex-col gap-6 px-6 py-10 sm:px-16">
-      <section className="space-y-2">
-        <h1 className="text-xl font-semibold tracking-tight">
-          {editPostId ? "게시글 수정" : "글쓰기"}
-        </h1>
-        <p className="text-xs text-zinc-500">자유롭게 이야기를 남겨보세요.</p>
-      </section>
-
       <form
         onSubmit={handleSubmit}
         className="space-y-4 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm"
       >
         <div className="space-y-1">
           {hasLockedCategory ? (
-            <p className="text-lg font-semibold text-zinc-900">
-              {category === "K" && "국내게시판"}
-              {category === "I" && "해외게시판"}
-              {category === "M" && "장터게시판"}
-              {category === "W" && "워크룸"}
-            </p>
+            <div
+              className={
+                category === "N"
+                  ? "flex flex-wrap items-center justify-between gap-3"
+                  : ""
+              }
+            >
+              <p className="text-lg font-semibold text-zinc-900">
+                {category === "K" && "국내게시판"}
+                {category === "I" && "해외게시판"}
+                {category === "M" && "장터게시판"}
+                {category === "W" && "워크룸"}
+                {category === "N" && "공지사항"}
+              </p>
+              {category === "N" && (
+                <div className="inline-flex flex-wrap justify-end gap-1 text-xs text-zinc-600">
+                  {NOTICE_CATEGORY_OPTIONS.map(({ value, label }) => (
+                    <button
+                      key={value}
+                      type="button"
+                      onClick={() => setNoticeCategory(value)}
+                      className={[
+                        "rounded-full px-3 py-1.5 font-semibold border",
+                        noticeCategory === value
+                          ? "bg-zinc-900 text-white border-zinc-900"
+                          : "border-zinc-200 text-zinc-500 hover:text-zinc-800",
+                      ].join(" ")}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           ) : (
             <>
               <label className="text-xs font-medium text-zinc-600">
@@ -229,7 +267,7 @@ export function CommunityWriteClient() {
               className="flex-1 rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm outline-none focus:border-zinc-400"
               placeholder="제목을 입력해주세요"
             />
-            {isAdmin && (
+            {isAdmin && category !== "N" && (
               <label className="flex shrink-0 items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"

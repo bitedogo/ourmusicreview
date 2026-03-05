@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
+import Image from "next/image";
 
 interface Comment {
   id: string;
@@ -26,24 +27,24 @@ export function CommentSection({ postId, reviewId }: CommentSectionProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const fetchComments = async () => {
+  const fetchComments = useCallback(async () => {
     setIsLoading(true);
     try {
       const query = postId ? `postId=${postId}` : `reviewId=${reviewId}`;
       const response = await fetch(`/api/comments?${query}`);
       const data = await response.json();
       if (data.ok) {
-        setComments(data.comments);
+        setComments(data.data?.comments ?? []);
       }
     } catch {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [postId, reviewId]);
 
   useEffect(() => {
     fetchComments();
-  }, [postId, reviewId]);
+  }, [fetchComments]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -103,7 +104,14 @@ export function CommentSection({ postId, reviewId }: CommentSectionProps) {
             <div key={comment.id} className="flex gap-4">
               <div className="h-8 w-8 shrink-0 overflow-hidden rounded-full bg-zinc-100">
                 {comment.user.profileImage ? (
-                  <img src={comment.user.profileImage} alt="" className="h-full w-full object-cover" />
+                  <Image
+                    src={comment.user.profileImage}
+                    alt=""
+                    width={32}
+                    height={32}
+                    unoptimized
+                    className="h-full w-full object-cover"
+                  />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center text-[10px] font-bold text-zinc-400">
                     {comment.user.nickname.charAt(0).toUpperCase()}

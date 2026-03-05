@@ -41,8 +41,9 @@ export function PostContentClient({ content, postId, userId, category, isNotice 
           I: "overseas",
           M: "market",
           W: "workroom",
-        }[category as "K" | "I" | "M" | "W"] || "domestic";
-        
+          N: "notice",
+        }[category as "K" | "I" | "M" | "W" | "N"] || "domestic";
+
         router.push(`/boards/${categoryPath}`);
         router.refresh();
       } else {
@@ -54,7 +55,8 @@ export function PostContentClient({ content, postId, userId, category, isNotice 
         I: "overseas",
         M: "market",
         W: "workroom",
-      }[category as "K" | "I" | "M" | "W"] || "domestic";
+        N: "notice",
+      }[category as "K" | "I" | "M" | "W" | "N"] || "domestic";
       router.push(`/boards/${categoryPath}`);
     }
   };

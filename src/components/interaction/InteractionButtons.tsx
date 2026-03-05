@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
@@ -33,21 +33,24 @@ export function InteractionButtons({ postId, reviewId, isNotice, authorUserId }:
 
   const isOwnContent = authorUserId && session?.user?.id === authorUserId;
 
-  const fetchLikeInfo = async () => {
+  const fetchLikeInfo = useCallback(async () => {
     try {
       const query = postId ? `postId=${postId}` : `reviewId=${reviewId}`;
       const response = await fetch(`/api/actions/like?${query}`);
       const data = await response.json();
       if (data.ok) {
-        setLikeInfo({ count: data.count, liked: data.liked });
+        setLikeInfo({
+          count: data.data?.count ?? 0,
+          liked: data.data?.liked ?? false,
+        });
       }
     } catch {
     }
-  };
+  }, [postId, reviewId]);
 
   useEffect(() => {
     fetchLikeInfo();
-  }, [postId, reviewId]);
+  }, [fetchLikeInfo]);
 
   const handleLike = async () => {
     if (!session) {
@@ -66,8 +69,8 @@ export function InteractionButtons({ postId, reviewId, isNotice, authorUserId }:
       const data = await response.json();
       if (data.ok) {
         setLikeInfo((prev) => ({
-          count: data.liked ? prev.count + 1 : prev.count - 1,
-          liked: data.liked,
+          count: data.data?.liked ? prev.count + 1 : prev.count - 1,
+          liked: data.data?.liked ?? prev.liked,
         }));
       }
     } catch {
@@ -110,7 +113,7 @@ export function InteractionButtons({ postId, reviewId, isNotice, authorUserId }:
       });
       const data = await response.json();
       if (data.ok) {
-        alert("신고가 접수되었습니다.");
+        alert(data.message || "신고가 접수되었습니다.");
         handleCloseReportModal();
       } else {
         alert(data.error || "신고 처리에 실패했습니다.");

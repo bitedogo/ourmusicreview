@@ -22,6 +22,7 @@ const ADMIN_LINKS = [
   { href: "/admin/reports", label: "신고 관리" },
   { href: "/admin/albums", label: "오늘의 앨범" },
   { href: "/admin/featured-slide", label: "슬라이드바 편집" },
+  { href: "/admin/faq", label: "FAQ 관리" },
 ] as const;
 
 export function AppHeader() {
@@ -64,7 +65,7 @@ export function AppHeader() {
 
   return (
     <header className="fixed left-0 right-0 top-0 z-50 w-full border-b border-zinc-200 bg-white/95 backdrop-blur">
-      <div className="mx-auto grid w-full max-w-6xl grid-cols-3 items-center gap-4 px-6 py-5 sm:px-10 sm:py-6 md:flex md:justify-between">
+      <div className="mx-auto grid w-[956px] max-w-full grid-cols-3 items-center gap-4 px-6 py-5 sm:px-10 sm:py-6 md:flex md:justify-between">
         <div className="flex items-center gap-4 sm:gap-6 md:gap-6" ref={menuRef}>
           <div className="flex md:hidden items-center">
             <button
@@ -80,9 +81,9 @@ export function AppHeader() {
             </button>
           </div>
 
-          <div className="hidden md:flex items-center gap-6 text-sm text-zinc-600">
+          <div className="hidden md:flex items-center gap-5 text-sm text-zinc-600">
             {logoLink}
-            <nav className="flex items-center gap-6">
+            <nav className="flex items-center gap-5">
               {NAV_LINKS.map(({ href, label }) => (
                 <Link key={href} href={href} className="hover:text-zinc-900">
                   {label}
@@ -129,9 +130,12 @@ export function AppHeader() {
                   className="flex items-center gap-2 rounded-lg py-1 pr-1 text-left hover:bg-zinc-100 md:py-1 md:pr-1"
                 >
                   {profileImage ? (
-                    <img
+                    <Image
                       src={profileImage}
                       alt={nickname}
+                      width={32}
+                      height={32}
+                      unoptimized
                       className="h-8 w-8 rounded-full border border-zinc-200 object-cover"
                     />
                   ) : (
@@ -181,7 +185,7 @@ export function AppHeader() {
 
       {menuOpen && (
         <div className="absolute left-0 right-0 top-full z-40 border-b border-zinc-200 bg-white shadow-lg md:hidden">
-          <nav className="mx-auto max-w-6xl px-6 py-4 sm:px-10">
+          <nav className="mx-auto w-[956px] max-w-full px-6 py-4 sm:px-10">
             <ul className="space-y-1">
               {NAV_LINKS.map(({ href, label }) => (
                 <li key={href}>

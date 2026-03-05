@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 interface ArtistResult {
   artistId: number;
@@ -465,15 +466,14 @@ export function AlbumManagementClient() {
                           >
                             <div className="h-10 w-10 shrink-0 overflow-hidden rounded bg-zinc-100">
                               {album.imageUrl600 ? (
-                                <img
-                                src={album.imageUrl600}
-                                alt={album.collectionName ?? "앨범 커버"}
-                                className="h-full w-full object-cover"
-                                onError={(e) => {
-                                  (e.target as HTMLImageElement).src =
-                                    "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Crect fill='%23e4e4e7' width='40' height='40'/%3E%3Cpath fill='%23a1a1aa' d='M20 18a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm0 2c-5 0-8 2.5-8 5v5h16v-5c0-2.5-3-5-8-5z'/%3E%3C/svg%3E";
-                                }}
-                              />
+                                <Image
+                                  src={album.imageUrl600}
+                                  alt={album.collectionName ?? "앨범 커버"}
+                                  width={40}
+                                  height={40}
+                                  unoptimized
+                                  className="h-full w-full object-cover"
+                                />
                               ) : null}
                             </div>
                             <div className="min-w-0 flex-1">
@@ -555,14 +555,13 @@ export function AlbumManagementClient() {
                     앨범 커버
                   </label>
                   <div className="flex items-center gap-3 rounded-lg border border-zinc-200 bg-zinc-50 p-3">
-                    <img
+                    <Image
                       src={form.imageUrl}
                       alt={form.title || "앨범 커버"}
+                      width={64}
+                      height={64}
+                      unoptimized
                       className="h-16 w-16 shrink-0 rounded object-cover"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src =
-                          "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Crect fill='%23e4e4e7' width='64' height='64'/%3E%3Cpath fill='%23a1a1aa' d='M32 28a6 6 0 1 1 0-12 6 6 0 0 1 0 12zm0 8c-8 0-14 4-14 8v8h28v-8c0-4-6-8-14-8z'/%3E%3C/svg%3E";
-                      }}
                     />
                     <p className="text-xs text-zinc-600">
                       선택된 앨범의 커버 이미지입니다.

@@ -1,18 +1,15 @@
-import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/src/lib/auth/config";
 import { initializeDatabase } from "@/src/lib/db";
 import { Report } from "@/src/lib/db/entities/Report";
+import { apiError, apiOk } from "@/src/lib/http/response";
 
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id || session.user.role !== "ADMIN") {
-      return NextResponse.json(
-        { ok: false, error: "관리자 권한이 필요합니다." },
-        { status: 403 }
-      );
+      return apiError("관리자 권한이 필요합니다.", { status: 403 });
     }
 
     const dataSource = await initializeDatabase();
@@ -23,8 +20,7 @@ export async function GET() {
       order: { createdAt: "DESC" },
     });
 
-    return NextResponse.json({
-      ok: true,
+    return apiOk({
       reports: reports.map((r) => ({
         id: r.id,
         reason: r.reason,
@@ -63,14 +59,8 @@ export async function GET() {
       })),
     });
   } catch (error) {
-    return NextResponse.json(
-      {
-        ok: false,
-        error:
-          error instanceof Error
-            ? error.message
-            : "신고 목록 조회 중 오류가 발생했습니다.",
-      },
+    return apiError(
+      error instanceof Error ? error.message : "신고 목록 조회 중 오류가 발생했습니다.",
       { status: 500 }
     );
   }

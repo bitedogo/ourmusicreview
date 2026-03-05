@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 interface MyReview {
   id: string;
@@ -102,9 +103,12 @@ export default function MyReviewsPage() {
               <div className="flex items-start gap-4">
                 {review.album?.imageUrl && (
                   <div className="shrink-0 h-20 w-20 overflow-hidden rounded-xl bg-zinc-100">
-                    <img
+                    <Image
                       src={review.album.imageUrl}
                       alt={review.album.title}
+                      width={80}
+                      height={80}
+                      unoptimized
                       className="h-full w-full object-contain"
                     />
                   </div>

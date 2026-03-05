@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server";
 import { initializeDatabase } from "@/src/lib/db";
 import { TodayAlbum } from "@/src/lib/db/entities/TodayAlbum";
 import { LessThanOrEqual } from "typeorm";
+import { noStoreJson, publicCachedJson } from "@/src/lib/http/cache";
 
 function getTodayKST(): Date {
   const kstDateStr = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Seoul" });
@@ -22,7 +22,7 @@ export async function GET() {
     });
 
     if (todayAlbum) {
-      return NextResponse.json({
+      return publicCachedJson({
         ok: true,
         album: {
           displayDate: formatDateForApi(todayAlbum.displayDate),
@@ -32,7 +32,7 @@ export async function GET() {
           imageUrl: todayAlbum.imageUrl ?? null,
           description: todayAlbum.description ?? null,
         },
-      });
+      }, 60, 300);
     }
 
     const pastAlbum = await repo.findOne({
@@ -43,7 +43,7 @@ export async function GET() {
     });
 
     if (pastAlbum) {
-      return NextResponse.json({
+      return publicCachedJson({
         ok: true,
         album: {
           displayDate: formatDateForApi(pastAlbum.displayDate),
@@ -53,12 +53,12 @@ export async function GET() {
           imageUrl: pastAlbum.imageUrl ?? null,
           description: pastAlbum.description ?? null,
         },
-      });
+      }, 60, 300);
     }
 
-    return NextResponse.json({ ok: true, album: null });
+    return publicCachedJson({ ok: true, album: null }, 30, 120);
   } catch (error) {
-    return NextResponse.json(
+    return noStoreJson(
       {
         ok: false,
         error:

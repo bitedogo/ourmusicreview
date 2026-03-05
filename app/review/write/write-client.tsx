@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useRef } from "react";
 import { TuiEditor, TuiEditorRef } from "@/src/components/common/TuiEditor";
+import Image from "next/image";
 
 export function ReviewWriteClient() {
   const router = useRouter();
@@ -109,9 +110,12 @@ export function ReviewWriteClient() {
           <div className="flex gap-4">
             {albumImageUrl && (
               <div className="shrink-0">
-                <img
+                <Image
                   src={albumImageUrl}
                   alt={albumTitle}
+                  width={80}
+                  height={80}
+                  unoptimized
                   className="h-20 w-20 rounded-xl object-contain"
                 />
               </div>

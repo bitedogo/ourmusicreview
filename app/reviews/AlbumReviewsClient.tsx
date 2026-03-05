@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 
 type SortType = "latest" | "likes" | "comments";
 
@@ -53,6 +54,8 @@ export function AlbumReviewsClient() {
   }, [syncFromUrl]);
 
   useEffect(() => {
+    const controller = new AbortController();
+
     async function fetchReviews() {
       try {
         setIsLoading(true);
@@ -60,7 +63,8 @@ export function AlbumReviewsClient() {
         const currentPage = Math.max(1, parseInt(searchParams.get("page") ?? "1", 10) || 1);
         const currentSort = (searchParams.get("sort") as SortType) || "latest";
         const response = await fetch(
-          `/api/reviews/list?sort=${currentSort}&page=${currentPage}`
+          `/api/reviews/list?sort=${currentSort}&page=${currentPage}`,
+          { signal: controller.signal }
         );
         const data = await response.json().catch(() => null);
 
@@ -73,15 +77,23 @@ export function AlbumReviewsClient() {
         setReviews(data.reviews ?? []);
         setTotalPages(Math.max(1, data.totalPages ?? 1));
         setPage(data.page ?? 1);
-      } catch {
-        setError("리뷰를 불러오는 중 오류가 발생했습니다.");
+      } catch (error) {
+        if (controller.signal.aborted) return;
+        setError(
+          error instanceof Error ? error.message : "리뷰를 불러오는 중 오류가 발생했습니다."
+        );
         setReviews([]);
       } finally {
-        setIsLoading(false);
+        if (!controller.signal.aborted) {
+          setIsLoading(false);
+        }
       }
     }
 
     fetchReviews();
+    return () => {
+      controller.abort();
+    };
   }, [searchParams]);
 
   return (
@@ -127,9 +139,12 @@ export function AlbumReviewsClient() {
               <div className="flex items-start gap-4">
                 {review.album?.imageUrl && (
                   <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-zinc-100">
-                    <img
+                    <Image
                       src={review.album.imageUrl}
                       alt={review.album.title}
+                      width={80}
+                      height={80}
+                      unoptimized
                       className="h-full w-full object-contain"
                     />
                   </div>

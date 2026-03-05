@@ -1,27 +1,21 @@
-import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/src/lib/auth/config";
 import { AppDataSource } from "@/src/lib/db/data-source";
 import { Comment } from "@/src/lib/db/entities/Comment";
 import { randomUUID } from "crypto";
+import { apiError, apiOk } from "@/src/lib/http/response";
 
 export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { ok: false, error: "로그인이 필요합니다." },
-        { status: 401 }
-      );
+      return apiError("로그인이 필요합니다.", { status: 401 });
     }
 
     const { content, postId, reviewId } = await request.json();
 
     if (!content || (!postId && !reviewId)) {
-      return NextResponse.json(
-        { ok: false, error: "필수 정보가 누락되었습니다." },
-        { status: 400 }
-      );
+      return apiError("필수 정보가 누락되었습니다.", { status: 400 });
     }
 
     if (!AppDataSource.isInitialized) {
@@ -39,12 +33,9 @@ export async function POST(request: Request) {
 
     await commentRepository.save(newComment);
 
-    return NextResponse.json({ ok: true, comment: newComment }, { status: 201 });
+    return apiOk({ comment: newComment }, { status: 201 });
   } catch {
-    return NextResponse.json(
-      { ok: false, error: "댓글 작성 중 오류가 발생했습니다." },
-      { status: 500 }
-    );
+    return apiError("댓글 작성 중 오류가 발생했습니다.", { status: 500 });
   }
 }
 
@@ -55,10 +46,7 @@ export async function GET(request: Request) {
     const reviewId = searchParams.get("reviewId");
 
     if (!postId && !reviewId) {
-      return NextResponse.json(
-        { ok: false, error: "postId 또는 reviewId가 필요합니다." },
-        { status: 400 }
-      );
+      return apiError("postId 또는 reviewId가 필요합니다.", { status: 400 });
     }
 
     if (!AppDataSource.isInitialized) {
@@ -72,8 +60,7 @@ export async function GET(request: Request) {
       order: { createdAt: "ASC" },
     });
 
-    return NextResponse.json({
-      ok: true,
+    return apiOk({
       comments: comments.map((c) => ({
         id: c.id,
         content: c.content,
@@ -86,9 +73,6 @@ export async function GET(request: Request) {
       })),
     });
   } catch {
-    return NextResponse.json(
-      { ok: false, error: "댓글 조회 중 오류가 발생했습니다." },
-      { status: 500 }
-    );
+    return apiError("댓글 조회 중 오류가 발생했습니다.", { status: 500 });
   }
 }

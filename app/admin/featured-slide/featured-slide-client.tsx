@@ -1,6 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { reorderById } from "@/src/lib/utils/reorder";
+import Image from "next/image";
+import { fetchJson, getApiErrorMessage } from "@/src/lib/http/client";
 const MIN_COUNT = 10;
 const MAX_COUNT = 30;
 
@@ -28,6 +31,11 @@ interface SlideAlbum {
   genre: string;
 }
 
+interface FeaturedSlideListResponse {
+  ok: true;
+  albums: SlideAlbum[];
+}
+
 export function FeaturedSlideClient() {
   const [albums, setAlbums] = useState<SlideAlbum[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -42,6 +50,8 @@ export function FeaturedSlideClient() {
   const [isLoadingAlbums, setIsLoadingAlbums] = useState(false);
   const [addSubmitting, setAddSubmitting] = useState(false);
   const [addError, setAddError] = useState<string | null>(null);
+  const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [isSavingOrder, setIsSavingOrder] = useState(false);
 
   useEffect(() => {
     fetchAlbums();
@@ -51,20 +61,10 @@ export function FeaturedSlideClient() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch("/api/admin/featured-slide");
-      const data = await response.json();
-      if (!response.ok || !data?.ok) {
-        setError(data?.error ?? "목록을 불러올 수 없습니다.");
-        setAlbums([]);
-        return;
-      }
+      const data = await fetchJson<FeaturedSlideListResponse>("/api/admin/featured-slide");
       setAlbums(data.albums ?? []);
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "목록을 불러오는 중 오류가 발생했습니다."
-      );
+      setError(getApiErrorMessage(err, "목록을 불러오는 중 오류가 발생했습니다."));
       setAlbums([]);
     } finally {
       setIsLoading(false);
@@ -85,16 +85,12 @@ export function FeaturedSlideClient() {
     setArtistAlbums([]);
     setAddError(null);
     try {
-      const response = await fetch(
+      const data = await fetchJson<{ ok: true; artists: ArtistResult[] }>(
         `/api/itunes/artists?term=${encodeURIComponent(term)}`
       );
-      const data = await response.json();
-      if (data.ok && Array.isArray(data.artists)) {
-        setArtists(data.artists);
-      } else {
-        setArtists([]);
-      }
-    } catch {
+      setArtists(Array.isArray(data.artists) ? data.artists : []);
+    } catch (error) {
+      setAddError(getApiErrorMessage(error, "아티스트 검색 중 오류가 발생했습니다."));
       setArtists([]);
     } finally {
       setIsSearchingArtists(false);
@@ -106,16 +102,12 @@ export function FeaturedSlideClient() {
     setIsLoadingAlbums(true);
     setArtistAlbums([]);
     try {
-      const response = await fetch(
+      const data = await fetchJson<{ ok: true; albums: SearchAlbum[] }>(
         `/api/itunes/artists/${artist.artistId}/albums`
       );
-      const data = await response.json();
-      if (data.ok && Array.isArray(data.albums)) {
-        setArtistAlbums(data.albums);
-      } else {
-        setArtistAlbums([]);
-      }
-    } catch {
+      setArtistAlbums(Array.isArray(data.albums) ? data.albums : []);
+    } catch (error) {
+      setAddError(getApiErrorMessage(error, "앨범 목록 로딩 중 오류가 발생했습니다."));
       setArtistAlbums([]);
     } finally {
       setIsLoadingAlbums(false);
@@ -139,24 +131,20 @@ export function FeaturedSlideClient() {
     setAddSubmitting(true);
     setAddError(null);
     try {
-      const response = await fetch("/api/admin/featured-slide", {
+      const data = await fetchJson<{ ok: true; album?: SlideAlbum }>(
+        "/api/admin/featured-slide",
+        {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ collectionId }),
-      });
-      const data = await response.json().catch(() => null);
-      if (!response.ok || !data?.ok) {
-        setAddError(data?.error ?? "추가에 실패했습니다.");
-        return;
-      }
+        }
+      );
       if (data?.album) {
         setAlbums((prev) => [...prev, data.album]);
       }
       setModalOpen(false);
     } catch (err) {
-      setAddError(
-        err instanceof Error ? err.message : "추가 중 오류가 발생했습니다."
-      );
+      setAddError(getApiErrorMessage(err, "추가 중 오류가 발생했습니다."));
     } finally {
       setAddSubmitting(false);
     }
@@ -170,20 +158,13 @@ export function FeaturedSlideClient() {
     if (!confirm("이 앨범을 슬라이드바에서 제거할까요?")) return;
     setProcessingIds((prev) => new Set(prev).add(id));
     try {
-      const response = await fetch(
+      await fetchJson<{ ok: true }>(
         `/api/admin/featured-slide?id=${encodeURIComponent(id)}`,
         { method: "DELETE" }
       );
-      const data = await response.json();
-      if (!response.ok || !data?.ok) {
-        alert(data?.error ?? "삭제에 실패했습니다.");
-        return;
-      }
       setAlbums((prev) => prev.filter((a) => a.id !== id));
     } catch (err) {
-      alert(
-        err instanceof Error ? err.message : "삭제 중 오류가 발생했습니다."
-      );
+      alert(getApiErrorMessage(err, "삭제 중 오류가 발생했습니다."));
     } finally {
       setProcessingIds((prev) => {
         const next = new Set(prev);
@@ -193,32 +174,25 @@ export function FeaturedSlideClient() {
     }
   }
 
-  async function moveUp(index: number) {
-    if (index <= 0) return;
-    const order = [...albums];
-    [order[index - 1], order[index]] = [order[index], order[index - 1]];
-    await saveOrder(order.map((a) => a.id));
+  function getReorderedAlbums(sourceId: string, targetId: string): SlideAlbum[] {
+    return reorderById(albums, sourceId, targetId);
   }
 
-  async function moveDown(index: number) {
-    if (index >= albums.length - 1) return;
-    const order = [...albums];
-    [order[index], order[index + 1]] = [order[index + 1], order[index]];
-    await saveOrder(order.map((a) => a.id));
+  async function handleDrop(targetId: string) {
+    if (!draggingId || draggingId === targetId) return;
+    const next = getReorderedAlbums(draggingId, targetId);
+    if (next === albums) return;
+    await saveOrder(next.map((a) => a.id));
   }
 
   async function saveOrder(ids: string[]) {
+    setIsSavingOrder(true);
     try {
-      const response = await fetch("/api/admin/featured-slide", {
+      await fetchJson<{ ok: true }>("/api/admin/featured-slide", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ order: ids }),
       });
-      const data = await response.json();
-      if (!response.ok || !data?.ok) {
-        alert(data?.error ?? "순서 저장에 실패했습니다.");
-        return;
-      }
       setAlbums((prev) => {
         const byId = new Map(prev.map((a) => [a.id, a]));
         return ids
@@ -229,9 +203,10 @@ export function FeaturedSlideClient() {
           .filter((a): a is SlideAlbum => a !== null);
       });
     } catch (err) {
-      alert(
-        err instanceof Error ? err.message : "순서 저장 중 오류가 발생했습니다."
-      );
+      alert(getApiErrorMessage(err, "순서 저장 중 오류가 발생했습니다."));
+    } finally {
+      setIsSavingOrder(false);
+      setDraggingId(null);
     }
   }
 
@@ -258,6 +233,9 @@ export function FeaturedSlideClient() {
           </button>
         </div>
       </div>
+      <p className="mb-3 text-xs text-zinc-500">
+        항목을 드래그해서 순서를 변경할 수 있습니다.
+      </p>
 
       {error && (
         <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
@@ -278,40 +256,27 @@ export function FeaturedSlideClient() {
           {albums.map((album, index) => (
             <li
               key={album.id}
-              className="flex items-center gap-4 rounded-lg border border-zinc-200 bg-white p-3"
+              draggable={!isSavingOrder}
+              onDragStart={() => setDraggingId(album.id)}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={() => handleDrop(album.id)}
+              onDragEnd={() => setDraggingId(null)}
+              className={`flex cursor-grab items-center gap-4 rounded-lg border border-zinc-200 bg-white p-3 active:cursor-grabbing ${
+                draggingId === album.id ? "opacity-60" : ""
+              }`}
             >
-              <div className="flex shrink-0 items-center gap-1">
-                <button
-                  type="button"
-                  aria-label="위로"
-                  disabled={index === 0}
-                  onClick={() => moveUp(index)}
-                  className="rounded p-1 text-zinc-500 hover:bg-zinc-100 disabled:opacity-40"
-                >
-                  ▲
-                </button>
-                <button
-                  type="button"
-                  aria-label="아래로"
-                  disabled={index === albums.length - 1}
-                  onClick={() => moveDown(index)}
-                  className="rounded p-1 text-zinc-500 hover:bg-zinc-100 disabled:opacity-40"
-                >
-                  ▼
-                </button>
-              </div>
+              <span className="shrink-0 text-zinc-400">⋮⋮</span>
               <span className="w-6 shrink-0 text-right text-sm text-zinc-400">
                 {index + 1}
               </span>
               {album.imageUrl ? (
-                <img
+                <Image
                   src={album.imageUrl}
                   alt={album.title ?? "앨범 커버"}
+                  width={48}
+                  height={48}
+                  unoptimized
                   className="h-12 w-12 shrink-0 rounded object-cover"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src =
-                      "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'%3E%3Crect fill='%23e4e4e7' width='48' height='48'/%3E%3Cpath fill='%23a1a1aa' d='M24 21a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm0 6c-5 0-9 2-9 5v4h18v-4c0-3-4-5-9-5z'/%3E%3C/svg%3E";
-                  }}
                 />
               ) : (
                 <div className="h-12 w-12 shrink-0 rounded bg-zinc-200" />
@@ -415,14 +380,13 @@ export function FeaturedSlideClient() {
                           className="flex w-full items-center gap-3 px-4 py-2 text-left text-sm hover:bg-zinc-50 disabled:opacity-50"
                         >
                           {album.imageUrl600 ? (
-                            <img
+                            <Image
                               src={album.imageUrl600}
                               alt={album.collectionName ?? "앨범 커버"}
+                              width={40}
+                              height={40}
+                              unoptimized
                               className="h-10 w-10 shrink-0 rounded object-cover"
-                              onError={(e) => {
-                                (e.target as HTMLImageElement).src =
-                                  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Crect fill='%23e4e4e7' width='40' height='40'/%3E%3Cpath fill='%23a1a1aa' d='M20 18a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm0 2c-5 0-8 2.5-8 5v5h16v-5c0-2.5-3-5-8-5z'/%3E%3C/svg%3E";
-                              }}
                             />
                           ) : (
                             <div className="h-10 w-10 shrink-0 rounded bg-zinc-200" />

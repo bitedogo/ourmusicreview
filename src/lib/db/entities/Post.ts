@@ -9,7 +9,9 @@ import {
 } from "typeorm";
 import { User } from "./User";
 
-export type PostCategory = "K" | "I" | "M" | "W";
+export type PostCategory = "K" | "I" | "M" | "W" | "N";
+
+export type NoticeCategory = "RELEASE_NOTE" | "EVENT" | "SERVICE" | "REPORT";
 
 @Entity({ name: "posts", schema: "public" })
 export class Post {
@@ -36,6 +38,9 @@ export class Post {
 
   @Column({ name: "is_global", type: "char", length: 1, default: "N" })
   isGlobal!: "Y" | "N";
+
+  @Column({ name: "notice_category", type: "varchar", length: 20, nullable: true })
+  noticeCategory!: NoticeCategory | null;
 
   @CreateDateColumn({ name: "created_at", type: "timestamp" })
   createdAt!: Date;

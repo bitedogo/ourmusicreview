@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useState, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { TuiEditor, TuiEditorRef } from "@/src/components/common/TuiEditor";
+import Image from "next/image";
 
 interface ReviewData {
   id: string;
@@ -184,9 +185,12 @@ export function ReviewEditClient({ reviewId }: { reviewId: string }) {
         <div className="flex gap-4">
           {review.album.imageUrl && (
             <div className="shrink-0">
-              <img
+              <Image
                 src={review.album.imageUrl}
                 alt={review.album.title}
+                width={96}
+                height={96}
+                unoptimized
                 className="h-24 w-24 rounded-xl object-contain"
               />
             </div>

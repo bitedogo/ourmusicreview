@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 interface Review {
   id: string;
@@ -31,50 +32,74 @@ export function AlbumReviewsClient({ albumId }: { albumId: string }) {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [albumInfo, setAlbumInfo] = useState<AlbumInfo | null>(null);
   const [averageRating, setAverageRating] = useState<number | null>(null);
-  const [reviewCount, setReviewCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    let isCancelled = false;
+
     async function fetchData() {
       try {
-        const reviewsResponse = await fetch(
-          `/api/reviews/album/${encodeURIComponent(albumId)}`
-        );
-        const reviewsData = await reviewsResponse.json();
+        setIsLoading(true);
+        setError(null);
 
-        if (!reviewsResponse.ok || !reviewsData?.ok) {
-          setError(reviewsData?.error ?? "리뷰를 불러올 수 없습니다.");
+        const [reviewsResult, ratingResult] = await Promise.allSettled([
+          fetch(`/api/reviews/album/${encodeURIComponent(albumId)}`).then((res) =>
+            res.json().catch(() => null).then((data) => ({ res, data }))
+          ),
+          fetch(`/api/albums/${encodeURIComponent(albumId)}/rating`).then((res) =>
+            res.json().catch(() => null).then((data) => ({ res, data }))
+          ),
+        ]);
+
+        if (reviewsResult.status !== "fulfilled") {
+          if (!isCancelled) {
+            setError("리뷰를 불러오는 중 오류가 발생했습니다.");
+          }
           return;
         }
 
-        setReviews(reviewsData.reviews || []);
-
-        const ratingResponse = await fetch(
-          `/api/albums/${encodeURIComponent(albumId)}/rating`
-        );
-        const ratingData = await ratingResponse.json();
-
-        if (ratingResponse.ok && ratingData?.ok) {
-          setAverageRating(ratingData.averageRating);
-          setReviewCount(ratingData.reviewCount);
+        const { res: reviewsResponse, data: reviewsData } = reviewsResult.value;
+        if (!reviewsResponse.ok || !reviewsData?.ok) {
+          if (!isCancelled) {
+            setError(reviewsData?.error ?? "리뷰를 불러올 수 없습니다.");
+          }
+          return;
         }
 
-        if (reviewsData.album) {
-          setAlbumInfo(reviewsData.album);
+        if (!isCancelled) {
+          setReviews(reviewsData.reviews || []);
+          if (reviewsData.album) {
+            setAlbumInfo(reviewsData.album);
+          }
+        }
+
+        if (ratingResult.status === "fulfilled") {
+          const { res: ratingResponse, data: ratingData } = ratingResult.value;
+          if (!isCancelled && ratingResponse.ok && ratingData?.ok) {
+            setAverageRating(ratingData.averageRating);
+          }
         }
       } catch (err) {
-        setError(
-          err instanceof Error
-            ? err.message
-            : "리뷰를 불러오는 중 오류가 발생했습니다."
-        );
+        if (!isCancelled) {
+          setError(
+            err instanceof Error
+              ? err.message
+              : "리뷰를 불러오는 중 오류가 발생했습니다."
+          );
+        }
       } finally {
-        setIsLoading(false);
+        if (!isCancelled) {
+          setIsLoading(false);
+        }
       }
     }
 
     fetchData();
+
+    return () => {
+      isCancelled = true;
+    };
   }, [albumId]);
 
   if (isLoading) {
@@ -174,9 +199,12 @@ export function AlbumReviewsClient({ albumId }: { albumId: string }) {
             <div className="flex gap-4">
               {albumInfo.imageUrl && (
                 <div className="shrink-0">
-                  <img
+                  <Image
                     src={albumInfo.imageUrl}
                     alt={albumInfo.title}
+                    width={80}
+                    height={80}
+                    unoptimized
                     className="h-20 w-20 rounded-xl object-contain"
                   />
                 </div>
@@ -233,9 +261,12 @@ export function AlbumReviewsClient({ albumId }: { albumId: string }) {
               <div className="mb-4 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   {review.user.profileImage ? (
-                    <img
+                    <Image
                       src={review.user.profileImage}
                       alt={review.user.nickname}
+                      width={40}
+                      height={40}
+                      unoptimized
                       className="h-10 w-10 rounded-full object-cover"
                     />
                   ) : (

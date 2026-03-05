@@ -1,13 +1,10 @@
 import { createClient } from "@supabase/supabase-js";
+import { getServerEnv } from "@/src/lib/env";
 
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const { supabaseUrl, supabaseServiceRoleKey } = getServerEnv();
 
 export function getSupabaseAdmin() {
-  if (!supabaseUrl || !supabaseServiceKey) {
-    throw new Error("SUPABASE_URL과 SUPABASE_SERVICE_ROLE_KEY가 필요합니다.");
-  }
-  return createClient(supabaseUrl, supabaseServiceKey, {
+  return createClient(supabaseUrl, supabaseServiceRoleKey, {
     auth: { persistSession: false },
   });
 }

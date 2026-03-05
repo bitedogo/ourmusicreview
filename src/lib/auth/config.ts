@@ -3,10 +3,12 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { initializeDatabase } from "../db";
 import { User } from "../db/entities/User";
 import bcrypt from "bcryptjs";
+import { getServerEnv } from "@/src/lib/env";
 
 function isBcryptHash(value: string) {
   return /^\$2[aby]\$\d{2}\$/.test(value);
 }
+const env = getServerEnv();
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -110,15 +112,17 @@ export const authOptions: NextAuthOptions = {
   },
   cookies: {
     sessionToken: {
-      name: process.env.NEXTAUTH_URL?.startsWith("https://") ? "__Secure-next-auth.session-token" : "next-auth.session-token",
+      name: env.nextAuthUrl?.startsWith("https://")
+        ? "__Secure-next-auth.session-token"
+        : "next-auth.session-token",
       options: {
         httpOnly: true,
         sameSite: "lax",
         path: "/",
-        secure: process.env.NEXTAUTH_URL?.startsWith("https://") ?? process.env.NODE_ENV === "production",
+        secure: env.nextAuthUrl?.startsWith("https://") ?? env.nodeEnv === "production",
         maxAge: undefined,
       },
     },
   },
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: env.nextAuthSecret,
 };

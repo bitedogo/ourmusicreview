@@ -1,8 +1,13 @@
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { initializeDatabase } from "@/src/lib/db";
-import { Post } from "@/src/lib/db/entities/Post";
+import { Post, NoticeCategory } from "@/src/lib/db/entities/Post";
 import { Comment } from "@/src/lib/db/entities/Comment";
+import {
+  NOTICE_CATEGORY_COLOR,
+  NOTICE_CATEGORY_LABEL,
+} from "@/src/lib/community/notice-category";
 import { PostContentClient } from "./post-content-client";
 
 function getTimeAgo(date: Date) {
@@ -55,6 +60,7 @@ export default async function CommunityDetailPage({
     I: "해외게시판",
     M: "장터게시판",
     W: "워크룸",
+    N: "공지사항",
   }[post.category];
 
   const categoryPath = {
@@ -62,7 +68,17 @@ export default async function CommunityDetailPage({
     I: "overseas",
     M: "market",
     W: "workroom",
+    N: "notice",
   }[post.category];
+
+  const noticeLabel =
+    post.category === "N" && post.noticeCategory && post.noticeCategory in NOTICE_CATEGORY_LABEL
+      ? NOTICE_CATEGORY_LABEL[post.noticeCategory as NoticeCategory]
+      : null;
+  const noticeColor =
+    post.category === "N" && post.noticeCategory && post.noticeCategory in NOTICE_CATEGORY_COLOR
+      ? NOTICE_CATEGORY_COLOR[post.noticeCategory as NoticeCategory]
+      : null;
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-4xl flex-col gap-8 px-6 py-10 sm:px-10">
@@ -81,16 +97,24 @@ export default async function CommunityDetailPage({
             {categoryName}
           </div>
           
-          <h1 className="text-4xl font-bold tracking-tight text-zinc-900">
+          <h1 className="text-[30px] font-bold tracking-tight text-black">
+            {noticeLabel && noticeColor && (
+              <span className={`mr-2 text-[30px] font-semibold ${noticeColor}`}>
+                [{noticeLabel}]
+              </span>
+            )}
             {post.title}
           </h1>
 
           <div className="flex items-center gap-3 pt-2 pb-4 border-b border-zinc-100">
             <div className="h-6 w-6 overflow-hidden rounded-md bg-zinc-100">
               {post.user?.profileImage ? (
-                <img
+                <Image
                   src={post.user.profileImage}
                   alt="게시글 작성자 프로필"
+                  width={24}
+                  height={24}
+                  unoptimized
                   className="h-full w-full object-cover"
                 />
               ) : (
@@ -117,7 +141,7 @@ export default async function CommunityDetailPage({
           postId={post.id} 
           userId={post.userId} 
           category={post.category} 
-          isNotice={post.user?.role === "ADMIN" || post.isGlobal === "Y"}
+          isNotice={post.category === "N" || post.isGlobal === "Y"}
         />
       </article>
     </div>

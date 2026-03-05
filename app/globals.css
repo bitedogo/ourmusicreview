@@ -13,7 +13,7 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: "Pretendard", system-ui, -apple-system, sans-serif;
-  --font-mono: var(--font-geist-mono);
+  --font-mono: "Pretendard", system-ui, -apple-system, sans-serif;
 }
 
 /* 라이트 모드만 사용, 다크 모드 비활성화 */

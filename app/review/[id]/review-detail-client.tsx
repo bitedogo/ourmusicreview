@@ -7,6 +7,7 @@ import { useSession } from "next-auth/react";
 import { HtmlRenderer } from "@/src/components/common/HtmlRenderer";
 import { InteractionButtons } from "@/src/components/interaction/InteractionButtons";
 import { CommentSection } from "@/src/components/interaction/CommentSection";
+import Image from "next/image";
 
 interface ReviewDetail {
   id: string;
@@ -162,9 +163,12 @@ export function ReviewDetailClient({ reviewId }: { reviewId: string }) {
         <div className="flex gap-4">
           {review.album.imageUrl && (
             <div className="shrink-0">
-              <img
+              <Image
                 src={review.album.imageUrl}
                 alt={review.album.title}
+                width={96}
+                height={96}
+                unoptimized
                 className="h-24 w-24 rounded-xl object-contain"
               />
             </div>
@@ -184,9 +188,12 @@ export function ReviewDetailClient({ reviewId }: { reviewId: string }) {
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             {review.user.profileImage ? (
-              <img
+              <Image
                 src={review.user.profileImage}
                 alt={review.user.nickname}
+                width={40}
+                height={40}
+                unoptimized
                 className="h-10 w-10 rounded-full object-cover"
               />
             ) : (

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { initializeDatabase } from "@/src/lib/db";
+import { getServerEnv } from "@/src/lib/env";
 
 /**
  * DB 연결 테스트용 API
@@ -7,16 +8,7 @@ import { initializeDatabase } from "@/src/lib/db";
  */
 export async function GET() {
   try {
-    if (!process.env.DATABASE_URL) {
-      return NextResponse.json(
-        {
-          ok: false,
-          error: "DATABASE_URL 환경 변수가 설정되지 않았습니다.",
-          hint: ".env.local 파일을 확인하세요.",
-        },
-        { status: 500 }
-      );
-    }
+    getServerEnv();
 
     const dataSource = await initializeDatabase();
 

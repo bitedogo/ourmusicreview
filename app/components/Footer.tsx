@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 
 /**
  * 사이트 하단 푸터 컴포넌트.
@@ -7,58 +6,88 @@ import Image from "next/image";
  */
 export function Footer() {
   return (
-    <footer className="mt-auto w-full border-t border-zinc-200 bg-zinc-100">
-      <div className="mx-auto flex w-full max-w-6xl flex-row flex-nowrap items-start justify-between gap-4 px-6 py-6 sm:gap-16 sm:px-10 sm:py-10">
-        <div className="flex min-w-0 shrink flex-col">
-          <Link href="/" className="shrink-0 w-fit">
-            <Image
-              src="/oru-num6.png"
-              alt="ORU 로고"
-              width={28}
-              height={28}
-              className="h-7 w-auto"
-            />
-          </Link>
-          <p className="mt-4 max-w-xs text-sm leading-relaxed text-zinc-600">
-            음악을 기록하고, <wbr />가치를 나누는 공간
+    <footer className="mt-auto w-full border-t border-zinc-800 bg-black">
+      <div className="flex w-full flex-row flex-nowrap items-start justify-between px-8 py-6 sm:px-16 sm:py-10">
+        <div className="hidden min-w-0 shrink flex-col sm:flex">
+          <p className="max-w-xs text-sm leading-relaxed text-white">
+            음악을 기록하고, 그 속에 담긴 당신의 가치를 나누는 공간
           </p>
-          <p className="text-xs text-zinc-500">
+          <p className="mt-2 max-w-xs text-xs leading-relaxed text-zinc-400">
+            단순히 듣는 것을 넘어, 음악이 남긴 여운을 기록하세요.
+            <br />
+            우리가 함께 나누는 문장들이 모여 새로운 음악적 발견이 됩니다.
+          </p>
+          <p className="mt-4 text-xs text-zinc-400">
             © 2026 ORU. All rights reserved.
+          </p>
+          <p className="mt-3 text-xs text-zinc-500">
+            Powered by Team ORU
           </p>
         </div>
 
-        <div className="flex shrink-0 gap-6 sm:gap-16">
+        <div className="grid shrink-0 grid-cols-3 gap-x-6 gap-y-0">
           <div className="flex flex-col gap-3">
-            <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
-              정책
+            <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+              Policy
             </p>
             <nav className="flex flex-col gap-2">
               <Link
                 href="/policies/terms"
-                className="text-sm font-medium text-zinc-700 underline underline-offset-2 transition hover:text-zinc-900"
+                className="text-sm font-medium text-zinc-400 underline underline-offset-2 transition hover:text-zinc-300"
               >
-                이용약관
+                Terms of Service
               </Link>
               <Link
                 href="/policies/privacy"
-                className="text-sm font-medium text-zinc-700 underline underline-offset-2 transition hover:text-zinc-900"
+                className="text-sm font-medium text-zinc-400 underline underline-offset-2 transition hover:text-zinc-300"
               >
-                개인정보처리방침
+                Privacy Policy
+              </Link>
+              <Link
+                href="/policies/community-guidelines"
+                className="text-sm font-medium text-zinc-400 underline underline-offset-2 transition hover:text-zinc-300"
+              >
+                Community Guidelines
               </Link>
             </nav>
           </div>
           <div className="flex flex-col gap-3">
-            <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
-              문의
+            <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+              Support
             </p>
             <nav className="flex flex-col gap-2">
+              <Link
+                href="/boards/notice"
+                className="text-sm font-medium text-zinc-400 underline underline-offset-2 transition hover:text-zinc-300"
+              >
+                Announcements
+              </Link>
+              <Link
+                href="/faq"
+                className="text-sm font-medium text-zinc-400 underline underline-offset-2 transition hover:text-zinc-300"
+              >
+                FAQ
+              </Link>
+            </nav>
+          </div>
+          <div className="flex flex-col gap-3">
+            <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+              Contact
+            </p>
+            <nav className="flex flex-col gap-2">
+              <a
+                href="mailto:jaewoo1567@gmail.com"
+                className="text-sm font-medium text-zinc-400 underline underline-offset-2 transition hover:text-zinc-300"
+              >
+                Email
+              </a>
               <a
                 href="https://www.instagram.com/comeonoru"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm font-medium text-zinc-700 underline underline-offset-2 transition hover:text-zinc-900"
+                className="text-sm font-medium text-zinc-400 underline underline-offset-2 transition hover:text-zinc-300"
               >
-                인스타그램
+                Instagram
               </a>
             </nav>
           </div>

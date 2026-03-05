@@ -134,8 +134,8 @@ function HomeContent() {
 
   return (
     <div className="min-h-screen bg-white text-zinc-900">
-      <main className="mx-auto w-full max-w-6xl px-6 py-10 sm:px-10">
-        <section className="bg-white py-8 sm:py-12">
+      <main className="mx-auto w-[956px] max-w-full px-6 py-10 sm:px-10">
+        <section className="bg-white pt-4 pb-8 sm:pt-6 sm:pb-12">
           <div className="space-y-3 text-center">
             <h1 className="text-[42px] font-semibold tracking-tight text-zinc-900">
               당신의 음악을 기록하고 <wbr />공유하세요
@@ -146,19 +146,17 @@ function HomeContent() {
             </p>
           </div>
 
-          <form onSubmit={handleSearchSubmit} className="mt-7 flex justify-center">
+          <form onSubmit={handleSearchSubmit} className="mt-10 flex justify-center">
             <div ref={searchContainerRef} className="relative w-[956px] max-w-full">
               <div
-                className={`flex flex-col bg-white overflow-hidden transition-[border-radius,box-shadow] ${
-                  isDropdownOpen
-                    ? "rounded-t-2xl rounded-b-none"
-                    : "rounded-2xl border-2 border-black"
-                }`}
+                className={`flex flex-col bg-white overflow-hidden transition-[border-radius,box-shadow] ${isDropdownOpen
+                  ? "rounded-t-2xl rounded-b-none"
+                  : "rounded-2xl border-2 border-black"
+                  }`}
               >
                 <div
-                  className={`flex h-[68px] cursor-text items-center gap-3 ${
-                    isDropdownOpen ? "border-b-2 border-zinc-400 px-4" : "overflow-hidden px-3"
-                  }`}
+                  className={`flex h-[68px] cursor-text items-center gap-3 ${isDropdownOpen ? "border-b-2 border-zinc-400 px-4" : "overflow-hidden px-3"
+                    }`}
                 >
                   <input
                     value={searchQuery}
@@ -184,23 +182,27 @@ function HomeContent() {
                       <li className="px-4 py-3 text-sm text-zinc-500">검색 중...</li>
                     ) : (
                       suggestions.map((artist) => (
-                        <li key={artist.artistId} role="option" className="border-b border-zinc-100 last:border-b-0">
+                        <li
+                          key={artist.artistId}
+                          role="option"
+                          aria-selected="false"
+                          className="border-b border-zinc-100 last:border-b-0"
+                        >
                           <button
                             type="button"
                             onClick={() => handleArtistSelect(artist)}
                             className="flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-zinc-50"
                           >
-                            <img
+                            <Image
                               src={
                                 artist.artworkUrl100 ??
                                 "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Crect fill='%23e4e4e7' width='40' height='40'/%3E%3Cpath fill='%23a1a1aa' d='M20 18a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm0 2c-5 0-8 2.5-8 5v5h16v-5c0-2.5-3-5-8-5z'/%3E%3C/svg%3E"
                               }
                               alt={`${artist.artistName} 프로필`}
+                              width={40}
+                              height={40}
+                              unoptimized
                               className="h-10 w-10 shrink-0 rounded-lg bg-zinc-200 object-cover"
-                              onError={(e) => {
-                                (e.target as HTMLImageElement).src =
-                                  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Crect fill='%23e4e4e7' width='40' height='40'/%3E%3Cpath fill='%23a1a1aa' d='M20 18a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm0 2c-5 0-8 2.5-8 5v5h16v-5c0-2.5-3-5-8-5z'/%3E%3C/svg%3E";
-                              }}
                             />
                             <div className="min-w-0 flex-1 text-left">
                               <div className="truncate text-sm font-medium text-black">

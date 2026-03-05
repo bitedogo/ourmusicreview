@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 interface ProfileClientProps {
   id: string;
@@ -164,9 +165,12 @@ export function ProfileClient({
             <div className="flex flex-row items-center gap-4 md:flex-col md:items-center md:gap-10">
               <div className="h-28 w-28 shrink-0 overflow-hidden rounded-full border-2 border-white bg-zinc-100 shadow-md md:h-48 md:w-48 md:border-4">
                 {profileImage ? (
-                  <img
+                  <Image
                     src={profileImage}
                     alt={nickname}
+                    width={192}
+                    height={192}
+                    unoptimized
                     className="h-full w-full object-cover"
                   />
                 ) : (
@@ -261,15 +265,14 @@ export function ProfileClient({
                       className="flex min-w-0 flex-col gap-1.5 rounded-lg border border-zinc-100 bg-white p-2 transition hover:border-zinc-300"
                     >
                       {fav.album?.imageUrl ? (
-                        <img
-                        src={fav.album.imageUrl}
-                        className="aspect-square w-full rounded-md object-cover"
-                        alt={fav.album?.title ?? "앨범 커버"}
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src =
-                            "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Crect fill='%23e4e4e7' width='100' height='100'/%3E%3Cpath fill='%23a1a1aa' d='M50 45a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0 10c-8 0-14 4-14 9v11h28V64c0-5-6-9-14-9z'/%3E%3C/svg%3E";
-                        }}
-                      />
+                        <Image
+                          src={fav.album.imageUrl}
+                          className="aspect-square w-full rounded-md object-cover"
+                          alt={fav.album?.title ?? "앨범 커버"}
+                          width={100}
+                          height={100}
+                          unoptimized
+                        />
                       ) : (
                         <div className="aspect-square w-full rounded-md bg-zinc-100" />
                       )}
@@ -294,15 +297,14 @@ export function ProfileClient({
                       className="flex h-full items-center gap-2 rounded-xl border border-zinc-100 bg-white p-2 transition hover:border-zinc-300"
                     >
                       {fav.album?.imageUrl && (
-                        <img
-                        src={fav.album.imageUrl}
-                        className="h-8 w-8 shrink-0 rounded-md object-contain"
-                        alt={fav.album?.title ?? "앨범 커버"}
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src =
-                            "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Crect fill='%23e4e4e7' width='32' height='32'/%3E%3Cpath fill='%23a1a1aa' d='M16 14a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm0 4c-4 0-7 2-7 4v4h14v-4c0-2-3-4-7-4z'/%3E%3C/svg%3E";
-                        }}
-                      />
+                        <Image
+                          src={fav.album.imageUrl}
+                          className="h-8 w-8 shrink-0 rounded-md object-contain"
+                          alt={fav.album?.title ?? "앨범 커버"}
+                          width={32}
+                          height={32}
+                          unoptimized
+                        />
                       )}
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-xs font-bold text-zinc-900">{fav.album?.title}</p>

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 interface FeaturedAlbum {
   collectionId: number;
@@ -76,21 +77,14 @@ export default function FeaturedAlbums() {
             >
               <div className="relative aspect-square bg-zinc-100 rounded-t-xl overflow-hidden">
                 {album.imageUrl ? (
-                  <>
-                    <img
-                      src={album.imageUrl}
-                      alt={`${album.title} cover`}
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).style.display = "none";
-                        (e.target as HTMLImageElement).nextElementSibling?.classList.remove("hidden");
-                      }}
-                    />
-                    <div className="hidden absolute inset-0 flex items-center justify-center text-xs text-zinc-400">
-                      이미지 없음
-                    </div>
-                  </>
+                  <Image
+                    src={album.imageUrl}
+                    alt={`${album.title} cover`}
+                    fill
+                    unoptimized
+                    sizes="(max-width: 640px) 192px, 224px"
+                    className="w-full h-full object-cover"
+                  />
                 ) : (
                   <div className="flex items-center justify-center w-full h-full text-xs text-zinc-400">
                     이미지 없음

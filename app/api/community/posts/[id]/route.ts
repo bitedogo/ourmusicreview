@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/src/lib/auth/config";
 import { initializeDatabase } from "@/src/lib/db";
 import { Post } from "@/src/lib/db/entities/Post";
+import { isNoticeCategory } from "@/src/lib/community/notice-category";
 
 export async function PATCH(
   request: Request,
@@ -15,7 +16,7 @@ export async function PATCH(
       return NextResponse.json({ ok: false, error: "로그인이 필요합니다." }, { status: 401 });
     }
 
-    const { title, content, category, isGlobal } = await request.json();
+    const { title, content, category, isGlobal, noticeCategory } = await request.json();
 
     const dataSource = await initializeDatabase();
     const postRepository = dataSource.getRepository(Post);
@@ -36,6 +37,9 @@ export async function PATCH(
     if (category) post.category = category;
     if (isAdmin && typeof isGlobal === "boolean") {
       post.isGlobal = isGlobal ? "Y" : "N";
+    }
+    if (post.category === "N" && isNoticeCategory(noticeCategory)) {
+      post.noticeCategory = noticeCategory;
     }
 
     await postRepository.save(post);

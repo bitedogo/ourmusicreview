@@ -44,7 +44,7 @@ export async function GET(
     const reviewRepository = dataSource.getRepository(Review);
     const albumRepository = dataSource.getRepository(Album);
 
-    let album = await albumRepository.findOne({
+    const album = await albumRepository.findOne({
       where: { albumId },
     });
 
