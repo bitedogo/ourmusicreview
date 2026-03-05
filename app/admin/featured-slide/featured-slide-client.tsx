@@ -131,7 +131,7 @@ export function FeaturedSlideClient() {
     setAddSubmitting(true);
     setAddError(null);
     try {
-      const data = await fetchJson<{ ok: true; album?: SlideAlbum }>(
+      const data = await fetchJson<{ ok: true; album: SlideAlbum | null }>(
         "/api/admin/featured-slide",
         {
         method: "POST",
@@ -139,8 +139,9 @@ export function FeaturedSlideClient() {
         body: JSON.stringify({ collectionId }),
         }
       );
-      if (data?.album) {
-        setAlbums((prev) => [...prev, data.album]);
+      const createdAlbum = data.album;
+      if (createdAlbum) {
+        setAlbums((prev) => [...prev, createdAlbum]);
       }
       setModalOpen(false);
     } catch (err) {

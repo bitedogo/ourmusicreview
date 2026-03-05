@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/src/lib/auth/config";
 import { initializeDatabase } from "@/src/lib/db";
-import { Post, PostCategory } from "@/src/lib/db/entities/Post";
+import { NoticeCategory, Post, PostCategory } from "@/src/lib/db/entities/Post";
 import { isNoticeCategory } from "@/src/lib/community/notice-category";
 import { randomUUID } from "crypto";
 
