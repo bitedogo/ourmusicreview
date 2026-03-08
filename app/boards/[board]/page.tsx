@@ -9,8 +9,10 @@ import {
   NOTICE_CATEGORY_LABEL,
 } from "@/src/lib/community/notice-category";
 import Link from "next/link";
+import { BoardSearchControls } from "./board-search-controls";
 
 type BoardType = "domestic" | "overseas" | "market" | "workroom" | "notice";
+type BoardSearchField = "title" | "artist";
 
 interface BoardMeta {
   title: string;
@@ -62,11 +64,18 @@ function getNoticeCategoryColor(post: { noticeCategory?: NoticeCategory | null }
 
 export default async function BoardPage(props: {
   params: Promise<{ board: BoardType }>;
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string; searchField?: string; q?: string }>;
 }) {
   const { board } = await props.params;
-  const { page: pageParam } = await props.searchParams;
+  const {
+    page: pageParam,
+    searchField: rawSearchField,
+    q: rawQuery,
+  } = await props.searchParams;
   const page = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
+  const searchField: BoardSearchField =
+    rawSearchField === "artist" ? "artist" : "title";
+  const searchQuery = (rawQuery ?? "").trim().slice(0, 100);
 
   const config = BOARD_CONFIG[board];
   if (!config) {
@@ -80,17 +89,39 @@ export default async function BoardPage(props: {
   const postRepository = dataSource.getRepository(Post);
   const commentRepository = dataSource.getRepository(Comment);
 
-  const posts = await postRepository.find({
-    where:
-      config.category === "N"
-        ? { category: "N" }
-        : [
-            { category: config.category },
-            { isGlobal: "Y" as const },
-          ],
-    relations: ["user"],
-    order: { createdAt: "DESC" },
-  });
+  const postsQueryBuilder = postRepository
+    .createQueryBuilder("post")
+    .leftJoinAndSelect("post.user", "user")
+    .orderBy("post.created_at", "DESC");
+
+  if (config.category === "N") {
+    postsQueryBuilder.where("post.category = :category", { category: "N" });
+  } else {
+    postsQueryBuilder.where(
+      "(post.category = :category OR post.is_global = :isGlobal)",
+      {
+        category: config.category,
+        isGlobal: "Y",
+      }
+    );
+  }
+
+  if (searchQuery) {
+    if (searchField === "title") {
+      postsQueryBuilder.andWhere("post.title ILIKE :keyword", {
+        keyword: `%${searchQuery}%`,
+      });
+    } else {
+      postsQueryBuilder.andWhere(
+        "(post.title ILIKE :keyword OR post.content ILIKE :keyword)",
+        {
+          keyword: `%${searchQuery}%`,
+        }
+      );
+    }
+  }
+
+  const posts = await postsQueryBuilder.getMany();
 
   const postsWithMeta = await Promise.all(
     posts.map(async (post) => {
@@ -100,7 +131,7 @@ export default async function BoardPage(props: {
       return { 
         ...post, 
         commentCount: count,
-        isAdmin: post.user?.role === "ADMIN" || post.isGlobal === "Y"
+        isPinned: post.isGlobal === "Y"
       };
     })
   );
@@ -108,9 +139,6 @@ export default async function BoardPage(props: {
   const sortedPosts = postsWithMeta.sort((a, b) => {
     if (a.isGlobal === "Y" && b.isGlobal !== "Y") return -1;
     if (a.isGlobal !== "Y" && b.isGlobal === "Y") return 1;
-
-    if (a.isAdmin && !b.isAdmin) return -1;
-    if (!a.isAdmin && b.isAdmin) return 1;
 
     return 0;
   });
@@ -134,6 +162,16 @@ export default async function BoardPage(props: {
           `/community/write?category=${config.category}`
         )}`;
 
+  function buildBoardHref(nextPage: number): string {
+    const params = new URLSearchParams();
+    params.set("page", String(nextPage));
+    if (searchQuery) {
+      params.set("searchField", searchField);
+      params.set("q", searchQuery);
+    }
+    return `/boards/${board}?${params.toString()}`;
+  }
+
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-4xl flex-col gap-6 px-4 py-10 sm:px-10">
       <section className="flex items-center justify-between gap-3">
@@ -143,24 +181,32 @@ export default async function BoardPage(props: {
           </h1>
           <p className="mt-1 text-xs text-zinc-500">{config.description}</p>
         </div>
-        {canWrite && (
-          <Link
-            href={writeHref}
-            className="rounded-full bg-black px-4 py-2 text-xs font-semibold text-white hover:bg-zinc-800"
-          >
-            글쓰기
-          </Link>
-        )}
+        <div className="flex items-center gap-2">
+          {canWrite && (
+            <Link
+              href={writeHref}
+              className="rounded-full bg-black px-4 py-2 text-xs font-semibold text-white hover:bg-zinc-800"
+            >
+              글쓰기
+            </Link>
+          )}
+        </div>
       </section>
 
       <section>
         {total === 0 ? (
           <div className="border border-dashed border-zinc-300 bg-zinc-50 px-4 py-6 text-sm text-zinc-500">
-            아직 등록된 게시글이 없습니다.{" "}
-            <span className="font-semibold text-zinc-700">
-              첫 번째 글
-            </span>
-            을 남겨보세요.
+            {searchQuery
+              ? "검색 결과가 없습니다. 다른 키워드로 다시 시도해주세요."
+              : (
+                <>
+                  아직 등록된 게시글이 없습니다.{" "}
+                  <span className="font-semibold text-zinc-700">
+                    첫 번째 글
+                  </span>
+                  을 남겨보세요.
+                </>
+              )}
           </div>
         ) : (
           <>
@@ -184,10 +230,10 @@ export default async function BoardPage(props: {
                   {paginatedPosts.map((post, index) => (
                     <tr
                       key={post.id}
-                      className={`hover:bg-zinc-50 ${post.isAdmin ? "bg-zinc-50/50" : ""}`}
+                      className={`hover:bg-zinc-50 ${post.isPinned ? "bg-zinc-50/50" : ""}`}
                     >
                       <td className="px-3 py-2 text-center text-[11px] text-zinc-400">
-                        {post.isAdmin ? (
+                        {post.isPinned || config.category === "N" ? (
                           <span className="text-base" title="공지사항">
                             📢
                           </span>
@@ -200,7 +246,7 @@ export default async function BoardPage(props: {
                       <td className="px-3 py-2 text-sm">
                         <Link
                           href={`/community/${encodeURIComponent(post.id)}`}
-                          className={`flex items-center gap-1.5 hover:underline ${config.category === "N" ? "font-bold text-black" : ""} ${config.category !== "N" && post.isAdmin ? "text-red-600 font-bold" : ""}`}
+                          className={`flex items-center gap-1.5 hover:underline ${config.category === "N" ? "font-bold text-black" : ""} ${config.category !== "N" && post.isPinned ? "text-red-600 font-bold" : ""}`}
                         >
                           {config.category === "N" && (() => {
                             const label = getNoticeCategoryLabel(post);
@@ -221,7 +267,7 @@ export default async function BoardPage(props: {
                       </td>
                       <td className="px-3 py-2 text-center text-[11px] text-zinc-700">
                         <span
-                          className={`line-clamp-1 ${post.isAdmin ? "font-black" : ""}`}
+                          className={`line-clamp-1 ${post.isPinned ? "font-black" : ""}`}
                         >
                           {post.nickname}
                         </span>
@@ -239,41 +285,52 @@ export default async function BoardPage(props: {
                 </tbody>
               </table>
             </div>
-            {totalPages > 1 && (
-              <nav className="mt-4 flex flex-wrap items-center justify-center gap-1">
-                {currentPage > 1 && (
-                  <Link
-                    href={`/boards/${board}?page=${currentPage - 1}`}
-                    className="rounded border border-zinc-300 px-3 py-1.5 text-sm text-zinc-700 hover:bg-zinc-100"
-                  >
-                    이전
-                  </Link>
-                )}
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                  (p) => (
+            <div className="mt-4">
+              {config.category !== "N" && (
+                <div className="mb-3 flex justify-start">
+                  <BoardSearchControls
+                    board={board}
+                    initialSearchField={searchField}
+                    initialQuery={searchQuery}
+                  />
+                </div>
+              )}
+              {totalPages > 1 && (
+                <nav className="flex flex-wrap items-center justify-center gap-1">
+                  {currentPage > 1 && (
                     <Link
-                      key={p}
-                      href={`/boards/${board}?page=${p}`}
-                      className={`rounded px-3 py-1.5 text-sm ${
-                        p === currentPage
-                          ? "bg-zinc-900 font-medium text-white"
-                          : "border border-zinc-300 text-zinc-700 hover:bg-zinc-100"
-                      }`}
+                      href={buildBoardHref(currentPage - 1)}
+                      className="rounded border border-zinc-300 px-3 py-1.5 text-sm text-zinc-700 hover:bg-zinc-100"
                     >
-                      {p}
+                      이전
                     </Link>
-                  )
-                )}
-                {currentPage < totalPages && (
-                  <Link
-                    href={`/boards/${board}?page=${currentPage + 1}`}
-                    className="rounded border border-zinc-300 px-3 py-1.5 text-sm text-zinc-700 hover:bg-zinc-100"
-                  >
-                    다음
-                  </Link>
-                )}
-              </nav>
-            )}
+                  )}
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                    (p) => (
+                      <Link
+                        key={p}
+                        href={buildBoardHref(p)}
+                        className={`rounded px-3 py-1.5 text-sm ${
+                          p === currentPage
+                            ? "bg-zinc-900 font-medium text-white"
+                            : "border border-zinc-300 text-zinc-700 hover:bg-zinc-100"
+                        }`}
+                      >
+                        {p}
+                      </Link>
+                    )
+                  )}
+                  {currentPage < totalPages && (
+                    <Link
+                      href={buildBoardHref(currentPage + 1)}
+                      className="rounded border border-zinc-300 px-3 py-1.5 text-sm text-zinc-700 hover:bg-zinc-100"
+                    >
+                      다음
+                    </Link>
+                  )}
+                </nav>
+              )}
+            </div>
           </>
         )}
       </section>

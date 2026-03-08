@@ -240,6 +240,7 @@ export function ReviewEditClient({ reviewId }: { reviewId: string }) {
             ref={editorRef}
             initialValue={review.content}
             height="400px"
+            showMediaTools={false}
           />
         </div>
 

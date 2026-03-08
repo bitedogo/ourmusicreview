@@ -4,9 +4,12 @@ import { Review } from "@/src/lib/db/entities/Review";
 import { Like } from "@/src/lib/db/entities/Like";
 import { Comment } from "@/src/lib/db/entities/Comment";
 import { noStoreJson, publicCachedJson } from "@/src/lib/http/cache";
+import { SelectQueryBuilder } from "typeorm";
 
 const SORT_VALUES = ["latest", "likes", "comments"] as const;
 type SortType = (typeof SORT_VALUES)[number];
+const SEARCH_FIELDS = ["artist", "album", "author"] as const;
+type SearchField = (typeof SEARCH_FIELDS)[number];
 
 const PAGE_SIZE_ALBUM_REVIEWS = 6;
 
@@ -22,18 +25,55 @@ function parsePage(value: string | null): number {
   return Number.isFinite(n) && n >= 1 ? n : 1;
 }
 
+function parseSearchField(value: string | null): SearchField {
+  if (value && SEARCH_FIELDS.includes(value as SearchField)) {
+    return value as SearchField;
+  }
+  return "artist";
+}
+
+function parseSearchQuery(value: string | null): string {
+  if (!value) return "";
+  return value.trim().slice(0, 100);
+}
+
+function applySearchCondition(
+  qb: SelectQueryBuilder<Review>,
+  searchField: SearchField,
+  searchQuery: string
+) {
+  if (!searchQuery) return qb;
+  const keyword = `%${searchQuery.toLowerCase()}%`;
+  if (searchField === "artist") {
+    qb.andWhere("LOWER(album.artist) LIKE :keyword", { keyword });
+  } else if (searchField === "album") {
+    qb.andWhere("LOWER(album.title) LIKE :keyword", { keyword });
+  } else {
+    qb.andWhere("LOWER(\"user\".nickname) LIKE :keyword", { keyword });
+  }
+  return qb;
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const sort = parseSort(searchParams.get("sort"));
     const page = parsePage(searchParams.get("page"));
+    const searchField = parseSearchField(searchParams.get("searchField"));
+    const searchQuery = parseSearchQuery(searchParams.get("q"));
 
     const dataSource = await initializeDatabase();
     const reviewRepository = dataSource.getRepository(Review);
     const likeRepository = dataSource.getRepository(Like);
     const commentRepository = dataSource.getRepository(Comment);
 
-    const total = await reviewRepository.count({ where: { isApproved: "Y" } });
+    const totalQueryBuilder = reviewRepository
+      .createQueryBuilder("r")
+      .leftJoin("r.album", "album")
+      .leftJoin("r.user", "user")
+      .where("r.isApproved = :approved", { approved: "Y" });
+    applySearchCondition(totalQueryBuilder, searchField, searchQuery);
+    const total = await totalQueryBuilder.getCount();
     const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE_ALBUM_REVIEWS));
     const currentPage = Math.min(page, totalPages);
     const start = (currentPage - 1) * PAGE_SIZE_ALBUM_REVIEWS;
@@ -41,17 +81,23 @@ export async function GET(request: NextRequest) {
     let orderedIds: string[] = [];
 
     if (sort === "latest") {
-      const pageReviews = await reviewRepository.find({
-        where: { isApproved: "Y" },
-        select: ["id"],
-        order: { createdAt: "DESC" },
-        skip: start,
-        take: PAGE_SIZE_ALBUM_REVIEWS,
-      });
-      orderedIds = pageReviews.map((review) => review.id);
-    } else if (sort === "likes") {
-      const rows = await reviewRepository
+      const latestQueryBuilder = reviewRepository
         .createQueryBuilder("r")
+        .leftJoin("r.album", "album")
+        .leftJoin("r.user", "user")
+        .where("r.isApproved = :approved", { approved: "Y" })
+        .select("r.id", "id")
+        .orderBy("r.created_at", "DESC")
+        .offset(start)
+        .limit(PAGE_SIZE_ALBUM_REVIEWS);
+      applySearchCondition(latestQueryBuilder, searchField, searchQuery);
+      const rows = await latestQueryBuilder.getRawMany<{ id: string }>();
+      orderedIds = rows.map((row) => row.id);
+    } else if (sort === "likes") {
+      const likesQueryBuilder = reviewRepository
+        .createQueryBuilder("r")
+        .leftJoin("r.album", "album")
+        .leftJoin("r.user", "user")
         .leftJoin(Like, "l", "l.review_id = r.id")
         .where("r.isApproved = :approved", { approved: "Y" })
         .select("r.id", "id")
@@ -60,12 +106,15 @@ export async function GET(request: NextRequest) {
         .orderBy("metric", "DESC")
         .addOrderBy("r.created_at", "DESC")
         .offset(start)
-        .limit(PAGE_SIZE_ALBUM_REVIEWS)
-        .getRawMany<{ id: string }>();
+        .limit(PAGE_SIZE_ALBUM_REVIEWS);
+      applySearchCondition(likesQueryBuilder, searchField, searchQuery);
+      const rows = await likesQueryBuilder.getRawMany<{ id: string }>();
       orderedIds = rows.map((row) => row.id);
     } else {
-      const rows = await reviewRepository
+      const commentsQueryBuilder = reviewRepository
         .createQueryBuilder("r")
+        .leftJoin("r.album", "album")
+        .leftJoin("r.user", "user")
         .leftJoin(Comment, "c", "c.review_id = r.id")
         .where("r.isApproved = :approved", { approved: "Y" })
         .select("r.id", "id")
@@ -74,8 +123,9 @@ export async function GET(request: NextRequest) {
         .orderBy("metric", "DESC")
         .addOrderBy("r.created_at", "DESC")
         .offset(start)
-        .limit(PAGE_SIZE_ALBUM_REVIEWS)
-        .getRawMany<{ id: string }>();
+        .limit(PAGE_SIZE_ALBUM_REVIEWS);
+      applySearchCondition(commentsQueryBuilder, searchField, searchQuery);
+      const rows = await commentsQueryBuilder.getRawMany<{ id: string }>();
       orderedIds = rows.map((row) => row.id);
     }
 
@@ -144,6 +194,8 @@ export async function GET(request: NextRequest) {
         ok: true,
         reviews,
         sort,
+        searchField,
+        q: searchQuery,
         page: currentPage,
         totalPages,
         total,

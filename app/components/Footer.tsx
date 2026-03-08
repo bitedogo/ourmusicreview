@@ -7,7 +7,7 @@ import Link from "next/link";
 export function Footer() {
   return (
     <footer className="mt-auto w-full border-t border-zinc-800 bg-black">
-      <div className="flex w-full flex-row flex-nowrap items-start justify-between px-8 py-6 sm:px-16 sm:py-10">
+      <div className="flex w-full flex-row flex-nowrap items-start justify-center px-4 py-5 sm:justify-between sm:px-16 sm:py-10">
         <div className="hidden min-w-0 shrink flex-col sm:flex">
           <p className="max-w-xs text-sm leading-relaxed text-white">
             음악을 기록하고, 그 속에 담긴 당신의 가치를 나누는 공간
@@ -25,59 +25,59 @@ export function Footer() {
           </p>
         </div>
 
-        <div className="grid shrink-0 grid-cols-3 gap-x-6 gap-y-0">
-          <div className="flex flex-col gap-3">
-            <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+        <div className="mx-auto grid w-max shrink-0 grid-cols-3 gap-x-3 gap-y-0 sm:mx-0 sm:gap-x-5">
+          <div className="flex flex-col items-start gap-2 sm:gap-3">
+            <p className="text-[10px] font-semibold uppercase tracking-wide text-zinc-400 sm:text-xs sm:tracking-wider">
               Policy
             </p>
-            <nav className="flex flex-col gap-2">
+            <nav className="flex flex-col items-start gap-1.5 sm:gap-2">
               <Link
                 href="/policies/terms"
-                className="text-sm font-medium text-zinc-400 underline underline-offset-2 transition hover:text-zinc-300"
+                className="text-[11px] font-medium leading-4 text-zinc-400 underline underline-offset-2 transition hover:text-zinc-300 sm:text-sm"
               >
                 Terms of Service
               </Link>
               <Link
                 href="/policies/privacy"
-                className="text-sm font-medium text-zinc-400 underline underline-offset-2 transition hover:text-zinc-300"
+                className="text-[11px] font-medium leading-4 text-zinc-400 underline underline-offset-2 transition hover:text-zinc-300 sm:text-sm"
               >
                 Privacy Policy
               </Link>
               <Link
                 href="/policies/community-guidelines"
-                className="text-sm font-medium text-zinc-400 underline underline-offset-2 transition hover:text-zinc-300"
+                className="text-[11px] font-medium leading-4 text-zinc-400 underline underline-offset-2 transition hover:text-zinc-300 sm:text-sm"
               >
                 Community Guidelines
               </Link>
             </nav>
           </div>
-          <div className="flex flex-col gap-3">
-            <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+          <div className="flex flex-col items-start gap-2 sm:gap-3">
+            <p className="text-[10px] font-semibold uppercase tracking-wide text-zinc-400 sm:text-xs sm:tracking-wider">
               Support
             </p>
-            <nav className="flex flex-col gap-2">
+            <nav className="flex flex-col items-start gap-1.5 sm:gap-2">
               <Link
                 href="/boards/notice"
-                className="text-sm font-medium text-zinc-400 underline underline-offset-2 transition hover:text-zinc-300"
+                className="text-[11px] font-medium leading-4 text-zinc-400 underline underline-offset-2 transition hover:text-zinc-300 sm:text-sm"
               >
                 Announcements
               </Link>
               <Link
                 href="/faq"
-                className="text-sm font-medium text-zinc-400 underline underline-offset-2 transition hover:text-zinc-300"
+                className="text-[11px] font-medium leading-4 text-zinc-400 underline underline-offset-2 transition hover:text-zinc-300 sm:text-sm"
               >
                 FAQ
               </Link>
             </nav>
           </div>
-          <div className="flex flex-col gap-3">
-            <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+          <div className="flex flex-col items-start gap-2 sm:gap-3">
+            <p className="text-[10px] font-semibold uppercase tracking-wide text-zinc-400 sm:text-xs sm:tracking-wider">
               Contact
             </p>
-            <nav className="flex flex-col gap-2">
+            <nav className="flex flex-col items-start gap-1.5 sm:gap-2">
               <a
                 href="mailto:jaewoo1567@gmail.com"
-                className="text-sm font-medium text-zinc-400 underline underline-offset-2 transition hover:text-zinc-300"
+                className="text-[11px] font-medium leading-4 text-zinc-400 underline underline-offset-2 transition hover:text-zinc-300 sm:text-sm"
               >
                 Email
               </a>
@@ -85,7 +85,7 @@ export function Footer() {
                 href="https://www.instagram.com/comeonoru"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm font-medium text-zinc-400 underline underline-offset-2 transition hover:text-zinc-300"
+                className="text-[11px] font-medium leading-4 text-zinc-400 underline underline-offset-2 transition hover:text-zinc-300 sm:text-sm"
               >
                 Instagram
               </a>

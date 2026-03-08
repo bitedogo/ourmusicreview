@@ -170,6 +170,7 @@ export function ReviewWriteClient() {
           <TuiEditor
             ref={editorRef}
             height="400px"
+            showMediaTools={false}
             onChange={(html) => setContent(html)}
           />
         </div>

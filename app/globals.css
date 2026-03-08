@@ -103,15 +103,6 @@ body {
   cursor: text !important;
 }
 
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
 .toastui-editor-contents,
 .toastui-editor-contents .prose {
   white-space: pre-wrap;
@@ -126,4 +117,27 @@ body {
 .toastui-editor-contents p:empty::before,
 .toastui-editor-contents p > br:only-child::before {
   content: "\00a0";
+}
+
+/* Toast UI image sizing (editor + rendered content) */
+.toastui-editor-contents img,
+.toastui-editor-main .ProseMirror img {
+  display: block;
+  max-width: min(100%, 380px) !important;
+  max-height: 380px !important;
+  width: auto !important;
+  height: auto !important;
+  object-fit: contain;
+  margin: 10px auto;
+  border-radius: 8px;
+}
+
+@media (max-width: 639px) {
+  .toastui-editor-contents img,
+  .toastui-editor-main .ProseMirror img {
+    max-width: min(100%, 320px) !important;
+    max-height: 42vh !important;
+    margin: 8px auto;
+    border-radius: 6px;
+  }
 }

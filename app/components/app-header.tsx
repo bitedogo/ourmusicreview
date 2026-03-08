@@ -53,10 +53,11 @@ export function AppHeader() {
   const logoLink = (
     <Link href="/" className="shrink-0 flex items-center gap-2">
       <Image
-        src="/oru-num6.png"
+        src="/oru-num6-hq.png"
         alt="ORU 로고"
-        width={28}
-        height={28}
+        width={824}
+        height={232}
+        sizes="100px"
         className="h-7 w-auto"
         priority
       />
@@ -127,24 +128,30 @@ export function AppHeader() {
                   aria-label="프로필 메뉴"
                   aria-expanded={profileOpen}
                   onClick={() => setProfileOpen((prev) => !prev)}
-                  className="flex items-center gap-2 rounded-lg py-1 pr-1 text-left hover:bg-zinc-100 md:py-1 md:pr-1"
+                  className="flex items-center gap-2 rounded-lg px-2 py-1 text-left hover:bg-zinc-100 md:px-0 md:pr-1"
                 >
-                  {profileImage ? (
-                    <Image
-                      src={profileImage}
-                      alt={nickname}
-                      width={32}
-                      height={32}
-                      unoptimized
-                      className="h-8 w-8 rounded-full border border-zinc-200 object-cover"
-                    />
-                  ) : (
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full border border-zinc-200 bg-zinc-100 text-xs font-semibold text-zinc-600">
-                      {nickname.charAt(0).toUpperCase()}
-                    </div>
-                  )}
-                  <span className="text-sm text-zinc-700 font-medium">
-                    {nickname}님
+                  <span className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-zinc-200 bg-zinc-50 text-base md:hidden">
+                    👤
+                  </span>
+
+                  <span className="hidden items-center gap-2 md:flex">
+                    {profileImage ? (
+                      <Image
+                        src={profileImage}
+                        alt={nickname}
+                        width={32}
+                        height={32}
+                        unoptimized
+                        className="h-8 w-8 rounded-full border border-zinc-200 object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full border border-zinc-200 bg-zinc-100 text-xs font-semibold text-zinc-600">
+                        {nickname.charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                    <span className="text-sm font-medium text-zinc-700">
+                      {nickname}님
+                    </span>
                   </span>
                 </button>
 

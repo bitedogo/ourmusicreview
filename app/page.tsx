@@ -114,10 +114,11 @@ function HomeContent() {
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-white px-6">
         <div className="flex max-w-md flex-col items-center gap-6 text-center">
           <Image
-            src="/oru-num6.png"
+            src="/oru-num6-hq.png"
             alt="ORU 로고"
-            width={72}
-            height={72}
+            width={824}
+            height={232}
+            sizes="142px"
             className="h-10 w-auto"
             priority
           />
@@ -138,11 +139,15 @@ function HomeContent() {
         <section className="bg-white pt-4 pb-8 sm:pt-6 sm:pb-12">
           <div className="space-y-3 text-center">
             <h1 className="text-[42px] font-semibold tracking-tight text-zinc-900">
-              당신의 음악을 기록하고 <wbr />공유하세요
+              당신의 음악을 <br className="sm:hidden" />
+              <span className="hidden sm:inline"> </span>
+              기록하고 공유하세요
             </h1>
             <p className="mx-auto max-w-xl text-sm leading-6 text-zinc-600">
-              좋아하는 앨범을 저장하고, 리뷰로 감상을 남기고, 새로운 음악을
-              발견하세요.
+              좋아하는 앨범을 저장하고, 리뷰로 감상을 남기고,
+              <br className="sm:hidden" />
+              <span className="hidden sm:inline"> </span>
+              새로운 음악을 발견하세요.
             </p>
           </div>
 
