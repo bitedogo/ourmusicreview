@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
+import { IsNull } from "typeorm";
 import { authOptions } from "@/src/lib/auth/config";
 import { initializeDatabase } from "@/src/lib/db";
 import { Review } from "@/src/lib/db/entities/Review";
@@ -19,7 +20,7 @@ export async function GET() {
     const reviewRepository = dataSource.getRepository(Review);
 
     const reviews = await reviewRepository.find({
-      where: { isApproved: "N", rejectReason: null },
+      where: { isApproved: "N", rejectReason: IsNull() },
       relations: ["user", "album"],
       order: { createdAt: "ASC" },
     });
