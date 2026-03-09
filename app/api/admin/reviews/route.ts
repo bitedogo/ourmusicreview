@@ -19,7 +19,7 @@ export async function GET() {
     const reviewRepository = dataSource.getRepository(Review);
 
     const reviews = await reviewRepository.find({
-      where: { isApproved: "N" },
+      where: { isApproved: "N", rejectReason: null },
       relations: ["user", "album"],
       order: { createdAt: "ASC" },
     });
@@ -31,6 +31,7 @@ export async function GET() {
         content: review.content,
         rating: review.rating,
         isApproved: review.isApproved,
+        rejectReason: review.rejectReason,
         userId: review.userId,
         albumId: review.albumId,
         createdAt: review.createdAt,

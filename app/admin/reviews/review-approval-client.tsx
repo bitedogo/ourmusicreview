@@ -3,6 +3,11 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { HtmlRenderer } from "@/src/components/common/HtmlRenderer";
+import { fetchJson, getApiErrorMessage } from "@/src/lib/http/client";
+import {
+  REVIEW_REJECTION_REASONS,
+  ReviewRejectionReason,
+} from "@/src/lib/review/rejection-reasons";
 
 interface Review {
   id: string;
@@ -26,6 +31,11 @@ interface Review {
   };
 }
 
+interface ReviewListResponse {
+  ok: boolean;
+  reviews: Review[];
+}
+
 export function ReviewApprovalClient() {
   const router = useRouter();
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -33,6 +43,9 @@ export function ReviewApprovalClient() {
   const [error, setError] = useState<string | null>(null);
   const [processingIds, setProcessingIds] = useState<Set<string>>(new Set());
   const [viewingReview, setViewingReview] = useState<Review | null>(null);
+  const [rejectingReview, setRejectingReview] = useState<Review | null>(null);
+  const [selectedRejectReason, setSelectedRejectReason] =
+    useState<ReviewRejectionReason>(REVIEW_REJECTION_REASONS[0]);
 
   useEffect(() => {
     fetchReviews();
@@ -42,21 +55,10 @@ export function ReviewApprovalClient() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch("/api/admin/reviews");
-      const data = await response.json();
-
-      if (!response.ok || !data?.ok) {
-        setError(data?.error ?? "리뷰 목록을 불러올 수 없습니다.");
-        return;
-      }
-
+      const data = await fetchJson<ReviewListResponse>("/api/admin/reviews");
       setReviews(data.reviews || []);
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "리뷰 목록을 불러오는 중 오류가 발생했습니다."
-      );
+      setError(getApiErrorMessage(err, "리뷰 목록을 불러오는 중 오류가 발생했습니다."));
     } finally {
       setIsLoading(false);
     }
@@ -65,7 +67,7 @@ export function ReviewApprovalClient() {
   async function handleApprove(reviewId: string) {
     setProcessingIds((prev) => new Set(prev).add(reviewId));
     try {
-      const response = await fetch(
+      await fetchJson<{ ok: boolean }>(
         `/api/admin/reviews/${encodeURIComponent(reviewId)}`,
         {
           method: "PATCH",
@@ -74,20 +76,9 @@ export function ReviewApprovalClient() {
         }
       );
 
-      const data = await response.json();
-
-      if (!response.ok || !data?.ok) {
-        alert(data?.error ?? "리뷰 승인에 실패했습니다.");
-        return;
-      }
-
       setReviews((prev) => prev.filter((r) => r.id !== reviewId));
     } catch (err) {
-      alert(
-        err instanceof Error
-          ? `리뷰 승인 중 오류가 발생했습니다: ${err.message}`
-          : "리뷰 승인 중 알 수 없는 오류가 발생했습니다."
-      );
+      alert(getApiErrorMessage(err, "리뷰 승인 중 오류가 발생했습니다."));
     } finally {
       setProcessingIds((prev) => {
         const next = new Set(prev);
@@ -97,36 +88,22 @@ export function ReviewApprovalClient() {
     }
   }
 
-  async function handleReject(reviewId: string) {
-    if (!confirm("이 리뷰를 거부하시겠습니까? 거부된 리뷰는 삭제됩니다.")) {
-      return;
-    }
-
+  async function handleReject(reviewId: string, rejectReason: ReviewRejectionReason) {
     setProcessingIds((prev) => new Set(prev).add(reviewId));
     try {
-      const response = await fetch(
+      await fetchJson<{ ok: boolean }>(
         `/api/admin/reviews/${encodeURIComponent(reviewId)}`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: "reject" }),
+          body: JSON.stringify({ action: "reject", rejectReason }),
         }
       );
 
-      const data = await response.json();
-
-      if (!response.ok || !data?.ok) {
-        alert(data?.error ?? "리뷰 거부에 실패했습니다.");
-        return;
-      }
-
       setReviews((prev) => prev.filter((r) => r.id !== reviewId));
+      setRejectingReview(null);
     } catch (err) {
-      alert(
-        err instanceof Error
-          ? `리뷰 거부 중 오류가 발생했습니다: ${err.message}`
-          : "리뷰 거부 중 알 수 없는 오류가 발생했습니다."
-      );
+      alert(getApiErrorMessage(err, "리뷰 반려 중 오류가 발생했습니다."));
     } finally {
       setProcessingIds((prev) => {
         const next = new Set(prev);
@@ -257,7 +234,10 @@ export function ReviewApprovalClient() {
                             const value = e.target.value;
                             if (!value) return;
                             if (value === "approve") handleApprove(review.id);
-                            else if (value === "reject") handleReject(review.id);
+                            else if (value === "reject") {
+                              setSelectedRejectReason(REVIEW_REJECTION_REASONS[0]);
+                              setRejectingReview(review);
+                            }
                             e.target.value = "";
                           }}
                           disabled={isProcessing}
@@ -265,7 +245,7 @@ export function ReviewApprovalClient() {
                         >
                           <option value="">처리 선택</option>
                           <option value="approve">승인</option>
-                          <option value="reject">거부</option>
+                          <option value="reject">반려</option>
                         </select>
                       </td>
                     </tr>
@@ -310,6 +290,56 @@ export function ReviewApprovalClient() {
             </div>
             <div className="max-h-[60vh] overflow-y-auto px-5 py-4">
               <HtmlRenderer html={viewingReview.content} className="text-sm" />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {rejectingReview && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 backdrop-blur-sm p-4"
+          onClick={() => setRejectingReview(null)}
+        >
+          <div
+            className="w-full max-w-lg rounded-2xl border border-zinc-200 bg-white p-5 shadow-xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <h3 className="text-base font-semibold text-zinc-900">리뷰 반려</h3>
+            <p className="mt-1 text-xs text-zinc-500">
+              반려 사유를 선택하면 작성자 마이페이지에 표시됩니다.
+            </p>
+
+            <div className="mt-4 space-y-2">
+              {REVIEW_REJECTION_REASONS.map((reason) => (
+                <label key={reason} className="flex items-start gap-2 text-sm text-zinc-700">
+                  <input
+                    type="radio"
+                    name="rejectReason"
+                    checked={selectedRejectReason === reason}
+                    onChange={() => setSelectedRejectReason(reason)}
+                    className="mt-0.5 h-4 w-4 border-zinc-300"
+                  />
+                  <span>{reason}</span>
+                </label>
+              ))}
+            </div>
+
+            <div className="mt-5 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setRejectingReview(null)}
+                className="rounded-lg border border-zinc-300 px-3 py-2 text-xs font-medium text-zinc-700 hover:bg-zinc-100"
+              >
+                취소
+              </button>
+              <button
+                type="button"
+                onClick={() => handleReject(rejectingReview.id, selectedRejectReason)}
+                disabled={processingIds.has(rejectingReview.id)}
+                className="rounded-lg bg-black px-3 py-2 text-xs font-medium text-white hover:bg-zinc-800 disabled:opacity-50"
+              >
+                {processingIds.has(rejectingReview.id) ? "처리 중..." : "반려"}
+              </button>
             </div>
           </div>
         </div>

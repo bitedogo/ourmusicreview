@@ -20,6 +20,7 @@ export default function SignupPage() {
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
   const [nickname, setNickname] = useState("");
   const [profileImage, setProfileImage] = useState<File | null>(null);
 
@@ -63,6 +64,12 @@ export default function SignupPage() {
     return null;
   }
 
+  function validateName(input: string): string | null {
+    if (!input) return "이름을 입력해주세요.";
+    if (input.length > 30) return "이름은 30자 이하로 입력해주세요.";
+    return null;
+  }
+
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setIsSubmitting(true);
@@ -71,6 +78,7 @@ export default function SignupPage() {
 
     const trimmedId = id.trim();
     const trimmedEmail = email.trim();
+    const trimmedName = name.trim();
     const trimmedNickname = nickname.trim();
 
     if (!termsAgreed) {
@@ -79,7 +87,7 @@ export default function SignupPage() {
       return;
     }
 
-    if (!trimmedId || !password || !trimmedEmail || !trimmedNickname) {
+    if (!trimmedId || !password || !trimmedEmail || !trimmedName || !trimmedNickname) {
       setErrorMessage("모든 필수 항목을 입력해주세요.");
       setIsSubmitting(false);
       return;
@@ -111,11 +119,19 @@ export default function SignupPage() {
       return;
     }
 
+    const nameError = validateName(trimmedName);
+    if (nameError) {
+      setErrorMessage(nameError);
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
       const formData = new FormData();
       formData.append("id", trimmedId);
       formData.append("password", password);
       formData.append("email", trimmedEmail);
+      formData.append("name", trimmedName);
       formData.append("nickname", trimmedNickname);
       formData.append("gender", gender);
       if (profileImage) {
@@ -265,6 +281,20 @@ export default function SignupPage() {
             <p>* 특수문자 및 공백 사용불가</p>
             <p>* 최대 글자 수: 영문 12자 또는 한글 6자</p>
           </div>
+        </div>
+
+        <div className="space-y-1">
+          <label className="flex items-center gap-1 text-sm font-medium">
+            <span className="text-red-600">*</span>
+            <span>이름</span>
+          </label>
+          <input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full rounded border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500"
+            placeholder="이름을 입력하세요"
+            autoComplete="name"
+          />
         </div>
 
         <div className="space-y-2">

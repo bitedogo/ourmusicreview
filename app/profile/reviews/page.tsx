@@ -4,12 +4,19 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import {
+  ApiClientError,
+  fetchJson,
+  getApiErrorMessage,
+} from "@/src/lib/http/client";
+import { getReviewStatus } from "@/src/lib/review/status";
 
 interface MyReview {
   id: string;
   content: string;
   rating: number;
   isApproved: "Y" | "N";
+  rejectReason: string | null;
   albumId: string;
   createdAt: string;
   updatedAt: string;
@@ -19,6 +26,11 @@ interface MyReview {
     artist: string;
     imageUrl: string | null;
   } | null;
+}
+
+interface MyReviewsResponse {
+  ok: boolean;
+  reviews: MyReview[];
 }
 
 export default function MyReviewsPage() {
@@ -31,21 +43,14 @@ export default function MyReviewsPage() {
     async function fetchReviews() {
       try {
         setIsLoading(true);
-        const response = await fetch("/api/reviews");
-        const data = await response.json().catch(() => null);
-
-        if (!response.ok || !data?.ok) {
-          if (response.status === 401) {
-            router.push("/auth/signin?callbackUrl=/profile/reviews");
-            return;
-          }
-          setError(data?.error ?? "리뷰를 불러오지 못했습니다.");
+        const data = await fetchJson<MyReviewsResponse>("/api/reviews");
+        setReviews(data.reviews || []);
+      } catch (error) {
+        if (error instanceof ApiClientError && error.status === 401) {
+          router.push("/auth/signin?callbackUrl=/profile/reviews");
           return;
         }
-
-        setReviews(data.reviews || []);
-      } catch {
-        setError("리뷰를 불러오는 중 오류가 발생했습니다.");
+        setError(getApiErrorMessage(error, "리뷰를 불러오는 중 오류가 발생했습니다."));
       } finally {
         setIsLoading(false);
       }
@@ -94,7 +99,10 @@ export default function MyReviewsPage() {
         </div>
       ) : (
         <div className="space-y-4">
-          {reviews.map((review) => (
+          {reviews.map((review) => {
+            const reviewStatus = getReviewStatus(review);
+
+            return (
             <Link
               key={review.id}
               href={`/review/${encodeURIComponent(review.id)}`}
@@ -140,19 +148,33 @@ export default function MyReviewsPage() {
                         day: "numeric",
                       })}
                     </span>
-                    {review.isApproved === "N" && (
+                    {reviewStatus === "approved" ? (
+                      <span className="rounded-full bg-emerald-100 px-2 py-0.5 font-medium text-emerald-700">
+                        승인
+                      </span>
+                    ) : reviewStatus === "rejected" ? (
+                      <span className="rounded-full bg-rose-100 px-2 py-0.5 font-medium text-rose-700">
+                        반려
+                      </span>
+                    ) : (
                       <span className="rounded-full bg-yellow-100 px-2 py-0.5 font-medium text-yellow-800">
                         승인 대기중
                       </span>
                     )}
                   </div>
+                  {reviewStatus === "rejected" && review.rejectReason && (
+                    <div className="mt-1 rounded-lg bg-rose-50 px-2.5 py-2 text-[11px] leading-relaxed text-rose-800">
+                      반려 사유: {review.rejectReason}
+                    </div>
+                  )}
                   <p className="mt-2 line-clamp-2 text-sm text-zinc-700">
                     {(review.content ?? "").replace(/<[^>]*>/g, "").trim() || "내용 없음"}
                   </p>
                 </div>
               </div>
             </Link>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

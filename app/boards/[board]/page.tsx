@@ -12,7 +12,7 @@ import Link from "next/link";
 import { BoardSearchControls } from "./board-search-controls";
 
 type BoardType = "domestic" | "overseas" | "market" | "workroom" | "notice";
-type BoardSearchField = "title" | "artist";
+type BoardSearchField = "title" | "author";
 
 interface BoardMeta {
   title: string;
@@ -74,7 +74,7 @@ export default async function BoardPage(props: {
   } = await props.searchParams;
   const page = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
   const searchField: BoardSearchField =
-    rawSearchField === "artist" ? "artist" : "title";
+    rawSearchField === "author" ? "author" : "title";
   const searchQuery = (rawQuery ?? "").trim().slice(0, 100);
 
   const config = BOARD_CONFIG[board];
@@ -91,7 +91,6 @@ export default async function BoardPage(props: {
 
   const postsQueryBuilder = postRepository
     .createQueryBuilder("post")
-    .leftJoinAndSelect("post.user", "user")
     .orderBy("post.created_at", "DESC");
 
   if (config.category === "N") {
@@ -112,12 +111,9 @@ export default async function BoardPage(props: {
         keyword: `%${searchQuery}%`,
       });
     } else {
-      postsQueryBuilder.andWhere(
-        "(post.title ILIKE :keyword OR post.content ILIKE :keyword)",
-        {
-          keyword: `%${searchQuery}%`,
-        }
-      );
+      postsQueryBuilder.andWhere("post.nickname ILIKE :keyword", {
+        keyword: `%${searchQuery}%`,
+      });
     }
   }
 

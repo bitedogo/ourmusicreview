@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import { fetchJson } from "@/src/lib/http/client";
+import { getReviewStatus } from "@/src/lib/review/status";
 
 interface ProfileClientProps {
   id: string;
@@ -19,6 +21,7 @@ interface MyReview {
   content: string;
   rating: number;
   isApproved: "Y" | "N";
+  rejectReason: string | null;
   albumId: string;
   createdAt: string;
   updatedAt: string;
@@ -43,6 +46,16 @@ interface FavoriteAlbum {
   } | null;
 }
 
+interface MyReviewsResponse {
+  ok: boolean;
+  reviews: MyReview[];
+}
+
+interface FavoriteAlbumsResponse {
+  ok: boolean;
+  favorites: FavoriteAlbum[];
+}
+
 export function ProfileClient({
   id,
   nickname,
@@ -56,6 +69,10 @@ export function ProfileClient({
   const [isLoadingFavorites, setIsLoadingFavorites] = useState(false);
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const router = useRouter();
+  const resolvedReviews = myReviews.filter((review) => {
+    const reviewStatus = getReviewStatus(review);
+    return reviewStatus === "approved" || reviewStatus === "rejected";
+  });
 
   async function handleDeleteAccount() {
     if (!confirm("정말로 계정을 삭제하시겠습니까?\n\n삭제된 계정은 복구할 수 없으며, 작성한 리뷰·댓글 등 모든 데이터가 삭제됩니다.")) {
@@ -89,15 +106,7 @@ export function ProfileClient({
     async function fetchMyReviews() {
       try {
         setIsLoadingReviews(true);
-
-        const response = await fetch("/api/reviews");
-        const data = await response.json().catch(() => null);
-
-        if (!response.ok || !data?.ok) {
-          setMyReviews([]);
-          return;
-        }
-
+        const data = await fetchJson<MyReviewsResponse>("/api/reviews");
         setMyReviews(data.reviews || []);
       } catch {
         setMyReviews([]);
@@ -113,15 +122,7 @@ export function ProfileClient({
     async function fetchFavorites() {
       try {
         setIsLoadingFavorites(true);
-
-        const response = await fetch("/api/favorites");
-        const data = await response.json().catch(() => null);
-
-        if (!response.ok || !data?.ok) {
-          setFavoriteAlbums([]);
-          return;
-        }
-
+        const data = await fetchJson<FavoriteAlbumsResponse>("/api/favorites");
         setFavoriteAlbums(data.favorites || []);
       } catch {
         setFavoriteAlbums([]);
@@ -219,23 +220,36 @@ export function ProfileClient({
             <div className="space-y-1.5 md:space-y-2">
               {isLoadingReviews ? (
                 <p className="text-xs text-zinc-500">불러오는 중...</p>
-              ) : myReviews.length === 0 ? (
-                <p className="text-xs text-zinc-500">작성한 리뷰가 없습니다.</p>
+              ) : resolvedReviews.length === 0 ? (
+                <p className="text-xs text-zinc-500">승인/반려 처리된 리뷰가 없습니다.</p>
               ) : (
-                myReviews.slice(0, 3).map((review) => (
-                  <div
-                    key={review.id}
-                    className="rounded-xl border border-zinc-100 bg-white p-2 md:p-2.5"
-                  >
-                    <div className="flex items-center gap-2 md:gap-3">
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-[9px] font-bold uppercase text-zinc-400 md:text-[9px]">{review.album?.artist}</p>
-                        <p className="truncate text-[11px] font-bold text-zinc-900 md:text-xs">{review.album?.title}</p>
+                resolvedReviews.slice(0, 3).map((review) => {
+                  const reviewStatus = getReviewStatus(review);
+
+                  return (
+                    <div
+                      key={review.id}
+                      className="rounded-xl border border-zinc-100 bg-white p-2 md:p-2.5"
+                    >
+                      <div className="flex items-center gap-2 md:gap-3">
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-[9px] font-bold uppercase text-zinc-400 md:text-[9px]">{review.album?.artist}</p>
+                          <p className="truncate text-[11px] font-bold text-zinc-900 md:text-xs">{review.album?.title}</p>
+                        </div>
+                        <span
+                          className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                            reviewStatus === "approved"
+                              ? "bg-emerald-100 text-emerald-700"
+                              : "bg-rose-100 text-rose-700"
+                          }`}
+                        >
+                          {reviewStatus === "approved" ? "승인" : "반려"}
+                        </span>
+                        <span className={`shrink-0 text-xs font-black ${review.rating >= 9 ? "text-red-600" : "text-zinc-900"}`}>{review.rating.toFixed(1)}</span>
                       </div>
-                      <span className={`shrink-0 text-xs font-black ${review.rating >= 9 ? "text-red-600" : "text-zinc-900"}`}>{review.rating.toFixed(1)}</span>
                     </div>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
           </section>

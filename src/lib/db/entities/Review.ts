@@ -9,6 +9,7 @@ import {
 } from "typeorm";
 import { User } from "./User";
 import { Album } from "./Album";
+import { ReviewRejectionReason } from "@/src/lib/review/rejection-reasons";
 
 @Entity({ name: "reviews", schema: "public" })
 export class Review {
@@ -23,6 +24,14 @@ export class Review {
 
   @Column({ name: "is_approved", type: "varchar", length: 1 })
   isApproved!: "Y" | "N";
+
+  @Column({
+    name: "reject_reason",
+    type: "varchar",
+    length: 300,
+    nullable: true,
+  })
+  rejectReason!: ReviewRejectionReason | null;
 
   @Column({ name: "user_id", type: "varchar", length: 50 })
   userId!: string;

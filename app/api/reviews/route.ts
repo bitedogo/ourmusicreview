@@ -109,6 +109,7 @@ export async function POST(request: Request) {
       content,
       rating,
       isApproved: "N",
+      rejectReason: null,
     });
 
     await reviewRepository.save(review);
@@ -156,6 +157,7 @@ export async function GET() {
           content: review.content,
           rating: review.rating,
           isApproved: review.isApproved,
+          rejectReason: review.rejectReason,
           albumId: review.albumId,
           createdAt: review.createdAt,
           updatedAt: review.updatedAt,

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-type BoardSearchField = "title" | "artist";
+type BoardSearchField = "title" | "author";
 
 interface BoardSearchControlsProps {
   board: string;
@@ -13,7 +13,7 @@ interface BoardSearchControlsProps {
 
 const SEARCH_FIELD_OPTIONS: Array<{ value: BoardSearchField; label: string }> = [
   { value: "title", label: "제목" },
-  { value: "artist", label: "아티스트" },
+  { value: "author", label: "작성자명" },
 ];
 
 export function BoardSearchControls({

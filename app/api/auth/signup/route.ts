@@ -35,12 +35,19 @@ function validateNickname(nick: string): string | null {
   return null;
 }
 
+function validateName(name: string): string | null {
+  if (!name) return "이름을 입력해주세요.";
+  if (name.length > 30) return "이름은 30자 이하로 입력해주세요.";
+  return null;
+}
+
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();
     const id = sanitizeText(formData.get("id"));
     const password = sanitizeText(formData.get("password"));
     const email = sanitizeText(formData.get("email"));
+    const name = sanitizeText(formData.get("name"));
     const nickname = sanitizeText(formData.get("nickname"));
     const genderRaw = sanitizeText(formData.get("gender"));
     const profileImage = formData.get("profileImage") as File | null;
@@ -50,9 +57,9 @@ export async function POST(request: Request) {
       ? (genderRaw as (typeof validGenders)[number])
       : null;
 
-    if (!id || !password || !email || !nickname || !gender) {
+    if (!id || !password || !email || !name || !nickname || !gender) {
       return NextResponse.json(
-        { ok: false, error: "모든 필수 항목(아이디, 비밀번호, 이메일, 닉네임, 성별)을 입력해주세요." },
+        { ok: false, error: "모든 필수 항목(아이디, 비밀번호, 이메일, 이름, 닉네임, 성별)을 입력해주세요." },
         { status: 400 }
       );
     }
@@ -65,6 +72,11 @@ export async function POST(request: Request) {
     const nickError = validateNickname(nickname);
     if (nickError) {
       return NextResponse.json({ ok: false, error: nickError }, { status: 400 });
+    }
+
+    const nameError = validateName(name);
+    if (nameError) {
+      return NextResponse.json({ ok: false, error: nameError }, { status: 400 });
     }
 
     let profileImagePath: string | null = null;
@@ -126,6 +138,7 @@ export async function POST(request: Request) {
     const newUser = userRepository.create({
       id,
       password: hashedPassword,
+      name,
       nickname,
       email,
       profileImage: profileImagePath,

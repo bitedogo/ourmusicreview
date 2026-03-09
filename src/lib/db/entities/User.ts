@@ -11,6 +11,14 @@ export class User {
   @Column({ name: "nickname", type: "varchar", length: 50 })
   nickname!: string;
 
+  @Column({
+    name: "name",
+    type: "varchar",
+    length: 50,
+    nullable: true,
+  })
+  name?: string | null;
+
   @Column({ name: "email", type: "varchar", length: 255 })
   email!: string;
 

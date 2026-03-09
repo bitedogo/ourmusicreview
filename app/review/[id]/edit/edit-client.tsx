@@ -6,6 +6,7 @@ import { useEffect, useState, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { TuiEditor, TuiEditorRef } from "@/src/components/common/TuiEditor";
 import Image from "next/image";
+import { fetchJson, getApiErrorMessage } from "@/src/lib/http/client";
 
 interface ReviewData {
   id: string;
@@ -19,6 +20,11 @@ interface ReviewData {
     artist: string;
     imageUrl: string | null;
   };
+}
+
+interface ReviewDetailResponse {
+  ok: boolean;
+  review: ReviewData;
 }
 
 export function ReviewEditClient({ reviewId }: { reviewId: string }) {
@@ -35,23 +41,16 @@ export function ReviewEditClient({ reviewId }: { reviewId: string }) {
   useEffect(() => {
     async function fetchReview() {
       try {
-        const response = await fetch(`/api/reviews/${encodeURIComponent(reviewId)}`);
-        const data = await response.json();
-
-        if (!response.ok || !data?.ok) {
-          setError(data?.error ?? "리뷰를 불러올 수 없습니다.");
-          return;
-        }
-
+        const data = await fetchJson<ReviewDetailResponse>(
+          `/api/reviews/${encodeURIComponent(reviewId)}`
+        );
         const r = data?.review;
         if (r) {
           setReview(r);
           setRating(r.rating ?? 0);
         }
       } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "리뷰를 불러오는 중 오류가 발생했습니다."
-        );
+        setError(getApiErrorMessage(err, "리뷰를 불러오는 중 오류가 발생했습니다."));
       } finally {
         setIsLoading(false);
       }
@@ -77,7 +76,7 @@ export function ReviewEditClient({ reviewId }: { reviewId: string }) {
     }
 
     try {
-      const response = await fetch(`/api/reviews/${encodeURIComponent(reviewId)}`, {
+      await fetchJson<{ ok: boolean }>(`/api/reviews/${encodeURIComponent(reviewId)}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -86,24 +85,10 @@ export function ReviewEditClient({ reviewId }: { reviewId: string }) {
         }),
       });
 
-      const data = await response.json().catch(() => null);
-
-      if (!response.ok || !data?.ok) {
-        setErrorMessage(
-          data?.error ?? `리뷰 수정에 실패했습니다. (status: ${response.status})`
-        );
-        setIsSubmitting(false);
-        return;
-      }
-
       router.push(`/review/${encodeURIComponent(reviewId)}`);
       router.refresh();
     } catch (err) {
-      setErrorMessage(
-        err instanceof Error
-          ? `요청 중 오류가 발생했습니다: ${err.message}`
-          : "요청 중 알 수 없는 오류가 발생했습니다."
-      );
+      setErrorMessage(getApiErrorMessage(err, "요청 중 오류가 발생했습니다."));
       setIsSubmitting(false);
     }
   }

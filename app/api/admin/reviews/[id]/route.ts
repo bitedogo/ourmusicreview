@@ -3,9 +3,11 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/src/lib/auth/config";
 import { initializeDatabase } from "@/src/lib/db";
 import { Review } from "@/src/lib/db/entities/Review";
+import { isReviewRejectionReason } from "@/src/lib/review/rejection-reasons";
 
 interface UpdateReviewBody {
   action?: "approve" | "reject";
+  rejectReason?: string;
 }
 
 export async function PATCH(
@@ -55,19 +57,23 @@ export async function PATCH(
 
     if (body.action === "approve") {
       review.isApproved = "Y";
+      review.rejectReason = null;
     } else {
-      await reviewRepository.remove(review);
-      return NextResponse.json({
-        ok: true,
-        message: "리뷰가 거부되어 삭제되었습니다.",
-      });
+      if (!isReviewRejectionReason(body.rejectReason)) {
+        return NextResponse.json(
+          { ok: false, error: "유효한 반려 사유를 선택해주세요." },
+          { status: 400 }
+        );
+      }
+      review.isApproved = "N";
+      review.rejectReason = body.rejectReason;
     }
 
     await reviewRepository.save(review);
 
     return NextResponse.json({
       ok: true,
-      message: body.action === "approve" ? "리뷰가 승인되었습니다." : "리뷰가 거부되었습니다.",
+      message: body.action === "approve" ? "리뷰가 승인되었습니다." : "리뷰가 반려되었습니다.",
       review: {
         id: review.id,
         isApproved: review.isApproved,

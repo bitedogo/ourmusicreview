@@ -40,6 +40,7 @@ export async function GET(
         content: review.content,
         rating: review.rating,
         isApproved: review.isApproved,
+        rejectReason: review.rejectReason,
         userId: review.userId,
         albumId: review.albumId,
         createdAt: review.createdAt,
@@ -123,6 +124,9 @@ export async function PATCH(
       );
     }
 
+    const isAdminEditor = session.user.role === "ADMIN";
+    let hasUserEdit = false;
+
     if (content !== undefined) {
       if (!content || content === "<p><br></p>") {
         return NextResponse.json(
@@ -131,13 +135,26 @@ export async function PATCH(
         );
       }
       review.content = content;
+      hasUserEdit = true;
     }
 
     if (rating !== undefined) {
       review.rating = rating;
+      hasUserEdit = true;
     }
 
-    review.updatedAt = new Date();
+    if (!hasUserEdit) {
+      return NextResponse.json(
+        { ok: false, error: "수정할 내용이 없습니다." },
+        { status: 400 }
+      );
+    }
+
+    if (!isAdminEditor && hasUserEdit) {
+      review.isApproved = "N";
+      review.rejectReason = null;
+    }
+
     await reviewRepository.save(review);
 
     return NextResponse.json({

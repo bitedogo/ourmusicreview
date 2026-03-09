@@ -8,12 +8,15 @@ import { HtmlRenderer } from "@/src/components/common/HtmlRenderer";
 import { InteractionButtons } from "@/src/components/interaction/InteractionButtons";
 import { CommentSection } from "@/src/components/interaction/CommentSection";
 import Image from "next/image";
+import { fetchJson, getApiErrorMessage } from "@/src/lib/http/client";
+import { getReviewStatus } from "@/src/lib/review/status";
 
 interface ReviewDetail {
   id: string;
   content: string;
   rating: number;
   isApproved: "Y" | "N";
+  rejectReason: string | null;
   userId: string;
   albumId: string;
   createdAt: string;
@@ -29,6 +32,11 @@ interface ReviewDetail {
     artist: string;
     imageUrl: string | null;
   };
+}
+
+interface ReviewDetailResponse {
+  ok: boolean;
+  review: ReviewDetail;
 }
 
 export function ReviewDetailClient({ reviewId }: { reviewId: string }) {
@@ -48,39 +56,26 @@ export function ReviewDetailClient({ reviewId }: { reviewId: string }) {
     if (!confirm("정말로 이 리뷰를 삭제하시겠습니까?")) return;
 
     try {
-      const response = await fetch(`/api/reviews/${reviewId}`, {
+      await fetchJson<{ ok: boolean }>(`/api/reviews/${reviewId}`, {
         method: "DELETE",
       });
-      const data = await response.json();
-
-      if (data.ok) {
-        alert("리뷰가 삭제되었습니다.");
-        router.push("/");
-        router.refresh();
-      } else {
-        alert(data.error || "삭제에 실패했습니다.");
-      }
-    } catch {
-      alert("삭제 중 오류가 발생했습니다.");
+      alert("리뷰가 삭제되었습니다.");
+      router.push("/");
+      router.refresh();
+    } catch (error) {
+      alert(getApiErrorMessage(error, "삭제 중 오류가 발생했습니다."));
     }
   };
 
   useEffect(() => {
     async function fetchReview() {
       try {
-        const response = await fetch(`/api/reviews/${encodeURIComponent(reviewId)}`);
-        const data = await response.json();
-
-        if (!response.ok || !data?.ok) {
-          setError(data?.error ?? "리뷰를 불러올 수 없습니다.");
-          return;
-        }
-
+        const data = await fetchJson<ReviewDetailResponse>(
+          `/api/reviews/${encodeURIComponent(reviewId)}`
+        );
         setReview(data.review);
       } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "리뷰를 불러오는 중 오류가 발생했습니다."
-        );
+        setError(getApiErrorMessage(err, "리뷰를 불러오는 중 오류가 발생했습니다."));
       } finally {
         setIsLoading(false);
       }
@@ -114,6 +109,8 @@ export function ReviewDetailClient({ reviewId }: { reviewId: string }) {
       </div>
     );
   }
+
+  const reviewStatus = getReviewStatus(review);
 
   const formatDate = (dateString: string) => {
     try {
@@ -241,9 +238,17 @@ export function ReviewDetailClient({ reviewId }: { reviewId: string }) {
           </div>
         )}
 
-        {review.isApproved === "N" && (
-          <div className="mt-4 rounded-lg border border-yellow-200 bg-yellow-50 px-3 py-2 text-xs text-yellow-900">
-            이 리뷰는 아직 승인 대기 중입니다.
+        {reviewStatus !== "approved" && (
+          <div
+            className={`mt-4 rounded-lg px-3 py-2 text-xs ${
+              reviewStatus === "rejected"
+                ? "border border-rose-200 bg-rose-50 text-rose-900"
+                : "border border-yellow-200 bg-yellow-50 text-yellow-900"
+            }`}
+          >
+            {reviewStatus === "rejected"
+              ? `반려 사유: ${review.rejectReason}`
+              : "다시 승인 대기 상태로 전환되었습니다."}
           </div>
         )}
       </div>
