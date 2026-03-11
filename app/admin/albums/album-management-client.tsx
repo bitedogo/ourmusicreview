@@ -65,7 +65,7 @@ export function AlbumManagementClient() {
         return;
       }
 
-      setAlbums(data.albums || []);
+      setAlbums(data?.data?.albums || []);
     } catch (err) {
       setError(
         err instanceof Error
@@ -92,8 +92,8 @@ export function AlbumManagementClient() {
     try {
       const response = await fetch(`/api/itunes/artists?term=${encodeURIComponent(term)}`);
       const data = await response.json();
-      if (data.ok && Array.isArray(data.artists)) {
-        setArtists(data.artists);
+      if (data.ok && Array.isArray(data?.data?.artists)) {
+        setArtists(data.data.artists);
       } else {
         setArtists([]);
       }
@@ -111,8 +111,8 @@ export function AlbumManagementClient() {
     try {
       const response = await fetch(`/api/itunes/artists/${artist.artistId}/albums`);
       const data = await response.json();
-      if (data.ok && Array.isArray(data.albums)) {
-        setArtistAlbums(data.albums);
+      if (data.ok && Array.isArray(data?.data?.albums)) {
+        setArtistAlbums(data.data.albums);
       } else {
         setArtistAlbums([]);
       }

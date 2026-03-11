@@ -4,6 +4,11 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import {
+  ApiClientError,
+  fetchJson,
+  getApiErrorMessage,
+} from "@/src/lib/http/client";
 
 interface FavoriteAlbum {
   id: string;
@@ -18,6 +23,13 @@ interface FavoriteAlbum {
   } | null;
 }
 
+interface FavoritesResponse {
+  ok: boolean;
+  data: {
+    favorites: FavoriteAlbum[];
+  };
+}
+
 export default function FavoriteAlbumsPage() {
   const router = useRouter();
   const [favorites, setFavorites] = useState<FavoriteAlbum[]>([]);
@@ -28,21 +40,14 @@ export default function FavoriteAlbumsPage() {
     async function fetchFavorites() {
       try {
         setIsLoading(true);
-        const response = await fetch("/api/favorites");
-        const data = await response.json().catch(() => null);
-
-        if (!response.ok || !data?.ok) {
-          if (response.status === 401) {
-            router.push("/auth/signin?callbackUrl=/profile/albums");
-            return;
-          }
-          setError(data?.error ?? "좋아요한 앨범을 불러오지 못했습니다.");
+        const data = await fetchJson<FavoritesResponse>("/api/favorites");
+        setFavorites(data.data.favorites || []);
+      } catch (error) {
+        if (error instanceof ApiClientError && error.status === 401) {
+          router.push("/auth/signin?callbackUrl=/profile/albums");
           return;
         }
-
-        setFavorites(data.favorites || []);
-      } catch {
-        setError("데이터를 불러오는 중 오류가 발생했습니다.");
+        setError(getApiErrorMessage(error, "데이터를 불러오는 중 오류가 발생했습니다."));
       } finally {
         setIsLoading(false);
       }

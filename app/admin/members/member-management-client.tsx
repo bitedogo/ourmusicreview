@@ -38,7 +38,7 @@ export function MemberManagementClient() {
         return;
       }
 
-      setMembers(data.members || []);
+      setMembers(data?.data?.members || []);
     } catch (err) {
       setError(
         err instanceof Error

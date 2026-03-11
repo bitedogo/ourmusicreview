@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useRef } from "react";
 import { TuiEditor, TuiEditorRef } from "@/src/components/common/TuiEditor";
 import Image from "next/image";
+import { fetchJson, getApiErrorMessage } from "@/src/lib/http/client";
 
 export function ReviewWriteClient() {
   const router = useRouter();
@@ -13,8 +14,14 @@ export function ReviewWriteClient() {
   const albumArtist = searchParams.get("artist");
   const albumImageUrl = searchParams.get("imageUrl");
 
-  const [, setContent] = useState("");
   const [rating, setRating] = useState<number>(5);
+  interface CreateReviewResponse {
+    ok: boolean;
+    data: {
+      id: string;
+    };
+  }
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const editorRef = useRef<TuiEditorRef>(null);
@@ -40,7 +47,7 @@ export function ReviewWriteClient() {
     }
 
     try {
-      const response = await fetch("/api/reviews", {
+      const data = await fetchJson<CreateReviewResponse>("/api/reviews", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -53,29 +60,14 @@ export function ReviewWriteClient() {
         }),
       });
 
-      const data = await response.json().catch(() => null);
-
-      if (!response.ok || !data?.ok) {
-        setErrorMessage(
-          data?.error ??
-            `리뷰 작성에 실패했습니다. (status: ${response.status})`
-        );
-        setIsSubmitting(false);
-        return;
-      }
-
-      const reviewId = data.id as string | undefined;
+      const reviewId = data.data?.id;
       if (reviewId) {
         router.push(`/review/${encodeURIComponent(reviewId)}`);
       } else {
         router.push("/");
       }
     } catch (error) {
-      setErrorMessage(
-        error instanceof Error
-          ? `요청 중 오류가 발생했습니다: ${error.message}`
-          : "요청 중 알 수 없는 오류가 발생했습니다."
-      );
+      setErrorMessage(getApiErrorMessage(error, "리뷰 작성에 실패했습니다."));
       setIsSubmitting(false);
     }
   }
@@ -171,7 +163,6 @@ export function ReviewWriteClient() {
             ref={editorRef}
             height="400px"
             showMediaTools={false}
-            onChange={(html) => setContent(html)}
           />
         </div>
 

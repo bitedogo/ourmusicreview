@@ -33,7 +33,9 @@ interface SlideAlbum {
 
 interface FeaturedSlideListResponse {
   ok: true;
-  albums: SlideAlbum[];
+  data: {
+    albums: SlideAlbum[];
+  };
 }
 
 export function FeaturedSlideClient() {
@@ -62,7 +64,7 @@ export function FeaturedSlideClient() {
     setError(null);
     try {
       const data = await fetchJson<FeaturedSlideListResponse>("/api/admin/featured-slide");
-      setAlbums(data.albums ?? []);
+      setAlbums(data.data.albums ?? []);
     } catch (err) {
       setError(getApiErrorMessage(err, "목록을 불러오는 중 오류가 발생했습니다."));
       setAlbums([]);
@@ -85,10 +87,10 @@ export function FeaturedSlideClient() {
     setArtistAlbums([]);
     setAddError(null);
     try {
-      const data = await fetchJson<{ ok: true; artists: ArtistResult[] }>(
+      const data = await fetchJson<{ ok: true; data: { artists: ArtistResult[] } }>(
         `/api/itunes/artists?term=${encodeURIComponent(term)}`
       );
-      setArtists(Array.isArray(data.artists) ? data.artists : []);
+      setArtists(Array.isArray(data.data?.artists) ? data.data.artists : []);
     } catch (error) {
       setAddError(getApiErrorMessage(error, "아티스트 검색 중 오류가 발생했습니다."));
       setArtists([]);
@@ -102,10 +104,10 @@ export function FeaturedSlideClient() {
     setIsLoadingAlbums(true);
     setArtistAlbums([]);
     try {
-      const data = await fetchJson<{ ok: true; albums: SearchAlbum[] }>(
+      const data = await fetchJson<{ ok: true; data: { albums: SearchAlbum[] } }>(
         `/api/itunes/artists/${artist.artistId}/albums`
       );
-      setArtistAlbums(Array.isArray(data.albums) ? data.albums : []);
+      setArtistAlbums(Array.isArray(data.data?.albums) ? data.data.albums : []);
     } catch (error) {
       setAddError(getApiErrorMessage(error, "앨범 목록 로딩 중 오류가 발생했습니다."));
       setArtistAlbums([]);
@@ -131,7 +133,7 @@ export function FeaturedSlideClient() {
     setAddSubmitting(true);
     setAddError(null);
     try {
-      const data = await fetchJson<{ ok: true; album: SlideAlbum | null }>(
+      const data = await fetchJson<{ ok: true; data: { album: SlideAlbum | null } }>(
         "/api/admin/featured-slide",
         {
         method: "POST",
@@ -139,7 +141,7 @@ export function FeaturedSlideClient() {
         body: JSON.stringify({ collectionId }),
         }
       );
-      const createdAlbum = data.album;
+      const createdAlbum = data.data.album;
       if (createdAlbum) {
         setAlbums((prev) => [...prev, createdAlbum]);
       }

@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/src/lib/auth/config";
 import { initializeDatabase } from "@/src/lib/db";
 import { Review } from "@/src/lib/db/entities/Review";
+import { apiError, apiOk } from "@/src/lib/http/response";
 
 export async function GET(
   request: Request,
@@ -12,10 +12,7 @@ export async function GET(
     const { id } = await params;
 
     if (!id) {
-      return NextResponse.json(
-        { ok: false, error: "리뷰 ID가 필요합니다." },
-        { status: 400 }
-      );
+      return apiError("리뷰 ID가 필요합니다.", { status: 400 });
     }
 
     const dataSource = await initializeDatabase();
@@ -27,14 +24,10 @@ export async function GET(
     });
 
     if (!review) {
-      return NextResponse.json(
-        { ok: false, error: "리뷰를 찾을 수 없습니다." },
-        { status: 404 }
-      );
+      return apiError("리뷰를 찾을 수 없습니다.", { status: 404 });
     }
 
-    return NextResponse.json({
-      ok: true,
+    return apiOk({
       review: {
         id: review.id,
         content: review.content,
@@ -59,14 +52,8 @@ export async function GET(
       },
     });
   } catch (error) {
-    return NextResponse.json(
-      {
-        ok: false,
-        error:
-          error instanceof Error
-            ? error.message
-            : "리뷰 조회 중 오류가 발생했습니다.",
-      },
+    return apiError(
+      error instanceof Error ? error.message : "리뷰 조회 중 오류가 발생했습니다.",
       { status: 500 }
     );
   }
@@ -86,10 +73,7 @@ export async function PATCH(
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { ok: false, error: "로그인이 필요합니다." },
-        { status: 401 }
-      );
+      return apiError("로그인이 필요합니다.", { status: 401 });
     }
 
     const body = (await request.json()) as UpdateReviewBody;
@@ -111,17 +95,11 @@ export async function PATCH(
     });
 
     if (!review) {
-      return NextResponse.json(
-        { ok: false, error: "리뷰를 찾을 수 없습니다." },
-        { status: 404 }
-      );
+      return apiError("리뷰를 찾을 수 없습니다.", { status: 404 });
     }
 
     if (review.userId !== session.user.id && session.user.role !== "ADMIN") {
-      return NextResponse.json(
-        { ok: false, error: "수정 권한이 없습니다." },
-        { status: 403 }
-      );
+      return apiError("수정 권한이 없습니다.", { status: 403 });
     }
 
     const isAdminEditor = session.user.role === "ADMIN";
@@ -129,10 +107,7 @@ export async function PATCH(
 
     if (content !== undefined) {
       if (!content || content === "<p><br></p>") {
-        return NextResponse.json(
-          { ok: false, error: "리뷰 내용을 입력해주세요." },
-          { status: 400 }
-        );
+        return apiError("리뷰 내용을 입력해주세요.", { status: 400 });
       }
       review.content = content;
       hasUserEdit = true;
@@ -144,10 +119,7 @@ export async function PATCH(
     }
 
     if (!hasUserEdit) {
-      return NextResponse.json(
-        { ok: false, error: "수정할 내용이 없습니다." },
-        { status: 400 }
-      );
+      return apiError("수정할 내용이 없습니다.", { status: 400 });
     }
 
     if (!isAdminEditor && hasUserEdit) {
@@ -157,8 +129,7 @@ export async function PATCH(
 
     await reviewRepository.save(review);
 
-    return NextResponse.json({
-      ok: true,
+    return apiOk({
       review: {
         id: review.id,
         content: review.content,
@@ -167,14 +138,8 @@ export async function PATCH(
       },
     });
   } catch (error) {
-    return NextResponse.json(
-      {
-        ok: false,
-        error:
-          error instanceof Error
-            ? error.message
-            : "리뷰 수정 중 오류가 발생했습니다.",
-      },
+    return apiError(
+      error instanceof Error ? error.message : "리뷰 수정 중 오류가 발생했습니다.",
       { status: 500 }
     );
   }
@@ -189,10 +154,7 @@ export async function DELETE(
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { ok: false, error: "로그인이 필요합니다." },
-        { status: 401 }
-      );
+      return apiError("로그인이 필요합니다.", { status: 401 });
     }
 
     const dataSource = await initializeDatabase();
@@ -203,31 +165,19 @@ export async function DELETE(
     });
 
     if (!review) {
-      return NextResponse.json(
-        { ok: false, error: "리뷰를 찾을 수 없습니다." },
-        { status: 404 }
-      );
+      return apiError("리뷰를 찾을 수 없습니다.", { status: 404 });
     }
 
     if (review.userId !== session.user.id && session.user.role !== "ADMIN") {
-      return NextResponse.json(
-        { ok: false, error: "삭제 권한이 없습니다." },
-        { status: 403 }
-      );
+      return apiError("삭제 권한이 없습니다.", { status: 403 });
     }
 
     await reviewRepository.remove(review);
 
-    return NextResponse.json({ ok: true });
+    return apiOk({});
   } catch (error) {
-    return NextResponse.json(
-      {
-        ok: false,
-        error:
-          error instanceof Error
-            ? error.message
-            : "리뷰 삭제 중 오류가 발생했습니다.",
-      },
+    return apiError(
+      error instanceof Error ? error.message : "리뷰 삭제 중 오류가 발생했습니다.",
       { status: 500 }
     );
   }

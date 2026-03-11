@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { initializeDatabase } from "@/src/lib/db";
 import { User } from "@/src/lib/db/entities/User";
+import { apiError, apiOk } from "@/src/lib/http/response";
 
 function sanitizeText(value: unknown) {
   return typeof value === "string" ? value.trim() : "";
@@ -30,22 +30,18 @@ export async function POST(request: Request) {
     const newPassword = sanitizeText(body?.newPassword);
 
     if (!id || !email || !currentPassword || !newPassword) {
-      return NextResponse.json(
-        { ok: false, error: "아이디, 이메일, 현재 비밀번호, 새 비밀번호를 모두 입력해주세요." },
-        { status: 400 }
-      );
+      return apiError("아이디, 이메일, 현재 비밀번호, 새 비밀번호를 모두 입력해주세요.", {
+        status: 400,
+      });
     }
 
     const passwordError = validatePassword(newPassword);
     if (passwordError) {
-      return NextResponse.json({ ok: false, error: passwordError }, { status: 400 });
+      return apiError(passwordError, { status: 400 });
     }
 
     if (currentPassword === newPassword) {
-      return NextResponse.json(
-        { ok: false, error: "새 비밀번호는 현재 비밀번호와 달라야 합니다." },
-        { status: 400 }
-      );
+      return apiError("새 비밀번호는 현재 비밀번호와 달라야 합니다.", { status: 400 });
     }
 
     const dataSource = await initializeDatabase();
@@ -53,10 +49,9 @@ export async function POST(request: Request) {
 
     const user = await userRepository.findOne({ where: { id, email } });
     if (!user) {
-      return NextResponse.json(
-        { ok: false, error: "입력한 아이디와 이메일이 일치하는 계정을 찾을 수 없습니다." },
-        { status: 404 }
-      );
+      return apiError("입력한 아이디와 이메일이 일치하는 계정을 찾을 수 없습니다.", {
+        status: 404,
+      });
     }
 
     const isHashed = isBcryptHash(user.password);
@@ -65,22 +60,16 @@ export async function POST(request: Request) {
       : currentPassword === user.password;
 
     if (!isCurrentPasswordValid) {
-      return NextResponse.json(
-        { ok: false, error: "현재 비밀번호가 올바르지 않습니다." },
-        { status: 400 }
-      );
+      return apiError("현재 비밀번호가 올바르지 않습니다.", { status: 400 });
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     await userRepository.update({ id: user.id }, { password: hashedPassword });
 
-    return NextResponse.json({ ok: true });
+    return apiOk({});
   } catch (error) {
-    return NextResponse.json(
-      {
-        ok: false,
-        error: error instanceof Error ? error.message : "비밀번호 변경 중 오류가 발생했습니다.",
-      },
+    return apiError(
+      error instanceof Error ? error.message : "비밀번호 변경 중 오류가 발생했습니다.",
       { status: 500 }
     );
   }

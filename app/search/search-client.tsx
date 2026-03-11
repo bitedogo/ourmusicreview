@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
+import { ApiClientError, fetchJson, getApiErrorMessage } from "@/src/lib/http/client";
 
 interface ArtistResult {
   artistId: number;
@@ -21,6 +22,42 @@ interface AlbumResult {
   imageUrl600: string | null;
 }
 
+interface SearchAutocompleteResponse {
+  ok: boolean;
+  data: {
+    results: ArtistResult[];
+  };
+}
+
+interface ArtistSearchResponse {
+  ok: boolean;
+  data: {
+    artists: ArtistResult[];
+  };
+}
+
+interface ArtistAlbumsResponse {
+  ok: boolean;
+  data: {
+    albums: AlbumResult[];
+  };
+}
+
+interface AlbumRatingResponse {
+  ok: boolean;
+  data: {
+    averageRating: number | null;
+    reviewCount: number;
+  };
+}
+
+interface FavoritesResponse {
+  ok: boolean;
+  data: {
+    favorites: Array<{ albumId?: string | number | null }>;
+  };
+}
+
 const DEBOUNCE_MS = 300;
 
 export function SearchClient() {
@@ -32,7 +69,6 @@ export function SearchClient() {
     artistIdFromUrl != null && artistIdFromUrl !== ""
       ? ""
       : artistParamFromUrl || searchParams.get("q") || "";
-  const didAutoSelectArtistRef = useRef(false);
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -58,13 +94,12 @@ export function SearchClient() {
     setIsLoadingSuggestions(true);
     setIsDropdownOpen(true);
     try {
-      const res = await fetch(
+      const data = await fetchJson<SearchAutocompleteResponse>(
         `/api/itunes/search-autocomplete?term=${encodeURIComponent(term.trim())}`
       );
-      const data = await res.json().catch(() => null);
-      if (data?.ok && Array.isArray(data?.results)) {
-        setSuggestions(data.results);
-        setIsDropdownOpen(data.results.length > 0);
+      if (Array.isArray(data.data?.results)) {
+        setSuggestions(data.data.results);
+        setIsDropdownOpen(data.data.results.length > 0);
       } else {
         setSuggestions([]);
         setIsDropdownOpen(false);
@@ -106,41 +141,15 @@ export function SearchClient() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  useEffect(() => {
-    const artistId = artistIdFromUrl ? Number(artistIdFromUrl) : NaN;
-    if (Number.isFinite(artistId) && artistParamFromUrl) {
-      setSearchQuery("");
-      didAutoSelectArtistRef.current = true;
-      handleArtistSelect({
-        artistId,
-        artistName: artistParamFromUrl,
-      });
-      return;
-    }
-    const q = searchParams.get("q")?.trim();
-    if (q) {
-      setSearchQuery(q);
-      handleSearchAndRedirect(q);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [artistIdFromUrl, artistParamFromUrl, searchParams]);
-
-  async function handleSearchAndRedirect(term: string) {
+  const handleSearchAndRedirect = useCallback(async (term: string) => {
     if (!term.trim()) return;
 
     setErrorMessage(null);
     try {
-      const response = await fetch(`/api/itunes/artists?term=${encodeURIComponent(term)}`);
-      const data = await response.json();
-
-      if (!response.ok || !data.ok) {
-        setErrorMessage(
-          data?.error ?? `검색에 실패했습니다. (status: ${response.status})`
-        );
-        return;
-      }
-
-      const artistsList = data.artists || [];
+      const data = await fetchJson<ArtistSearchResponse>(
+        `/api/itunes/artists?term=${encodeURIComponent(term)}`
+      );
+      const artistsList = data.data.artists || [];
       if (artistsList.length === 0) {
         setErrorMessage("검색 결과가 없습니다.");
         return;
@@ -150,13 +159,9 @@ export function SearchClient() {
         `/search?artistId=${first.artistId}&artist=${encodeURIComponent(first.artistName)}`
       );
     } catch (error) {
-      setErrorMessage(
-        error instanceof Error
-          ? `검색 중 오류가 발생했습니다: ${error.message}`
-          : "검색 중 알 수 없는 오류가 발생했습니다."
-      );
+      setErrorMessage(getApiErrorMessage(error, "검색 중 오류가 발생했습니다."));
     }
-  }
+  }, [router]);
 
   function handleSearchSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -173,62 +178,43 @@ export function SearchClient() {
     );
   }
 
-  async function handleArtistSelect(artist: ArtistResult) {
+  const handleArtistSelect = useCallback(async (artist: ArtistResult) => {
     setSelectedArtist(artist);
     setIsLoadingAlbums(true);
     setAlbums([]);
     setErrorMessage(null);
 
     try {
-      const response = await fetch(`/api/itunes/artists/${artist.artistId}/albums`);
-      const data = await response.json();
-
-      if (!response.ok || !data.ok) {
-        setErrorMessage(
-          data?.error ?? `앨범 목록을 불러오는데 실패했습니다. (status: ${response.status})`
-        );
-        setAlbums([]);
-        return;
-      }
-
-      setAlbums(data.albums || []);
-      
-      if (data.albums && data.albums.length > 0) {
-        const ratings: Record<string, { averageRating: number | null; reviewCount: number }> = {};
-        await Promise.all(
-          data.albums.map(async (album: AlbumResult) => {
-            try {
-              const ratingResponse = await fetch(
-                `/api/albums/${encodeURIComponent(album.collectionId.toString())}/rating`
-              );
-              const ratingData = await ratingResponse.json();
-              if (ratingResponse.ok && ratingData?.ok) {
-                if (ratingData.reviewCount > 0 && ratingData.averageRating !== null) {
-                  ratings[album.collectionId.toString()] = {
-                    averageRating: ratingData.averageRating,
-                    reviewCount: ratingData.reviewCount,
-                  };
-                }
-              }
-            } catch {
-            }
-          })
-        );
-        setAlbumRatings(ratings);
-      }
-    } catch (error) {
-      setErrorMessage(
-        error instanceof Error
-          ? `앨범 목록 조회 중 오류가 발생했습니다: ${error.message}`
-          : "앨범 목록 조회 중 알 수 없는 오류가 발생했습니다."
+      const data = await fetchJson<ArtistAlbumsResponse>(
+        `/api/itunes/artists/${artist.artistId}/albums`
       );
+      setAlbums(data.data.albums || []);
+    } catch (error) {
+      setErrorMessage(getApiErrorMessage(error, "앨범 목록 조회 중 오류가 발생했습니다."));
       setAlbums([]);
     } finally {
       setIsLoadingAlbums(false);
     }
-  }
+  }, []);
 
-  async function handleRegister(album: AlbumResult) {
+  useEffect(() => {
+    const artistId = artistIdFromUrl ? Number(artistIdFromUrl) : NaN;
+    if (Number.isFinite(artistId) && artistParamFromUrl) {
+      setSearchQuery("");
+      handleArtistSelect({
+        artistId,
+        artistName: artistParamFromUrl,
+      });
+      return;
+    }
+    const q = searchParams.get("q")?.trim();
+    if (q) {
+      setSearchQuery(q);
+      handleSearchAndRedirect(q);
+    }
+  }, [artistIdFromUrl, artistParamFromUrl, searchParams, handleArtistSelect, handleSearchAndRedirect]);
+
+  function handleRegister(album: AlbumResult) {
     const params = new URLSearchParams({
       albumId: album.collectionId.toString(),
       title: album.collectionName,
@@ -248,7 +234,7 @@ export function SearchClient() {
 
     try {
       if (!isFavorite) {
-        const response = await fetch("/api/favorites", {
+        await fetchJson<{ ok: boolean }>("/api/favorites", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -260,37 +246,17 @@ export function SearchClient() {
           }),
         });
 
-        if (response.status === 401) {
-          router.push("/auth/signin?callbackUrl=/search");
-          return;
-        }
-
-        const data = await response.json().catch(() => null);
-        if (!response.ok || !data?.ok) {
-          return;
-        }
-
         setFavoriteAlbumIds((prev) => {
           const next = new Set(prev);
           next.add(albumId);
           return next;
         });
       } else {
-        const response = await fetch("/api/favorites", {
+        await fetchJson<{ ok: boolean }>("/api/favorites", {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ albumId }),
         });
-
-        if (response.status === 401) {
-          router.push("/auth/signin?callbackUrl=/search");
-          return;
-        }
-
-        const data = await response.json().catch(() => null);
-        if (!response.ok || !data?.ok) {
-          return;
-        }
 
         setFavoriteAlbumIds((prev) => {
           const next = new Set(prev);
@@ -298,7 +264,10 @@ export function SearchClient() {
           return next;
         });
       }
-    } catch {
+    } catch (error) {
+      if (error instanceof ApiClientError && error.status === 401) {
+        router.push("/auth/signin?callbackUrl=/search");
+      }
     }
   }
 
@@ -313,17 +282,14 @@ export function SearchClient() {
       await Promise.all(
         albums.map(async (album) => {
           try {
-            const ratingResponse = await fetch(
+            const ratingData = await fetchJson<AlbumRatingResponse>(
               `/api/albums/${encodeURIComponent(album.collectionId.toString())}/rating`
             );
-            const ratingData = await ratingResponse.json();
-            if (ratingResponse.ok && ratingData?.ok) {
-              if (ratingData.reviewCount > 0 && ratingData.averageRating !== null) {
-                ratings[album.collectionId.toString()] = {
-                  averageRating: ratingData.averageRating,
-                  reviewCount: ratingData.reviewCount,
-                };
-              }
+            if (ratingData.data.reviewCount > 0 && ratingData.data.averageRating !== null) {
+              ratings[album.collectionId.toString()] = {
+                averageRating: ratingData.data.averageRating,
+                reviewCount: ratingData.data.reviewCount,
+              };
             }
           } catch {
           }
@@ -338,22 +304,18 @@ export function SearchClient() {
   useEffect(() => {
     async function fetchFavorites() {
       try {
-        const response = await fetch("/api/favorites");
-        if (response.status === 401) {
-          return;
-        }
-        const data = await response.json().catch(() => null);
-        if (!response.ok || !data?.ok) {
-          return;
-        }
+        const data = await fetchJson<FavoritesResponse>("/api/favorites");
         const ids = new Set<string>();
-        for (const fav of data.favorites || []) {
-          if (fav.albumId) {
-            ids.add(String(fav.albumId));
+        for (const favorite of data.data.favorites || []) {
+          if (favorite.albumId) {
+            ids.add(String(favorite.albumId));
           }
         }
         setFavoriteAlbumIds(ids);
-      } catch {
+      } catch (error) {
+        if (error instanceof ApiClientError && error.status === 401) {
+          return;
+        }
       }
     }
 
@@ -474,6 +436,17 @@ export function SearchClient() {
           ) : albums.length > 0 ? (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {albums.map((album) => {
+                const ratingInfo = albumRatings[album.collectionId.toString()];
+                const ratingValue =
+                  ratingInfo?.reviewCount && ratingInfo.averageRating != null
+                    ? ratingInfo.averageRating.toFixed(1)
+                    : "-";
+                const isHighRating =
+                  ratingInfo?.reviewCount != null &&
+                  ratingInfo.reviewCount > 0 &&
+                  ratingInfo.averageRating != null &&
+                  ratingInfo.averageRating >= 9;
+
                 return (
                   <div
                     key={album.collectionId}
@@ -515,20 +488,13 @@ export function SearchClient() {
                           </p>
                         )}
                         <div className="flex items-center gap-1 mt-1">
-                          <span className="text-[10px] text-zinc-600">Rating :</span>
+                          <span className="text-[10px] text-zinc-600">평점:</span>
                           <span
-                            className={`text-sm font-bold ${(() => {
-                              const r = albumRatings[album.collectionId.toString()];
-                              const score = r?.reviewCount > 0 && r.averageRating != null ? r.averageRating : null;
-                              return score != null && score >= 9 ? "text-red-600" : "text-zinc-900";
-                            })()}`}
+                            className={`text-sm font-bold ${
+                              isHighRating ? "text-red-600" : "text-zinc-900"
+                            }`}
                           >
-                            {(() => {
-                              const r = albumRatings[album.collectionId.toString()];
-                              return r?.reviewCount > 0 && r.averageRating != null
-                                ? r.averageRating.toFixed(1)
-                                : "-";
-                            })()}
+                            {ratingValue}
                           </span>
                         </div>
                       </div>

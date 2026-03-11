@@ -33,7 +33,9 @@ interface Review {
 
 interface ReviewListResponse {
   ok: boolean;
-  reviews: Review[];
+  data: {
+    reviews: Review[];
+  };
 }
 
 export function ReviewApprovalClient() {
@@ -56,7 +58,7 @@ export function ReviewApprovalClient() {
     setError(null);
     try {
       const data = await fetchJson<ReviewListResponse>("/api/admin/reviews");
-      setReviews(data.reviews || []);
+      setReviews(data.data.reviews || []);
     } catch (err) {
       setError(getApiErrorMessage(err, "리뷰 목록을 불러오는 중 오류가 발생했습니다."));
     } finally {

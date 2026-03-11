@@ -1,2 +1,0 @@
-ALTER TABLE public.reviews
-ADD COLUMN IF NOT EXISTS reject_reason VARCHAR(300) NULL;

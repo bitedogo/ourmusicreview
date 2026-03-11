@@ -24,7 +24,9 @@ interface ReviewData {
 
 interface ReviewDetailResponse {
   ok: boolean;
-  review: ReviewData;
+  data: {
+    review: ReviewData;
+  };
 }
 
 export function ReviewEditClient({ reviewId }: { reviewId: string }) {
@@ -44,7 +46,7 @@ export function ReviewEditClient({ reviewId }: { reviewId: string }) {
         const data = await fetchJson<ReviewDetailResponse>(
           `/api/reviews/${encodeURIComponent(reviewId)}`
         );
-        const r = data?.review;
+        const r = data?.data.review;
         if (r) {
           setReview(r);
           setRating(r.rating ?? 0);
@@ -85,7 +87,7 @@ export function ReviewEditClient({ reviewId }: { reviewId: string }) {
         }),
       });
 
-      router.push(`/review/${encodeURIComponent(reviewId)}`);
+      router.push(`/review/${encodeURIComponent(reviewId)}?resubmitted=1`);
       router.refresh();
     } catch (err) {
       setErrorMessage(getApiErrorMessage(err, "요청 중 오류가 발생했습니다."));

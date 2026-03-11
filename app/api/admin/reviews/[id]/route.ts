@@ -1,9 +1,9 @@
-import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/src/lib/auth/config";
 import { initializeDatabase } from "@/src/lib/db";
 import { Review } from "@/src/lib/db/entities/Review";
 import { isReviewRejectionReason } from "@/src/lib/review/rejection-reasons";
+import { apiError, apiOk } from "@/src/lib/http/response";
 
 interface UpdateReviewBody {
   action?: "approve" | "reject";
@@ -18,27 +18,20 @@ export async function PATCH(
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id || session.user.role !== "ADMIN") {
-      return NextResponse.json(
-        { ok: false, error: "관리자 권한이 필요합니다." },
-        { status: 403 }
-      );
+      return apiError("관리자 권한이 필요합니다.", { status: 403 });
     }
 
     const { id } = await params;
     const body = (await request.json()) as UpdateReviewBody;
 
     if (!id) {
-      return NextResponse.json(
-        { ok: false, error: "리뷰 ID가 필요합니다." },
-        { status: 400 }
-      );
+      return apiError("리뷰 ID가 필요합니다.", { status: 400 });
     }
 
     if (body.action !== "approve" && body.action !== "reject") {
-      return NextResponse.json(
-        { ok: false, error: "action은 'approve' 또는 'reject'여야 합니다." },
-        { status: 400 }
-      );
+      return apiError("action은 'approve' 또는 'reject'여야 합니다.", {
+        status: 400,
+      });
     }
 
     const dataSource = await initializeDatabase();
@@ -49,10 +42,7 @@ export async function PATCH(
     });
 
     if (!review) {
-      return NextResponse.json(
-        { ok: false, error: "리뷰를 찾을 수 없습니다." },
-        { status: 404 }
-      );
+      return apiError("리뷰를 찾을 수 없습니다.", { status: 404 });
     }
 
     if (body.action === "approve") {
@@ -60,10 +50,7 @@ export async function PATCH(
       review.rejectReason = null;
     } else {
       if (!isReviewRejectionReason(body.rejectReason)) {
-        return NextResponse.json(
-          { ok: false, error: "유효한 반려 사유를 선택해주세요." },
-          { status: 400 }
-        );
+        return apiError("유효한 반려 사유를 선택해주세요.", { status: 400 });
       }
       review.isApproved = "N";
       review.rejectReason = body.rejectReason;
@@ -71,23 +58,23 @@ export async function PATCH(
 
     await reviewRepository.save(review);
 
-    return NextResponse.json({
-      ok: true,
-      message: body.action === "approve" ? "리뷰가 승인되었습니다." : "리뷰가 반려되었습니다.",
-      review: {
-        id: review.id,
-        isApproved: review.isApproved,
-      },
-    });
-  } catch (error) {
-    return NextResponse.json(
+    return apiOk(
       {
-        ok: false,
-        error:
-          error instanceof Error
-            ? error.message
-            : "리뷰 처리 중 오류가 발생했습니다.",
+        review: {
+          id: review.id,
+          isApproved: review.isApproved,
+        },
       },
+      {
+        message:
+          body.action === "approve"
+            ? "리뷰가 승인되었습니다."
+            : "리뷰가 반려되었습니다.",
+      }
+    );
+  } catch (error) {
+    return apiError(
+      error instanceof Error ? error.message : "리뷰 처리 중 오류가 발생했습니다.",
       { status: 500 }
     );
   }

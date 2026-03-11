@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/src/lib/auth/config";
 import { initializeDatabase } from "@/src/lib/db";
 import { TodayAlbum } from "@/src/lib/db/entities/TodayAlbum";
+import { apiError, apiOk } from "@/src/lib/http/response";
 
 function parseDateFromApi(s: string): Date | null {
   const match = String(s).match(/^(\d{4})-(\d{2})-(\d{2})$/);
@@ -30,10 +30,7 @@ export async function PATCH(
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id || session.user.role !== "ADMIN") {
-      return NextResponse.json(
-        { ok: false, error: "관리자 권한이 필요합니다." },
-        { status: 403 }
-      );
+      return apiError("관리자 권한이 필요합니다.", { status: 403 });
     }
 
     const { displayDate } = await params;
@@ -41,20 +38,14 @@ export async function PATCH(
     const date = parseDateFromApi(decoded);
 
     if (!date) {
-      return NextResponse.json(
-        { ok: false, error: "날짜 형식이 올바르지 않습니다." },
-        { status: 400 }
-      );
+      return apiError("날짜 형식이 올바르지 않습니다.", { status: 400 });
     }
 
     const body = await request.json();
     const { title, artist, imageUrl, description, albumId } = body;
 
     if (!title || !artist) {
-      return NextResponse.json(
-        { ok: false, error: "제목, 아티스트는 필수입니다." },
-        { status: 400 }
-      );
+      return apiError("제목, 아티스트는 필수입니다.", { status: 400 });
     }
 
     const dataSource = await initializeDatabase();
@@ -62,10 +53,7 @@ export async function PATCH(
     const entity = await repo.findOne({ where: { displayDate: date } });
 
     if (!entity) {
-      return NextResponse.json(
-        { ok: false, error: "해당 날짜의 앨범을 찾을 수 없습니다." },
-        { status: 404 }
-      );
+      return apiError("해당 날짜의 앨범을 찾을 수 없습니다.", { status: 404 });
     }
 
     entity.albumId = albumId != null ? String(albumId).trim() || undefined : undefined;
@@ -76,27 +64,22 @@ export async function PATCH(
 
     await repo.save(entity);
 
-    return NextResponse.json({
-      ok: true,
-      message: "수정되었습니다.",
-      album: {
-        displayDate: formatDateForApi(entity.displayDate),
-        albumId: entity.albumId ?? null,
-        title: entity.title,
-        artist: entity.artist,
-        imageUrl: entity.imageUrl ?? null,
-        description: entity.description ?? null,
-      },
-    });
-  } catch (error) {
-    return NextResponse.json(
+    return apiOk(
       {
-        ok: false,
-        error:
-          error instanceof Error
-            ? error.message
-            : "수정 중 오류가 발생했습니다.",
+        album: {
+          displayDate: formatDateForApi(entity.displayDate),
+          albumId: entity.albumId ?? null,
+          title: entity.title,
+          artist: entity.artist,
+          imageUrl: entity.imageUrl ?? null,
+          description: entity.description ?? null,
+        },
       },
+      { message: "수정되었습니다." }
+    );
+  } catch (error) {
+    return apiError(
+      error instanceof Error ? error.message : "수정 중 오류가 발생했습니다.",
       { status: 500 }
     );
   }
@@ -110,10 +93,7 @@ export async function DELETE(
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id || session.user.role !== "ADMIN") {
-      return NextResponse.json(
-        { ok: false, error: "관리자 권한이 필요합니다." },
-        { status: 403 }
-      );
+      return apiError("관리자 권한이 필요합니다.", { status: 403 });
     }
 
     const { displayDate } = await params;
@@ -121,10 +101,7 @@ export async function DELETE(
     const date = parseDateFromApi(decoded);
 
     if (!date) {
-      return NextResponse.json(
-        { ok: false, error: "날짜 형식이 올바르지 않습니다." },
-        { status: 400 }
-      );
+      return apiError("날짜 형식이 올바르지 않습니다.", { status: 400 });
     }
 
     const dataSource = await initializeDatabase();
@@ -132,27 +109,15 @@ export async function DELETE(
     const entity = await repo.findOne({ where: { displayDate: date } });
 
     if (!entity) {
-      return NextResponse.json(
-        { ok: false, error: "해당 날짜의 앨범을 찾을 수 없습니다." },
-        { status: 404 }
-      );
+      return apiError("해당 날짜의 앨범을 찾을 수 없습니다.", { status: 404 });
     }
 
     await repo.remove(entity);
 
-    return NextResponse.json({
-      ok: true,
-      message: "삭제되었습니다.",
-    });
+    return apiOk({}, { message: "삭제되었습니다." });
   } catch (error) {
-    return NextResponse.json(
-      {
-        ok: false,
-        error:
-          error instanceof Error
-            ? error.message
-            : "삭제 중 오류가 발생했습니다.",
-      },
+    return apiError(
+      error instanceof Error ? error.message : "삭제 중 오류가 발생했습니다.",
       { status: 500 }
     );
   }

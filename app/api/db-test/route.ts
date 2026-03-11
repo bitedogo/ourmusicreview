@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
 import { initializeDatabase } from "@/src/lib/db";
 import { getServerEnv } from "@/src/lib/env";
+import { apiError, apiOk } from "@/src/lib/http/response";
 
 /**
  * DB 연결 테스트용 API
@@ -15,8 +15,7 @@ export async function GET() {
     // 간단한 쿼리로 연결 테스트 (SELECT 1)
     await dataSource.query("SELECT 1");
 
-    return NextResponse.json({
-      ok: true,
+    return apiOk({
       message: "DB 연결 성공",
       database: "PostgreSQL (Supabase)",
     });
@@ -34,13 +33,6 @@ export async function GET() {
       hint = "Supabase Dashboard > Project Settings > Database 에서 연결 문자열을 확인하세요.";
     }
 
-    return NextResponse.json(
-      {
-        ok: false,
-        error: message,
-        hint,
-      },
-      { status: 500 }
-    );
+    return apiError(`${message}${hint ? `\n${hint}` : ""}`, { status: 500 });
   }
 }

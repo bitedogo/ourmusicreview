@@ -36,7 +36,9 @@ interface ReviewDetail {
 
 interface ReviewDetailResponse {
   ok: boolean;
-  review: ReviewDetail;
+  data: {
+    review: ReviewDetail;
+  };
 }
 
 export function ReviewDetailClient({ reviewId }: { reviewId: string }) {
@@ -45,6 +47,7 @@ export function ReviewDetailClient({ reviewId }: { reviewId: string }) {
   const fromReviews = searchParams.get("from") === "reviews";
   const backSort = searchParams.get("sort") || "latest";
   const backPage = searchParams.get("page") || "1";
+  const isResubmittedPending = searchParams.get("resubmitted") === "1";
   const { data: session } = useSession();
   const [review, setReview] = useState<ReviewDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -54,13 +57,18 @@ export function ReviewDetailClient({ reviewId }: { reviewId: string }) {
 
   const handleDelete = async () => {
     if (!confirm("정말로 이 리뷰를 삭제하시겠습니까?")) return;
+    if (!review) return;
+
+    const redirectPath = fromReviews
+      ? `/reviews?sort=${encodeURIComponent(backSort)}&page=${encodeURIComponent(backPage)}`
+      : `/review/album/${encodeURIComponent(review.albumId)}`;
 
     try {
       await fetchJson<{ ok: boolean }>(`/api/reviews/${reviewId}`, {
         method: "DELETE",
       });
       alert("리뷰가 삭제되었습니다.");
-      router.push("/");
+      router.push(redirectPath);
       router.refresh();
     } catch (error) {
       alert(getApiErrorMessage(error, "삭제 중 오류가 발생했습니다."));
@@ -73,7 +81,7 @@ export function ReviewDetailClient({ reviewId }: { reviewId: string }) {
         const data = await fetchJson<ReviewDetailResponse>(
           `/api/reviews/${encodeURIComponent(reviewId)}`
         );
-        setReview(data.review);
+        setReview(data.data.review);
       } catch (err) {
         setError(getApiErrorMessage(err, "리뷰를 불러오는 중 오류가 발생했습니다."));
       } finally {
@@ -248,7 +256,9 @@ export function ReviewDetailClient({ reviewId }: { reviewId: string }) {
           >
             {reviewStatus === "rejected"
               ? `반려 사유: ${review.rejectReason}`
-              : "다시 승인 대기 상태로 전환되었습니다."}
+              : isResubmittedPending
+                ? "다시 승인 대기 상태로 전환되었습니다."
+                : "이 리뷰는 아직 승인 대기 중입니다."}
           </div>
         )}
       </div>

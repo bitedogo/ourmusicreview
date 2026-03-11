@@ -48,17 +48,17 @@ export function CommunityWriteClient() {
         const response = await fetch(`/api/community/posts/${editPostId}`);
         const data = await response.json();
 
-        if (data.ok && data.post) {
-          setTitle(data.post.title);
-          setCategory(data.post.category);
+        if (data.ok && data.data?.post) {
+          setTitle(data.data.post.title);
+          setCategory(data.data.post.category);
           setNoticeCategory(
-            NOTICE_CATEGORY_OPTIONS.some((o) => o.value === data.post.noticeCategory)
-              ? data.post.noticeCategory
+            NOTICE_CATEGORY_OPTIONS.some((o) => o.value === data.data.post.noticeCategory)
+              ? data.data.post.noticeCategory
               : "RELEASE_NOTE"
           );
-          setIsGlobal(data.post.isGlobal === "Y");
+          setIsGlobal(data.data.post.isGlobal === "Y");
           setTimeout(() => {
-            editorRef.current?.setHTML(data.post.content);
+            editorRef.current?.setHTML(data.data.post.content);
           }, 500);
         } else {
           setErrorMessage("게시글을 불러올 수 없습니다.");
@@ -123,7 +123,7 @@ export function CommunityWriteClient() {
         return;
       }
 
-      const postId = editPostId || data.id;
+      const postId = editPostId || data?.data?.id;
       if (postId) {
         router.push(`/community/${encodeURIComponent(postId)}`);
         router.refresh();

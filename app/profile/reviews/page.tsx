@@ -30,7 +30,9 @@ interface MyReview {
 
 interface MyReviewsResponse {
   ok: boolean;
-  reviews: MyReview[];
+  data: {
+    reviews: MyReview[];
+  };
 }
 
 export default function MyReviewsPage() {
@@ -44,7 +46,7 @@ export default function MyReviewsPage() {
       try {
         setIsLoading(true);
         const data = await fetchJson<MyReviewsResponse>("/api/reviews");
-        setReviews(data.reviews || []);
+        setReviews(data.data.reviews || []);
       } catch (error) {
         if (error instanceof ApiClientError && error.status === 401) {
           router.push("/auth/signin?callbackUrl=/profile/reviews");

@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
 import { initializeDatabase } from "@/src/lib/db";
 import { User } from "@/src/lib/db/entities/User";
+import { apiError, apiOk } from "@/src/lib/http/response";
 
 export async function POST(request: Request) {
   try {
@@ -8,10 +8,7 @@ export async function POST(request: Request) {
     const email = typeof body?.email === "string" ? body.email.trim() : "";
 
     if (!email) {
-      return NextResponse.json(
-        { ok: false, error: "이메일을 입력해주세요." },
-        { status: 400 }
-      );
+      return apiError("이메일을 입력해주세요.", { status: 400 });
     }
 
     const dataSource = await initializeDatabase();
@@ -20,20 +17,11 @@ export async function POST(request: Request) {
     const user = await userRepository.findOne({ where: { email } });
 
     if (!user) {
-      return NextResponse.json(
-        { ok: false, error: "해당 이메일로 등록된 계정이 없습니다." },
-        { status: 404 }
-      );
+      return apiError("해당 이메일로 등록된 계정이 없습니다.", { status: 404 });
     }
 
-    return NextResponse.json({
-      ok: true,
-      id: user.id,
-    });
+    return apiOk({ id: user.id });
   } catch {
-    return NextResponse.json(
-      { ok: false, error: "아이디 찾기 중 오류가 발생했습니다." },
-      { status: 500 }
-    );
+    return apiError("아이디 찾기 중 오류가 발생했습니다.", { status: 500 });
   }
 }

@@ -68,16 +68,16 @@ export function AlbumReviewsClient({ albumId }: { albumId: string }) {
         }
 
         if (!isCancelled) {
-          setReviews(reviewsData.reviews || []);
-          if (reviewsData.album) {
-            setAlbumInfo(reviewsData.album);
+          setReviews(reviewsData.data?.reviews || []);
+          if (reviewsData.data?.album) {
+            setAlbumInfo(reviewsData.data.album);
           }
         }
 
         if (ratingResult.status === "fulfilled") {
           const { res: ratingResponse, data: ratingData } = ratingResult.value;
           if (!isCancelled && ratingResponse.ok && ratingData?.ok) {
-            setAverageRating(ratingData.averageRating);
+            setAverageRating(ratingData.data?.averageRating ?? null);
           }
         }
       } catch (err) {

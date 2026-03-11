@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server";
 import { initializeDatabase } from "@/src/lib/db";
 import { Review } from "@/src/lib/db/entities/Review";
 import { Album } from "@/src/lib/db/entities/Album";
 import { getLargeImageUrl } from "@/src/lib/itunes";
+import { apiError, apiOk } from "@/src/lib/http/response";
 
 async function fetchAlbumFromItunes(albumId: string): Promise<{
   albumId: string;
@@ -34,10 +34,7 @@ export async function GET(
     const { albumId } = await params;
 
     if (!albumId) {
-      return NextResponse.json(
-        { ok: false, error: "앨범 ID가 필요합니다." },
-        { status: 400 }
-      );
+      return apiError("앨범 ID가 필요합니다.", { status: 400 });
     }
 
     const dataSource = await initializeDatabase();
@@ -51,16 +48,12 @@ export async function GET(
     if (!album) {
       const itunesAlbum = await fetchAlbumFromItunes(albumId);
       if (itunesAlbum) {
-        return NextResponse.json({
-          ok: true,
+        return apiOk({
           album: itunesAlbum,
           reviews: [],
         });
       }
-      return NextResponse.json(
-        { ok: false, error: "앨범을 찾을 수 없습니다." },
-        { status: 404 }
-      );
+      return apiError("앨범을 찾을 수 없습니다.", { status: 404 });
     }
 
     const reviews = await reviewRepository.find({
@@ -69,8 +62,7 @@ export async function GET(
       order: { createdAt: "DESC" },
     });
 
-    return NextResponse.json({
-      ok: true,
+    return apiOk({
       album: {
         albumId: album.albumId,
         title: album.title,
@@ -93,14 +85,8 @@ export async function GET(
       })),
     });
   } catch (error) {
-    return NextResponse.json(
-      {
-        ok: false,
-        error:
-          error instanceof Error
-            ? error.message
-            : "리뷰 목록 조회 중 오류가 발생했습니다.",
-      },
+    return apiError(
+      error instanceof Error ? error.message : "리뷰 목록 조회 중 오류가 발생했습니다.",
       { status: 500 }
     );
   }

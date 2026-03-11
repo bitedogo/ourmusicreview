@@ -48,12 +48,16 @@ interface FavoriteAlbum {
 
 interface MyReviewsResponse {
   ok: boolean;
-  reviews: MyReview[];
+  data: {
+    reviews: MyReview[];
+  };
 }
 
 interface FavoriteAlbumsResponse {
   ok: boolean;
-  favorites: FavoriteAlbum[];
+  data: {
+    favorites: FavoriteAlbum[];
+  };
 }
 
 export function ProfileClient({
@@ -69,10 +73,7 @@ export function ProfileClient({
   const [isLoadingFavorites, setIsLoadingFavorites] = useState(false);
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const router = useRouter();
-  const resolvedReviews = myReviews.filter((review) => {
-    const reviewStatus = getReviewStatus(review);
-    return reviewStatus === "approved" || reviewStatus === "rejected";
-  });
+  const resolvedReviews = myReviews;
 
   async function handleDeleteAccount() {
     if (!confirm("정말로 계정을 삭제하시겠습니까?\n\n삭제된 계정은 복구할 수 없으며, 작성한 리뷰·댓글 등 모든 데이터가 삭제됩니다.")) {
@@ -107,7 +108,7 @@ export function ProfileClient({
       try {
         setIsLoadingReviews(true);
         const data = await fetchJson<MyReviewsResponse>("/api/reviews");
-        setMyReviews(data.reviews || []);
+        setMyReviews(data.data.reviews || []);
       } catch {
         setMyReviews([]);
       } finally {
@@ -123,7 +124,7 @@ export function ProfileClient({
       try {
         setIsLoadingFavorites(true);
         const data = await fetchJson<FavoriteAlbumsResponse>("/api/favorites");
-        setFavoriteAlbums(data.favorites || []);
+        setFavoriteAlbums(data.data.favorites || []);
       } catch {
         setFavoriteAlbums([]);
       } finally {
@@ -221,7 +222,7 @@ export function ProfileClient({
               {isLoadingReviews ? (
                 <p className="text-xs text-zinc-500">불러오는 중...</p>
               ) : resolvedReviews.length === 0 ? (
-                <p className="text-xs text-zinc-500">승인/반려 처리된 리뷰가 없습니다.</p>
+                <p className="text-xs text-zinc-500">작성한 리뷰가 없습니다.</p>
               ) : (
                 resolvedReviews.slice(0, 3).map((review) => {
                   const reviewStatus = getReviewStatus(review);
@@ -240,10 +241,16 @@ export function ProfileClient({
                           className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${
                             reviewStatus === "approved"
                               ? "bg-emerald-100 text-emerald-700"
-                              : "bg-rose-100 text-rose-700"
+                              : reviewStatus === "rejected"
+                                ? "bg-rose-100 text-rose-700"
+                                : "bg-yellow-100 text-yellow-800"
                           }`}
                         >
-                          {reviewStatus === "approved" ? "승인" : "반려"}
+                          {reviewStatus === "approved"
+                            ? "승인"
+                            : reviewStatus === "rejected"
+                              ? "반려"
+                              : "대기중"}
                         </span>
                         <span className={`shrink-0 text-xs font-black ${review.rating >= 9 ? "text-red-600" : "text-zinc-900"}`}>{review.rating.toFixed(1)}</span>
                       </div>

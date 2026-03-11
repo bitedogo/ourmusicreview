@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/src/lib/auth/config";
 import { initializeDatabase } from "@/src/lib/db";
 import { Faq } from "@/src/lib/db/entities/Faq";
+import { apiError, apiOk } from "@/src/lib/http/response";
 
 export async function PATCH(
   request: Request,
@@ -13,10 +13,7 @@ export async function PATCH(
     const isAdmin = (session?.user as { role?: string })?.role === "ADMIN";
 
     if (!session?.user?.id || !isAdmin) {
-      return NextResponse.json(
-        { ok: false, error: "관리자 권한이 필요합니다." },
-        { status: 403 }
-      );
+      return apiError("관리자 권한이 필요합니다.", { status: 403 });
     }
 
     const { id } = await params;
@@ -30,10 +27,7 @@ export async function PATCH(
 
     const faq = await faqRepository.findOne({ where: { id } });
     if (!faq) {
-      return NextResponse.json(
-        { ok: false, error: "FAQ를 찾을 수 없습니다." },
-        { status: 404 }
-      );
+      return apiError("FAQ를 찾을 수 없습니다.", { status: 404 });
     }
 
     if (question !== undefined) faq.question = question;
@@ -42,12 +36,9 @@ export async function PATCH(
 
     await faqRepository.save(faq);
 
-    return NextResponse.json({ ok: true });
+    return apiOk({});
   } catch {
-    return NextResponse.json(
-      { ok: false, error: "FAQ 수정 중 오류가 발생했습니다." },
-      { status: 500 }
-    );
+    return apiError("FAQ 수정 중 오류가 발생했습니다.", { status: 500 });
   }
 }
 
@@ -60,10 +51,7 @@ export async function DELETE(
     const isAdmin = (session?.user as { role?: string })?.role === "ADMIN";
 
     if (!session?.user?.id || !isAdmin) {
-      return NextResponse.json(
-        { ok: false, error: "관리자 권한이 필요합니다." },
-        { status: 403 }
-      );
+      return apiError("관리자 권한이 필요합니다.", { status: 403 });
     }
 
     const { id } = await params;
@@ -74,17 +62,11 @@ export async function DELETE(
     const result = await faqRepository.delete({ id });
 
     if (result.affected === 0) {
-      return NextResponse.json(
-        { ok: false, error: "FAQ를 찾을 수 없습니다." },
-        { status: 404 }
-      );
+      return apiError("FAQ를 찾을 수 없습니다.", { status: 404 });
     }
 
-    return NextResponse.json({ ok: true });
+    return apiOk({});
   } catch {
-    return NextResponse.json(
-      { ok: false, error: "FAQ 삭제 중 오류가 발생했습니다." },
-      { status: 500 }
-    );
+    return apiError("FAQ 삭제 중 오류가 발생했습니다.", { status: 500 });
   }
 }

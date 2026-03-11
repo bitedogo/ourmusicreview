@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { initializeDatabase } from "@/src/lib/db";
 import { User } from "@/src/lib/db/entities/User";
+import { apiError, apiOk } from "@/src/lib/http/response";
 
 function generateTemporaryPassword(): string {
   const chars = "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -19,10 +19,7 @@ export async function POST(request: Request) {
     const id = typeof body?.id === "string" ? body.id.trim() : "";
 
     if (!email || !id) {
-      return NextResponse.json(
-        { ok: false, error: "이메일과 아이디를 모두 입력해주세요." },
-        { status: 400 }
-      );
+      return apiError("이메일과 아이디를 모두 입력해주세요.", { status: 400 });
     }
 
     const dataSource = await initializeDatabase();
@@ -33,10 +30,7 @@ export async function POST(request: Request) {
     });
 
     if (!user) {
-      return NextResponse.json(
-        { ok: false, error: "이메일과 아이디가 일치하는 계정이 없습니다." },
-        { status: 404 }
-      );
+      return apiError("이메일과 아이디가 일치하는 계정이 없습니다.", { status: 404 });
     }
 
     const temporaryPassword = generateTemporaryPassword();
@@ -44,14 +38,8 @@ export async function POST(request: Request) {
 
     await userRepository.update({ id: user.id }, { password: hashedPassword });
 
-    return NextResponse.json({
-      ok: true,
-      temporaryPassword,
-    });
+    return apiOk({ temporaryPassword });
   } catch {
-    return NextResponse.json(
-      { ok: false, error: "비밀번호 찾기 중 오류가 발생했습니다." },
-      { status: 500 }
-    );
+    return apiError("비밀번호 찾기 중 오류가 발생했습니다.", { status: 500 });
   }
 }

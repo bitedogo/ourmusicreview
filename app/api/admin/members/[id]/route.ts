@@ -1,4 +1,3 @@
-import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/src/lib/auth/config";
 import { initializeDatabase } from "@/src/lib/db";
@@ -8,6 +7,7 @@ import { Like } from "@/src/lib/db/entities/Like";
 import { Report } from "@/src/lib/db/entities/Report";
 import { Comment } from "@/src/lib/db/entities/Comment";
 import { Review } from "@/src/lib/db/entities/Review";
+import { apiError, apiOk } from "@/src/lib/http/response";
 
 interface UpdateMemberBody {
   role?: "USER" | "ADMIN";
@@ -21,34 +21,22 @@ export async function PATCH(
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id || session.user.role !== "ADMIN") {
-      return NextResponse.json(
-        { ok: false, error: "관리자 권한이 필요합니다." },
-        { status: 403 }
-      );
+      return apiError("관리자 권한이 필요합니다.", { status: 403 });
     }
 
     const { id } = await params;
     const body = (await request.json()) as UpdateMemberBody;
 
     if (!id) {
-      return NextResponse.json(
-        { ok: false, error: "멤버 ID가 필요합니다." },
-        { status: 400 }
-      );
+      return apiError("멤버 ID가 필요합니다.", { status: 400 });
     }
 
     if (id === session.user.id) {
-      return NextResponse.json(
-        { ok: false, error: "자기 자신의 권한은 변경할 수 없습니다." },
-        { status: 400 }
-      );
+      return apiError("자기 자신의 권한은 변경할 수 없습니다.", { status: 400 });
     }
 
     if (body.role !== "USER" && body.role !== "ADMIN") {
-      return NextResponse.json(
-        { ok: false, error: "role은 'USER' 또는 'ADMIN'이어야 합니다." },
-        { status: 400 }
-      );
+      return apiError("role은 'USER' 또는 'ADMIN'이어야 합니다.", { status: 400 });
     }
 
     const dataSource = await initializeDatabase();
@@ -59,32 +47,24 @@ export async function PATCH(
     });
 
     if (!user) {
-      return NextResponse.json(
-        { ok: false, error: "멤버를 찾을 수 없습니다." },
-        { status: 404 }
-      );
+      return apiError("멤버를 찾을 수 없습니다.", { status: 404 });
     }
 
     user.role = body.role;
     await userRepository.save(user);
 
-    return NextResponse.json({
-      ok: true,
-      message: "멤버 권한이 변경되었습니다.",
-      member: {
-        id: user.id,
-        role: user.role,
-      },
-    });
-  } catch (error) {
-    return NextResponse.json(
+    return apiOk(
       {
-        ok: false,
-        error:
-          error instanceof Error
-            ? error.message
-            : "멤버 권한 변경 중 오류가 발생했습니다.",
+        member: {
+          id: user.id,
+          role: user.role,
+        },
       },
+      { message: "멤버 권한이 변경되었습니다." }
+    );
+  } catch (error) {
+    return apiError(
+      error instanceof Error ? error.message : "멤버 권한 변경 중 오류가 발생했습니다.",
       { status: 500 }
     );
   }
@@ -98,26 +78,17 @@ export async function DELETE(
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id || session.user.role !== "ADMIN") {
-      return NextResponse.json(
-        { ok: false, error: "관리자 권한이 필요합니다." },
-        { status: 403 }
-      );
+      return apiError("관리자 권한이 필요합니다.", { status: 403 });
     }
 
     const { id } = await params;
 
     if (!id) {
-      return NextResponse.json(
-        { ok: false, error: "멤버 ID가 필요합니다." },
-        { status: 400 }
-      );
+      return apiError("멤버 ID가 필요합니다.", { status: 400 });
     }
 
     if (id === session.user.id) {
-      return NextResponse.json(
-        { ok: false, error: "자기 자신의 계정은 삭제할 수 없습니다." },
-        { status: 400 }
-      );
+      return apiError("자기 자신의 계정은 삭제할 수 없습니다.", { status: 400 });
     }
 
     const dataSource = await initializeDatabase();
@@ -125,10 +96,7 @@ export async function DELETE(
     const user = await userRepo.findOne({ where: { id } });
 
     if (!user) {
-      return NextResponse.json(
-        { ok: false, error: "멤버를 찾을 수 없습니다." },
-        { status: 404 }
-      );
+      return apiError("멤버를 찾을 수 없습니다.", { status: 404 });
     }
 
     const favoriteRepo = dataSource.getRepository(UserFavoriteAlbum);
@@ -148,19 +116,10 @@ export async function DELETE(
 
     await userRepo.remove(user);
 
-    return NextResponse.json({
-      ok: true,
-      message: "계정이 삭제되었습니다.",
-    });
+    return apiOk({}, { message: "계정이 삭제되었습니다." });
   } catch (error) {
-    return NextResponse.json(
-      {
-        ok: false,
-        error:
-          error instanceof Error
-            ? error.message
-            : "계정 삭제 중 오류가 발생했습니다.",
-      },
+    return apiError(
+      error instanceof Error ? error.message : "계정 삭제 중 오류가 발생했습니다.",
       { status: 500 }
     );
   }

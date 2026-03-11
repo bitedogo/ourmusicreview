@@ -35,10 +35,10 @@ export default async function ProfileEditPage() {
   return (
     <ProfileEditClient
       id={user.id}
+      email={user.email}
       nickname={user.nickname}
       role={user.role}
       createdAtText={createdAtText}
-      profileImage={user.profileImage ?? null}
     />
   );
 }

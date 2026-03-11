@@ -52,9 +52,9 @@ function HomeContent() {
         `/api/itunes/search-autocomplete?term=${encodeURIComponent(term.trim())}`
       );
       const data = await res.json().catch(() => null);
-      if (data?.ok && Array.isArray(data?.results)) {
-        setSuggestions(data.results);
-        setIsDropdownOpen(data.results.length > 0);
+      if (data?.ok && Array.isArray(data?.data?.results)) {
+        setSuggestions(data.data.results);
+        setIsDropdownOpen(data.data.results.length > 0);
       } else {
         setSuggestions([]);
         setIsDropdownOpen(false);

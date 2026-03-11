@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/src/lib/auth/config";
 import { initializeDatabase } from "@/src/lib/db";
 import { Album } from "@/src/lib/db/entities/Album";
+import { apiError, apiOk } from "@/src/lib/http/response";
 
 interface CreateAlbumBody {
   albumId?: string;
@@ -17,10 +17,7 @@ export async function POST(request: Request) {
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { ok: false, error: "로그인이 필요합니다." },
-        { status: 401 }
-      );
+      return apiError("로그인이 필요합니다.", { status: 401 });
     }
 
     const body = (await request.json()) as CreateAlbumBody;
@@ -36,10 +33,7 @@ export async function POST(request: Request) {
         : null;
 
     if (!albumId || !title || !artist) {
-      return NextResponse.json(
-        { ok: false, error: "앨범 ID, 제목, 아티스트는 필수입니다." },
-        { status: 400 }
-      );
+      return apiError("앨범 ID, 제목, 아티스트는 필수입니다.", { status: 400 });
     }
 
     let releaseDate: Date | undefined = undefined;
@@ -58,10 +52,7 @@ export async function POST(request: Request) {
     });
 
     if (existing) {
-      return NextResponse.json(
-        { ok: false, error: "이미 등록된 앨범입니다." },
-        { status: 409 }
-      );
+      return apiError("이미 등록된 앨범입니다.", { status: 409 });
     }
 
     const newAlbum = albumRepository.create({
@@ -75,19 +66,13 @@ export async function POST(request: Request) {
 
     await albumRepository.save(newAlbum);
 
-    return NextResponse.json(
-      { ok: true, album: { id: newAlbum.albumId, title: newAlbum.title } },
+    return apiOk(
+      { album: { id: newAlbum.albumId, title: newAlbum.title } },
       { status: 201 }
     );
   } catch (error) {
-    return NextResponse.json(
-      {
-        ok: false,
-        error:
-          error instanceof Error
-            ? error.message
-            : "앨범 등록 중 오류가 발생했습니다.",
-      },
+    return apiError(
+      error instanceof Error ? error.message : "앨범 등록 중 오류가 발생했습니다.",
       { status: 500 }
     );
   }
