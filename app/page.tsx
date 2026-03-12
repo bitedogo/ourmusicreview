@@ -137,8 +137,8 @@ function HomeContent() {
     <div className="min-h-screen bg-white text-zinc-900">
       <main className="mx-auto w-[956px] max-w-full px-6 py-10 sm:px-10">
         <section className="bg-white pt-4 pb-8 sm:pt-6 sm:pb-12">
-          <div className="space-y-3 text-center">
-            <h1 className="text-[42px] font-semibold tracking-tight text-zinc-900">
+          <div className="space-y-[8px] text-center">
+            <h1 className="text-[42px] font-bold tracking-tight text-zinc-900">
               당신의 음악을 <br className="sm:hidden" />
               <span className="hidden sm:inline"> </span>
               기록하고 공유하세요
@@ -151,7 +151,7 @@ function HomeContent() {
             </p>
           </div>
 
-          <form onSubmit={handleSearchSubmit} className="mt-10 flex justify-center">
+          <form onSubmit={handleSearchSubmit} className="mt-[38px] flex justify-center sm:mt-[54px]">
             <div ref={searchContainerRef} className="relative w-[956px] max-w-full">
               <div
                 className={`flex flex-col bg-white overflow-hidden transition-[border-radius,box-shadow] ${isDropdownOpen

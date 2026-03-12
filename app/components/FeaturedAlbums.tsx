@@ -66,7 +66,7 @@ export default function FeaturedAlbums() {
   const duplicatedAlbums = [...albums, ...albums];
 
   return (
-    <section className="relative left-1/2 mt-10 w-screen max-w-none -translate-x-1/2">
+    <section className="relative left-1/2 mt-[6px] w-screen max-w-none -translate-x-1/2">
         <div className="relative overflow-hidden">
         <div className="group flex flex-nowrap items-stretch animate-marquee-force">
           {duplicatedAlbums.map((album, index) => (

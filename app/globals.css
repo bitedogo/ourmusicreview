@@ -1,7 +1,9 @@
 @import "tailwindcss";
 @import "@fontsource/pretendard";
+@import "@fontsource/pretendard/700.css";
+@import "@fontsource/pretendard/800.css";
+@import "@fontsource/pretendard/900.css";
 
-/* Tailwind v4: 다크 모드 비활성화 (never-applied로 적용되지 않도록) */
 @custom-variant dark (&:where(.never-applied));
 
 :root {
@@ -16,7 +18,6 @@
   --font-mono: "Pretendard", system-ui, -apple-system, sans-serif;
 }
 
-/* 라이트 모드만 사용, 다크 모드 비활성화 */
 html {
   color-scheme: light;
   background-color: #ffffff;
@@ -35,7 +36,6 @@ body {
   font-family: "Pretendard", system-ui, -apple-system, sans-serif;
 }
 
-/* 무한 슬라이더 애니메이션 */
 @keyframes marquee-force {
   0% {
     transform: translateX(0%);
@@ -58,7 +58,6 @@ body {
   animation-play-state: paused;
 }
 
-/* 모달 애니메이션 */
 @keyframes fade-in {
   from {
     opacity: 0;
@@ -93,7 +92,6 @@ body {
   animation-name: zoom-in-95;
 }
 
-/* Toast UI Editor */
 .toastui-editor-main,
 .toastui-editor-ww-container,
 .toastui-editor-ww-container .toastui-editor-ww-editor,
@@ -119,7 +117,6 @@ body {
   content: "\00a0";
 }
 
-/* Toast UI image sizing (editor + rendered content) */
 .toastui-editor-contents img,
 .toastui-editor-main .ProseMirror img {
   display: block;
