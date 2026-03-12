@@ -1,6 +1,3 @@
-/**
- * 이용약관 원본 내용 (회원가입, 이용약관 페이지 공통)
- */
 export function TermsContent() {
   return (
     <article

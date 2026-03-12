@@ -1,9 +1,5 @@
 import { apiError, apiOk } from "@/src/lib/http/response";
 
-/**
- * iTunes Search API 프록시 - 자동완성용 (limit=5)
- * https://itunes.apple.com/search?term={term}&entity=musicArtist&limit=5
- */
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);

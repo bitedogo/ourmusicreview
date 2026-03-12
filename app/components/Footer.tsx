@@ -1,9 +1,5 @@
 import Link from "next/link";
 
-/**
- * 사이트 하단 푸터 컴포넌트.
- * 로고, 태그라인, 저작권 정보 및 정책/문의 링크를 포함합니다.
- */
 export function Footer() {
   return (
     <footer className="mt-auto w-full border-t border-zinc-800 bg-black">

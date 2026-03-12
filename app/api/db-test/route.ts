@@ -2,17 +2,12 @@ import { initializeDatabase } from "@/src/lib/db";
 import { getServerEnv } from "@/src/lib/env";
 import { apiError, apiOk } from "@/src/lib/http/response";
 
-/**
- * DB 연결 테스트용 API
- * GET /api/db-test 로 호출하여 연결 상태 확인
- */
 export async function GET() {
   try {
     getServerEnv();
 
     const dataSource = await initializeDatabase();
 
-    // 간단한 쿼리로 연결 테스트 (SELECT 1)
     await dataSource.query("SELECT 1");
 
     return apiOk({

@@ -1,8 +1,3 @@
-/**
- * iTunes Search/Lookup API 연동 모듈.
- * 아티스트 검색, 앨범 목록/상세 조회, 한국·글로벌 결과 병합 등을 제공합니다.
- */
-
 export interface iTunesAlbum {
   collectionId: number;
   collectionName: string;
@@ -41,9 +36,6 @@ export interface iTunesLookupResponse {
 
 const FETCH_OPTIONS = { headers: { Accept: "application/json" as const }, cache: "no-store" as const };
 
-/**
- * 100x100 아트워크 URL을 600x600 고해상도 URL로 변환합니다.
- */
 export function getLargeImageUrl(artworkUrl100: string | undefined): string | null {
   if (!artworkUrl100) return null;
   return artworkUrl100.replace(/100x100bb\.jpg$/, "600x600bb.jpg");
@@ -77,9 +69,6 @@ function isArtistRelevantToSearch(artistName: string, searchTerm: string): boole
   return matchedWords >= Math.ceil(termWords.length / 2);
 }
 
-/**
- * primary 배열을 우선으로 하고, secondary에서 키가 겹치지 않는 항목만 병합합니다.
- */
 function mergeWithPriority<T>(
   primary: T[],
   secondary: T[],
@@ -96,9 +85,6 @@ function mergeWithPriority<T>(
   return [...primary, ...fromSecondary];
 }
 
-/**
- * KR·글로벌 URL을 동시에 요청하고, 파싱 결과를 primary(KR) 우선으로 병합합니다.
- */
 async function fetchHybridData<T>(params: {
   urlKR: string;
   urlGlobal: string;
@@ -250,9 +236,6 @@ async function getKoreanAlbumTitle(collectionId: number): Promise<string | null>
   }
 }
 
-/**
- * collectionId로 iTunes 앨범 정보를 조회합니다. (슬라이드바 등록용)
- */
 export async function getAlbumByCollectionId(
   collectionId: number
 ): Promise<{
@@ -288,11 +271,6 @@ export async function getAlbumByCollectionId(
   }
 }
 
-/**
- * 검색어로 아티스트를 검색합니다. KR·글로벌 결과를 병합하고, 앨범 보유·중복 제거·정렬 후 반환합니다.
- * @param term - 검색어
- * @param limit - 최대 결과 수 (기본 20)
- */
 export async function searchArtists(term: string, limit: number = 20): Promise<iTunesArtist[]> {
   if (!term?.trim()) return [];
 
@@ -333,7 +311,6 @@ export async function searchArtists(term: string, limit: number = 20): Promise<i
           if (matched.length > 0) relevantArtists = matched;
         }
       } catch {
-        /* fallback failed, keep relevantArtists */
       }
     }
   } else {
@@ -390,11 +367,6 @@ export async function searchArtists(term: string, limit: number = 20): Promise<i
   return filteredArtists;
 }
 
-/**
- * 아티스트 ID로 앨범 목록을 조회합니다. KR·글로벌 병합, 트랙 규칙 필터, 중복 제거, 한글 제목 보강, 발매일 정렬을 적용합니다.
- * @param artistId - iTunes 아티스트 ID
- * @param limit - 최대 앨범 수 (기본 50)
- */
 export async function getArtistAlbums(artistId: number, limit: number = 50): Promise<iTunesAlbum[]> {
   const artistIdNum = Number(artistId);
   if (!Number.isFinite(artistIdNum)) {
