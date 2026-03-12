@@ -151,7 +151,7 @@ function HomeContent() {
             </p>
           </div>
 
-          <form onSubmit={handleSearchSubmit} className="mt-[38px] flex justify-center sm:mt-[54px]">
+          <form onSubmit={handleSearchSubmit} className="mt-[32px] flex justify-center sm:mt-[48px]">
             <div ref={searchContainerRef} className="relative w-[956px] max-w-full">
               <div
                 className={`flex flex-col bg-white overflow-hidden transition-[border-radius,box-shadow] ${isDropdownOpen
