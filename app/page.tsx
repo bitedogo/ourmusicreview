@@ -136,8 +136,8 @@ function HomeContent() {
   return (
     <div className="min-h-screen bg-white text-zinc-900">
       <main className="mx-auto w-[956px] max-w-full px-6 py-10 sm:px-10">
-        <section className="bg-white pt-4 pb-8 sm:pt-6 sm:pb-12">
-          <div className="translate-y-[8px] space-y-[8px] text-center">
+        <section className="bg-white pt-4 pb-8 sm:pt-4 sm:pb-12">
+          <div className="translate-y-[6px] space-y-[6px] text-center">
             <h1 className="text-[42px] font-bold tracking-tight text-zinc-900">
               당신의 음악을 <br className="sm:hidden" />
               <span className="hidden sm:inline"> </span>

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { fetchJson, getApiErrorMessage } from "@/src/lib/http/client";
 
 type ModalType = "find-id" | "find-password" | null;
@@ -24,11 +24,13 @@ interface FindPasswordResponse {
 export default function SigninPage() {
   const router = useRouter();
   const callbackUrl = "/";
+  const savedIdKey = "oru.savedSigninId";
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [id, setId] = useState("");
   const [password, setPassword] = useState("");
+  const [isRememberId, setIsRememberId] = useState(false);
 
   const [modal, setModal] = useState<ModalType>(null);
   const [findIdEmail, setFindIdEmail] = useState("");
@@ -41,6 +43,16 @@ export default function SigninPage() {
   const [findPwSubmitting, setFindPwSubmitting] = useState(false);
   const [findPwError, setFindPwError] = useState<string | null>(null);
   const [temporaryPassword, setTemporaryPassword] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const savedId = window.localStorage.getItem(savedIdKey);
+    if (savedId) {
+      setId(savedId);
+      setIsRememberId(true);
+    }
+  }, []);
+
   function closeModal() {
     setModal(null);
     setFindIdEmail("");
@@ -107,10 +119,19 @@ export default function SigninPage() {
     event.preventDefault();
     setIsSubmitting(true);
     setErrorMessage(null);
+    const trimmedId = id.trim();
+
+    if (typeof window !== "undefined") {
+      if (isRememberId && trimmedId) {
+        window.localStorage.setItem(savedIdKey, trimmedId);
+      } else {
+        window.localStorage.removeItem(savedIdKey);
+      }
+    }
 
     const result = await signIn("credentials", {
       redirect: false,
-      id: id.trim(),
+      id: trimmedId,
       password,
       callbackUrl,
     });
@@ -125,37 +146,64 @@ export default function SigninPage() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-xl flex-col px-6 pt-[7.5rem] pb-[7.5rem]">
-      <div className="mb-8">
-        <h1 className="text-2xl font-semibold tracking-tight">로그인</h1>
+    <div className="mx-auto flex w-full max-w-2xl flex-col px-6 pb-20 pt-24">
+      <div className="mb-12 border-b border-zinc-800 pb-4 text-center">
+        <h1 className="text-[38px] font-semibold tracking-[0.05em] text-zinc-900">LOGIN</h1>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <label className="block space-y-1">
-          <span className="text-sm font-medium">아이디</span>
+      <form onSubmit={handleSubmit} className="space-y-3">
+        <label className="block">
           <input
             value={id}
             onChange={(e) => setId(e.target.value)}
-            className="w-full rounded-xl border border-zinc-200 px-3 py-2 text-sm outline-none focus:border-zinc-400"
+            className="h-14 w-full border border-zinc-300 px-4 text-sm outline-none transition focus:border-zinc-500"
             placeholder="아이디"
             autoComplete="username"
           />
         </label>
 
-        <label className="block space-y-1">
-          <span className="text-sm font-medium">비밀번호</span>
+        <label className="block">
           <input
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             type="password"
-            className="w-full rounded-xl border border-zinc-200 px-3 py-2 text-sm outline-none focus:border-zinc-400"
+            className="h-14 w-full border border-zinc-300 px-4 text-sm outline-none transition focus:border-zinc-500"
             placeholder="비밀번호"
             autoComplete="current-password"
           />
         </label>
 
+        <div className="flex items-center justify-between gap-3 py-1">
+          <label className="inline-flex items-center gap-2 text-xs font-medium text-zinc-700">
+            <input
+              type="checkbox"
+              checked={isRememberId}
+              onChange={(e) => setIsRememberId(e.target.checked)}
+              className="h-4 w-4 rounded border-zinc-300"
+            />
+            아이디 저장
+          </label>
+          <div className="flex items-center gap-3 text-xs font-medium text-zinc-700">
+            <button
+              type="button"
+              onClick={() => setModal("find-id")}
+              className="hover:text-zinc-900"
+            >
+              아이디 찾기
+            </button>
+            <span className="text-zinc-300">|</span>
+            <button
+              type="button"
+              onClick={() => setModal("find-password")}
+              className="hover:text-zinc-900"
+            >
+              비밀번호 재설정
+            </button>
+          </div>
+        </div>
+
         {errorMessage && (
-          <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-900">
+          <div className="border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-900">
             {errorMessage}
           </div>
         )}
@@ -163,29 +211,17 @@ export default function SigninPage() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="inline-flex w-full items-center justify-center rounded-full bg-black px-4 py-2.5 text-sm font-medium text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:bg-zinc-400"
+          className="mt-3 inline-flex h-14 w-full items-center justify-center bg-black px-4 text-lg font-semibold text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:bg-zinc-400"
         >
           {isSubmitting ? "로그인 중..." : "로그인"}
         </button>
+        <Link
+          href="/auth/signup"
+          className="inline-flex h-14 w-full items-center justify-center border border-zinc-300 bg-white px-4 text-lg font-semibold text-zinc-900 transition hover:bg-zinc-50"
+        >
+          회원가입
+        </Link>
       </form>
-
-      <div className="mt-4 flex justify-center gap-4 text-sm">
-        <button
-          type="button"
-          onClick={() => setModal("find-id")}
-          className="text-zinc-600 underline hover:text-zinc-900"
-        >
-          아이디 찾기
-        </button>
-        <span className="text-zinc-300">|</span>
-        <button
-          type="button"
-          onClick={() => setModal("find-password")}
-          className="text-zinc-600 underline hover:text-zinc-900"
-        >
-          비밀번호 찾기
-        </button>
-      </div>
 
       {modal === "find-id" && (
         <div
@@ -347,12 +383,6 @@ export default function SigninPage() {
         </div>
       )}
 
-      <p className="mt-6 text-sm text-zinc-600">
-        아직 계정이 없나요?{" "}
-        <Link className="font-medium text-black underline" href="/auth/signup">
-          회원가입
-        </Link>
-      </p>
     </div>
   );
 }
