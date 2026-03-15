@@ -138,13 +138,16 @@ function HomeContent() {
       <main className="mx-auto w-[956px] max-w-full px-6 py-10 sm:px-10">
         <section className="bg-white pt-4 pb-8 sm:pt-4 sm:pb-12">
           <div className="translate-y-[6px] space-y-[6px] text-center">
-            <h1 className="text-[44px] font-bold tracking-tight text-zinc-900">
+            <h1 className="text-[42px] font-bold tracking-tight text-zinc-900 sm:text-[44px]">
               당신의 음악을 <br className="sm:hidden" />
               <span className="hidden sm:inline"> </span>
               기록하고 공유하세요
             </h1>
-            <p className="mx-auto max-w-xl text-[17px] leading-7 text-zinc-600">
-              좋아하는 앨범을 저장하고, 리뷰로 감상을 남기고, 새로운 음악을 발견하세요.
+            <p className="mx-auto max-w-xl text-[15px] leading-7 text-zinc-600 sm:text-[17px]">
+              좋아하는 앨범을 저장하고, 리뷰로 감상을 남기고,
+              <br className="sm:hidden" />
+              <span className="hidden sm:inline"> </span>
+              새로운 음악을 발견하세요.
             </p>
           </div>
 
@@ -157,7 +160,7 @@ function HomeContent() {
                   }`}
               >
                 <div
-                  className={`flex h-[68px] cursor-text items-center gap-3 ${isDropdownOpen ? "border-b-2 border-zinc-400 px-4" : "overflow-hidden px-3"
+                  className={`flex h-[72px] cursor-text items-center gap-3 sm:h-[68px] ${isDropdownOpen ? "border-b-2 border-zinc-400 px-4" : "overflow-hidden px-3"
                     }`}
                 >
                   <input
@@ -168,7 +171,7 @@ function HomeContent() {
                   />
                   <button
                     type="submit"
-                    className="flex h-[54px] w-[65px] shrink-0 items-center justify-center rounded-xl bg-black text-white transition hover:bg-zinc-800"
+                    className="flex h-[58px] w-[65px] shrink-0 items-center justify-center rounded-xl bg-black text-white transition hover:bg-zinc-800 sm:h-[54px]"
                     aria-label="검색"
                   >
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
