@@ -112,7 +112,7 @@ export default function TodayAlbumCard() {
           <h2 className="text-[25px] font-bold tracking-tight leading-none text-zinc-900">오늘의 앨범</h2>
           <div className="mt-3 w-full">{renderCoverWithOptionalLink("w-full")}</div>
           <div className="mt-3 flex items-center justify-between gap-3">
-            <p className="min-w-0 truncate text-[16px] font-medium leading-none text-zinc-500">
+            <p className="min-w-0 truncate text-[16px] font-medium leading-none text-zinc-900">
               {resolvedAlbum.artist} - {resolvedAlbum.title}
             </p>
             {description && (
