@@ -146,7 +146,7 @@ export default function SigninPage() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col px-6 pb-20 pt-24">
+    <div className="mx-auto flex w-full max-w-2xl flex-col px-6 pb-20 pt-20">
       <div className="mb-12 border-b border-zinc-800 pb-4 text-center">
         <h1 className="text-[38px] font-semibold tracking-[0.05em] text-zinc-900">LOGIN</h1>
       </div>

@@ -66,9 +66,9 @@ export function AppHeader() {
 
   return (
     <header className="fixed left-0 right-0 top-0 z-50 w-full border-b border-zinc-200 bg-white/95 backdrop-blur">
-      <div className="mx-auto grid w-[956px] max-w-full grid-cols-3 items-center gap-4 px-6 py-5 sm:px-10 sm:py-6 md:flex md:justify-between">
-        <div className="flex items-center gap-4 sm:gap-6 md:gap-6" ref={menuRef}>
-          <div className="flex md:hidden items-center">
+      <div className="relative mx-auto grid w-[956px] max-w-full grid-cols-3 items-center gap-4 px-4 py-5 sm:px-6 sm:py-6 md:grid-cols-[auto_1fr_auto]">
+        <div className="flex items-center gap-4 sm:gap-6 md:gap-6">
+          <div className="flex items-center md:hidden" ref={menuRef}>
             <button
               type="button"
               aria-label="메뉴 열기"
@@ -82,41 +82,40 @@ export function AppHeader() {
             </button>
           </div>
 
-          <div className="hidden md:flex items-center gap-5 text-sm text-zinc-600">
-            {logoLink}
-            <nav className="flex items-center gap-5">
-              {NAV_LINKS.map(({ href, label }) => (
-                <Link key={href} href={href} className="hover:text-zinc-900">
-                  {label}
-                </Link>
-              ))}
-              {session?.user?.role === "ADMIN" && (
-                <div className="relative group flex items-center">
-                  <span className="cursor-default font-bold text-zinc-600 hover:text-zinc-900">
-                    관리자
-                  </span>
-                  <div className="absolute top-full left-0 hidden group-hover:block animate-in fade-in zoom-in-95 duration-100">
-                    <div className="min-w-[10rem] overflow-hidden rounded-lg border border-zinc-200 bg-white py-1.5 shadow-lg">
-                      {ADMIN_LINKS.map(({ href, label }) => (
-                        <Link
-                          key={href}
-                          href={href}
-                          className="block w-full px-4 py-3 text-base font-medium text-zinc-800 hover:bg-zinc-50"
-                        >
-                          {label}
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </nav>
-          </div>
+          <div className="hidden md:flex items-center">{logoLink}</div>
         </div>
 
-        <div className="flex justify-center md:hidden">
-          {logoLink}
+        <div className="flex justify-center">
+          <div className="md:hidden">{logoLink}</div>
         </div>
+
+        <nav className="absolute left-1/2 hidden -translate-x-1/2 whitespace-nowrap md:flex md:items-center md:gap-6 md:text-sm md:text-zinc-600">
+          {NAV_LINKS.map(({ href, label }) => (
+            <Link key={href} href={href} className="whitespace-nowrap hover:text-zinc-900">
+              {label}
+            </Link>
+          ))}
+          {session?.user?.role === "ADMIN" && (
+            <div className="relative group flex items-center">
+              <span className="cursor-default font-bold text-zinc-600 hover:text-zinc-900">
+                관리자
+              </span>
+              <div className="absolute top-full left-0 hidden group-hover:block animate-in fade-in zoom-in-95 duration-100">
+                <div className="min-w-[10rem] overflow-hidden rounded-lg border border-zinc-200 bg-white py-1.5 shadow-lg">
+                  {ADMIN_LINKS.map(({ href, label }) => (
+                    <Link
+                      key={href}
+                      href={href}
+                      className="block w-full px-4 py-3 text-base font-medium text-zinc-800 hover:bg-zinc-50"
+                    >
+                      {label}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </nav>
 
         <nav className="flex shrink-0 items-center justify-end gap-3 text-sm">
             {status === "loading" ? (

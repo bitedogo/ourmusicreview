@@ -22,6 +22,7 @@ export default function TodayAlbumCard() {
   const [album, setAlbum] = useState<TodayAlbumData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isImageError, setIsImageError] = useState(false);
+  const [isDescriptionOpen, setIsDescriptionOpen] = useState(false);
 
   useEffect(() => {
     let isCancelled = false;
@@ -52,34 +53,84 @@ export default function TodayAlbumCard() {
     setIsImageError(false);
   }, [album?.imageUrl]);
 
+  useEffect(() => {
+    setIsDescriptionOpen(false);
+  }, [album?.displayDate]);
+
   if (isLoading || !album) {
     return null;
   }
 
-  const description = album.description?.trim() ?? "";
+  const resolvedAlbum = album;
+  const description = resolvedAlbum.description?.trim() ?? "";
+  const albumReviewHref = resolvedAlbum.albumId
+    ? `/review/album/${encodeURIComponent(resolvedAlbum.albumId)}`
+    : null;
+
+  const coverImageElement = (
+    <div className="relative aspect-square w-full overflow-hidden rounded-xl bg-zinc-100 shadow-md">
+      {resolvedAlbum.imageUrl && !isImageError ? (
+        <Image
+          src={resolvedAlbum.imageUrl}
+          alt={`${resolvedAlbum.title} cover`}
+          fill
+          unoptimized
+          sizes="(max-width: 640px) calc(100vw - 2rem), 336px"
+          className="h-full w-full object-cover"
+          onError={() => setIsImageError(true)}
+        />
+      ) : (
+        <div className="flex h-full w-full items-center justify-center text-xs font-medium text-zinc-400">
+          No Image
+        </div>
+      )}
+    </div>
+  );
+
+  function renderCoverWithOptionalLink(className: string) {
+    const wrappedCover = <div className={className}>{coverImageElement}</div>;
+
+    if (!albumReviewHref) {
+      return wrappedCover;
+    }
+
+    return (
+      <Link
+        href={albumReviewHref}
+        className="block"
+        aria-label={`${resolvedAlbum.artist} - ${resolvedAlbum.title} 리뷰 페이지로 이동`}
+      >
+        {wrappedCover}
+      </Link>
+    );
+  }
 
   const cardContent = (
     <article className="relative overflow-hidden">
       <div className="relative flex w-full flex-col gap-4 py-4 sm:gap-6">
-        <div className="flex w-full flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-8">
+        <div className="sm:hidden">
+          <h2 className="text-[25px] font-bold tracking-tight leading-none text-zinc-900">오늘의 앨범</h2>
+          <div className="mt-3 w-full">{renderCoverWithOptionalLink("w-full")}</div>
+          <div className="mt-3 flex items-center justify-between gap-3">
+            <p className="min-w-0 truncate text-[16px] font-medium leading-none text-zinc-500">
+              {resolvedAlbum.artist} - {resolvedAlbum.title}
+            </p>
+            {description && (
+              <button
+                type="button"
+                onClick={() => setIsDescriptionOpen((previousValue) => !previousValue)}
+                aria-expanded={isDescriptionOpen}
+                className="shrink-0 text-sm font-semibold text-zinc-700 underline underline-offset-4"
+              >
+                본문 보기
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div className="hidden w-full items-start gap-4 sm:flex sm:items-center sm:gap-8">
           <div className="flex shrink-0 items-center justify-center">
-            <div className="relative aspect-square h-56 w-56 shrink-0 overflow-hidden rounded-xl bg-zinc-100 shadow-md sm:h-[21rem] sm:w-[21rem]">
-              {album.imageUrl && !isImageError ? (
-                <Image
-                  src={album.imageUrl}
-                  alt={`${album.title} cover`}
-                  fill
-                  unoptimized
-                  sizes="(max-width: 640px) 224px, 336px"
-                  className="h-full w-full object-cover"
-                  onError={() => setIsImageError(true)}
-                />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center text-xs font-medium text-zinc-400">
-                  No Image
-                </div>
-              )}
-            </div>
+            {renderCoverWithOptionalLink("h-[21rem] w-[21rem] shrink-0")}
           </div>
 
           <div className="relative min-w-0 flex-1 sm:h-80">
@@ -88,7 +139,7 @@ export default function TodayAlbumCard() {
                 오늘의 앨범
               </h2>
               <p className="text-[16px] font-medium leading-none text-zinc-500">
-                {album.artist} - {album.title}
+                {resolvedAlbum.artist} - {resolvedAlbum.title}
               </p>
             </div>
 
@@ -100,19 +151,25 @@ export default function TodayAlbumCard() {
 
           </div>
         </div>
+
+        {description && (
+          <div
+            className={`sm:hidden overflow-hidden transition-all duration-300 ${
+              isDescriptionOpen ? "max-h-[420px] opacity-100" : "max-h-0 opacity-0"
+            }`}
+          >
+            <p className="whitespace-pre-line text-[14px] leading-relaxed text-zinc-600">
+              {description}
+            </p>
+          </div>
+        )}
       </div>
     </article>
   );
 
   return (
     <section className="relative left-1/2 mt-10 w-[1300px] max-w-[calc(100vw-2rem)] -translate-x-1/2">
-      {album.albumId ? (
-        <Link href={`/review/album/${encodeURIComponent(album.albumId)}`} className="block">
-          {cardContent}
-        </Link>
-      ) : (
-        cardContent
-      )}
+      {cardContent}
     </section>
   );
 }

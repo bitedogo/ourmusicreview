@@ -138,13 +138,13 @@ function HomeContent() {
       <main className="mx-auto w-[956px] max-w-full px-6 py-10 sm:px-10">
         <section className="bg-white pt-4 pb-8 sm:pt-4 sm:pb-12">
           <div className="translate-y-[6px] space-y-[6px] text-center">
-            <h1 className="text-[42px] font-bold tracking-tight text-zinc-900">
+            <h1 className="text-[44px] font-bold tracking-tight text-zinc-900">
               당신의 음악을 <br className="sm:hidden" />
               <span className="hidden sm:inline"> </span>
               기록하고 공유하세요
             </h1>
-            <p className="mx-auto max-w-xl text-[18px] leading-7 text-zinc-600">
-              좋아하는 앨범을 저장하고 리뷰를 남기세요.
+            <p className="mx-auto max-w-xl text-[17px] leading-7 text-zinc-600">
+              좋아하는 앨범을 저장하고, 리뷰로 감상을 남기고, 새로운 음악을 발견하세요.
             </p>
           </div>
 

@@ -209,6 +209,28 @@ export function ProfileClient({
         <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden md:w-1/2 md:gap-6">
           <section className="flex shrink-0 flex-col space-y-2 md:space-y-3">
             <div className="flex items-center justify-between">
+              <h2 className="text-xs font-semibold tracking-tight text-zinc-900 md:text-sm">
+                나의 활동
+              </h2>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <Link
+                href="/profile/posts"
+                className="rounded-lg border border-zinc-200 bg-white px-3 py-2 text-center text-[11px] font-medium text-zinc-700 transition hover:border-zinc-300 hover:text-zinc-900"
+              >
+                내가 쓴 게시글
+              </Link>
+              <Link
+                href="/profile/comments"
+                className="rounded-lg border border-zinc-200 bg-white px-3 py-2 text-center text-[11px] font-medium text-zinc-700 transition hover:border-zinc-300 hover:text-zinc-900"
+              >
+                내가 쓴 댓글
+              </Link>
+            </div>
+          </section>
+
+          <section className="flex shrink-0 flex-col space-y-2 md:space-y-3">
+            <div className="flex items-center justify-between">
               <h2 className="text-xs font-semibold tracking-tight text-zinc-900 md:text-sm">나의 리뷰</h2>
               <Link
                 href="/profile/reviews"
