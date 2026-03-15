@@ -129,8 +129,21 @@ export function AppHeader() {
                   onClick={() => setProfileOpen((prev) => !prev)}
                   className="flex items-center gap-2 rounded-lg px-2 py-1 text-left hover:bg-zinc-100 md:px-0 md:pr-1"
                 >
-                  <span className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-zinc-200 bg-zinc-50 text-base md:hidden">
-                    👤
+                  <span className="inline-flex md:hidden">
+                    {profileImage ? (
+                      <Image
+                        src={profileImage}
+                        alt={nickname}
+                        width={32}
+                        height={32}
+                        unoptimized
+                        className="h-8 w-8 rounded-full border border-zinc-200 object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full border border-zinc-200 bg-zinc-100 text-xs font-semibold text-zinc-600">
+                        {nickname.charAt(0).toUpperCase()}
+                      </div>
+                    )}
                   </span>
 
                   <span className="hidden items-center gap-2 md:flex">
