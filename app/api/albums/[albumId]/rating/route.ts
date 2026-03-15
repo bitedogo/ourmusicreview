@@ -3,7 +3,7 @@ import { Review } from "@/src/lib/db/entities/Review";
 import { apiError, apiOk } from "@/src/lib/http/response";
 
 export async function GET(
-  request: Request,
+  _request: Request,
   { params }: { params: Promise<{ albumId: string }> }
 ) {
   try {
@@ -29,7 +29,7 @@ export async function GET(
     }
 
     const sum = reviews.reduce((acc, review) => acc + review.rating, 0);
-    const averageRating = Math.round((sum / reviews.length) * 10) / 10;
+    const averageRating = Math.trunc((sum / reviews.length) * 10) / 10;
 
     return apiOk({
       averageRating,

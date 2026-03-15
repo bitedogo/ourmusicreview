@@ -2,10 +2,11 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/src/lib/auth/config";
 import { initializeDatabase } from "@/src/lib/db";
 import { Review } from "@/src/lib/db/entities/Review";
+import { getAlbumByCollectionId } from "@/src/lib/itunes";
 import { apiError, apiOk } from "@/src/lib/http/response";
 
 export async function GET(
-  request: Request,
+  _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -26,6 +27,12 @@ export async function GET(
     if (!review) {
       return apiError("리뷰를 찾을 수 없습니다.", { status: 404 });
     }
+
+    const collectionId = Number(review.album.albumId);
+    const albumInfo =
+      Number.isFinite(collectionId) && collectionId > 0
+        ? await getAlbumByCollectionId(collectionId)
+        : null;
 
     return apiOk({
       review: {
@@ -48,6 +55,7 @@ export async function GET(
           title: review.album.title,
           artist: review.album.artist,
           imageUrl: review.album.imageUrl,
+          genre: albumInfo?.genre?.trim() || null,
         },
       },
     });

@@ -6,23 +6,40 @@ import { apiError, apiOk } from "@/src/lib/http/response";
 
 async function fetchAlbumFromItunes(albumId: string): Promise<{
   albumId: string;
+  artistId: string | null;
   title: string;
   artist: string;
   imageUrl: string | null;
+  genre: string | null;
 } | null> {
   const idNum = parseInt(albumId, 10);
   if (!Number.isFinite(idNum)) return null;
   const url = `https://itunes.apple.com/lookup?id=${idNum}&entity=album&limit=1&country=KR`;
   const res = await fetch(url, { headers: { Accept: "application/json" }, next: { revalidate: 3600 } });
   if (!res.ok) return null;
-  const data = (await res.json()) as { resultCount: number; results?: Array<{ collectionId: number; collectionName: string; artistName: string; artworkUrl100?: string }> };
+  const data = (await res.json()) as {
+    resultCount: number;
+    results?: Array<{
+      collectionId: number;
+      artistId?: number;
+      collectionName: string;
+      artistName: string;
+      artworkUrl100?: string;
+      primaryGenreName?: string;
+    }>;
+  };
   const first = data.results?.[0];
   if (!first || first.collectionId !== idNum) return null;
   return {
     albumId: String(first.collectionId),
+    artistId:
+      typeof first.artistId === "number" && Number.isFinite(first.artistId)
+        ? String(first.artistId)
+        : null,
     title: first.collectionName ?? "",
     artist: first.artistName ?? "",
     imageUrl: getLargeImageUrl(first.artworkUrl100) ?? null,
+    genre: first.primaryGenreName?.trim() || null,
   };
 }
 
@@ -45,8 +62,9 @@ export async function GET(
       where: { albumId },
     });
 
+    const itunesAlbum = await fetchAlbumFromItunes(albumId);
+
     if (!album) {
-      const itunesAlbum = await fetchAlbumFromItunes(albumId);
       if (itunesAlbum) {
         return apiOk({
           album: itunesAlbum,
@@ -65,9 +83,11 @@ export async function GET(
     return apiOk({
       album: {
         albumId: album.albumId,
+        artistId: itunesAlbum?.artistId ?? null,
         title: album.title,
         artist: album.artist,
         imageUrl: album.imageUrl,
+        genre: itunesAlbum?.genre ?? null,
       },
       reviews: reviews.map((review) => ({
         id: review.id,

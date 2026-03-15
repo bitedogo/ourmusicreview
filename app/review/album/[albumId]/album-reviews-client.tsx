@@ -22,9 +22,11 @@ interface Review {
 
 interface AlbumInfo {
   albumId: string;
+  artistId: string | null;
   title: string;
   artist: string;
   imageUrl: string | null;
+  genre: string | null;
 }
 
 export function AlbumReviewsClient({ albumId }: { albumId: string }) {
@@ -150,7 +152,11 @@ export function AlbumReviewsClient({ albumId }: { albumId: string }) {
       <section className="space-y-2">
         {albumInfo ? (
           <Link
-            href={`/search?artist=${encodeURIComponent(albumInfo.artist)}`}
+            href={
+              albumInfo.artistId
+                ? `/search?artistId=${encodeURIComponent(albumInfo.artistId)}&artist=${encodeURIComponent(albumInfo.artist)}`
+                : `/search?artist=${encodeURIComponent(albumInfo.artist)}`
+            }
             className="mb-4 flex w-fit items-center gap-2 text-sm text-zinc-600 hover:text-zinc-900"
           >
             <svg
@@ -202,27 +208,27 @@ export function AlbumReviewsClient({ albumId }: { albumId: string }) {
                   <Image
                     src={albumInfo.imageUrl}
                     alt={albumInfo.title}
-                    width={80}
-                    height={80}
+                    width={104}
+                    height={104}
                     unoptimized
-                    className="h-20 w-20 rounded-xl object-contain"
+                    className="h-[104px] w-[104px] rounded-xl object-contain"
                   />
                 </div>
               )}
-              <div className="flex-1 min-w-0">
-                <h2 className="text-lg font-semibold text-zinc-900 truncate">
-                  {albumInfo.title}
-                </h2>
-                <p className="mt-1 text-sm text-zinc-600 truncate">
-                  {albumInfo.artist}
-                </p>
-                <div className="mt-2 flex items-center gap-2">
-                  <span className="text-xs text-zinc-600">Rating :</span>
-                  <span
-                    className={`text-base font-bold ${averageRating != null && averageRating >= 9 ? "text-red-600" : "text-zinc-900"}`}
-                  >
-                    {averageRating !== null ? averageRating.toFixed(1) : "-"}
-                  </span>
+              <div className="flex min-h-24 min-w-0 flex-1 flex-col">
+                <div className="flex items-start justify-between gap-3">
+                  <h2 className="truncate text-base font-semibold text-zinc-900">
+                    {albumInfo.title}
+                  </h2>
+                  <p className="shrink-0 text-xs font-semibold text-zinc-600">
+                    Rating : {averageRating !== null ? averageRating.toFixed(1) : "-"}
+                  </p>
+                </div>
+                <div className="mt-1 min-w-0">
+                  <p className="text-[11px] font-medium text-zinc-500">
+                    {albumInfo.genre?.trim() || "장르 정보 없음"}
+                  </p>
+                  <p className="mt-0.5 truncate text-sm text-zinc-600">{albumInfo.artist}</p>
                 </div>
               </div>
             </div>

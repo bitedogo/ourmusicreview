@@ -51,7 +51,7 @@ body {
   flex-wrap: nowrap !important;
   width: max-content;
   will-change: transform;
-  animation: marquee-force 60s linear infinite;
+  animation: marquee-force 72s linear infinite;
 }
 
 .group:hover .animate-marquee-force {

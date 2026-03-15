@@ -30,7 +30,7 @@ export async function GET() {
       }
       byAlbum.forEach((ratings, albumId) => {
         const sum = ratings.reduce((a, b) => a + b, 0);
-        ratingsByAlbumId[albumId] = Math.round((sum / ratings.length) * 10) / 10;
+        ratingsByAlbumId[albumId] = Math.trunc((sum / ratings.length) * 10) / 10;
       });
     }
 
