@@ -156,11 +156,11 @@ function HomeContent() {
               <div
                 className={`flex flex-col bg-white overflow-hidden transition-[border-radius,box-shadow] ${isDropdownOpen
                   ? "rounded-t-2xl rounded-b-none"
-                  : "rounded-2xl border-2 border-black"
+                  : "rounded-2xl border-2 border-[var(--color-brand-primary)]"
                   }`}
               >
                 <div
-                  className={`flex h-[72px] cursor-text items-center gap-3 sm:h-[68px] ${isDropdownOpen ? "border-b-2 border-zinc-400 px-4" : "overflow-hidden px-3"
+                  className={`flex h-[72px] cursor-text items-center gap-3 sm:h-[68px] ${isDropdownOpen ? "border-b-2 border-[var(--color-brand-primary)] px-4" : "overflow-hidden px-3"
                     }`}
                 >
                   <input
@@ -171,7 +171,7 @@ function HomeContent() {
                   />
                   <button
                     type="submit"
-                    className="flex h-[58px] w-[65px] shrink-0 items-center justify-center rounded-xl bg-black text-white transition hover:bg-zinc-800 sm:h-[54px]"
+                    className="flex h-[58px] w-[65px] shrink-0 items-center justify-center rounded-xl bg-[var(--color-brand-primary)] text-white transition hover:bg-[var(--color-brand-primary-hover)] sm:h-[54px]"
                     aria-label="검색"
                   >
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

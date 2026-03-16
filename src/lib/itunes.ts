@@ -208,20 +208,6 @@ function sortArtistsBySearchRelevance(artists: iTunesArtist[], searchTerm: strin
   });
 }
 
-async function getArtistProfileImage(artistId: number): Promise<string | null> {
-  try {
-    const url = `https://itunes.apple.com/lookup?id=${artistId}&entity=album&limit=1&country=KR&lang=ko_kr`;
-    const response = await fetch(url, FETCH_OPTIONS);
-    if (!response.ok) return null;
-    const data = (await response.json()) as iTunesLookupResponse;
-    const albums = data.results ?? [];
-    const first = albums[0];
-    return first?.artworkUrl100 ? getLargeImageUrl(first.artworkUrl100) : null;
-  } catch {
-    return null;
-  }
-}
-
 async function getKoreanAlbumTitle(collectionId: number): Promise<string | null> {
   try {
     const url = `https://itunes.apple.com/lookup?id=${collectionId}&country=KR&lang=ko_kr`;
@@ -328,10 +314,6 @@ export async function searchArtists(term: string, limit: number = 20): Promise<i
       try {
         const albums = await getArtistAlbums(artist.artistId, 50);
         if (!albums?.length) return null;
-        if (!artist.artworkUrl100) {
-          const profileImage = await getArtistProfileImage(artist.artistId);
-          if (profileImage) return { ...artist, artworkUrl100: profileImage };
-        }
         return artist;
       } catch {
         return null;
@@ -348,10 +330,6 @@ export async function searchArtists(term: string, limit: number = 20): Promise<i
         try {
           const albums = await getArtistAlbums(artist.artistId, 50);
           if (!albums?.length) return null;
-          if (!artist.artworkUrl100) {
-            const profileImage = await getArtistProfileImage(artist.artistId);
-            if (profileImage) return { ...artist, artworkUrl100: profileImage };
-          }
           return artist;
         } catch {
           return null;

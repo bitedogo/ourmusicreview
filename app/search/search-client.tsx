@@ -57,6 +57,14 @@ interface FavoritesResponse {
   };
 }
 
+interface ReviewDuplicateCheckResponse {
+  ok: boolean;
+  data: {
+    exists: boolean;
+    reviewId: string | null;
+  };
+}
+
 const DEBOUNCE_MS = 300;
 
 export function SearchClient() {
@@ -83,6 +91,7 @@ export function SearchClient() {
     Record<string, { averageRating: number | null; reviewCount: number }>
   >({});
   const [favoriteAlbumIds, setFavoriteAlbumIds] = useState<Set<string>>(new Set());
+  const [isDuplicateModalOpen, setIsDuplicateModalOpen] = useState(false);
 
   const fetchSuggestions = useCallback(async (term: string) => {
     if (!term.trim()) {
@@ -213,9 +222,25 @@ export function SearchClient() {
     }
   }, [artistIdFromUrl, artistParamFromUrl, searchParams, handleArtistSelect, handleSearchAndRedirect]);
 
-  function handleRegister(album: AlbumResult) {
+  async function handleRegister(album: AlbumResult) {
+    const albumId = album.collectionId.toString();
+    try {
+      const check = await fetchJson<ReviewDuplicateCheckResponse>(
+        `/api/reviews/check?albumId=${encodeURIComponent(albumId)}`
+      );
+      if (check.data.exists) {
+        setIsDuplicateModalOpen(true);
+        return;
+      }
+    } catch (error) {
+      if (error instanceof ApiClientError && error.status === 401) {
+        router.push("/auth/signin?callbackUrl=/search");
+        return;
+      }
+    }
+
     const params = new URLSearchParams({
-      albumId: album.collectionId.toString(),
+      albumId,
       title: album.collectionName,
       artist: album.artistName,
     });
@@ -324,12 +349,14 @@ export function SearchClient() {
               className={`flex flex-col overflow-hidden bg-white transition-[border-radius,box-shadow] ${
                 isDropdownOpen
                   ? "rounded-t-2xl rounded-b-none"
-                  : "rounded-2xl border-2 border-black"
+                  : "rounded-2xl border-2 border-[var(--color-brand-primary)]"
               }`}
             >
               <div
                 className={`flex h-[68px] cursor-text items-center gap-3 ${
-                  isDropdownOpen ? "border-b-2 border-zinc-400 px-4" : "overflow-hidden px-3"
+                  isDropdownOpen
+                    ? "border-b-2 border-[var(--color-brand-primary)] px-4"
+                    : "overflow-hidden px-3"
                 }`}
               >
                 <input
@@ -340,7 +367,7 @@ export function SearchClient() {
                 />
                 <button
                   type="submit"
-                  className="flex h-[54px] w-[65px] shrink-0 items-center justify-center rounded-xl bg-black text-white transition hover:bg-zinc-800"
+                  className="flex h-[54px] w-[65px] shrink-0 items-center justify-center rounded-xl bg-[var(--color-brand-primary)] text-white transition hover:bg-[var(--color-brand-primary-hover)]"
                   aria-label="검색"
                 >
                   <svg
@@ -525,7 +552,7 @@ export function SearchClient() {
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleRegister(album);
+                            void handleRegister(album);
                         }}
                         className="flex-1 rounded-full bg-[var(--color-brand-primary)] px-3 py-2 text-xs font-semibold text-white transition hover:bg-[var(--color-brand-primary-hover)]"
                       >
@@ -547,6 +574,32 @@ export function SearchClient() {
       {!selectedArtist && (
         <div className="rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 px-4 py-6 text-center text-sm text-zinc-500">
           위 검색창에 아티스트 이름을 입력하고 검색해보세요.
+        </div>
+      )}
+
+      {isDuplicateModalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4"
+          onClick={() => setIsDuplicateModalOpen(false)}
+        >
+          <div
+            className="w-full max-w-sm rounded-2xl bg-white p-5 shadow-xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <h3 className="text-base font-semibold text-zinc-900">리뷰 작성 불가</h3>
+            <p className="mt-2 text-sm text-zinc-600">
+              동일한 앨범에는 리뷰를 1개만 작성할 수 있습니다.
+            </p>
+            <div className="mt-5 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setIsDuplicateModalOpen(false)}
+                className="rounded-full bg-[var(--color-brand-primary)] px-4 py-2 text-xs font-semibold text-white hover:bg-[var(--color-brand-primary-hover)]"
+              >
+                확인
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

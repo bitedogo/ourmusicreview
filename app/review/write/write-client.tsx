@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useRef } from "react";
 import { TuiEditor, TuiEditorRef } from "@/src/components/common/TuiEditor";
 import Image from "next/image";
-import { fetchJson, getApiErrorMessage } from "@/src/lib/http/client";
+import { ApiClientError, fetchJson, getApiErrorMessage } from "@/src/lib/http/client";
 
 export function ReviewWriteClient() {
   const router = useRouter();
@@ -67,6 +67,10 @@ export function ReviewWriteClient() {
         router.push("/");
       }
     } catch (error) {
+      if (error instanceof ApiClientError && error.status === 409) {
+        router.back();
+        return;
+      }
       setErrorMessage(getApiErrorMessage(error, "리뷰 작성에 실패했습니다."));
       setIsSubmitting(false);
     }

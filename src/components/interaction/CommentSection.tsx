@@ -156,7 +156,7 @@ export function CommentSection({ postId, reviewId }: CommentSectionProps) {
             <button
               type="submit"
               disabled={isSubmitting || !content.trim()}
-              className="rounded-full bg-black px-5 py-2 text-xs font-bold text-white transition hover:bg-zinc-800 disabled:bg-zinc-200"
+              className="rounded-full bg-[var(--color-brand-primary)] px-5 py-2 text-xs font-bold text-white transition hover:bg-[var(--color-brand-primary-hover)] disabled:bg-zinc-200"
             >
               {isSubmitting ? "작성 중..." : "등록"}
             </button>

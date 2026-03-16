@@ -49,6 +49,20 @@ export async function POST(request: Request) {
     const albumRepository = dataSource.getRepository(Album);
     const reviewRepository = dataSource.getRepository(Review);
 
+    const existingReview = await reviewRepository.findOne({
+      where: {
+        userId: session.user.id,
+        albumId,
+      },
+      select: ["id"],
+    });
+
+    if (existingReview) {
+      return apiError("동일한 앨범에는 리뷰를 1개만 작성할 수 있습니다.", {
+        status: 409,
+      });
+    }
+
     let album = await albumRepository.findOne({
       where: { albumId },
     });
@@ -103,7 +117,21 @@ export async function POST(request: Request) {
       rejectReason: null,
     });
 
-    await reviewRepository.save(review);
+    try {
+      await reviewRepository.save(review);
+    } catch (error) {
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "code" in error &&
+        (error as { code?: string }).code === "23505"
+      ) {
+        return apiError("동일한 앨범에는 리뷰를 1개만 작성할 수 있습니다.", {
+          status: 409,
+        });
+      }
+      throw error;
+    }
 
     return apiOk({ id: review.id }, { status: 201 });
   } catch (error) {

@@ -36,6 +36,8 @@ export function AlbumReviewsClient({ albumId }: { albumId: string }) {
   const [averageRating, setAverageRating] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isCheckingDuplicate, setIsCheckingDuplicate] = useState(false);
+  const [isDuplicateModalOpen, setIsDuplicateModalOpen] = useState(false);
 
   useEffect(() => {
     let isCancelled = false;
@@ -147,6 +149,35 @@ export function AlbumReviewsClient({ albumId }: { albumId: string }) {
     ? `/review/write?albumId=${encodeURIComponent(albumInfo.albumId)}&title=${encodeURIComponent(albumInfo.title)}&artist=${encodeURIComponent(albumInfo.artist)}${albumInfo.imageUrl ? `&imageUrl=${encodeURIComponent(albumInfo.imageUrl)}` : ""}`
     : null;
 
+  async function handleReviewWriteClick() {
+    if (!albumInfo || isCheckingDuplicate) return;
+    setIsCheckingDuplicate(true);
+    try {
+      const response = await fetch(
+        `/api/reviews/check?albumId=${encodeURIComponent(albumInfo.albumId)}`
+      );
+      const data = await response.json().catch(() => null);
+      if (response.status === 401) {
+        router.push(
+          `/auth/signin?callbackUrl=${encodeURIComponent(`/review/album/${encodeURIComponent(albumInfo.albumId)}`)}`
+        );
+        return;
+      }
+      if (!response.ok || !data?.ok) {
+        return;
+      }
+      if (data.data?.exists) {
+        setIsDuplicateModalOpen(true);
+        return;
+      }
+      if (reviewWriteUrl) {
+        router.push(reviewWriteUrl);
+      }
+    } finally {
+      setIsCheckingDuplicate(false);
+    }
+  }
+
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-3xl flex-col gap-6 px-6 py-10 sm:px-16">
       <section className="space-y-2">
@@ -237,12 +268,14 @@ export function AlbumReviewsClient({ albumId }: { albumId: string }) {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h1 className="text-xl font-semibold tracking-tight">리뷰 목록</h1>
           {reviewWriteUrl && (
-            <Link
-              href={reviewWriteUrl}
+            <button
+              type="button"
+              onClick={handleReviewWriteClick}
+              disabled={isCheckingDuplicate}
               className="inline-flex items-center justify-center rounded-full bg-[var(--color-brand-primary)] px-4 py-2 text-xs font-semibold text-white transition hover:bg-[var(--color-brand-primary-hover)]"
             >
-              리뷰 작성하기
-            </Link>
+              {isCheckingDuplicate ? "확인 중..." : "리뷰 작성하기"}
+            </button>
           )}
         </div>
       </section>
@@ -310,6 +343,32 @@ export function AlbumReviewsClient({ albumId }: { albumId: string }) {
               )}
             </Link>
           ))}
+        </div>
+      )}
+
+      {isDuplicateModalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4"
+          onClick={() => setIsDuplicateModalOpen(false)}
+        >
+          <div
+            className="w-full max-w-sm rounded-2xl bg-white p-5 shadow-xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <h3 className="text-base font-semibold text-zinc-900">리뷰 작성 불가</h3>
+            <p className="mt-2 text-sm text-zinc-600">
+              동일한 앨범에는 리뷰를 1개만 작성할 수 있습니다.
+            </p>
+            <div className="mt-5 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setIsDuplicateModalOpen(false)}
+                className="rounded-full bg-[var(--color-brand-primary)] px-4 py-2 text-xs font-semibold text-white hover:bg-[var(--color-brand-primary-hover)]"
+              >
+                확인
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
