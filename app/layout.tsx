@@ -33,8 +33,57 @@ const pretendard = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "ORU",
-  description: "Music Review & Community",
+  metadataBase: new URL("https://www.comeonoru.com"),
+  title: {
+    default: "ORU | Music Review & Community",
+    template: "%s | ORU",
+  },
+  description:
+    "음악을 기록하고 공유하는 커뮤니티 ORU. 앨범 리뷰를 남기고, 새로운 음악을 발견해보세요.",
+  applicationName: "ORU",
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    url: "https://www.comeonoru.com",
+    siteName: "ORU",
+    title: "ORU | Music Review & Community",
+    description:
+      "음악을 기록하고 공유하는 커뮤니티 ORU. 앨범 리뷰를 남기고, 새로운 음악을 발견해보세요.",
+    locale: "ko_KR",
+    images: [
+      {
+        url: "/oru-num6-hq.png",
+        width: 824,
+        height: 232,
+        alt: "ORU 로고",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ORU | Music Review & Community",
+    description:
+      "음악을 기록하고 공유하는 커뮤니티 ORU. 앨범 리뷰를 남기고, 새로운 음악을 발견해보세요.",
+    images: ["/oru-num6-hq.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  icons: {
+    icon: "/icon.png",
+    shortcut: "/icon.png",
+    apple: "/icon.png",
+  },
 };
 
 export const viewport: Viewport = {

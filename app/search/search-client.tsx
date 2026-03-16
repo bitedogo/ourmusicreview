@@ -92,6 +92,7 @@ export function SearchClient() {
   >({});
   const [favoriteAlbumIds, setFavoriteAlbumIds] = useState<Set<string>>(new Set());
   const [isDuplicateModalOpen, setIsDuplicateModalOpen] = useState(false);
+  const [checkingReviewAlbumId, setCheckingReviewAlbumId] = useState<string | null>(null);
 
   const fetchSuggestions = useCallback(async (term: string) => {
     if (!term.trim()) {
@@ -224,6 +225,10 @@ export function SearchClient() {
 
   async function handleRegister(album: AlbumResult) {
     const albumId = album.collectionId.toString();
+    if (checkingReviewAlbumId) {
+      return;
+    }
+    setCheckingReviewAlbumId(albumId);
     try {
       const check = await fetchJson<ReviewDuplicateCheckResponse>(
         `/api/reviews/check?albumId=${encodeURIComponent(albumId)}`
@@ -237,6 +242,8 @@ export function SearchClient() {
         router.push("/auth/signin?callbackUrl=/search");
         return;
       }
+    } finally {
+      setCheckingReviewAlbumId(null);
     }
 
     const params = new URLSearchParams({
@@ -456,6 +463,7 @@ export function SearchClient() {
           ) : albums.length > 0 ? (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {albums.map((album) => {
+                const albumId = album.collectionId.toString();
                 const ratingInfo = albumRatings[album.collectionId.toString()];
                 const ratingValue =
                   ratingInfo?.reviewCount && ratingInfo.averageRating != null
@@ -528,13 +536,13 @@ export function SearchClient() {
                           toggleFavorite(album);
                         }}
                         className={`flex h-8 w-8 items-center justify-center rounded-full border text-xs font-semibold transition ${
-                          favoriteAlbumIds.has(album.collectionId.toString())
+                          favoriteAlbumIds.has(albumId)
                             ? "border-red-500 bg-red-50 text-red-500"
                             : "border-zinc-200 bg-white text-zinc-500 hover:bg-zinc-50"
                         }`}
                         aria-label="좋아요"
                       >
-                        {favoriteAlbumIds.has(album.collectionId.toString())
+                        {favoriteAlbumIds.has(albumId)
                           ? "❤️"
                           : "♡"}
                       </button>
@@ -550,13 +558,14 @@ export function SearchClient() {
                       </button>
                       <button
                         type="button"
+                        disabled={checkingReviewAlbumId === albumId}
                         onClick={(e) => {
                           e.stopPropagation();
-                            void handleRegister(album);
+                          void handleRegister(album);
                         }}
-                        className="flex-1 rounded-full bg-[var(--color-brand-primary)] px-3 py-2 text-xs font-semibold text-white transition hover:bg-[var(--color-brand-primary-hover)]"
+                        className="flex-1 rounded-full bg-[var(--color-brand-primary)] px-3 py-2 text-xs font-semibold text-white transition hover:bg-[var(--color-brand-primary-hover)] disabled:cursor-not-allowed disabled:bg-zinc-500"
                       >
-                        리뷰 작성
+                        {checkingReviewAlbumId === albumId ? "확인 중..." : "리뷰 작성"}
                       </button>
                     </div>
                   </div>

@@ -1,15 +1,40 @@
 import { apiError, apiOk } from "@/src/lib/http/response";
 
+interface ArtistResultItem {
+  artistId: number;
+  artistName: string;
+  artworkUrl100?: string;
+  primaryGenreName?: string;
+}
+
+function normalizeResults(results: ArtistResultItem[]): ArtistResultItem[] {
+  const byId = new Map<number, ArtistResultItem>();
+  for (const artist of results) {
+    if (!artist.artistId || !artist.artistName) {
+      continue;
+    }
+    if (!byId.has(artist.artistId)) {
+      byId.set(artist.artistId, {
+        artistId: artist.artistId,
+        artistName: artist.artistName,
+        artworkUrl100: artist.artworkUrl100,
+        primaryGenreName: artist.primaryGenreName,
+      });
+    }
+  }
+  return Array.from(byId.values());
+}
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const term = searchParams.get("term");
+    const term = searchParams.get("term")?.trim() ?? "";
 
-    if (!term || term.trim().length === 0) {
+    if (term.length === 0) {
       return apiOk({ results: [] });
     }
 
-    const url = `https://itunes.apple.com/search?term=${encodeURIComponent(term.trim())}&entity=musicArtist&limit=5`;
+    const url = `https://itunes.apple.com/search?term=${encodeURIComponent(term)}&entity=musicArtist&limit=5`;
     const response = await fetch(url, {
       headers: { Accept: "application/json" },
       next: { revalidate: 120 },
@@ -21,9 +46,9 @@ export async function GET(request: Request) {
 
     const data = (await response.json()) as {
       resultCount: number;
-      results: Array<{ artistId: number; artistName: string; artworkUrl100?: string; primaryGenreName?: string }>;
+      results: ArtistResultItem[];
     };
-    const results = data.results ?? [];
+    const results = normalizeResults(data.results ?? []);
 
     return apiOk({ results });
   } catch {

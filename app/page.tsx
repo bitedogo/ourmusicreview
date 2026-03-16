@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import { Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useState, useRef, useEffect, useCallback } from "react";
 
 interface ArtistSuggestion {
@@ -29,10 +29,8 @@ const DEBOUNCE_MS = 300;
 
 function HomeContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const searchContainerRef = useRef<HTMLDivElement>(null);
 
-  const isAdminView = searchParams.get("oru") === "open";
   const [searchQuery, setSearchQuery] = useState("");
   const [suggestions, setSuggestions] = useState<ArtistSuggestion[]>([]);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
@@ -107,30 +105,6 @@ function HomeContent() {
   function handleArtistSelect(artist: ArtistSuggestion) {
     setIsDropdownOpen(false);
     router.push(`/search?artistId=${artist.artistId}&artist=${encodeURIComponent(artist.artistName)}`);
-  }
-
-  if (!isAdminView) {
-    return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-white px-6">
-        <div className="flex max-w-md flex-col items-center gap-6 text-center">
-          <Image
-            src="/oru-num6-hq.png"
-            alt="ORU 로고"
-            width={824}
-            height={232}
-            sizes="142px"
-            className="h-10 w-auto"
-            priority
-          />
-          <p className="text-base sm:text-lg font-medium tracking-tight text-zinc-900">
-            현재 점검 중입니다. 곧 정식 출시됩니다!
-          </p>
-          <p className="text-xs sm:text-sm text-zinc-500">
-            서비스 안정화를 위해 잠시 문을 닫았습니다. 조금만 기다려 주세요.
-          </p>
-        </div>
-      </div>
-    );
   }
 
   return (
