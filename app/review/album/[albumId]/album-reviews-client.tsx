@@ -157,7 +157,7 @@ export function AlbumReviewsClient({ albumId }: { albumId: string }) {
                 ? `/search?artistId=${encodeURIComponent(albumInfo.artistId)}&artist=${encodeURIComponent(albumInfo.artist)}`
                 : `/search?artist=${encodeURIComponent(albumInfo.artist)}`
             }
-            className="mb-4 flex w-fit items-center gap-2 text-sm text-zinc-600 hover:text-zinc-900"
+            className="mb-4 flex w-fit items-center gap-2 text-sm text-zinc-600 hover:text-[var(--color-brand-primary)]"
           >
             <svg
               width="16"
@@ -179,7 +179,7 @@ export function AlbumReviewsClient({ albumId }: { albumId: string }) {
         ) : (
           <button
             onClick={() => router.back()}
-            className="mb-4 flex w-fit items-center gap-2 text-sm text-zinc-600 hover:text-zinc-900"
+            className="mb-4 flex w-fit items-center gap-2 text-sm text-zinc-600 hover:text-[var(--color-brand-primary)]"
           >
             <svg
               width="16"
@@ -239,7 +239,7 @@ export function AlbumReviewsClient({ albumId }: { albumId: string }) {
           {reviewWriteUrl && (
             <Link
               href={reviewWriteUrl}
-              className="inline-flex items-center justify-center rounded-full border border-zinc-200 bg-white px-5 py-2.5 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50"
+              className="inline-flex items-center justify-center rounded-full bg-[var(--color-brand-primary)] px-4 py-2 text-xs font-semibold text-white transition hover:bg-[var(--color-brand-primary-hover)]"
             >
               리뷰 작성하기
             </Link>

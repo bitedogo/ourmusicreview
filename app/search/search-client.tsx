@@ -43,11 +43,10 @@ interface ArtistAlbumsResponse {
   };
 }
 
-interface AlbumRatingResponse {
+interface BatchAlbumRatingsResponse {
   ok: boolean;
   data: {
-    averageRating: number | null;
-    reviewCount: number;
+    ratings: Record<string, { averageRating: number | null; reviewCount: number }>;
   };
 }
 
@@ -278,24 +277,18 @@ export function SearchClient() {
         return;
       }
 
-      const ratings: Record<string, { averageRating: number | null; reviewCount: number }> = {};
-      await Promise.all(
-        albums.map(async (album) => {
-          try {
-            const ratingData = await fetchJson<AlbumRatingResponse>(
-              `/api/albums/${encodeURIComponent(album.collectionId.toString())}/rating`
-            );
-            if (ratingData.data.reviewCount > 0 && ratingData.data.averageRating !== null) {
-              ratings[album.collectionId.toString()] = {
-                averageRating: ratingData.data.averageRating,
-                reviewCount: ratingData.data.reviewCount,
-              };
-            }
-          } catch {
-          }
-        })
+      const albumIds = Array.from(
+        new Set(albums.map((album) => album.collectionId.toString()))
       );
-      setAlbumRatings(ratings);
+
+      try {
+        const ratingData = await fetchJson<BatchAlbumRatingsResponse>(
+          `/api/albums/ratings?ids=${encodeURIComponent(albumIds.join(","))}`
+        );
+        setAlbumRatings(ratingData.data.ratings ?? {});
+      } catch {
+        setAlbumRatings({});
+      }
     }
 
     fetchRatings();
@@ -534,7 +527,7 @@ export function SearchClient() {
                           e.stopPropagation();
                           handleRegister(album);
                         }}
-                        className="flex-1 rounded-full border border-zinc-200 bg-zinc-900 px-3 py-2 text-xs font-semibold text-white transition hover:bg-black"
+                        className="flex-1 rounded-full bg-[var(--color-brand-primary)] px-3 py-2 text-xs font-semibold text-white transition hover:bg-[var(--color-brand-primary-hover)]"
                       >
                         리뷰 작성
                       </button>

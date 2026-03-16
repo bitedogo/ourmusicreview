@@ -71,13 +71,13 @@ export function PostContentClient({ content, postId, userId, category, isNotice 
         <div className="flex justify-end gap-3 pt-4 border-t border-zinc-50">
           <button
             onClick={() => router.push(`/community/write?edit=${postId}`)}
-            className="text-xs font-medium text-zinc-400 hover:text-zinc-900 transition-colors"
+            className="text-xs font-medium text-zinc-400 hover:text-[var(--color-brand-primary)] transition-colors"
           >
             수정
           </button>
           <button
             onClick={handleDelete}
-            className="text-xs font-medium text-zinc-400 hover:text-red-500 transition-colors"
+            className="text-xs font-medium text-zinc-400 hover:text-[var(--color-brand-primary)] transition-colors"
           >
             삭제
           </button>

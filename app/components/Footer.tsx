@@ -29,19 +29,19 @@ export function Footer() {
             <nav className="flex flex-col items-start gap-1.5 sm:gap-2">
               <Link
                 href="/policies/terms"
-                className="text-[11px] font-medium leading-4 text-zinc-400 underline underline-offset-2 transition hover:text-zinc-300 sm:text-sm"
+                className="text-[11px] font-medium leading-4 text-zinc-400 underline underline-offset-2 transition hover:text-[var(--color-brand-primary)] sm:text-sm"
               >
                 Terms of Service
               </Link>
               <Link
                 href="/policies/privacy"
-                className="text-[11px] font-medium leading-4 text-zinc-400 underline underline-offset-2 transition hover:text-zinc-300 sm:text-sm"
+                className="text-[11px] font-medium leading-4 text-zinc-400 underline underline-offset-2 transition hover:text-[var(--color-brand-primary)] sm:text-sm"
               >
                 Privacy Policy
               </Link>
               <Link
                 href="/policies/community-guidelines"
-                className="text-[11px] font-medium leading-4 text-zinc-400 underline underline-offset-2 transition hover:text-zinc-300 sm:text-sm"
+                className="text-[11px] font-medium leading-4 text-zinc-400 underline underline-offset-2 transition hover:text-[var(--color-brand-primary)] sm:text-sm"
               >
                 Community Guidelines
               </Link>
@@ -54,13 +54,13 @@ export function Footer() {
             <nav className="flex flex-col items-start gap-1.5 sm:gap-2">
               <Link
                 href="/boards/notice"
-                className="text-[11px] font-medium leading-4 text-zinc-400 underline underline-offset-2 transition hover:text-zinc-300 sm:text-sm"
+                className="text-[11px] font-medium leading-4 text-zinc-400 underline underline-offset-2 transition hover:text-[var(--color-brand-primary)] sm:text-sm"
               >
                 Announcements
               </Link>
               <Link
                 href="/faq"
-                className="text-[11px] font-medium leading-4 text-zinc-400 underline underline-offset-2 transition hover:text-zinc-300 sm:text-sm"
+                className="text-[11px] font-medium leading-4 text-zinc-400 underline underline-offset-2 transition hover:text-[var(--color-brand-primary)] sm:text-sm"
               >
                 FAQ
               </Link>
@@ -73,7 +73,7 @@ export function Footer() {
             <nav className="flex flex-col items-start gap-1.5 sm:gap-2">
               <a
                 href="mailto:jaewoo1567@gmail.com"
-                className="text-[11px] font-medium leading-4 text-zinc-400 underline underline-offset-2 transition hover:text-zinc-300 sm:text-sm"
+                className="text-[11px] font-medium leading-4 text-zinc-400 underline underline-offset-2 transition hover:text-[var(--color-brand-primary)] sm:text-sm"
               >
                 Email
               </a>
@@ -81,7 +81,7 @@ export function Footer() {
                 href="https://www.instagram.com/comeonoru"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[11px] font-medium leading-4 text-zinc-400 underline underline-offset-2 transition hover:text-zinc-300 sm:text-sm"
+                className="text-[11px] font-medium leading-4 text-zinc-400 underline underline-offset-2 transition hover:text-[var(--color-brand-primary)] sm:text-sm"
               >
                 Instagram
               </a>

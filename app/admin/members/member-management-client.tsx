@@ -261,7 +261,7 @@ export function MemberManagementClient() {
                             type="button"
                             onClick={() => handleDeleteMember(member.id)}
                             disabled={isProcessing}
-                            className="flex h-8 w-8 items-center justify-center rounded-full text-zinc-400 transition-colors hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-50"
+                            className="flex h-8 w-8 items-center justify-center rounded-full text-zinc-400 transition-colors hover:bg-red-50 hover:text-[var(--color-brand-primary)] disabled:cursor-not-allowed disabled:opacity-50"
                             title="계정 삭제"
                           >
                             <svg

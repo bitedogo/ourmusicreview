@@ -1,7 +1,8 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/src/lib/auth/config";
 import { initializeDatabase } from "@/src/lib/db";
-import { NoticeCategory, Post, PostCategory } from "@/src/lib/db/entities/Post";
+import { Post, PostCategory } from "@/src/lib/db/entities/Post";
+import type { NoticeCategory } from "@/src/lib/community/types";
 import { isNoticeCategory } from "@/src/lib/community/notice-category";
 import { randomUUID } from "crypto";
 import { apiError, apiOk } from "@/src/lib/http/response";
@@ -12,6 +13,7 @@ interface CreatePostBody {
   category?: PostCategory;
   isGlobal?: boolean;
   noticeCategory?: NoticeCategory;
+  isRelease?: boolean;
 }
 
 export async function POST(request: Request) {
@@ -28,7 +30,10 @@ export async function POST(request: Request) {
     const content =
       typeof body.content === "string" ? body.content.trim() : undefined;
 
+    const userId = session.user.id;
+    const nickname = session.user.name;
     const isAdmin = (session.user as { role?: string }).role === "ADMIN";
+    const isReleaseRequested = isAdmin && body.isRelease === true;
     const isGlobal = isAdmin && body.isGlobal === true ? "Y" : "N";
 
     const allowedCategories: PostCategory[] = ["K", "I", "M", "W"];
@@ -58,25 +63,45 @@ export async function POST(request: Request) {
       noticeCategory = body.noticeCategory;
     }
 
+    const canCreateRelease = category === "K" || category === "I";
+    const isRelease = isReleaseRequested && canCreateRelease;
+
     const dataSource = await initializeDatabase();
-    const postRepository = dataSource.getRepository(Post);
+    const createdPostId = await dataSource.transaction(async (manager) => {
+      const postRepository = manager.getRepository(Post);
+      const id = randomUUID().replace(/-/g, "").slice(0, 24);
 
-    const id = randomUUID().replace(/-/g, "").slice(0, 24);
+      const post = postRepository.create({
+        id,
+        title,
+        content,
+        category,
+        isGlobal: isRelease ? "N" : isGlobal,
+        noticeCategory: isRelease ? "RELEASE_NOTE" : noticeCategory,
+        userId,
+        nickname,
+      });
+      await postRepository.save(post);
 
-    const post = postRepository.create({
-      id,
-      title,
-      content,
-      category,
-      isGlobal,
-      noticeCategory,
-      userId: session.user.id!,
-      nickname: session.user.name ?? "",
+      if (isRelease) {
+        const mirroredCategory: PostCategory = category === "K" ? "I" : "K";
+        const mirroredPost = postRepository.create({
+          id: randomUUID().replace(/-/g, "").slice(0, 24),
+          title,
+          content,
+          category: mirroredCategory,
+          isGlobal: "N",
+          noticeCategory: "RELEASE_NOTE",
+          userId,
+          nickname,
+        });
+        await postRepository.save(mirroredPost);
+      }
+
+      return post.id;
     });
 
-    await postRepository.save(post);
-
-    return apiOk({ id: post.id }, { status: 201 });
+    return apiOk({ id: createdPostId }, { status: 201 });
   } catch (error) {
     return apiError(
       error instanceof Error ? error.message : "게시글 작성 중 오류가 발생했습니다.",

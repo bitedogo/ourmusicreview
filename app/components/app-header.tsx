@@ -91,13 +91,17 @@ export function AppHeader() {
 
         <nav className="absolute left-1/2 hidden -translate-x-1/2 whitespace-nowrap md:flex md:items-center md:gap-6 md:text-sm md:text-zinc-600">
           {NAV_LINKS.map(({ href, label }) => (
-            <Link key={href} href={href} className="whitespace-nowrap hover:text-zinc-900">
+            <Link
+              key={href}
+              href={href}
+              className="whitespace-nowrap transition-colors hover:text-[var(--color-brand-primary)] active:text-[var(--color-brand-primary)]"
+            >
               {label}
             </Link>
           ))}
           {session?.user?.role === "ADMIN" && (
             <div className="relative group flex items-center">
-              <span className="cursor-default font-bold text-zinc-600 hover:text-zinc-900">
+              <span className="cursor-default font-bold text-zinc-600 transition-colors hover:text-[var(--color-brand-primary)]">
                 관리자
               </span>
               <div className="absolute top-full left-0 hidden group-hover:block animate-in fade-in zoom-in-95 duration-100">
@@ -106,7 +110,7 @@ export function AppHeader() {
                     <Link
                       key={href}
                       href={href}
-                      className="block w-full px-4 py-3 text-base font-medium text-zinc-800 hover:bg-zinc-50"
+                      className="block w-full px-4 py-3 text-base font-medium text-zinc-800 transition-colors hover:bg-zinc-50 hover:text-[var(--color-brand-primary)] active:text-[var(--color-brand-primary)]"
                     >
                       {label}
                     </Link>
@@ -127,7 +131,7 @@ export function AppHeader() {
                   aria-label="프로필 메뉴"
                   aria-expanded={profileOpen}
                   onClick={() => setProfileOpen((prev) => !prev)}
-                  className="flex items-center gap-2 rounded-lg px-2 py-1 text-left hover:bg-zinc-100 md:px-0 md:pr-1"
+                  className="group flex items-center gap-2 rounded-lg px-2 py-1 text-left md:px-0 md:pr-1"
                 >
                   <span className="inline-flex md:hidden">
                     {profileImage ? (
@@ -161,7 +165,7 @@ export function AppHeader() {
                         {nickname.charAt(0).toUpperCase()}
                       </div>
                     )}
-                    <span className="text-sm font-medium text-zinc-700">
+                    <span className="text-sm font-medium text-zinc-700 transition-colors group-hover:text-[var(--color-brand-primary)]">
                       {nickname}님
                     </span>
                   </span>
@@ -194,7 +198,7 @@ export function AppHeader() {
             ) : (
               <Link
                 href="/auth/signin"
-                className="font-medium text-zinc-600 hover:text-zinc-900"
+                className="font-medium text-zinc-600 hover:text-[var(--color-brand-primary)]"
               >
                 로그인
               </Link>
@@ -211,7 +215,7 @@ export function AppHeader() {
                   <Link
                     href={href}
                     onClick={() => setMenuOpen(false)}
-                    className="block rounded-lg px-3 py-3 text-base font-medium text-zinc-800 hover:bg-zinc-50"
+                    className="block rounded-lg px-3 py-3 text-base font-medium text-zinc-800 transition-colors hover:bg-zinc-50 hover:text-[var(--color-brand-primary)] active:text-[var(--color-brand-primary)]"
                   >
                     {label}
                   </Link>
@@ -229,7 +233,7 @@ export function AppHeader() {
                       <Link
                         href={href}
                         onClick={() => setMenuOpen(false)}
-                        className="block rounded-lg px-3 py-3 text-base font-medium text-zinc-800 hover:bg-zinc-50"
+                        className="block rounded-lg px-3 py-3 text-base font-medium text-zinc-800 transition-colors hover:bg-zinc-50 hover:text-[var(--color-brand-primary)] active:text-[var(--color-brand-primary)]"
                       >
                         {label}
                       </Link>

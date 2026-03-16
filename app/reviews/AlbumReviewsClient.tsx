@@ -156,7 +156,7 @@ export function AlbumReviewsClient() {
               href={buildReviewsHref(opt.value, 1, searchField, searchQuery)}
               className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
                 sort === opt.value
-                  ? "bg-zinc-900 text-white"
+                  ? "bg-[var(--color-brand-primary)] text-white"
                   : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200"
               }`}
             >
@@ -282,7 +282,7 @@ export function AlbumReviewsClient() {
                   href={buildReviewsHref(sort, p, searchField, searchQuery)}
                   className={`rounded px-3 py-1.5 text-sm ${
                     p === page
-                      ? "bg-zinc-900 font-medium text-white"
+                      ? "bg-[var(--color-brand-primary)] font-medium text-white"
                       : "border border-zinc-300 text-zinc-700 hover:bg-zinc-100"
                   }`}
                 >
@@ -325,7 +325,7 @@ export function AlbumReviewsClient() {
                     onClick={() => setSearchField(option.value)}
                     className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
                       searchField === option.value
-                        ? "bg-zinc-900 text-white"
+                        ? "bg-[var(--color-brand-primary)] text-white"
                         : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200"
                     }`}
                   >
@@ -351,7 +351,7 @@ export function AlbumReviewsClient() {
                 </button>
                 <button
                   type="submit"
-                  className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800"
+                  className="rounded-lg bg-[var(--color-brand-primary)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--color-brand-primary-hover)]"
                 >
                   검색
                 </button>

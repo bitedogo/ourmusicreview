@@ -187,7 +187,7 @@ export default function SigninPage() {
             <button
               type="button"
               onClick={() => setModal("find-id")}
-              className="hover:text-zinc-900"
+              className="hover:text-[var(--color-brand-primary)]"
             >
               아이디 찾기
             </button>
@@ -195,7 +195,7 @@ export default function SigninPage() {
             <button
               type="button"
               onClick={() => setModal("find-password")}
-              className="hover:text-zinc-900"
+              className="hover:text-[var(--color-brand-primary)]"
             >
               비밀번호 재설정
             </button>

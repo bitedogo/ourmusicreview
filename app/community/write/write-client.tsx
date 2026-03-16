@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { TuiEditor, TuiEditorRef } from "@/src/components/common/TuiEditor";
-import { NoticeCategory } from "@/src/lib/db/entities/Post";
+import type { NoticeCategory } from "@/src/lib/community/types";
 import { NOTICE_CATEGORY_OPTIONS } from "@/src/lib/community/notice-category";
 
 type Category = "K" | "I" | "M" | "W" | "N";
@@ -23,16 +23,17 @@ export function CommunityWriteClient() {
     initialCategoryParam === "M" ||
     initialCategoryParam === "W" ||
     initialCategoryParam === "N";
+  const isCategoryLocked = hasLockedCategory || Boolean(editPostId);
   const initialCategory: Category =
     hasLockedCategory
       ? (initialCategoryParam as Category)
       : "K";
 
   const [title, setTitle] = useState("");
-  const [, setContent] = useState("");
   const [category, setCategory] = useState<Category>(initialCategory);
   const [noticeCategory, setNoticeCategory] = useState<NoticeCategory>("RELEASE_NOTE");
   const [isGlobal, setIsGlobal] = useState(false);
+  const [isRelease, setIsRelease] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(!!editPostId);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -57,6 +58,10 @@ export function CommunityWriteClient() {
               : "RELEASE_NOTE"
           );
           setIsGlobal(data.data.post.isGlobal === "Y");
+          setIsRelease(
+            data.data.post.category !== "N" &&
+              data.data.post.noticeCategory === "RELEASE_NOTE"
+          );
           setTimeout(() => {
             editorRef.current?.setHTML(data.data.post.content);
           }, 500);
@@ -108,6 +113,9 @@ export function CommunityWriteClient() {
           content: trimmedContent,
           category,
           isGlobal,
+          ...(isAdmin && (category === "K" || category === "I")
+            ? { isRelease }
+            : {}),
           ...(category === "N" && { noticeCategory }),
         }),
       });
@@ -162,7 +170,7 @@ export function CommunityWriteClient() {
         className="space-y-4 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm"
       >
         <div className="space-y-1">
-          {hasLockedCategory ? (
+          {isCategoryLocked ? (
             <div
               className={
                 category === "N"
@@ -187,8 +195,8 @@ export function CommunityWriteClient() {
                       className={[
                         "rounded-full px-3 py-1.5 font-semibold border",
                         noticeCategory === value
-                          ? "bg-zinc-900 text-white border-zinc-900"
-                          : "border-zinc-200 text-zinc-500 hover:text-zinc-800",
+                          ? "bg-[var(--color-brand-primary)] text-white border-[var(--color-brand-primary)]"
+                          : "border-zinc-200 text-zinc-500 hover:text-[var(--color-brand-primary)]",
                       ].join(" ")}
                     >
                       {label}
@@ -210,7 +218,7 @@ export function CommunityWriteClient() {
                     "rounded-full px-3 py-1.5 font-semibold border",
                     category === "K"
                       ? "bg-blue-600 text-white border-blue-600"
-                      : "border-zinc-200 text-zinc-500 hover:text-zinc-800",
+                      : "border-zinc-200 text-zinc-500 hover:text-[var(--color-brand-primary)]",
                   ].join(" ")}
                 >
                   국내게시판
@@ -222,7 +230,7 @@ export function CommunityWriteClient() {
                     "rounded-full px-3 py-1.5 font-semibold border",
                     category === "I"
                       ? "bg-purple-600 text-white border-purple-600"
-                      : "border-zinc-200 text-zinc-500 hover:text-zinc-800",
+                      : "border-zinc-200 text-zinc-500 hover:text-[var(--color-brand-primary)]",
                   ].join(" ")}
                 >
                   해외게시판
@@ -234,7 +242,7 @@ export function CommunityWriteClient() {
                     "rounded-full px-3 py-1.5 font-semibold border",
                     category === "M"
                       ? "bg-emerald-600 text-white border-emerald-600"
-                      : "border-zinc-200 text-zinc-500 hover:text-zinc-800",
+                      : "border-zinc-200 text-zinc-500 hover:text-[var(--color-brand-primary)]",
                   ].join(" ")}
                 >
                   장터게시판
@@ -246,7 +254,7 @@ export function CommunityWriteClient() {
                     "rounded-full px-3 py-1.5 font-semibold border",
                     category === "W"
                       ? "bg-orange-600 text-white border-orange-600"
-                      : "border-zinc-200 text-zinc-500 hover:text-zinc-800",
+                      : "border-zinc-200 text-zinc-500 hover:text-[var(--color-brand-primary)]",
                   ].join(" ")}
                 >
                   워크룸
@@ -268,15 +276,40 @@ export function CommunityWriteClient() {
               placeholder="제목을 입력해주세요"
             />
             {isAdmin && category !== "N" && (
-              <label className="flex shrink-0 items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={isGlobal}
-                  onChange={(e) => setIsGlobal(e.target.checked)}
-                  className="h-4 w-4 rounded border-zinc-300 text-black focus:ring-black"
-                />
-                <span className="text-xs font-bold text-red-600">전체 공지</span>
-              </label>
+              <div className="flex shrink-0 items-center gap-3">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={isGlobal}
+                    onChange={(e) => {
+                      const isChecked = e.target.checked;
+                      setIsGlobal(isChecked);
+                      if (isChecked) {
+                        setIsRelease(false);
+                      }
+                    }}
+                    className="h-4 w-4 rounded border-zinc-300 text-black focus:ring-black"
+                  />
+                  <span className="text-xs font-bold text-red-600">전체 공지</span>
+                </label>
+                {(category === "K" || category === "I") && (
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={isRelease}
+                      onChange={(e) => {
+                        const isChecked = e.target.checked;
+                        setIsRelease(isChecked);
+                        if (isChecked) {
+                          setIsGlobal(false);
+                        }
+                      }}
+                      className="h-4 w-4 rounded border-zinc-300 text-emerald-600 focus:ring-emerald-600"
+                    />
+                    <span className="text-xs font-bold text-emerald-600">릴리즈</span>
+                  </label>
+                )}
+              </div>
             )}
           </div>
         </div>
@@ -288,7 +321,6 @@ export function CommunityWriteClient() {
           <TuiEditor
             ref={editorRef}
             height="400px"
-            onChange={(html) => setContent(html)}
           />
         </div>
 
@@ -309,7 +341,7 @@ export function CommunityWriteClient() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="rounded-full bg-black px-4 py-2 text-xs font-semibold text-white hover:bg-zinc-800 disabled:cursor-not-allowed disabled:bg-zinc-500"
+            className="rounded-full bg-[var(--color-brand-primary)] px-4 py-2 text-xs font-semibold text-white hover:bg-[var(--color-brand-primary-hover)] disabled:cursor-not-allowed disabled:bg-zinc-500"
           >
             {isSubmitting ? "처리 중..." : (editPostId ? "수정완료" : "등록하기")}
           </button>

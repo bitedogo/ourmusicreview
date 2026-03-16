@@ -8,10 +8,10 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 import { User } from "./User";
+import type { NoticeCategory } from "@/src/lib/community/types";
 
 export type PostCategory = "K" | "I" | "M" | "W" | "N";
-
-export type NoticeCategory = "RELEASE_NOTE" | "EVENT" | "SERVICE" | "REPORT";
+export type { NoticeCategory } from "@/src/lib/community/types";
 
 @Entity({ name: "posts", schema: "public" })
 export class Post {

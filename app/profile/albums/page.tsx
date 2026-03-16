@@ -61,7 +61,7 @@ export default function FavoriteAlbumsPage() {
       <section className="space-y-2">
         <button
           onClick={() => router.push("/profile")}
-          className="mb-4 flex items-center gap-2 text-sm text-zinc-600 hover:text-zinc-900"
+          className="mb-4 flex items-center gap-2 text-sm text-zinc-600 hover:text-[var(--color-brand-primary)]"
         >
           <svg
             width="16"
@@ -125,11 +125,6 @@ export default function FavoriteAlbumsPage() {
                 <h3 className="line-clamp-2 text-sm font-bold text-zinc-900">
                   {fav.album?.title}
                 </h3>
-                {fav.album?.releaseDate && (
-                  <p className="text-[11px] text-zinc-500">
-                    {new Date(fav.album.releaseDate).getFullYear()}년 발매
-                  </p>
-                )}
               </div>
             </Link>
           ))}

@@ -142,23 +142,17 @@ export function ReviewWriteClient() {
               step="0.1"
               value={rating}
               onChange={(e) => setRating(Number(e.target.value))}
-              className="flex-1"
+              className="flex-1 accent-[var(--color-brand-primary)]"
             />
             <span
-              className={`text-sm font-semibold w-12 text-center ${rating >= 9 ? "text-red-600" : "text-zinc-900"}`}
+              className="w-12 text-center text-sm font-semibold text-[var(--color-brand-primary)]"
             >
               {rating.toFixed(1)}
             </span>
           </div>
-          <p className="text-[11px] text-zinc-500">
-            슬라이더를 움직여 평점을 선택하세요 (0.0점: 최악, 10.0점: 최고)
-          </p>
         </div>
 
         <div className="space-y-1">
-          <label className="text-xs font-medium text-zinc-600">
-            리뷰 내용
-          </label>
           <TuiEditor
             ref={editorRef}
             height="400px"
@@ -183,7 +177,7 @@ export function ReviewWriteClient() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="rounded-full bg-black px-4 py-2 text-xs font-semibold text-white hover:bg-zinc-800 disabled:cursor-not-allowed disabled:bg-zinc-500"
+            className="rounded-full bg-[var(--color-brand-primary)] px-4 py-2 text-xs font-semibold text-white hover:bg-[var(--color-brand-primary-hover)] disabled:cursor-not-allowed disabled:bg-zinc-500"
           >
             {isSubmitting ? "작성 중..." : "등록하기"}
           </button>

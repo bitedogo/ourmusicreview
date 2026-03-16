@@ -70,10 +70,9 @@ export async function POST(request: Request) {
       { album: { id: newAlbum.albumId, title: newAlbum.title } },
       { status: 201 }
     );
-  } catch (error) {
-    return apiError(
-      error instanceof Error ? error.message : "앨범 등록 중 오류가 발생했습니다.",
-      { status: 500 }
-    );
+  } catch {
+    return apiError("앨범 등록 중 오류가 발생했습니다.", {
+      status: 500,
+    });
   }
 }

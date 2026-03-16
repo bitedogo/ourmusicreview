@@ -12,7 +12,7 @@ export async function GET(request: Request) {
     const url = `https://itunes.apple.com/search?term=${encodeURIComponent(term.trim())}&entity=musicArtist&limit=5`;
     const response = await fetch(url, {
       headers: { Accept: "application/json" },
-      cache: "no-store",
+      next: { revalidate: 120 },
     });
 
     if (!response.ok) {
@@ -26,8 +26,8 @@ export async function GET(request: Request) {
     const results = data.results ?? [];
 
     return apiOk({ results });
-  } catch (error) {
-    return apiError(error instanceof Error ? error.message : "자동완성 검색 실패", {
+  } catch {
+    return apiError("자동완성 검색 실패", {
       status: 500,
     });
   }

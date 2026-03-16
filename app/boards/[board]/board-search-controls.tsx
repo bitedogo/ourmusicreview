@@ -99,7 +99,7 @@ export function BoardSearchControls({
                     onClick={() => setSearchField(option.value)}
                     className={`rounded-full px-3 py-1.5 text-xs font-medium ${
                       searchField === option.value
-                        ? "bg-zinc-900 text-white"
+                        ? "bg-[var(--color-brand-primary)] text-white"
                         : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200"
                     }`}
                   >
@@ -125,7 +125,7 @@ export function BoardSearchControls({
                 </button>
                 <button
                   type="submit"
-                  className="rounded-lg bg-zinc-900 px-3 py-2 text-xs font-medium text-white hover:bg-zinc-800"
+                  className="rounded-lg bg-[var(--color-brand-primary)] px-3 py-2 text-xs font-medium text-white hover:bg-[var(--color-brand-primary-hover)]"
                 >
                   검색
                 </button>

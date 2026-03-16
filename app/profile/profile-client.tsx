@@ -144,7 +144,7 @@ export function ProfileClient({
         <div className="flex items-center gap-3 md:gap-4">
           <Link
             href="/profile/edit"
-            className="text-[10px] font-medium text-zinc-500 hover:text-zinc-900 md:text-xs"
+            className="text-[10px] font-medium text-zinc-500 hover:text-[var(--color-brand-primary)] md:text-xs"
           >
             내 정보 수정
           </Link>
@@ -153,7 +153,7 @@ export function ProfileClient({
               type="button"
               onClick={handleDeleteAccount}
               disabled={isDeletingAccount}
-              className="text-[10px] font-medium text-red-600 hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-50 md:text-xs"
+              className="text-[10px] font-medium text-red-600 hover:text-[var(--color-brand-primary)] disabled:cursor-not-allowed disabled:opacity-50 md:text-xs"
             >
               {isDeletingAccount ? "처리 중..." : "계정삭제"}
             </button>
@@ -216,13 +216,13 @@ export function ProfileClient({
             <div className="grid grid-cols-2 gap-2">
               <Link
                 href="/profile/posts"
-                className="rounded-lg border border-zinc-200 bg-white px-3 py-2 text-center text-[11px] font-medium text-zinc-700 transition hover:border-zinc-300 hover:text-zinc-900"
+                className="rounded-lg border border-zinc-200 bg-white px-3 py-2 text-center text-[11px] font-medium text-zinc-700 transition hover:border-zinc-300 hover:text-[var(--color-brand-primary)]"
               >
                 내가 쓴 게시글
               </Link>
               <Link
                 href="/profile/comments"
-                className="rounded-lg border border-zinc-200 bg-white px-3 py-2 text-center text-[11px] font-medium text-zinc-700 transition hover:border-zinc-300 hover:text-zinc-900"
+                className="rounded-lg border border-zinc-200 bg-white px-3 py-2 text-center text-[11px] font-medium text-zinc-700 transition hover:border-zinc-300 hover:text-[var(--color-brand-primary)]"
               >
                 내가 쓴 댓글
               </Link>
@@ -234,7 +234,7 @@ export function ProfileClient({
               <h2 className="text-xs font-semibold tracking-tight text-zinc-900 md:text-sm">나의 리뷰</h2>
               <Link
                 href="/profile/reviews"
-                className="text-[10px] font-medium text-zinc-400 hover:text-zinc-900"
+                className="text-[10px] font-medium text-zinc-400 hover:text-[var(--color-brand-primary)]"
               >
                 전체보기
               </Link>
@@ -288,7 +288,7 @@ export function ProfileClient({
               <h2 className="text-xs font-semibold tracking-tight text-zinc-900 md:text-sm">좋아하는 앨범</h2>
               <Link
                 href="/profile/albums"
-                className="text-[10px] font-medium text-zinc-400 hover:text-zinc-900"
+                className="text-[10px] font-medium text-zinc-400 hover:text-[var(--color-brand-primary)]"
               >
                 전체보기
               </Link>

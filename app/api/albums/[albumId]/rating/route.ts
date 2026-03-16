@@ -35,10 +35,9 @@ export async function GET(
       averageRating,
       reviewCount: reviews.length,
     });
-  } catch (error) {
-    return apiError(
-      error instanceof Error ? error.message : "평균 평점 조회 중 오류가 발생했습니다.",
-      { status: 500 }
-    );
+  } catch {
+    return apiError("평균 평점 조회 중 오류가 발생했습니다.", {
+      status: 500,
+    });
   }
 }

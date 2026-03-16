@@ -67,7 +67,7 @@ export default function MyPostsPage() {
       <section className="space-y-2">
         <button
           onClick={() => router.push("/profile")}
-          className="mb-4 flex items-center gap-2 text-sm text-zinc-600 hover:text-zinc-900"
+          className="mb-4 flex items-center gap-2 text-sm text-zinc-600 hover:text-[var(--color-brand-primary)]"
         >
           <svg
             width="16"

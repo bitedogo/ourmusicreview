@@ -225,7 +225,7 @@ export function ReportManagementClient() {
                             href={`/community/${report.post!.id}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-[11px] font-medium text-zinc-700 underline underline-offset-2 hover:text-zinc-900"
+                            className="text-[11px] font-medium text-zinc-700 underline underline-offset-2 hover:text-[var(--color-brand-primary)]"
                           >
                             보기
                           </Link>
@@ -235,7 +235,7 @@ export function ReportManagementClient() {
                             href={`/review/${report.review.id}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-[11px] font-medium text-zinc-700 underline underline-offset-2 hover:text-zinc-900"
+                            className="text-[11px] font-medium text-zinc-700 underline underline-offset-2 hover:text-[var(--color-brand-primary)]"
                           >
                             보기
                           </Link>

@@ -68,7 +68,7 @@ export default function TodayAlbumCard() {
     : null;
 
   const coverImageElement = (
-    <div className="relative aspect-square w-full overflow-hidden rounded-xl bg-zinc-100 shadow-md">
+    <div className="relative aspect-square w-full overflow-hidden rounded-xl bg-zinc-100">
       {resolvedAlbum.imageUrl && !isImageError ? (
         <Image
           src={resolvedAlbum.imageUrl}
@@ -144,7 +144,7 @@ export default function TodayAlbumCard() {
             </div>
 
             {description && (
-              <p className="mt-4 w-full whitespace-pre-line text-[14px] leading-relaxed text-zinc-600 sm:absolute sm:bottom-0 sm:left-0 sm:right-0 sm:top-[64px] sm:overflow-y-auto sm:pr-1 sm:text-[14px] sm:leading-8">
+              <p className="mt-4 w-full whitespace-pre-line text-[14px] leading-relaxed text-zinc-700 sm:absolute sm:bottom-0 sm:left-0 sm:right-0 sm:top-[64px] sm:overflow-y-auto sm:pr-1 sm:text-[14px] sm:leading-8">
                 {description}
               </p>
             )}
@@ -158,7 +158,7 @@ export default function TodayAlbumCard() {
               isDescriptionOpen ? "max-h-[420px] opacity-100" : "max-h-0 opacity-0"
             }`}
           >
-            <p className="whitespace-pre-line text-[14px] leading-relaxed text-zinc-600">
+            <p className="whitespace-pre-line text-[14px] leading-relaxed text-zinc-700">
               {description}
             </p>
           </div>

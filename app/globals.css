@@ -1,21 +1,19 @@
 @import "tailwindcss";
-@import "@fontsource/pretendard";
-@import "@fontsource/pretendard/700.css";
-@import "@fontsource/pretendard/800.css";
-@import "@fontsource/pretendard/900.css";
 
 @custom-variant dark (&:where(.never-applied));
 
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --color-brand-primary: #283362;
+  --color-brand-primary-hover: #1f274d;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: "Pretendard", system-ui, -apple-system, sans-serif;
-  --font-mono: "Pretendard", system-ui, -apple-system, sans-serif;
+  --font-sans: var(--font-pretendard), system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-pretendard), system-ui, -apple-system, sans-serif;
 }
 
 html {
@@ -33,7 +31,7 @@ body {
 body {
   background: #ffffff !important;
   color: #171717 !important;
-  font-family: "Pretendard", system-ui, -apple-system, sans-serif;
+  font-family: var(--font-pretendard), system-ui, -apple-system, sans-serif;
 }
 
 @keyframes marquee-force {

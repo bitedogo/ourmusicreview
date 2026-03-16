@@ -1,4 +1,4 @@
-import { NoticeCategory } from "@/src/lib/db/entities/Post";
+import type { NoticeCategory } from "@/src/lib/community/types";
 
 export const NOTICE_CATEGORY_VALUES: NoticeCategory[] = [
   "RELEASE_NOTE",

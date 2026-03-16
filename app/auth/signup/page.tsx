@@ -1,10 +1,23 @@
 "use client";
 
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
-import { TermsContent } from "@/app/components/TermsContent";
-import { ImageCropModal } from "@/app/components/ImageCropModal";
+
+const TermsContent = dynamic(
+  () => import("@/app/components/TermsContent").then((module) => module.TermsContent),
+  {
+    loading: () => <p className="text-xs text-zinc-500">약관을 불러오는 중...</p>,
+  }
+);
+
+const ImageCropModal = dynamic(
+  () => import("@/app/components/ImageCropModal").then((module) => module.ImageCropModal),
+  {
+    ssr: false,
+  }
+);
 
 type Gender = "MALE" | "FEMALE" | "NONE";
 

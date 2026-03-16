@@ -279,14 +279,14 @@ export function FaqManagementClient() {
                       setEditingId(faq.id);
                       setEditForm({ question: faq.question, answer: faq.answer });
                     }}
-                    className="text-xs font-medium text-zinc-500 hover:text-zinc-800"
+                    className="text-xs font-medium text-zinc-500 hover:text-[var(--color-brand-primary)]"
                   >
                     수정
                   </button>
                   <button
                     type="button"
                     onClick={() => handleDelete(faq.id)}
-                    className="text-xs font-medium text-red-500 hover:text-red-700"
+                    className="text-xs font-medium text-red-500 hover:text-[var(--color-brand-primary)]"
                   >
                     삭제
                   </button>

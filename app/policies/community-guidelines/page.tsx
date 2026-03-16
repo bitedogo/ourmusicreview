@@ -118,7 +118,7 @@ export default function CommunityGuidelinesPage() {
         <div className="mt-12 pt-6 border-t border-zinc-200">
           <Link
             href="/"
-            className="text-sm font-medium text-zinc-600 underline hover:text-zinc-900"
+            className="text-sm font-medium text-zinc-600 underline hover:text-[var(--color-brand-primary)]"
           >
             ← 홈으로 돌아가기
           </Link>

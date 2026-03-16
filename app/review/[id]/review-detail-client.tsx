@@ -161,7 +161,7 @@ export function ReviewDetailClient({ reviewId }: { reviewId: string }) {
               ? `/reviews?sort=${encodeURIComponent(backSort)}&page=${encodeURIComponent(backPage)}`
               : `/review/album/${encodeURIComponent(review.albumId)}`
           }
-          className="mb-4 flex w-fit items-center gap-2 text-sm text-zinc-600 hover:text-zinc-900"
+          className="mb-4 flex w-fit items-center gap-2 text-sm text-zinc-600 hover:text-[var(--color-brand-primary)]"
         >
           <svg
             width="16"
@@ -215,7 +215,7 @@ export function ReviewDetailClient({ reviewId }: { reviewId: string }) {
             <div className="mt-2 flex justify-end">
               <Link
                 href={`/review/album/${encodeURIComponent(review.albumId)}`}
-                className="inline-flex h-7 items-center rounded-full bg-black px-3 text-[11px] font-semibold text-white transition hover:bg-zinc-800"
+                className="inline-flex h-7 items-center rounded-full bg-[var(--color-brand-primary)] px-3 text-[11px] font-semibold text-white transition hover:bg-[var(--color-brand-primary-hover)]"
               >
                 More Reviews
               </Link>
@@ -268,13 +268,13 @@ export function ReviewDetailClient({ reviewId }: { reviewId: string }) {
           <div className="flex justify-end gap-3 pt-4 mt-4 border-t border-zinc-50">
             <Link
               href={`/review/${encodeURIComponent(reviewId)}/edit`}
-              className="text-xs font-medium text-zinc-400 hover:text-zinc-700 transition-colors"
+              className="text-xs font-medium text-zinc-400 hover:text-[var(--color-brand-primary)] transition-colors"
             >
               수정
             </Link>
             <button
               onClick={handleDelete}
-              className="text-xs font-medium text-zinc-400 hover:text-red-500 transition-colors"
+              className="text-xs font-medium text-zinc-400 hover:text-[var(--color-brand-primary)] transition-colors"
             >
               삭제
             </button>

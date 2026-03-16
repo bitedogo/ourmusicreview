@@ -224,7 +224,7 @@ export function ReviewApprovalClient() {
                         <button
                           type="button"
                           onClick={() => setViewingReview(review)}
-                          className="text-[11px] font-medium text-zinc-700 underline underline-offset-2 hover:text-zinc-900"
+                          className="text-[11px] font-medium text-zinc-700 underline underline-offset-2 hover:text-[var(--color-brand-primary)]"
                         >
                           보기
                         </button>

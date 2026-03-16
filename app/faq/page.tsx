@@ -90,7 +90,7 @@ export default function FaqPage() {
                 <span className="flex-1 text-base font-medium text-zinc-900">
                   {faq.question}
                 </span>
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-zinc-950 text-white">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-[var(--color-brand-primary)] text-white">
                   {isExpanded ? "−" : "+"}
                 </span>
               </button>
@@ -111,7 +111,7 @@ export default function FaqPage() {
           <button
             type="button"
             onClick={loadMore}
-            className="rounded-full bg-zinc-900 px-8 py-3 text-sm font-medium text-white transition hover:bg-zinc-800"
+            className="rounded-full bg-[var(--color-brand-primary)] px-8 py-3 text-sm font-medium text-white transition hover:bg-[var(--color-brand-primary-hover)]"
           >
             더 보기
           </button>

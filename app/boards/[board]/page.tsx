@@ -1,8 +1,10 @@
 import { notFound } from "next/navigation";
 import { getServerSession } from "next-auth";
+import { In } from "typeorm";
 import { authOptions } from "@/src/lib/auth/config";
 import { initializeDatabase } from "@/src/lib/db";
-import { Post, PostCategory, NoticeCategory } from "@/src/lib/db/entities/Post";
+import { Post, PostCategory } from "@/src/lib/db/entities/Post";
+import type { NoticeCategory } from "@/src/lib/community/types";
 import { Comment } from "@/src/lib/db/entities/Comment";
 import {
   NOTICE_CATEGORY_COLOR,
@@ -119,22 +121,40 @@ export default async function BoardPage(props: {
 
   const posts = await postsQueryBuilder.getMany();
 
-  const postsWithMeta = await Promise.all(
-    posts.map(async (post) => {
-      const count = await commentRepository.count({
-        where: { postId: post.id },
-      });
-      return { 
-        ...post, 
-        commentCount: count,
-        isPinned: post.isGlobal === "Y"
-      };
-    })
+  const postIds = posts.map((post) => post.id);
+  const commentCountRows =
+    postIds.length > 0
+      ? await commentRepository
+          .createQueryBuilder("comment")
+          .select("comment.post_id", "postId")
+          .addSelect("COUNT(comment.id)", "count")
+          .where({
+            postId: In(postIds),
+          })
+          .groupBy("comment.post_id")
+          .getRawMany<{ postId: string; count: string }>()
+      : [];
+
+  const commentCountMap = new Map<string, number>(
+    commentCountRows.map((row) => [row.postId, Number(row.count)])
   );
+
+  const postsWithMeta = posts.map((post) => {
+    const isReleasePinned =
+      post.category !== "N" && post.noticeCategory === "RELEASE_NOTE";
+    return {
+      ...post,
+      commentCount: commentCountMap.get(post.id) ?? 0,
+      isPinned: post.isGlobal === "Y",
+      isReleasePinned,
+    };
+  });
 
   const sortedPosts = postsWithMeta.sort((a, b) => {
     if (a.isGlobal === "Y" && b.isGlobal !== "Y") return -1;
     if (a.isGlobal !== "Y" && b.isGlobal === "Y") return 1;
+    if (a.isReleasePinned && !b.isReleasePinned) return -1;
+    if (!a.isReleasePinned && b.isReleasePinned) return 1;
 
     return 0;
   });
@@ -181,7 +201,7 @@ export default async function BoardPage(props: {
           {canWrite && (
             <Link
               href={writeHref}
-              className="rounded-full bg-black px-4 py-2 text-xs font-semibold text-white hover:bg-zinc-800"
+              className="rounded-full bg-[var(--color-brand-primary)] px-4 py-2 text-xs font-semibold text-white hover:bg-[var(--color-brand-primary-hover)]"
             >
               글쓰기
             </Link>
@@ -229,9 +249,33 @@ export default async function BoardPage(props: {
                       className={`hover:bg-zinc-50 ${post.isPinned ? "bg-zinc-50/50" : ""}`}
                     >
                       <td className="px-3 py-2 text-center text-[11px] text-zinc-400">
-                        {post.isPinned || config.category === "N" ? (
-                          <span className="text-base" title="공지사항">
-                            📢
+                        {post.isPinned || post.isReleasePinned || config.category === "N" ? (
+                          <span
+                            className="inline-flex items-center justify-center"
+                            title={
+                              post.isReleasePinned && !post.isPinned && config.category !== "N"
+                                ? "릴리즈"
+                                : "공지사항"
+                            }
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              className={`h-4 w-4 ${
+                                post.isReleasePinned && !post.isPinned && config.category !== "N"
+                                  ? "text-emerald-600"
+                                  : "text-red-600"
+                              }`}
+                            >
+                              <path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z" />
+                              <path d="M14.5 8.5a5 5 0 0 1 0 7" />
+                              <path d="M17.5 6a8.5 8.5 0 0 1 0 12" />
+                            </svg>
                           </span>
                         ) : (
                           total -
@@ -242,7 +286,7 @@ export default async function BoardPage(props: {
                       <td className="px-3 py-2 text-sm">
                         <Link
                           href={`/community/${encodeURIComponent(post.id)}`}
-                          className={`flex items-center gap-1.5 hover:underline ${config.category === "N" ? "font-bold text-black" : ""} ${config.category !== "N" && post.isPinned ? "text-red-600 font-bold" : ""}`}
+                          className={`flex items-center gap-1.5 hover:underline ${config.category === "N" ? "font-bold text-black" : ""} ${config.category !== "N" && post.isPinned ? "text-red-600 font-bold" : ""} ${config.category !== "N" && post.isReleasePinned && !post.isPinned ? "text-emerald-600 font-bold" : ""}`}
                         >
                           {config.category === "N" && (() => {
                             const label = getNoticeCategoryLabel(post);
@@ -308,7 +352,7 @@ export default async function BoardPage(props: {
                         href={buildBoardHref(p)}
                         className={`rounded px-3 py-1.5 text-sm ${
                           p === currentPage
-                            ? "bg-zinc-900 font-medium text-white"
+                            ? "bg-[var(--color-brand-primary)] font-medium text-white"
                             : "border border-zinc-300 text-zinc-700 hover:bg-zinc-100"
                         }`}
                       >

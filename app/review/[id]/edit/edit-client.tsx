@@ -146,7 +146,7 @@ export function ReviewEditClient({ reviewId }: { reviewId: string }) {
       <section className="space-y-2">
         <Link
           href={`/review/${encodeURIComponent(reviewId)}`}
-          className="mb-4 flex w-fit items-center gap-2 text-sm text-zinc-600 hover:text-zinc-900"
+          className="mb-4 flex w-fit items-center gap-2 text-sm text-zinc-600 hover:text-[var(--color-brand-primary)]"
         >
           <svg
             width="16"

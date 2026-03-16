@@ -2,7 +2,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { initializeDatabase } from "@/src/lib/db";
-import { Post, NoticeCategory } from "@/src/lib/db/entities/Post";
+import { Post } from "@/src/lib/db/entities/Post";
+import type { NoticeCategory } from "@/src/lib/community/types";
 import { Comment } from "@/src/lib/db/entities/Comment";
 import {
   NOTICE_CATEGORY_COLOR,
@@ -85,7 +86,7 @@ export default async function CommunityDetailPage({
       <div className="flex items-center justify-between shrink-0">
         <Link
           href={`/boards/${categoryPath}`}
-          className="text-xs text-zinc-400 hover:text-zinc-900 transition-colors"
+          className="text-xs text-zinc-400 hover:text-[var(--color-brand-primary)] transition-colors"
         >
           ← 목록으로 돌아가기
         </Link>

@@ -90,7 +90,7 @@ export default function MyCommentsPage() {
       <section className="space-y-2">
         <button
           onClick={() => router.push("/profile")}
-          className="mb-4 flex items-center gap-2 text-sm text-zinc-600 hover:text-zinc-900"
+          className="mb-4 flex items-center gap-2 text-sm text-zinc-600 hover:text-[var(--color-brand-primary)]"
         >
           <svg
             width="16"
@@ -179,7 +179,7 @@ export default function MyCommentsPage() {
                 {href && (
                   <Link
                     href={href}
-                    className="mt-3 inline-flex text-xs font-medium text-zinc-700 underline underline-offset-4 hover:text-zinc-900"
+                    className="mt-3 inline-flex text-xs font-medium text-zinc-700 underline underline-offset-4 hover:text-[var(--color-brand-primary)]"
                   >
                     원문 보러가기
                   </Link>
