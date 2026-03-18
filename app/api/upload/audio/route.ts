@@ -4,6 +4,15 @@ import { uploadAudioFile } from "@/src/lib/supabase";
 import { apiError, apiOk } from "@/src/lib/http/response";
 import { MAX_AUDIO_SIZE_BYTES, isAllowedAudioFile } from "@/src/lib/audio";
 
+export const config = {
+  api: {
+    bodyParser: false, 
+  },
+};
+
+export const maxDuration = 60;
+
+
 export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions);
