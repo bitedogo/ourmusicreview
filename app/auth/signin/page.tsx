@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { useEffect, useState } from "react";
@@ -147,8 +148,16 @@ export default function SigninPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col px-6 pb-20 pt-20">
-      <div className="mb-12 border-b border-zinc-800 pb-4 text-center">
-        <h1 className="text-[38px] font-semibold tracking-[0.05em] text-zinc-900">LOGIN</h1>
+      <div className="mb-6 pb-8 flex justify-center">
+        <Image
+          src="/login-logo.png"
+          alt="로그인"
+          width={400}
+          height={120}
+          className="w-full max-w-[200px] h-auto object-contain"
+          priority
+          unoptimized
+        />
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-3">
@@ -156,7 +165,7 @@ export default function SigninPage() {
           <input
             value={id}
             onChange={(e) => setId(e.target.value)}
-            className="h-14 w-full border border-zinc-300 px-4 text-sm outline-none transition focus:border-zinc-500"
+            className="h-14 w-full border-2 border-zinc-400 px-4 text-sm outline-none transition focus:border-zinc-600"
             placeholder="아이디"
             autoComplete="username"
           />
@@ -167,7 +176,7 @@ export default function SigninPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             type="password"
-            className="h-14 w-full border border-zinc-300 px-4 text-sm outline-none transition focus:border-zinc-500"
+            className="h-14 w-full border-2 border-zinc-400 px-4 text-sm outline-none transition focus:border-zinc-600"
             placeholder="비밀번호"
             autoComplete="current-password"
           />
