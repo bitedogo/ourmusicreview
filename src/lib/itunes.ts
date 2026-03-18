@@ -222,39 +222,69 @@ async function getKoreanAlbumTitle(collectionId: number): Promise<string | null>
   }
 }
 
+const ITUNES_LOOKUP_URLS = (id: number) => [
+  `https://itunes.apple.com/lookup?id=${id}&entity=album&limit=1&country=KR&lang=ko_kr`,
+  `https://itunes.apple.com/lookup?id=${id}&entity=album&limit=1`,
+];
+
+async function lookupAlbumFromItunes(collectionId: number): Promise<{
+  collectionId: number;
+  artistId: number | null;
+  collectionName: string;
+  artistName: string;
+  artworkUrl100?: string;
+  primaryGenreName?: string;
+  releaseDate?: string;
+} | null> {
+  for (const url of ITUNES_LOOKUP_URLS(collectionId)) {
+    try {
+      const res = await fetch(url, FETCH_OPTIONS);
+      if (!res.ok) continue;
+      const data = (await res.json()) as { results?: Array<Record<string, unknown>> };
+      const first = data.results?.[0] as Record<string, unknown> | undefined;
+      const id = first?.collectionId as number | undefined;
+      if (id !== collectionId || !first?.collectionName || !first?.artistName) continue;
+      return {
+        collectionId: id,
+        artistId:
+          typeof first.artistId === "number" && Number.isFinite(first.artistId)
+            ? first.artistId
+            : null,
+        collectionName: String(first.collectionName),
+        artistName: String(first.artistName),
+        artworkUrl100: first.artworkUrl100 as string | undefined,
+        primaryGenreName: first.primaryGenreName as string | undefined,
+        releaseDate: first.releaseDate as string | undefined,
+      };
+    } catch {
+      continue;
+    }
+  }
+  return null;
+}
+
 export async function getAlbumByCollectionId(
   collectionId: number
 ): Promise<{
   collectionId: number;
+  artistId: string | null;
   title: string;
   artist: string;
   imageUrl: string | null;
   releaseDate: string;
   genre: string;
 } | null> {
-  try {
-    const url = `https://itunes.apple.com/lookup?id=${collectionId}&country=KR&lang=ko_kr`;
-    const response = await fetch(url, FETCH_OPTIONS);
-    if (!response.ok) return null;
-    const data = (await response.json()) as iTunesLookupResponse;
-    const results = data.results ?? [];
-    const album = results[0] as iTunesAlbum | undefined;
-    if (!album?.collectionId || !album.collectionName || !album.artistName)
-      return null;
-    const releaseDate = album.releaseDate
-      ? album.releaseDate.slice(0, 10)
-      : "";
-    return {
-      collectionId: album.collectionId,
-      title: album.collectionName,
-      artist: album.artistName,
-      imageUrl: album.artworkUrl100 ? getLargeImageUrl(album.artworkUrl100) : null,
-      releaseDate,
-      genre: album.primaryGenreName ?? "",
-    };
-  } catch {
-    return null;
-  }
+  const raw = await lookupAlbumFromItunes(collectionId);
+  if (!raw) return null;
+  return {
+    collectionId: raw.collectionId,
+    artistId: raw.artistId != null ? String(raw.artistId) : null,
+    title: raw.collectionName,
+    artist: raw.artistName,
+    imageUrl: getLargeImageUrl(raw.artworkUrl100) ?? null,
+    releaseDate: raw.releaseDate?.slice(0, 10) ?? "",
+    genre: raw.primaryGenreName ?? "",
+  };
 }
 
 export async function searchArtists(term: string, limit: number = 20): Promise<iTunesArtist[]> {

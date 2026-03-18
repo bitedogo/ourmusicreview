@@ -1,47 +1,8 @@
 import { initializeDatabase } from "@/src/lib/db";
 import { Review } from "@/src/lib/db/entities/Review";
 import { Album } from "@/src/lib/db/entities/Album";
-import { getLargeImageUrl } from "@/src/lib/itunes";
+import { getAlbumByCollectionId } from "@/src/lib/itunes";
 import { apiError, apiOk } from "@/src/lib/http/response";
-
-async function fetchAlbumFromItunes(albumId: string): Promise<{
-  albumId: string;
-  artistId: string | null;
-  title: string;
-  artist: string;
-  imageUrl: string | null;
-  genre: string | null;
-} | null> {
-  const idNum = parseInt(albumId, 10);
-  if (!Number.isFinite(idNum)) return null;
-  const url = `https://itunes.apple.com/lookup?id=${idNum}&entity=album&limit=1&country=KR`;
-  const res = await fetch(url, { headers: { Accept: "application/json" }, next: { revalidate: 3600 } });
-  if (!res.ok) return null;
-  const data = (await res.json()) as {
-    resultCount: number;
-    results?: Array<{
-      collectionId: number;
-      artistId?: number;
-      collectionName: string;
-      artistName: string;
-      artworkUrl100?: string;
-      primaryGenreName?: string;
-    }>;
-  };
-  const first = data.results?.[0];
-  if (!first || first.collectionId !== idNum) return null;
-  return {
-    albumId: String(first.collectionId),
-    artistId:
-      typeof first.artistId === "number" && Number.isFinite(first.artistId)
-        ? String(first.artistId)
-        : null,
-    title: first.collectionName ?? "",
-    artist: first.artistName ?? "",
-    imageUrl: getLargeImageUrl(first.artworkUrl100) ?? null,
-    genre: first.primaryGenreName?.trim() || null,
-  };
-}
 
 export async function GET(
   request: Request,
@@ -62,12 +23,24 @@ export async function GET(
       where: { albumId },
     });
 
-    const itunesAlbum = await fetchAlbumFromItunes(albumId);
+    const idNum = parseInt(albumId, 10);
+    const itunesAlbum =
+      Number.isFinite(idNum) ? await getAlbumByCollectionId(idNum) : null;
+    const albumForResponse = itunesAlbum
+      ? {
+          albumId: String(itunesAlbum.collectionId),
+          artistId: itunesAlbum.artistId,
+          title: itunesAlbum.title,
+          artist: itunesAlbum.artist,
+          imageUrl: itunesAlbum.imageUrl,
+          genre: itunesAlbum.genre || null,
+        }
+      : null;
 
     if (!album) {
-      if (itunesAlbum) {
+      if (albumForResponse) {
         return apiOk({
-          album: itunesAlbum,
+          album: albumForResponse,
           reviews: [],
         });
       }
@@ -83,11 +56,11 @@ export async function GET(
     return apiOk({
       album: {
         albumId: album.albumId,
-        artistId: itunesAlbum?.artistId ?? null,
+        artistId: albumForResponse?.artistId ?? null,
         title: album.title,
         artist: album.artist,
         imageUrl: album.imageUrl,
-        genre: itunesAlbum?.genre ?? null,
+        genre: albumForResponse?.genre ?? null,
       },
       reviews: reviews.map((review) => ({
         id: review.id,
