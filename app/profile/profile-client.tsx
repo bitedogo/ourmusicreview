@@ -1,16 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { fetchJson } from "@/src/lib/http/client";
-import { getReviewStatus } from "@/src/lib/review/status";
+import { MyPicksSection } from "./my-picks-section";
 
 interface ProfileClientProps {
   id: string;
   nickname: string;
+  name: string | null;
+  gender: "MALE" | "FEMALE" | "NONE" | null;
   role: "USER" | "ADMIN";
   createdAtText: string;
   profileImage: string | null;
@@ -60,9 +61,17 @@ interface FavoriteAlbumsResponse {
   };
 }
 
+const GENDER_LABEL: Record<string, string> = {
+  MALE: "남성",
+  FEMALE: "여성",
+  NONE: "-",
+};
+
 export function ProfileClient({
   id,
   nickname,
+  name,
+  gender,
   role,
   createdAtText,
   profileImage,
@@ -72,8 +81,6 @@ export function ProfileClient({
   const [favoriteAlbums, setFavoriteAlbums] = useState<FavoriteAlbum[]>([]);
   const [isLoadingFavorites, setIsLoadingFavorites] = useState(false);
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
-  const router = useRouter();
-  const resolvedReviews = myReviews;
 
   async function handleDeleteAccount() {
     if (!confirm("정말로 계정을 삭제하시겠습니까?\n\n삭제된 계정은 복구할 수 없으며, 작성한 리뷰·댓글 등 모든 데이터가 삭제됩니다.")) {
@@ -94,8 +101,6 @@ export function ProfileClient({
       }
 
       await signOut({ callbackUrl: "/" });
-      router.push("/");
-      router.refresh();
     } catch {
       alert("계정 삭제 중 오류가 발생했습니다.");
     } finally {
@@ -136,159 +141,161 @@ export function ProfileClient({
   }, []);
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 px-3 py-3 sm:px-6 sm:py-4 md:h-[calc(100vh-120px)] md:min-h-0 md:gap-6 md:overflow-hidden md:px-10">
-      <div className="flex items-center justify-between shrink-0">
-        <h1 className="text-lg font-semibold tracking-tight text-zinc-900 md:text-xl">
-          마이페이지
-        </h1>
-        <div className="flex items-center gap-3 md:gap-4">
-          <Link
-            href="/profile/edit"
-            className="text-[10px] font-medium text-zinc-500 hover:text-[var(--color-brand-primary)] md:text-xs"
-          >
-            내 정보 수정
-          </Link>
+    <div className="min-h-screen">
+      <div className="mx-auto max-w-5xl px-3 py-6 sm:px-6 sm:py-8 md:px-10">
+        <div className="mb-6 flex items-center justify-between">
+          <h1 className="text-xl font-semibold tracking-tight text-zinc-900 md:text-2xl">
+            마이페이지
+          </h1>
           {role !== "ADMIN" && (
             <button
               type="button"
               onClick={handleDeleteAccount}
               disabled={isDeletingAccount}
-              className="text-[10px] font-medium text-red-600 hover:text-[var(--color-brand-primary)] disabled:cursor-not-allowed disabled:opacity-50 md:text-xs"
+              className="text-xs font-medium text-red-600 hover:underline disabled:opacity-50"
             >
               {isDeletingAccount ? "처리 중..." : "계정삭제"}
             </button>
           )}
         </div>
-      </div>
 
-      <div className="flex flex-1 flex-col gap-4 overflow-hidden md:flex-row md:gap-10">
-        <aside className="flex shrink-0 flex-col items-center justify-center border-zinc-100 md:w-1/2 md:border-r md:pr-10">
-          <div className="w-full max-w-full sm:max-w-md md:max-w-md">
-            <div className="flex flex-row items-center gap-4 md:flex-col md:items-center md:gap-10">
-              <div className="h-28 w-28 shrink-0 overflow-hidden rounded-full border-2 border-white bg-zinc-100 shadow-md md:h-48 md:w-48 md:border-4">
+        <div className="mb-6 overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm">
+          <div className="flex flex-col md:flex-row">
+            <div className="flex flex-col items-center gap-4 border-b border-zinc-100 p-6 md:w-64 md:flex-shrink-0 md:border-b-0 md:border-r md:border-zinc-100">
+              <div className="h-24 w-24 shrink-0 overflow-hidden rounded-full border-2 border-zinc-100 bg-zinc-100 shadow-sm md:h-28 md:w-28">
                 {profileImage ? (
                   <Image
                     src={profileImage}
                     alt={nickname}
-                    width={192}
-                    height={192}
+                    width={112}
+                    height={112}
                     unoptimized
                     className="h-full w-full object-cover"
                   />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center text-[10px] font-bold uppercase text-zinc-400 md:text-xs">
+                  <div className="flex h-full w-full items-center justify-center text-xs font-bold uppercase text-zinc-400">
                     No Image
                   </div>
                 )}
               </div>
+              <div className="text-center">
+                <p className="text-base font-bold text-zinc-900 md:text-lg">{nickname}</p>
+                <p className="mt-0.5 truncate text-xs text-zinc-500">{id}</p>
+              </div>
+              <div className="grid w-full grid-cols-2 gap-3">
+                <div className="rounded-lg bg-zinc-50 px-3 py-2 text-center">
+                  <p className="text-lg font-bold text-zinc-900">{myReviews.length}</p>
+                  <p className="text-[10px] font-medium text-zinc-500">리뷰</p>
+                </div>
+                <div className="rounded-lg bg-zinc-50 px-3 py-2 text-center">
+                  <p className="text-lg font-bold text-zinc-900">{favoriteAlbums.length}</p>
+                  <p className="text-[10px] font-medium text-zinc-500">좋아요</p>
+                </div>
+              </div>
+              <Link
+                href="/profile/edit"
+                className="w-full rounded-lg bg-[var(--color-brand-primary)] px-4 py-2.5 text-center text-sm font-medium text-white transition hover:bg-[var(--color-brand-primary-hover)]"
+              >
+                내 정보 수정
+              </Link>
+            </div>
 
-              <div className="min-w-0 flex-1 space-y-2 md:w-full md:flex-none md:space-y-6">
-                <div className="flex items-center justify-between gap-2 border-b border-zinc-100 pb-2 md:pb-4">
-                  <span className="shrink-0 text-[10px] font-bold uppercase tracking-wide text-zinc-400 md:text-xs md:tracking-widest">아이디</span>
-                  <span className="min-w-0 truncate text-right text-xs font-bold text-zinc-900 md:text-lg">{id}</span>
+            <div className="flex flex-col gap-6 p-6">
+              <div className="grid grid-cols-2 gap-x-10 gap-y-6 sm:grid-cols-4">
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">이름</p>
+                  <p className="mt-1.5 truncate text-sm font-medium text-zinc-900">{name ?? "-"}</p>
                 </div>
-                <div className="flex items-center justify-between gap-2 border-b border-zinc-100 pb-2 md:pb-4">
-                  <span className="shrink-0 text-[10px] font-bold uppercase tracking-wide text-zinc-400 md:text-xs md:tracking-widest">닉네임</span>
-                  <span className="min-w-0 truncate text-right text-xs font-bold text-zinc-900 md:text-lg">{nickname}</span>
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">성별</p>
+                  <p className="mt-1.5 text-sm font-medium text-zinc-900">{gender ? GENDER_LABEL[gender] ?? gender : "-"}</p>
                 </div>
-                <div className="flex items-center justify-between gap-2 border-b border-zinc-100 pb-2 md:pb-4">
-                  <span className="shrink-0 text-[10px] font-bold uppercase tracking-wide text-zinc-400 md:text-xs md:tracking-widest">권한</span>
-                  <span className="rounded-full bg-black px-2.5 py-0.5 text-[10px] font-black text-white md:px-4 md:py-1 md:text-xs">
-                    {role}
-                  </span>
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">닉네임</p>
+                  <p className="mt-1.5 truncate text-sm font-medium text-zinc-900">{nickname}</p>
                 </div>
-                <div className="flex items-center justify-between gap-2">
-                  <span className="shrink-0 text-[10px] font-bold uppercase tracking-wide text-zinc-400 md:text-xs md:tracking-widest">가입일</span>
-                  <span className="min-w-0 truncate text-right text-[11px] font-medium text-zinc-600 md:text-sm">{createdAtText}</span>
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">아이디</p>
+                  <p className="mt-1.5 truncate text-sm font-medium text-zinc-900">{id}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">권한</p>
+                  <p className="mt-1.5 text-sm font-medium text-zinc-900">{role}</p>
+                </div>
+                <div className="col-span-2 sm:col-span-4">
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">가입일</p>
+                  <p className="mt-1.5 truncate text-sm font-medium text-zinc-600">{createdAtText}</p>
+                </div>
+              </div>
+              <div className="border-t border-zinc-100 pt-5">
+                <p className="mb-3 text-[10px] font-semibold uppercase tracking-wider text-zinc-400">나의 활동</p>
+                <div className="flex flex-wrap gap-2">
+                  <Link
+                    href="/profile/posts"
+                    className="whitespace-nowrap rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-2.5 text-sm font-medium text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-100 hover:text-[var(--color-brand-primary)]"
+                  >
+                    내가 쓴 게시글
+                  </Link>
+                  <Link
+                    href="/profile/comments"
+                    className="whitespace-nowrap rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-2.5 text-sm font-medium text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-100 hover:text-[var(--color-brand-primary)]"
+                  >
+                    내가 쓴 댓글
+                  </Link>
                 </div>
               </div>
             </div>
           </div>
-        </aside>
+        </div>
 
-        <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden md:w-1/2 md:gap-6">
-          <section className="flex shrink-0 flex-col space-y-2 md:space-y-3">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xs font-semibold tracking-tight text-zinc-900 md:text-sm">
-                나의 활동
-              </h2>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <Link
-                href="/profile/posts"
-                className="rounded-lg border border-zinc-200 bg-white px-3 py-2 text-center text-[11px] font-medium text-zinc-700 transition hover:border-zinc-300 hover:text-[var(--color-brand-primary)]"
-              >
-                내가 쓴 게시글
-              </Link>
-              <Link
-                href="/profile/comments"
-                className="rounded-lg border border-zinc-200 bg-white px-3 py-2 text-center text-[11px] font-medium text-zinc-700 transition hover:border-zinc-300 hover:text-[var(--color-brand-primary)]"
-              >
-                내가 쓴 댓글
-              </Link>
-            </div>
-          </section>
-
-          <section className="flex shrink-0 flex-col space-y-2 md:space-y-3">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xs font-semibold tracking-tight text-zinc-900 md:text-sm">나의 리뷰</h2>
+        <div className="flex flex-col gap-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <section className="overflow-hidden rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-sm font-semibold tracking-tight text-zinc-900">나의 리뷰</h2>
               <Link
                 href="/profile/reviews"
-                className="text-[10px] font-medium text-zinc-400 hover:text-[var(--color-brand-primary)]"
+                className="text-xs font-medium text-zinc-500 hover:text-[var(--color-brand-primary)]"
               >
                 전체보기
               </Link>
             </div>
 
-            <div className="space-y-1.5 md:space-y-2">
+            <div className="space-y-2">
               {isLoadingReviews ? (
                 <p className="text-xs text-zinc-500">불러오는 중...</p>
-              ) : resolvedReviews.length === 0 ? (
+              ) : myReviews.length === 0 ? (
                 <p className="text-xs text-zinc-500">작성한 리뷰가 없습니다.</p>
               ) : (
-                resolvedReviews.slice(0, 3).map((review) => {
-                  const reviewStatus = getReviewStatus(review);
-
-                  return (
+                myReviews.slice(0, 5).map((review) => (
                     <div
                       key={review.id}
-                      className="rounded-xl border border-zinc-100 bg-white p-2 md:p-2.5"
+                      className="rounded-xl border border-zinc-100 bg-zinc-50 p-3 transition hover:bg-zinc-100"
                     >
-                      <div className="flex items-center gap-2 md:gap-3">
+                      <div className="flex items-center gap-3">
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-[9px] font-bold uppercase text-zinc-400 md:text-[9px]">{review.album?.artist}</p>
-                          <p className="truncate text-[11px] font-bold text-zinc-900 md:text-xs">{review.album?.title}</p>
+                          <p className="truncate text-[10px] font-medium uppercase text-zinc-500">{review.album?.artist}</p>
+                          <p className="truncate text-sm font-semibold text-zinc-900">{review.album?.title}</p>
                         </div>
-                        <span
-                          className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${
-                            reviewStatus === "approved"
-                              ? "bg-emerald-100 text-emerald-700"
-                              : reviewStatus === "rejected"
-                                ? "bg-rose-100 text-rose-700"
-                                : "bg-yellow-100 text-yellow-800"
-                          }`}
-                        >
-                          {reviewStatus === "approved"
-                            ? "승인"
-                            : reviewStatus === "rejected"
-                              ? "반려"
-                              : "대기중"}
-                        </span>
-                        <span className={`shrink-0 text-xs font-black ${review.rating >= 9 ? "text-red-600" : "text-zinc-900"}`}>{review.rating.toFixed(1)}</span>
+                        {review.rejectReason && (
+                          <span className="shrink-0 rounded-full bg-rose-100 px-2.5 py-0.5 text-[10px] font-semibold text-rose-700">
+                            반려
+                          </span>
+                        )}
+                        <span className={`shrink-0 text-sm font-bold ${review.rating >= 9 ? "text-red-600" : "text-zinc-900"}`}>{review.rating.toFixed(1)}</span>
                       </div>
                     </div>
-                  );
-                })
+                  ))
               )}
             </div>
           </section>
 
-          <section className="flex min-h-0 flex-1 flex-col space-y-2 overflow-hidden md:space-y-3">
-            <div className="flex items-center justify-between shrink-0">
-              <h2 className="text-xs font-semibold tracking-tight text-zinc-900 md:text-sm">좋아하는 앨범</h2>
+          <section className="overflow-hidden rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-sm font-semibold tracking-tight text-zinc-900">좋아하는 앨범</h2>
               <Link
                 href="/profile/albums"
-                className="text-[10px] font-medium text-zinc-400 hover:text-[var(--color-brand-primary)]"
+                className="text-xs font-medium text-zinc-500 hover:text-[var(--color-brand-primary)]"
               >
                 전체보기
               </Link>
@@ -299,65 +306,45 @@ export function ProfileClient({
             ) : favoriteAlbums.length === 0 ? (
               <p className="text-xs text-zinc-500">좋아요한 앨범이 없습니다.</p>
             ) : (
-              <>
-                <div className="grid grid-cols-4 gap-2 md:hidden">
-                  {favoriteAlbums.slice(0, 4).map((fav) => (
-                    <Link
-                      key={fav.id}
-                      href={`/review/album/${encodeURIComponent(fav.albumId || (fav.album?.albumId ?? ""))}`}
-                      className="flex min-w-0 flex-col gap-1.5 rounded-lg border border-zinc-100 bg-white p-2 transition hover:border-zinc-300"
-                    >
-                      {fav.album?.imageUrl ? (
-                        <Image
-                          src={fav.album.imageUrl}
-                          className="aspect-square w-full rounded-md object-cover"
-                          alt={fav.album?.title ?? "앨범 커버"}
-                          width={100}
-                          height={100}
-                          unoptimized
-                        />
-                      ) : (
-                        <div className="aspect-square w-full rounded-md bg-zinc-100" />
-                      )}
-                      <div className="min-h-[2.5rem] min-w-0 space-y-0.5 text-center">
-                        <p className="line-clamp-2 w-full text-[10px] font-semibold leading-tight text-zinc-900">
-                          {fav.album?.title ?? ""}
+              <div className="grid grid-cols-3 grid-rows-2 gap-3">
+                {favoriteAlbums.slice(0, 6).map((fav) => (
+                  <Link
+                    key={fav.id}
+                    href={`/review/album/${encodeURIComponent(fav.albumId || (fav.album?.albumId ?? ""))}`}
+                    className="flex min-w-0 flex-col gap-2 rounded-xl border border-zinc-100 bg-zinc-50 p-2 transition hover:border-zinc-200 hover:bg-zinc-100"
+                  >
+                    {fav.album?.imageUrl ? (
+                      <Image
+                        src={fav.album.imageUrl}
+                        className="aspect-square w-full rounded-md object-cover"
+                        alt={fav.album?.title ?? "앨범 커버"}
+                        width={100}
+                        height={100}
+                        unoptimized
+                      />
+                    ) : (
+                      <div className="aspect-square w-full rounded-md bg-zinc-100" />
+                    )}
+                    <div className="min-h-[2rem] min-w-0 space-y-0.5 text-center">
+                      <p className="line-clamp-2 w-full text-[10px] font-semibold leading-tight text-zinc-900">
+                        {fav.album?.title ?? ""}
+                      </p>
+                      {fav.album?.artist && (
+                        <p className="w-full truncate text-[9px] text-zinc-500">
+                          {fav.album.artist}
                         </p>
-                        {fav.album?.artist && (
-                          <p className="w-full truncate text-[9px] text-zinc-500">
-                            {fav.album.artist}
-                          </p>
-                        )}
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-                <div className="hidden flex-1 grid-cols-2 grid-rows-4 gap-2 pb-2 md:grid">
-                  {favoriteAlbums.slice(0, 8).map((fav) => (
-                    <Link
-                      key={fav.id}
-                      href={`/review/album/${encodeURIComponent(fav.albumId || (fav.album?.albumId ?? ""))}`}
-                      className="flex h-full items-center gap-2 rounded-xl border border-zinc-100 bg-white p-2 transition hover:border-zinc-300"
-                    >
-                      {fav.album?.imageUrl && (
-                        <Image
-                          src={fav.album.imageUrl}
-                          className="h-8 w-8 shrink-0 rounded-md object-contain"
-                          alt={fav.album?.title ?? "앨범 커버"}
-                          width={32}
-                          height={32}
-                          unoptimized
-                        />
                       )}
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-xs font-bold text-zinc-900">{fav.album?.title}</p>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </>
+                    </div>
+                  </Link>
+                ))}
+              </div>
             )}
           </section>
+          </div>
+
+          <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm md:p-8">
+            <MyPicksSection />
+          </div>
         </div>
       </div>
     </div>

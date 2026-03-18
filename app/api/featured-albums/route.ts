@@ -1,18 +1,39 @@
 import { In } from "typeorm";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/src/lib/auth/config";
 import { initializeDatabase } from "@/src/lib/db";
 import { FeaturedSlideAlbum } from "@/src/lib/db/entities/FeaturedSlideAlbum";
+import { UserSlideAlbum } from "@/src/lib/db/entities/UserSlideAlbum";
 import { Review } from "@/src/lib/db/entities/Review";
-import { noStoreJson, publicCachedJson } from "@/src/lib/http/cache";
+import { noStoreJson } from "@/src/lib/http/cache";
+
+const MIN_FOR_USER_SLIDE = 15;
 
 export async function GET() {
   try {
+    const session = await getServerSession(authOptions);
+    const userId = session?.user?.id;
+
     const dataSource = await initializeDatabase();
-    const slideRepo = dataSource.getRepository(FeaturedSlideAlbum);
+    const featuredRepo = dataSource.getRepository(FeaturedSlideAlbum);
+    const userSlideRepo = dataSource.getRepository(UserSlideAlbum);
     const reviewRepo = dataSource.getRepository(Review);
 
-    const rows = await slideRepo.find({
-      order: { position: "ASC" },
-    });
+    let rows: { collectionId: string; title: string; artist: string; imageUrl?: string; releaseDate?: string; genre?: string }[];
+
+    if (userId) {
+      const userRows = await userSlideRepo.find({
+        where: { userId },
+        order: { position: "ASC" },
+      });
+      if (userRows.length >= MIN_FOR_USER_SLIDE) {
+        rows = userRows;
+      } else {
+        rows = await featuredRepo.find({ order: { position: "ASC" } });
+      }
+    } else {
+      rows = await featuredRepo.find({ order: { position: "ASC" } });
+    }
 
     const collectionIds = rows.map((r) => r.collectionId);
     const ratingsByAlbumId: Record<string, number> = {};
@@ -44,7 +65,7 @@ export async function GET() {
       averageRating: ratingsByAlbumId[row.collectionId] ?? null,
     }));
 
-    return publicCachedJson({ ok: true, albums }, 60, 300);
+    return noStoreJson({ ok: true, albums });
   } catch (error) {
     return noStoreJson(
       {

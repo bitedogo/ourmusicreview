@@ -9,7 +9,6 @@ import { InteractionButtons } from "@/src/components/interaction/InteractionButt
 import { CommentSection } from "@/src/components/interaction/CommentSection";
 import Image from "next/image";
 import { fetchJson, getApiErrorMessage } from "@/src/lib/http/client";
-import { getReviewStatus } from "@/src/lib/review/status";
 
 interface ReviewDetail {
   id: string;
@@ -55,7 +54,6 @@ export function ReviewDetailClient({ reviewId }: { reviewId: string }) {
   const fromReviews = searchParams.get("from") === "reviews";
   const backSort = searchParams.get("sort") || "latest";
   const backPage = searchParams.get("page") || "1";
-  const isResubmittedPending = searchParams.get("resubmitted") === "1";
   const { data: session } = useSession();
   const [review, setReview] = useState<ReviewDetail | null>(null);
   const [averageRating, setAverageRating] = useState<number | null>(null);
@@ -136,7 +134,6 @@ export function ReviewDetailClient({ reviewId }: { reviewId: string }) {
     );
   }
 
-  const reviewStatus = getReviewStatus(review);
   const albumGenreLabel = review.album.genre?.trim() || "장르 정보 없음";
 
   const formatDate = (dateString: string) => {
@@ -281,19 +278,9 @@ export function ReviewDetailClient({ reviewId }: { reviewId: string }) {
           </div>
         )}
 
-        {reviewStatus !== "approved" && (
-          <div
-            className={`mt-4 rounded-lg px-3 py-2 text-xs ${
-              reviewStatus === "rejected"
-                ? "border border-rose-200 bg-rose-50 text-rose-900"
-                : "border border-yellow-200 bg-yellow-50 text-yellow-900"
-            }`}
-          >
-            {reviewStatus === "rejected"
-              ? `반려 사유: ${review.rejectReason}`
-              : isResubmittedPending
-                ? "다시 승인 대기 상태로 전환되었습니다."
-                : "이 리뷰는 아직 승인 대기 중입니다."}
+        {review.rejectReason && (
+          <div className="mt-4 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-900">
+            반려 사유: {review.rejectReason}
           </div>
         )}
       </div>

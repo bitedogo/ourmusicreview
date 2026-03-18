@@ -10,7 +10,6 @@ import {
   getApiErrorMessage,
 } from "@/src/lib/http/client";
 import { getHtmlPlainText } from "@/src/lib/utils/editor";
-import { getReviewStatus } from "@/src/lib/review/status";
 
 interface MyReview {
   id: string;
@@ -102,10 +101,7 @@ export default function MyReviewsPage() {
         </div>
       ) : (
         <div className="space-y-4">
-          {reviews.map((review) => {
-            const reviewStatus = getReviewStatus(review);
-
-            return (
+          {reviews.map((review) => (
             <Link
               key={review.id}
               href={`/review/${encodeURIComponent(review.id)}`}
@@ -151,21 +147,13 @@ export default function MyReviewsPage() {
                         day: "numeric",
                       })}
                     </span>
-                    {reviewStatus === "approved" ? (
-                      <span className="rounded-full bg-emerald-100 px-2 py-0.5 font-medium text-emerald-700">
-                        승인
-                      </span>
-                    ) : reviewStatus === "rejected" ? (
+                    {review.rejectReason && (
                       <span className="rounded-full bg-rose-100 px-2 py-0.5 font-medium text-rose-700">
                         반려
                       </span>
-                    ) : (
-                      <span className="rounded-full bg-yellow-100 px-2 py-0.5 font-medium text-yellow-800">
-                        승인 대기중
-                      </span>
                     )}
                   </div>
-                  {reviewStatus === "rejected" && review.rejectReason && (
+                  {review.rejectReason && (
                     <div className="mt-1 rounded-lg bg-rose-50 px-2.5 py-2 text-[11px] leading-relaxed text-rose-800">
                       반려 사유: {review.rejectReason}
                     </div>
@@ -176,8 +164,7 @@ export default function MyReviewsPage() {
                 </div>
               </div>
             </Link>
-            );
-          })}
+          ))}
         </div>
       )}
     </div>

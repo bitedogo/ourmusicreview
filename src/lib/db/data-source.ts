@@ -10,6 +10,7 @@ import { Like } from "./entities/Like";
 import { Report } from "./entities/Report";
 import { TodayAlbum } from "./entities/TodayAlbum";
 import { FeaturedSlideAlbum } from "./entities/FeaturedSlideAlbum";
+import { UserSlideAlbum } from "./entities/UserSlideAlbum";
 import { Faq } from "./entities/Faq";
 import { getServerEnv } from "@/src/lib/env";
 
@@ -20,7 +21,7 @@ export const AppDataSource = new DataSource({
   url: databaseUrl,
   synchronize: false,
   logging: nodeEnv === "development",
-  entities: [User, Album, Review, Post, UserFavoriteAlbum, Comment, Like, Report, TodayAlbum, FeaturedSlideAlbum, Faq],
+  entities: [User, Album, Review, Post, UserFavoriteAlbum, Comment, Like, Report, TodayAlbum, FeaturedSlideAlbum, UserSlideAlbum, Faq],
   ssl:
     databaseUrl.includes("localhost") || databaseUrl.includes("placeholder")
       ? false

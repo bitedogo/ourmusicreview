@@ -36,6 +36,8 @@ export default async function ProfilePage() {
     <ProfileClient
       id={user.id}
       nickname={user.nickname}
+      name={user.name ?? null}
+      gender={user.gender ?? null}
       role={user.role}
       createdAtText={createdAtText}
       profileImage={user.profileImage ?? null}

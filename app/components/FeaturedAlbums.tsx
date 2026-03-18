@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useSession } from "next-auth/react";
 
 interface FeaturedAlbum {
   collectionId: number;
@@ -14,30 +15,42 @@ interface FeaturedAlbum {
   averageRating: number | null;
 }
 
+function getReleaseYear(releaseDate: string): string {
+  if (!releaseDate) return "";
+  try {
+    return new Date(releaseDate).getFullYear().toString();
+  } catch {
+    return "";
+  }
+}
 
 export default function FeaturedAlbums() {
+  const { data: session, status } = useSession();
   const [albums, setAlbums] = useState<FeaturedAlbum[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchAlbums() {
+    if (status === "loading") return;
+
+    setIsLoading(true);
+    (async () => {
       try {
-        const response = await fetch("/api/featured-albums");
-        if (!response.ok) {
-          throw new Error("Failed to fetch featured albums");
-        }
-        const data = await response.json().catch(() => null);
+        const res = await fetch("/api/featured-albums", {
+          credentials: "include",
+          cache: "no-store",
+        });
+        if (!res.ok) throw new Error("Failed to fetch");
+        const data = await res.json().catch(() => null);
         if (data?.ok && Array.isArray(data?.albums)) {
           setAlbums(data.albums);
         }
       } catch {
+        setAlbums([]);
       } finally {
         setIsLoading(false);
       }
-    }
-
-    fetchAlbums();
-  }, []);
+    })();
+  }, [status, session?.user?.id]);
 
   if (isLoading) {
     return (
@@ -49,30 +62,18 @@ export default function FeaturedAlbums() {
     );
   }
 
-  if (albums.length === 0) {
-    return null;
-  }
-
-  const getReleaseYear = (releaseDate: string): string => {
-    if (!releaseDate) return "";
-    try {
-      const date = new Date(releaseDate);
-      return date.getFullYear().toString();
-    } catch {
-      return "";
-    }
-  };
+  if (albums.length === 0) return null;
 
   const duplicatedAlbums = [...albums, ...albums];
 
   return (
     <section className="relative left-1/2 mt-[6px] w-screen max-w-none -translate-x-1/2">
-        <div className="relative overflow-hidden">
+      <div className="relative overflow-hidden">
         <div className="group flex flex-nowrap items-stretch animate-marquee-force">
           {duplicatedAlbums.map((album, index) => (
             <Link
               key={`${album.collectionId}-${index}`}
-              href={`/review/album/${encodeURIComponent(album.collectionId.toString())}`}
+              href={`/review/album/${album.collectionId}`}
               className="flex w-48 shrink-0 flex-col sm:w-56 mx-3 rounded-xl bg-white shadow-sm overflow-hidden transition-transform duration-300 hover:scale-105"
             >
               <div className="relative aspect-square bg-zinc-100 rounded-t-xl overflow-hidden">
