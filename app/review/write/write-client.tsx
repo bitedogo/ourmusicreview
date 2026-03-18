@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useRef } from "react";
 import { TuiEditor, TuiEditorRef } from "@/src/components/common/TuiEditor";
+import { isEditorContentEmpty } from "@/src/lib/utils/editor";
 import Image from "next/image";
 import { ApiClientError, fetchJson, getApiErrorMessage } from "@/src/lib/http/client";
 
@@ -40,7 +41,7 @@ export function ReviewWriteClient() {
     const htmlContent = editorRef.current?.getHTML() || "";
     const trimmedContent = htmlContent.trim();
 
-    if (!trimmedContent || trimmedContent === "<p><br></p>") {
+    if (isEditorContentEmpty(trimmedContent)) {
       setErrorMessage("리뷰 내용을 입력해주세요.");
       setIsSubmitting(false);
       return;

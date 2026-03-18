@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { getReviewPreviewText } from "@/src/lib/utils/editor";
 
 type SortType = "latest" | "likes" | "comments";
 type SearchField = "artist" | "album" | "author";
@@ -240,13 +241,13 @@ export function AlbumReviewsClient() {
                       })}
                     </span>
                     {review.user && (
-                      <span className="font-medium text-zinc-600">{review.user.nickname}</span>
+                      <span className="font-semibold text-zinc-600">{review.user.nickname}</span>
                     )}
                     <span>좋아요 {review.likeCount}</span>
                     <span>댓글 {review.commentCount}</span>
                   </div>
-                  <p className="mt-2 line-clamp-2 text-sm text-zinc-700">
-                    {(review.content ?? "").replace(/<[^>]*>/g, "").trim() || "내용 없음"}
+                  <p className="mt-2 line-clamp-2 whitespace-pre-line text-sm text-zinc-700">
+                    {getReviewPreviewText(review.content ?? "") || "내용 없음"}
                   </p>
                 </div>
               </div>

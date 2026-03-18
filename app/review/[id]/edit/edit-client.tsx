@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useState, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { TuiEditor, TuiEditorRef } from "@/src/components/common/TuiEditor";
+import { isEditorContentEmpty } from "@/src/lib/utils/editor";
 import Image from "next/image";
 import { fetchJson, getApiErrorMessage } from "@/src/lib/http/client";
 
@@ -71,7 +72,7 @@ export function ReviewEditClient({ reviewId }: { reviewId: string }) {
     const htmlContent = editorRef.current?.getHTML() || "";
     const trimmedContent = htmlContent.trim();
 
-    if (!trimmedContent || trimmedContent === "<p><br></p>") {
+    if (isEditorContentEmpty(trimmedContent)) {
       setErrorMessage("리뷰 내용을 입력해주세요.");
       setIsSubmitting(false);
       return;

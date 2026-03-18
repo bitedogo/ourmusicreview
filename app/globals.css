@@ -5,8 +5,8 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  --color-brand-primary: #283362;
-  --color-brand-primary-hover: #1f274d;
+  --color-brand-primary: #1E264D;
+  --color-brand-primary-hover: #151B38;
 }
 
 @theme inline {
@@ -125,6 +125,32 @@ body {
   object-fit: contain;
   margin: 10px auto;
   border-radius: 8px;
+}
+
+.toastui-editor-contents audio,
+.toastui-editor-main .ProseMirror audio {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  margin: 10px 0;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background-color: transparent;
+  outline: none;
+  box-shadow: none;
+}
+
+.toastui-editor-contents audio::-webkit-media-controls-panel,
+.toastui-editor-main .ProseMirror audio::-webkit-media-controls-panel {
+  background-color: #e9edf7;
+}
+
+.toastui-editor-contents audio::-webkit-media-controls-enclosure,
+.toastui-editor-main .ProseMirror audio::-webkit-media-controls-enclosure {
+  border: none;
+  box-shadow: none;
+  background: transparent;
 }
 
 @media (max-width: 639px) {

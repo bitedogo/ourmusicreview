@@ -379,7 +379,7 @@ export default function SignupPage() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="inline-flex w-full items-center justify-center rounded-full bg-black px-4 py-2.5 text-sm font-medium text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:bg-zinc-400"
+          className="inline-flex w-full items-center justify-center rounded-full bg-[var(--color-brand-primary)] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[var(--color-brand-primary-hover)] disabled:cursor-not-allowed disabled:bg-zinc-400"
         >
           {isSubmitting ? "처리 중..." : "회원가입"}
         </button>
@@ -387,7 +387,7 @@ export default function SignupPage() {
 
       <p className="mt-6 text-sm text-zinc-600">
         이미 계정이 있나요?{" "}
-        <Link className="font-medium text-black underline" href="/auth/signin">
+        <Link className="font-medium text-[var(--color-brand-primary)] underline" href="/auth/signin">
           로그인
         </Link>
       </p>

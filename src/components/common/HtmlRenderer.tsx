@@ -35,6 +35,8 @@ export function HtmlRenderer({ html, className = "" }: HtmlRendererProps) {
           "code",
           "a",
           "img",
+          "audio",
+          "source",
           "table",
           "thead",
           "tbody",
@@ -54,11 +56,20 @@ export function HtmlRenderer({ html, className = "" }: HtmlRendererProps) {
           "style",
           "width",
           "height",
+          "controls",
+          "preload",
+          "type",
         ],
         ALLOW_DATA_ATTR: false,
       });
 
       containerRef.current.innerHTML = sanitizedHtml;
+      const audioElements = containerRef.current.querySelectorAll("audio");
+      for (const audioElement of audioElements) {
+        if (audioElement.getAttribute("preload") !== "metadata") {
+          audioElement.setAttribute("preload", "metadata");
+        }
+      }
     } else if (containerRef.current && !html) {
       containerRef.current.innerHTML = "";
     }

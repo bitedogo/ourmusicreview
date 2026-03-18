@@ -9,6 +9,7 @@ import {
   fetchJson,
   getApiErrorMessage,
 } from "@/src/lib/http/client";
+import { getHtmlPlainText } from "@/src/lib/utils/editor";
 import { getReviewStatus } from "@/src/lib/review/status";
 
 interface MyReview {
@@ -170,7 +171,7 @@ export default function MyReviewsPage() {
                     </div>
                   )}
                   <p className="mt-2 line-clamp-2 text-sm text-zinc-700">
-                    {(review.content ?? "").replace(/<[^>]*>/g, "").trim() || "내용 없음"}
+                    {getHtmlPlainText(review.content ?? "") || "내용 없음"}
                   </p>
                 </div>
               </div>

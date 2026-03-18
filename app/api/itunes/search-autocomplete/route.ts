@@ -1,14 +1,16 @@
 import { apiError, apiOk } from "@/src/lib/http/response";
 
-interface ArtistResultItem {
+interface ItunesArtistResultItem {
   artistId: number;
   artistName: string;
   artworkUrl100?: string;
   primaryGenreName?: string;
 }
 
-function normalizeResults(results: ArtistResultItem[]): ArtistResultItem[] {
-  const byId = new Map<number, ArtistResultItem>();
+function normalizeItunesResults(
+  results: ItunesArtistResultItem[]
+): ItunesArtistResultItem[] {
+  const byId = new Map<number, ItunesArtistResultItem>();
   for (const artist of results) {
     if (!artist.artistId || !artist.artistName) {
       continue;
@@ -34,7 +36,9 @@ export async function GET(request: Request) {
       return apiOk({ results: [] });
     }
 
-    const url = `https://itunes.apple.com/search?term=${encodeURIComponent(term)}&entity=musicArtist&limit=5`;
+    const url = `https://itunes.apple.com/search?term=${encodeURIComponent(
+      term
+    )}&entity=musicArtist&limit=5`;
     const response = await fetch(url, {
       headers: { Accept: "application/json" },
       next: { revalidate: 120 },
@@ -46,14 +50,12 @@ export async function GET(request: Request) {
 
     const data = (await response.json()) as {
       resultCount: number;
-      results: ArtistResultItem[];
+      results: ItunesArtistResultItem[];
     };
-    const results = normalizeResults(data.results ?? []);
+    const results = normalizeItunesResults(data.results ?? []);
 
     return apiOk({ results });
   } catch {
-    return apiError("자동완성 검색 실패", {
-      status: 500,
-    });
+    return apiError("자동완성 검색 실패", { status: 500 });
   }
 }

@@ -1,13 +1,17 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { TuiEditor, TuiEditorRef } from "@/src/components/common/TuiEditor";
 import type { NoticeCategory } from "@/src/lib/community/types";
 import { NOTICE_CATEGORY_OPTIONS } from "@/src/lib/community/notice-category";
+import { isEditorContentEmpty } from "@/src/lib/utils/editor";
+import { isAllowedAudioFile, MAX_AUDIO_SIZE_BYTES } from "@/src/lib/audio";
 
 type Category = "K" | "I" | "M" | "W" | "N";
+
+const VALID_CATEGORIES: Category[] = ["K", "I", "M", "W", "N"];
 
 export function CommunityWriteClient() {
   const router = useRouter();
@@ -18,11 +22,7 @@ export function CommunityWriteClient() {
   const editPostId = searchParams.get("edit");
 
   const hasLockedCategory =
-    initialCategoryParam === "K" ||
-    initialCategoryParam === "I" ||
-    initialCategoryParam === "M" ||
-    initialCategoryParam === "W" ||
-    initialCategoryParam === "N";
+    initialCategoryParam != null && VALID_CATEGORIES.includes(initialCategoryParam as Category);
   const isCategoryLocked = hasLockedCategory || Boolean(editPostId);
   const initialCategory: Category =
     hasLockedCategory
@@ -35,9 +35,19 @@ export function CommunityWriteClient() {
   const [isGlobal, setIsGlobal] = useState(false);
   const [isRelease, setIsRelease] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploadingAudio, setIsUploadingAudio] = useState(false);
   const [isLoading, setIsLoading] = useState(!!editPostId);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const editorRef = useRef<TuiEditorRef>(null);
+  const audioInputRef = useRef<HTMLInputElement>(null);
+  const contentToLoadRef = useRef<string | null>(null);
+
+  const handleEditorReady = useCallback(() => {
+    if (contentToLoadRef.current) {
+      editorRef.current?.setHTML(contentToLoadRef.current);
+      contentToLoadRef.current = null;
+    }
+  }, []);
 
   const isAdmin = (session?.user as { role?: string })?.role === "ADMIN";
 
@@ -62,9 +72,8 @@ export function CommunityWriteClient() {
             data.data.post.category !== "N" &&
               data.data.post.noticeCategory === "RELEASE_NOTE"
           );
-          setTimeout(() => {
-            editorRef.current?.setHTML(data.data.post.content);
-          }, 500);
+          contentToLoadRef.current = data.data.post.content;
+          handleEditorReady();
         } else {
           setErrorMessage("게시글을 불러올 수 없습니다.");
         }
@@ -76,7 +85,7 @@ export function CommunityWriteClient() {
     }
 
     fetchPost();
-  }, [editPostId]);
+  }, [editPostId, handleEditorReady]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -87,7 +96,7 @@ export function CommunityWriteClient() {
     const htmlContent = editorRef.current?.getHTML() || "";
     const trimmedContent = htmlContent.trim();
 
-    if (!trimmedTitle || !trimmedContent || trimmedContent === "<p><br></p>") {
+    if (!trimmedTitle || isEditorContentEmpty(trimmedContent)) {
       setErrorMessage("제목과 내용을 모두 입력해주세요.");
       setIsSubmitting(false);
       return;
@@ -154,6 +163,63 @@ export function CommunityWriteClient() {
       setIsSubmitting(false);
     }
   }
+
+  const handleAudioUpload = useCallback(async (file: File | null) => {
+    if (!file) {
+      return;
+    }
+
+    if (!isAllowedAudioFile(file)) {
+      setErrorMessage("음원 파일은 MP3, WAV만 업로드할 수 있습니다.");
+      if (audioInputRef.current) {
+        audioInputRef.current.value = "";
+      }
+      return;
+    }
+
+    if (file.size > MAX_AUDIO_SIZE_BYTES) {
+      setErrorMessage("음원 파일 용량은 20MB 이하여야 합니다.");
+      if (audioInputRef.current) {
+        audioInputRef.current.value = "";
+      }
+      return;
+    }
+
+    setErrorMessage(null);
+    setIsUploadingAudio(true);
+    try {
+      const formData = new FormData();
+      formData.append("audioFile", file);
+
+      const response = await fetch("/api/upload/audio", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await response.json().catch(() => null);
+      if (!response.ok || !data?.ok || !data?.data?.url) {
+        setErrorMessage(data?.error ?? "음원 업로드에 실패했습니다.");
+        return;
+      }
+
+      const currentHtml = editorRef.current?.getHTML() ?? "";
+      const audioHtml = `<p><audio controls preload="metadata" src="${data.data.url}"></audio></p>`;
+      editorRef.current?.setHTML(`${currentHtml}${audioHtml}`);
+    } catch {
+      setErrorMessage("음원 업로드 중 오류가 발생했습니다.");
+    } finally {
+      setIsUploadingAudio(false);
+      if (audioInputRef.current) {
+        audioInputRef.current.value = "";
+      }
+    }
+  }, []);
+
+  const handleAudioToolClick = useCallback(() => {
+    if (isUploadingAudio) {
+      return;
+    }
+    audioInputRef.current?.click();
+  }, [isUploadingAudio]);
 
   if (isLoading) {
     return (
@@ -318,10 +384,27 @@ export function CommunityWriteClient() {
           <label className="text-xs font-medium text-zinc-600">
             내용
           </label>
+          <input
+            ref={audioInputRef}
+            type="file"
+            accept=".mp3,.wav,audio/mpeg,audio/wav"
+            className="hidden"
+            onChange={(event) => {
+              const selectedFile = event.target.files?.[0] ?? null;
+              void handleAudioUpload(selectedFile);
+            }}
+          />
           <TuiEditor
             ref={editorRef}
             height="400px"
+            showAudioTool={category === "W"}
+            isAudioUploading={isUploadingAudio}
+            onAudioToolClick={handleAudioToolClick}
+            onReady={handleEditorReady}
           />
+          {category === "W" && isUploadingAudio && (
+            <p className="text-xs text-zinc-500">음원 업로드 중...</p>
+          )}
         </div>
 
         {errorMessage && (

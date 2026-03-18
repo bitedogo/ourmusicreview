@@ -211,7 +211,7 @@ export default function SigninPage() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="mt-3 inline-flex h-14 w-full items-center justify-center bg-black px-4 text-lg font-semibold text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:bg-zinc-400"
+          className="mt-3 inline-flex h-14 w-full items-center justify-center bg-[var(--color-brand-primary)] px-4 text-lg font-semibold text-white transition hover:bg-[var(--color-brand-primary-hover)] disabled:cursor-not-allowed disabled:bg-zinc-400"
         >
           {isSubmitting ? "로그인 중..." : "로그인"}
         </button>
@@ -244,7 +244,7 @@ export default function SigninPage() {
                   <button
                     type="button"
                     onClick={closeModal}
-                    className="flex-1 rounded-full bg-black px-4 py-2.5 text-sm font-medium text-white transition hover:bg-zinc-800"
+                    className="flex-1 rounded-full bg-[var(--color-brand-primary)] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[var(--color-brand-primary-hover)]"
                   >
                     확인
                   </button>
@@ -290,7 +290,7 @@ export default function SigninPage() {
                   <button
                     type="submit"
                     disabled={findIdSubmitting}
-                    className="flex-1 rounded-full bg-black px-4 py-2.5 text-sm font-medium text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:bg-zinc-400"
+                    className="flex-1 rounded-full bg-[var(--color-brand-primary)] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[var(--color-brand-primary-hover)] disabled:cursor-not-allowed disabled:bg-zinc-400"
                   >
                     {findIdSubmitting ? "찾는 중..." : "아이디 찾기"}
                   </button>
@@ -330,7 +330,7 @@ export default function SigninPage() {
                 <button
                   type="button"
                   onClick={closeModal}
-                  className="w-full rounded-full bg-black px-4 py-2.5 text-sm font-medium text-white transition hover:bg-zinc-800"
+                  className="w-full rounded-full bg-[var(--color-brand-primary)] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[var(--color-brand-primary-hover)]"
                 >
                   확인
                 </button>
@@ -372,7 +372,7 @@ export default function SigninPage() {
                   <button
                     type="submit"
                     disabled={findPwSubmitting}
-                    className="flex-1 rounded-full bg-black px-4 py-2.5 text-sm font-medium text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:bg-zinc-400"
+                    className="flex-1 rounded-full bg-[var(--color-brand-primary)] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[var(--color-brand-primary-hover)] disabled:cursor-not-allowed disabled:bg-zinc-400"
                   >
                     {findPwSubmitting ? "처리 중..." : "임시 비밀번호 발급"}
                   </button>
