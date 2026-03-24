@@ -9,6 +9,7 @@ import { InteractionButtons } from "@/src/components/interaction/InteractionButt
 import { CommentSection } from "@/src/components/interaction/CommentSection";
 import Image from "next/image";
 import { fetchJson, getApiErrorMessage } from "@/src/lib/http/client";
+import { formatDateYYYYMMDD } from "@/src/lib/utils/date";
 
 interface ReviewDetail {
   id: string;
@@ -136,19 +137,6 @@ export function ReviewDetailClient({ reviewId }: { reviewId: string }) {
 
   const albumGenreLabel = review.album.genre?.trim() || "장르 정보 없음";
 
-  const formatDate = (dateString: string) => {
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString("ko-KR", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      });
-    } catch {
-      return dateString;
-    }
-  };
-
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-3xl flex-col gap-6 px-6 py-10 sm:px-16">
       <section className="space-y-2">
@@ -243,7 +231,7 @@ export function ReviewDetailClient({ reviewId }: { reviewId: string }) {
                 {review.user.nickname}
               </p>
               <p className="text-xs text-zinc-500">
-                {formatDate(review.createdAt)}
+                {formatDateYYYYMMDD(review.createdAt)}
               </p>
             </div>
           </div>

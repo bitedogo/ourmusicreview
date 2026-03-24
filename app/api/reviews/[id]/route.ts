@@ -112,27 +112,26 @@ export async function PATCH(
 
     const isAdminEditor = session.user.role === "ADMIN";
     let hasUserEdit = false;
+    let contentChanged = false;
 
     if (content !== undefined) {
       if (!content || content === "<p><br></p>") {
         return apiError("리뷰 내용을 입력해주세요.", { status: 400 });
       }
-      review.content = content;
-      hasUserEdit = true;
+      contentChanged = review.content !== content;
+      if (contentChanged) {
+        review.content = content;
+        hasUserEdit = true;
+      }
     }
 
-    if (rating !== undefined) {
+    if (rating !== undefined && review.rating !== rating) {
       review.rating = rating;
       hasUserEdit = true;
     }
 
     if (!hasUserEdit) {
-      return apiError("수정할 내용이 없습니다.", { status: 400 });
-    }
-
-    if (!isAdminEditor && hasUserEdit) {
-      review.isApproved = "N";
-      review.rejectReason = null;
+      return apiError("수정한 내용이 없습니다.", { status: 400 });
     }
 
     await reviewRepository.save(review);

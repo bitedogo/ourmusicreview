@@ -31,7 +31,7 @@ export async function GET(request: Request) {
     const reviewRepository = dataSource.getRepository(Review);
 
     const approvedReviews = await reviewRepository.find({
-      where: { albumId: In(uniqueAlbumIds), isApproved: "Y" },
+      where: { albumId: In(uniqueAlbumIds) },
       select: ["albumId", "rating"],
     });
 

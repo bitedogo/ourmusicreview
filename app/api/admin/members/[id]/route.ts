@@ -3,11 +3,82 @@ import { authOptions } from "@/src/lib/auth/config";
 import { initializeDatabase } from "@/src/lib/db";
 import { User } from "@/src/lib/db/entities/User";
 import { UserFavoriteAlbum } from "@/src/lib/db/entities/UserFavoriteAlbum";
+import { UserSlideAlbum } from "@/src/lib/db/entities/UserSlideAlbum";
 import { Like } from "@/src/lib/db/entities/Like";
 import { Report } from "@/src/lib/db/entities/Report";
 import { Comment } from "@/src/lib/db/entities/Comment";
 import { Review } from "@/src/lib/db/entities/Review";
 import { apiError, apiOk } from "@/src/lib/http/response";
+
+const GENDER_LABEL: Record<string, string> = {
+  MALE: "남성",
+  FEMALE: "여성",
+  NONE: "-",
+};
+
+export async function GET(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.id || session.user.role !== "ADMIN") {
+      return apiError("관리자 권한이 필요합니다.", { status: 403 });
+    }
+
+    const { id } = await params;
+    if (!id) return apiError("멤버 ID가 필요합니다.", { status: 400 });
+
+    const dataSource = await initializeDatabase();
+    const userRepo = dataSource.getRepository(User);
+    const slideRepo = dataSource.getRepository(UserSlideAlbum);
+    const reviewRepo = dataSource.getRepository(Review);
+    const favoriteRepo = dataSource.getRepository(UserFavoriteAlbum);
+
+    const user = await userRepo.findOne({ where: { id } });
+    if (!user) return apiError("멤버를 찾을 수 없습니다.", { status: 404 });
+
+    const [slideCount, reviewCount, favoriteCount, slideAlbums] = await Promise.all([
+      slideRepo.count({ where: { userId: id } }),
+      reviewRepo.count({ where: { userId: id } }),
+      favoriteRepo.count({ where: { userId: id } }),
+      slideRepo.find({
+        where: { userId: id },
+        order: { position: "ASC" },
+      }),
+    ]);
+
+    return apiOk({
+      member: {
+        id: user.id,
+        nickname: user.nickname,
+        name: user.name,
+        email: user.email,
+        gender: user.gender,
+        role: user.role,
+        profileImage: user.profileImage,
+        createdAt: user.createdAt,
+        slideCount,
+        reviewCount,
+        favoriteCount,
+        hasUserSlide: slideCount >= 15,
+        slideAlbums: slideAlbums.map((a) => ({
+          id: a.id,
+          collectionId: a.collectionId,
+          title: a.title,
+          artist: a.artist,
+          imageUrl: a.imageUrl,
+        })),
+      },
+    });
+  } catch (error) {
+    return apiError(
+      error instanceof Error ? error.message : "멤버 조회 중 오류가 발생했습니다.",
+      { status: 500 }
+    );
+  }
+}
 
 interface UpdateMemberBody {
   role?: "USER" | "ADMIN";

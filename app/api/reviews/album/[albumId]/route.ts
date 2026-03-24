@@ -48,7 +48,7 @@ export async function GET(
     }
 
     const reviews = await reviewRepository.find({
-      where: { albumId, isApproved: "Y" },
+      where: { albumId },
       relations: ["user"],
       order: { createdAt: "DESC" },
     });

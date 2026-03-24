@@ -9,8 +9,11 @@ import { noStoreJson } from "@/src/lib/http/cache";
 
 const MIN_FOR_USER_SLIDE = 15;
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url);
+    const forceAdmin = searchParams.get("source") === "admin";
+
     const session = await getServerSession(authOptions);
     const userId = session?.user?.id;
 
@@ -20,13 +23,15 @@ export async function GET() {
     const reviewRepo = dataSource.getRepository(Review);
 
     let rows: { collectionId: string; title: string; artist: string; imageUrl?: string; releaseDate?: string; genre?: string }[];
+    let hasUserSlide = false;
 
     if (userId) {
       const userRows = await userSlideRepo.find({
         where: { userId },
         order: { position: "ASC" },
       });
-      if (userRows.length >= MIN_FOR_USER_SLIDE) {
+      hasUserSlide = userRows.length >= MIN_FOR_USER_SLIDE;
+      if (hasUserSlide && !forceAdmin) {
         rows = userRows;
       } else {
         rows = await featuredRepo.find({ order: { position: "ASC" } });
@@ -40,7 +45,7 @@ export async function GET() {
 
     if (collectionIds.length > 0) {
       const reviews = await reviewRepo.find({
-        where: { albumId: In(collectionIds), isApproved: "Y" },
+        where: { albumId: In(collectionIds) },
         select: ["albumId", "rating"],
       });
       const byAlbum = new Map<string, number[]>();
@@ -65,7 +70,7 @@ export async function GET() {
       averageRating: ratingsByAlbumId[row.collectionId] ?? null,
     }));
 
-    return noStoreJson({ ok: true, albums });
+    return noStoreJson({ ok: true, albums, hasUserSlide });
   } catch (error) {
     return noStoreJson(
       {

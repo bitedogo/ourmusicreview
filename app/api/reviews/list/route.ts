@@ -71,7 +71,7 @@ export async function GET(request: NextRequest) {
       .createQueryBuilder("r")
       .leftJoin("r.album", "album")
       .leftJoin("r.user", "user")
-      .where("r.isApproved = :approved", { approved: "Y" });
+      .where("1 = 1");
     applySearchCondition(totalQueryBuilder, searchField, searchQuery);
     const total = await totalQueryBuilder.getCount();
     const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE_ALBUM_REVIEWS));
@@ -85,7 +85,7 @@ export async function GET(request: NextRequest) {
         .createQueryBuilder("r")
         .leftJoin("r.album", "album")
         .leftJoin("r.user", "user")
-        .where("r.isApproved = :approved", { approved: "Y" })
+        .where("1 = 1")
         .select("r.id", "id")
         .orderBy("r.created_at", "DESC")
         .offset(start)
@@ -99,7 +99,7 @@ export async function GET(request: NextRequest) {
         .leftJoin("r.album", "album")
         .leftJoin("r.user", "user")
         .leftJoin(Like, "l", "l.review_id = r.id")
-        .where("r.isApproved = :approved", { approved: "Y" })
+        .where("1 = 1")
         .select("r.id", "id")
         .addSelect("COUNT(l.id)", "metric")
         .groupBy("r.id")
@@ -116,7 +116,7 @@ export async function GET(request: NextRequest) {
         .leftJoin("r.album", "album")
         .leftJoin("r.user", "user")
         .leftJoin(Comment, "c", "c.review_id = r.id")
-        .where("r.isApproved = :approved", { approved: "Y" })
+        .where("1 = 1")
         .select("r.id", "id")
         .addSelect("COUNT(c.id)", "metric")
         .groupBy("r.id")

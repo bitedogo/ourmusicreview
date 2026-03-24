@@ -113,7 +113,7 @@ export async function POST(request: Request) {
       userId: session.user.id,
       content,
       rating,
-      isApproved: "N",
+      isApproved: "Y",
       rejectReason: null,
     });
 

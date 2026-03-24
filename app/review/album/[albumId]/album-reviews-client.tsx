@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { getHtmlPlainText } from "@/src/lib/utils/editor";
+import { formatDateYYYYMMDD } from "@/src/lib/utils/date";
 
 interface Review {
   id: string;
@@ -132,19 +133,6 @@ export function AlbumReviewsClient({ albumId }: { albumId: string }) {
       </div>
     );
   }
-
-  const formatDate = (dateString: string) => {
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString("ko-KR", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      });
-    } catch {
-      return dateString;
-    }
-  };
 
   const reviewWriteUrl = albumInfo
     ? `/review/write?albumId=${encodeURIComponent(albumInfo.albumId)}&title=${encodeURIComponent(albumInfo.title)}&artist=${encodeURIComponent(albumInfo.artist)}${albumInfo.imageUrl ? `&imageUrl=${encodeURIComponent(albumInfo.imageUrl)}` : ""}`
@@ -319,7 +307,7 @@ export function AlbumReviewsClient({ albumId }: { albumId: string }) {
                       {review.user.nickname}
                     </p>
                     <p className="text-xs text-zinc-500">
-                      {formatDate(review.createdAt)}
+                      {formatDateYYYYMMDD(review.createdAt)}
                     </p>
                   </div>
                 </div>

@@ -48,10 +48,17 @@ export function AlbumManagementClient() {
   const [artistAlbums, setArtistAlbums] = useState<SearchAlbum[]>([]);
   const [isSearchingArtists, setIsSearchingArtists] = useState(false);
   const [isLoadingAlbums, setIsLoadingAlbums] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 20;
 
   useEffect(() => {
     fetchAlbums();
   }, []);
+
+  useEffect(() => {
+    const total = Math.ceil(albums.length / PAGE_SIZE) || 1;
+    if (currentPage > total) setCurrentPage(total);
+  }, [albums.length, currentPage]);
 
   async function fetchAlbums() {
     setIsLoading(true);
@@ -66,6 +73,7 @@ export function AlbumManagementClient() {
       }
 
       setAlbums(data?.data?.albums || []);
+      setCurrentPage(1);
     } catch (err) {
       setError(
         err instanceof Error
@@ -260,6 +268,11 @@ export function AlbumManagementClient() {
   }
 
   const takenDates = albums.map((a) => a.displayDate);
+  const totalPages = Math.ceil(albums.length / PAGE_SIZE) || 1;
+  const paginatedAlbums = albums.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE
+  );
 
   const todayStr = (() => {
     const t = new Date();
@@ -327,7 +340,7 @@ export function AlbumManagementClient() {
                 </tr>
               </thead>
               <tbody>
-                {albums.map((item) => (
+                {paginatedAlbums.map((item) => (
                   <tr key={item.displayDate} className="hover:bg-zinc-50">
                     <td className="px-3 py-2 align-middle">
                       <span className="text-xs font-medium text-zinc-900">
@@ -367,6 +380,29 @@ export function AlbumManagementClient() {
               </tbody>
             </table>
           </div>
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 border-t border-zinc-200 bg-zinc-50 px-4 py-3">
+              <button
+                type="button"
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage <= 1}
+                className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs font-medium text-zinc-700 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                이전
+              </button>
+              <span className="text-xs text-zinc-600">
+                {currentPage} / {totalPages}
+              </span>
+              <button
+                type="button"
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                disabled={currentPage >= totalPages}
+                className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs font-medium text-zinc-700 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                다음
+              </button>
+            </div>
+          )}
         </div>
       )}
 

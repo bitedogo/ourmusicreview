@@ -10,6 +10,7 @@ import {
   getApiErrorMessage,
 } from "@/src/lib/http/client";
 import { getHtmlPlainText } from "@/src/lib/utils/editor";
+import { formatDateYYYYMMDD } from "@/src/lib/utils/date";
 
 interface MyReview {
   id: string;
@@ -121,32 +122,26 @@ export default function MyReviewsPage() {
                   </div>
                 )}
                 <div className="flex-1 min-w-0 space-y-1">
-                  <div className="flex items-center justify-between">
-                    <div>
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="min-w-0 flex-1">
                       <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
                         {review.album?.artist}
                       </p>
-                      <h3 className="line-clamp-1 text-sm font-bold text-zinc-900">
+                      <h3 className="truncate text-sm font-bold text-zinc-900">
                         {review.album?.title}
                       </h3>
                     </div>
-                    <div className="text-right">
+                    <div className="shrink-0 text-right whitespace-nowrap">
                       <span
                         className={`text-sm font-bold ${review.rating >= 9 ? "text-red-600" : "text-zinc-900"}`}
                       >
                         {review.rating.toFixed(1)}
                       </span>
-                      <span className="text-[10px] text-zinc-500 ml-1">/ 10.0</span>
+                      <span className="ml-1 text-[10px] text-zinc-500">/ 10.0</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 text-[11px] text-zinc-500">
-                    <span>
-                      {new Date(review.createdAt).toLocaleDateString("ko-KR", {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      })}
-                    </span>
+                    <span>{formatDateYYYYMMDD(review.createdAt)}</span>
                     {review.rejectReason && (
                       <span className="rounded-full bg-rose-100 px-2 py-0.5 font-medium text-rose-700">
                         반려

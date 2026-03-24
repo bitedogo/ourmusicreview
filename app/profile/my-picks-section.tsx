@@ -5,6 +5,13 @@ import { reorderById } from "@/src/lib/utils/reorder";
 import Image from "next/image";
 import { fetchJson, getApiErrorMessage } from "@/src/lib/http/client";
 import Link from "next/link";
+import { setSlideSource, SLIDE_SOURCE_KEY } from "@/app/components/FeaturedAlbums";
+
+function getStoredSlideSource(): "user" | "admin" {
+  if (typeof window === "undefined") return "user";
+  const v = localStorage.getItem(SLIDE_SOURCE_KEY);
+  return v === "admin" ? "admin" : "user";
+}
 
 const MIN_FOR_SLIDE = 15;
 const MAX_COUNT = 30;
@@ -59,6 +66,11 @@ export function MyPicksSection() {
   const [addError, setAddError] = useState<string | null>(null);
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [isSavingOrder, setIsSavingOrder] = useState(false);
+  const [slideSource, setSlideSourceState] = useState<"user" | "admin">("user");
+
+  useEffect(() => {
+    setSlideSourceState(getStoredSlideSource());
+  }, []);
 
   useEffect(() => {
     fetchAlbums();
@@ -233,11 +245,40 @@ export function MyPicksSection() {
         </div>
       </div>
 
-      <p className="text-xs text-zinc-500">
-        {canShowInSlide
-          ? "메인 슬라이드바에 나만의 앨범이 표시되고 있습니다."
-          : "15개 이상 앨범을 등록하시면 메인 슬라이드바에 나만의 앨범이 표시됩니다."}
-      </p>
+      {canShowInSlide && (
+        <div className="flex gap-2">
+          <button
+            type="button"
+            disabled={slideSource === "user"}
+            onClick={() => {
+              setSlideSource("user");
+              setSlideSourceState("user");
+            }}
+            className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition ${
+              slideSource === "user"
+                ? "border-[var(--color-brand-primary)] bg-[var(--color-brand-primary)] text-white cursor-default"
+                : "border-zinc-300 text-zinc-700 hover:bg-zinc-50"
+            }`}
+          >
+            Custom Slidebar
+          </button>
+          <button
+            type="button"
+            disabled={slideSource === "admin"}
+            onClick={() => {
+              setSlideSource("admin");
+              setSlideSourceState("admin");
+            }}
+            className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition ${
+              slideSource === "admin"
+                ? "border-[var(--color-brand-primary)] bg-[var(--color-brand-primary)] text-white cursor-default"
+                : "border-zinc-300 text-zinc-700 hover:bg-zinc-50"
+            }`}
+          >
+            Admin Slidebar
+          </button>
+        </div>
+      )}
 
       {error && (
         <p className="text-xs text-red-600">{error}</p>

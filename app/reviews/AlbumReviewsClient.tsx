@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { useSearchParams } from "next/navigation";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { getReviewPreviewText } from "@/src/lib/utils/editor";
+import { formatDateYYYYMMDD } from "@/src/lib/utils/date";
 
 type SortType = "latest" | "likes" | "comments";
 type SearchField = "artist" | "album" | "author";
@@ -214,16 +214,16 @@ export function AlbumReviewsClient() {
                   </div>
                 )}
                 <div className="min-w-0 flex-1 space-y-1">
-                  <div className="flex items-center justify-between">
-                    <div>
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="min-w-0 flex-1">
                       <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
                         {review.album?.artist}
                       </p>
-                      <h3 className="line-clamp-1 text-sm font-bold text-zinc-900">
+                      <h3 className="truncate text-sm font-bold text-zinc-900">
                         {review.album?.title}
                       </h3>
                     </div>
-                    <div className="text-right">
+                    <div className="shrink-0 text-right whitespace-nowrap">
                       <span
                         className={`text-sm font-bold ${Number(review.rating) >= 9 ? "text-red-600" : "text-zinc-900"}`}
                       >
@@ -233,13 +233,7 @@ export function AlbumReviewsClient() {
                     </div>
                   </div>
                   <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-zinc-500">
-                    <span>
-                      {new Date(review.createdAt).toLocaleDateString("ko-KR", {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      })}
-                    </span>
+                    <span>{formatDateYYYYMMDD(review.createdAt)}</span>
                     {review.user && (
                       <span className="font-semibold text-zinc-600">{review.user.nickname}</span>
                     )}

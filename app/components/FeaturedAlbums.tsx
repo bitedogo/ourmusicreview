@@ -1,9 +1,21 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
 import { useSession } from "next-auth/react";
+
+export const SLIDE_SOURCE_KEY = "slide-source";
+
+function getStoredSlideSource(): "user" | "admin" {
+  if (typeof window === "undefined") return "user";
+  const v = localStorage.getItem(SLIDE_SOURCE_KEY);
+  return v === "admin" ? "admin" : "user";
+}
+
+export function setSlideSource(source: "user" | "admin") {
+  localStorage.setItem(SLIDE_SOURCE_KEY, source);
+}
 
 interface FeaturedAlbum {
   collectionId: number;
@@ -26,7 +38,15 @@ function getReleaseYear(releaseDate: string): string {
 
 export default function FeaturedAlbums() {
   const { data: session, status } = useSession();
+  const [slideSource, setSlideSourceState] = useState<"user" | "admin">("user");
+
+  useEffect(() => {
+    setSlideSourceState(getStoredSlideSource());
+  }, []);
+
+  const showAdminSlide = slideSource === "admin";
   const [albums, setAlbums] = useState<FeaturedAlbum[]>([]);
+  const [hasUserSlide, setHasUserSlide] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -35,7 +55,10 @@ export default function FeaturedAlbums() {
     setIsLoading(true);
     (async () => {
       try {
-        const res = await fetch("/api/featured-albums", {
+        const url = showAdminSlide
+          ? "/api/featured-albums?source=admin"
+          : "/api/featured-albums";
+        const res = await fetch(url, {
           credentials: "include",
           cache: "no-store",
         });
@@ -43,14 +66,22 @@ export default function FeaturedAlbums() {
         const data = await res.json().catch(() => null);
         if (data?.ok && Array.isArray(data?.albums)) {
           setAlbums(data.albums);
+          setHasUserSlide(data.hasUserSlide === true);
         }
       } catch {
         setAlbums([]);
+        setHasUserSlide(false);
       } finally {
         setIsLoading(false);
       }
     })();
-  }, [status, session?.user?.id]);
+  }, [status, session?.user?.id, showAdminSlide]);
+
+  useEffect(() => {
+    const handler = () => setSlideSourceState(getStoredSlideSource());
+    window.addEventListener("storage", handler);
+    return () => window.removeEventListener("storage", handler);
+  }, []);
 
   if (isLoading) {
     return (
