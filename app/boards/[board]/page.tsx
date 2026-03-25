@@ -11,6 +11,7 @@ import {
   NOTICE_CATEGORY_LABEL,
 } from "@/src/lib/community/notice-category";
 import Link from "next/link";
+import { getPaginationItems } from "@/src/lib/utils/pagination";
 import { BoardSearchControls } from "./board-search-controls";
 
 type BoardType = "domestic" | "overseas" | "market" | "workroom" | "notice";
@@ -345,18 +346,26 @@ export default async function BoardPage(props: {
                       이전
                     </Link>
                   )}
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                    (p) => (
+                  {getPaginationItems(currentPage, totalPages).map((item, idx) =>
+                    item === "ellipsis" ? (
+                      <span
+                        key={`e-${idx}`}
+                        className="px-1.5 py-1.5 text-sm text-zinc-400"
+                        aria-hidden
+                      >
+                        …
+                      </span>
+                    ) : (
                       <Link
-                        key={p}
-                        href={buildBoardHref(p)}
+                        key={item}
+                        href={buildBoardHref(item)}
                         className={`rounded px-3 py-1.5 text-sm ${
-                          p === currentPage
+                          item === currentPage
                             ? "bg-[var(--color-brand-primary)] font-medium text-white"
                             : "border border-zinc-300 text-zinc-700 hover:bg-zinc-100"
                         }`}
                       >
-                        {p}
+                        {item}
                       </Link>
                     )
                   )}

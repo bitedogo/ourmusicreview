@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { getReviewPreviewText } from "@/src/lib/utils/editor";
 import { formatDateYYYYMMDD } from "@/src/lib/utils/date";
+import { getPaginationItems } from "@/src/lib/utils/pagination";
 
 type SortType = "latest" | "likes" | "comments";
 type SearchField = "artist" | "album" | "author";
@@ -271,19 +272,29 @@ export function AlbumReviewsClient() {
                   이전
                 </Link>
               )}
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-                <Link
-                  key={p}
-                  href={buildReviewsHref(sort, p, searchField, searchQuery)}
-                  className={`rounded px-3 py-1.5 text-sm ${
-                    p === page
-                      ? "bg-[var(--color-brand-primary)] font-medium text-white"
-                      : "border border-zinc-300 text-zinc-700 hover:bg-zinc-100"
-                  }`}
-                >
-                  {p}
-                </Link>
-              ))}
+              {getPaginationItems(page, totalPages).map((item, idx) =>
+                item === "ellipsis" ? (
+                  <span
+                    key={`e-${idx}`}
+                    className="px-1.5 py-1.5 text-sm text-zinc-400"
+                    aria-hidden
+                  >
+                    …
+                  </span>
+                ) : (
+                  <Link
+                    key={item}
+                    href={buildReviewsHref(sort, item, searchField, searchQuery)}
+                    className={`rounded px-3 py-1.5 text-sm ${
+                      item === page
+                        ? "bg-[var(--color-brand-primary)] font-medium text-white"
+                        : "border border-zinc-300 text-zinc-700 hover:bg-zinc-100"
+                    }`}
+                  >
+                    {item}
+                  </Link>
+                )
+              )}
               {page < totalPages && (
                 <Link
                   href={buildReviewsHref(sort, page + 1, searchField, searchQuery)}

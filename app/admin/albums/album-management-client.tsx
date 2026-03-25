@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import { getPaginationItems } from "@/src/lib/utils/pagination";
 
 interface ArtistResult {
   artistId: number;
@@ -381,7 +382,7 @@ export function AlbumManagementClient() {
             </table>
           </div>
           {totalPages > 1 && (
-            <div className="flex items-center justify-center gap-2 border-t border-zinc-200 bg-zinc-50 px-4 py-3">
+            <div className="flex flex-wrap items-center justify-center gap-1 border-t border-zinc-200 bg-zinc-50 px-4 py-3">
               <button
                 type="button"
                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
@@ -390,9 +391,30 @@ export function AlbumManagementClient() {
               >
                 이전
               </button>
-              <span className="text-xs text-zinc-600">
-                {currentPage} / {totalPages}
-              </span>
+              {getPaginationItems(currentPage, totalPages).map((item, idx) =>
+                item === "ellipsis" ? (
+                  <span
+                    key={`e-${idx}`}
+                    className="px-1 py-1.5 text-xs text-zinc-400"
+                    aria-hidden
+                  >
+                    …
+                  </span>
+                ) : (
+                  <button
+                    key={item}
+                    type="button"
+                    onClick={() => setCurrentPage(item)}
+                    className={`min-w-[2rem] rounded-lg px-2 py-1.5 text-xs font-medium ${
+                      item === currentPage
+                        ? "bg-zinc-900 text-white"
+                        : "border border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50"
+                    }`}
+                  >
+                    {item}
+                  </button>
+                )
+              )}
               <button
                 type="button"
                 onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
