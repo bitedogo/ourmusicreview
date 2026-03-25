@@ -4,6 +4,7 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
+import { USER_ID_MAX, validateUserId } from "@/src/lib/auth/user-id";
 
 const TermsContent = dynamic(
   () => import("@/app/components/TermsContent").then((module) => module.TermsContent),
@@ -102,6 +103,13 @@ export default function SignupPage() {
 
     if (!trimmedId || !password || !trimmedEmail || !trimmedName || !trimmedNickname) {
       setErrorMessage("모든 필수 항목을 입력해주세요.");
+      setIsSubmitting(false);
+      return;
+    }
+
+    const idError = validateUserId(trimmedId);
+    if (idError) {
+      setErrorMessage(idError);
       setIsSubmitting(false);
       return;
     }
@@ -222,9 +230,15 @@ export default function SignupPage() {
             value={id}
             onChange={(e) => setId(e.target.value)}
             className="w-full rounded border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500"
-            placeholder="아이디를 입력하세요"
+            placeholder="영문·숫자만 (4~50자)"
             autoComplete="username"
+            autoCapitalize="off"
+            spellCheck={false}
+            maxLength={USER_ID_MAX}
           />
+          <p className="text-xs text-zinc-500">
+            영문과 숫자만 사용 가능합니다. 4자 이상 50자 이하입니다.
+          </p>
         </div>
 
         <div className="space-y-1">

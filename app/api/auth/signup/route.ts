@@ -1,4 +1,5 @@
 import bcrypt from "bcryptjs";
+import { validateUserId } from "@/src/lib/auth/user-id";
 import { initializeDatabase } from "@/src/lib/db";
 import { User } from "@/src/lib/db/entities/User";
 import { uploadProfileImage } from "@/src/lib/supabase";
@@ -62,6 +63,11 @@ export async function POST(request: Request) {
         "모든 필수 항목(아이디, 비밀번호, 이메일, 이름, 닉네임, 성별)을 입력해주세요.",
         { status: 400 }
       );
+    }
+
+    const idError = validateUserId(id);
+    if (idError) {
+      return apiError(idError, { status: 400 });
     }
 
     const pwdError = validatePassword(password);

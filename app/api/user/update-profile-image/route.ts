@@ -37,10 +37,7 @@ export async function POST(request: Request) {
       });
     }
 
-    const profileImagePath = await uploadProfileImage(
-      profileImage,
-      session.user.id
-    );
+    const profileImagePath = await uploadProfileImage(profileImage, "profile");
 
     const dataSource = await initializeDatabase();
     const userRepository = dataSource.getRepository(User);
