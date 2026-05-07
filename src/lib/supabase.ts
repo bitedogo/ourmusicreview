@@ -1,9 +1,16 @@
 import { createClient } from "@supabase/supabase-js";
-import { getServerEnv } from "@/src/lib/env";
+import { getServerEnv, getClientEnv } from "@/src/lib/env";
 
-const { supabaseUrl, supabaseServiceRoleKey } = getServerEnv();
+// Client-side Supabase instance can be initialized at the top level
+const { nextPublicSupabaseUrl, nextPublicSupabaseAnonKey } = getClientEnv();
+export function getSupabaseClient() {
+  return createClient(nextPublicSupabaseUrl, nextPublicSupabaseAnonKey);
+}
 
+// Server-side Supabase Admin instance should be initialized lazily
 export function getSupabaseAdmin() {
+  // Call getServerEnv() only when getSupabaseAdmin() is actually invoked
+  const { supabaseUrl, supabaseServiceRoleKey } = getServerEnv();
   return createClient(supabaseUrl, supabaseServiceRoleKey, {
     auth: { persistSession: false },
   });

@@ -4,8 +4,8 @@ import { In } from "typeorm";
 import { authOptions } from "@/src/lib/auth/config";
 import { initializeDatabase } from "@/src/lib/db";
 import { Post, PostCategory } from "@/src/lib/db/entities/Post";
-import type { NoticeCategory } from "@/src/lib/community/types";
 import { Comment } from "@/src/lib/db/entities/Comment";
+import type { NoticeCategory } from "@/src/lib/community/types";
 import {
   NOTICE_CATEGORY_COLOR,
   NOTICE_CATEGORY_LABEL,
@@ -120,9 +120,9 @@ export default async function BoardPage(props: {
     }
   }
 
-  const posts = await postsQueryBuilder.getMany();
+  const allPosts = await postsQueryBuilder.getMany();
 
-  const postIds = posts.map((post) => post.id);
+  const postIds = allPosts.map((post) => post.id);
   const commentCountRows =
     postIds.length > 0
       ? await commentRepository
@@ -140,33 +140,52 @@ export default async function BoardPage(props: {
     commentCountRows.map((row) => [row.postId, Number(row.count)])
   );
 
-  const postsWithMeta = posts.map((post) => {
+  const postsWithMeta = allPosts.map((post) => {
     const isReleasePinned =
       post.category !== "N" && post.noticeCategory === "RELEASE_NOTE";
     return {
       ...post,
       commentCount: commentCountMap.get(post.id) ?? 0,
-      isPinned: post.isGlobal === "Y",
-      isReleasePinned,
+      isPinned: post.isGlobal === "Y", // isGlobal === 'Y'는 전체 공지 (빨간색)으로 최상단 고정
+      isReleasePinned, // noticeCategory === 'RELEASE_NOTE'는 릴리즈 (초록색)으로 고정
     };
   });
 
-  const sortedPosts = postsWithMeta.sort((a, b) => {
-    if (a.isGlobal === "Y" && b.isGlobal !== "Y") return -1;
-    if (a.isGlobal !== "Y" && b.isGlobal === "Y") return 1;
-    if (a.isReleasePinned && !b.isReleasePinned) return -1;
-    if (!a.isReleasePinned && b.isReleasePinned) return 1;
+  const globalPinnedPosts = postsWithMeta.filter((post) => post.isPinned);
+  const releasePinnedPosts = postsWithMeta
+    .filter((post) => !post.isPinned && post.isReleasePinned)
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .slice(0, 3);
 
-    return 0;
-  });
+  const otherPosts = postsWithMeta.filter(
+    (post) => !post.isPinned && !post.isReleasePinned
+  );
 
-  const total = sortedPosts.length;
-  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE_BOARD));
+  const totalOtherPosts = otherPosts.length;
+  const totalPages = Math.max(1, Math.ceil(totalOtherPosts / PAGE_SIZE_BOARD));
   const currentPage = Math.min(page, totalPages);
-  const paginatedPosts = sortedPosts.slice(
+  const paginatedOtherPosts = otherPosts.slice(
     (currentPage - 1) * PAGE_SIZE_BOARD,
     currentPage * PAGE_SIZE_BOARD
   );
+
+  // 최종적으로 렌더링할 게시물 목록 (정렬 순서: 전체 공지 -> 릴리즈 노트 -> 일반 게시물)
+  const finalPostsToRender = [
+    ...globalPinnedPosts,
+    ...releasePinnedPosts,
+    ...paginatedOtherPosts,
+  ].sort((a, b) => {
+    // 전체 공지 우선 (isPinned)
+    if (a.isPinned && !b.isPinned) return -1;
+    if (!a.isPinned && b.isPinned) return 1;
+    // 릴리즈 노트 다음 (isReleasePinned)
+    // 단, 전체 공지가 아닌 경우에만 릴리즈 노트로 간주 (위에서 필터링되었지만 안전 장치)
+    if (a.isReleasePinned && !a.isPinned && !b.isReleasePinned) return -1;
+    if (!a.isReleasePinned && b.isReleasePinned && !b.isPinned) return 1;
+
+    // 나머지는 최신순
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+  });
 
   const canWrite = config.adminOnlyWrite
     ? session?.user && (session.user as { role?: string }).role === "ADMIN"
@@ -211,7 +230,9 @@ export default async function BoardPage(props: {
       </section>
 
       <section>
-        {total === 0 ? (
+        {totalOtherPosts === 0 &&
+        globalPinnedPosts.length === 0 &&
+        releasePinnedPosts.length === 0 ? (
           <div className="border border-dashed border-zinc-300 bg-zinc-50 px-4 py-6 text-sm text-zinc-500">
             {searchQuery
               ? "검색 결과가 없습니다. 다른 키워드로 다시 시도해주세요."
@@ -244,7 +265,7 @@ export default async function BoardPage(props: {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-100">
-                  {paginatedPosts.map((post, index) => (
+                  {finalPostsToRender.map((post) => (
                     <tr
                       key={post.id}
                       className={`hover:bg-zinc-50 ${post.isPinned ? "bg-zinc-50/50" : ""}`}
@@ -279,15 +300,15 @@ export default async function BoardPage(props: {
                             </svg>
                           </span>
                         ) : (
-                          total -
+                          totalOtherPosts -
                             (currentPage - 1) * PAGE_SIZE_BOARD -
-                            index
+                            paginatedOtherPosts.indexOf(post)
                         )}
                       </td>
                       <td className="px-3 py-2 text-sm">
                         <Link
                           href={`/community/${encodeURIComponent(post.id)}`}
-                          className={`flex items-center gap-1.5 hover:underline ${config.category === "N" ? "font-bold text-black" : ""} ${config.category !== "N" && post.isPinned ? "text-red-600 font-bold" : ""} ${config.category !== "N" && post.isReleasePinned && !post.isPinned ? "text-emerald-600 font-bold" : ""}`}
+                          className={`flex items-center gap-1.5 hover:underline ${config.category === "N" ? "font-bold text-black" : ""} ${post.isPinned ? "text-red-600 font-bold" : ""} ${post.isReleasePinned && !post.isPinned ? "text-emerald-600 font-bold" : ""}`}
                         >
                           {config.category === "N" && (() => {
                             const label = getNoticeCategoryLabel(post);

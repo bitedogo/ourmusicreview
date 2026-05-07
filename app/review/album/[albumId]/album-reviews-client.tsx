@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { UserProfileModal } from "@/components/user-profile-modal";
 import { getHtmlPlainText } from "@/src/lib/utils/editor";
 import { formatDateYYYYMMDD } from "@/src/lib/utils/date";
 
@@ -40,6 +41,8 @@ export function AlbumReviewsClient({ albumId }: { albumId: string }) {
   const [error, setError] = useState<string | null>(null);
   const [isCheckingDuplicate, setIsCheckingDuplicate] = useState(false);
   const [isDuplicateModalOpen, setIsDuplicateModalOpen] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
   useEffect(() => {
     let isCancelled = false;
@@ -167,6 +170,16 @@ export function AlbumReviewsClient({ albumId }: { albumId: string }) {
     }
   }
 
+  const handleOpenProfileModal = (userId: string) => {
+    setSelectedUserId(userId);
+    setIsProfileModalOpen(true);
+  };
+
+  const handleCloseProfileModal = () => {
+    setIsProfileModalOpen(false);
+    setSelectedUserId(null);
+  };
+
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-3xl flex-col gap-6 px-6 py-10 sm:px-16">
       <section className="space-y-2">
@@ -281,31 +294,54 @@ export function AlbumReviewsClient({ albumId }: { albumId: string }) {
       ) : (
         <div className="space-y-4">
           {reviews.map((review) => (
-            <Link
+            <div
               key={review.id}
-              href={`/review/${encodeURIComponent(review.id)}`}
-              className="block rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm transition hover:border-zinc-300 hover:shadow-md"
+              role="button"
+              tabIndex={0}
+              onClick={() => router.push(`/review/${encodeURIComponent(review.id)}`)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ")
+                  router.push(`/review/${encodeURIComponent(review.id)}`);
+              }}
+              className="block cursor-pointer rounded-2xl border border-zinc-200 bg-white p-5 text-left shadow-sm transition hover:border-zinc-300 hover:shadow-md"
             >
               <div className="mb-4 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  {review.user.profileImage ? (
-                    <Image
-                      src={review.user.profileImage}
-                      alt={review.user.nickname}
-                      width={40}
-                      height={40}
-                      unoptimized
-                      className="h-10 w-10 rounded-full object-cover"
-                    />
-                  ) : (
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-200 text-xs font-semibold text-zinc-600">
-                      {review.user.nickname.charAt(0).toUpperCase()}
-                    </div>
-                  )}
+                  <button
+                    type="button"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      handleOpenProfileModal(review.user.id);
+                    }}
+                    className="shrink-0 rounded-full"
+                    aria-label={`${review.user.nickname} 프로필 보기`}
+                  >
+                    {review.user.profileImage ? (
+                      <Image
+                        src={review.user.profileImage}
+                        alt=""
+                        width={40}
+                        height={40}
+                        unoptimized
+                        className="h-10 w-10 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-200 text-xs font-semibold text-zinc-600">
+                        {review.user.nickname.charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                  </button>
                   <div>
-                    <p className="text-sm font-semibold text-zinc-900">
+                    <button
+                      type="button"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        handleOpenProfileModal(review.user.id);
+                      }}
+                      className="text-sm font-semibold text-zinc-900 hover:underline"
+                    >
                       {review.user.nickname}
-                    </p>
+                    </button>
                     <p className="text-xs text-zinc-500">
                       {formatDateYYYYMMDD(review.createdAt)}
                     </p>
@@ -330,7 +366,7 @@ export function AlbumReviewsClient({ albumId }: { albumId: string }) {
                   승인 대기 중
                 </div>
               )}
-            </Link>
+            </div>
           ))}
         </div>
       )}
@@ -360,6 +396,11 @@ export function AlbumReviewsClient({ albumId }: { albumId: string }) {
           </div>
         </div>
       )}
+      <UserProfileModal
+        userId={selectedUserId}
+        isOpen={isProfileModalOpen}
+        onClose={handleCloseProfileModal}
+      />
     </div>
   );
 }

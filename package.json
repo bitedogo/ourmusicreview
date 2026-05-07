@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@fontsource/pretendard": "^5.2.5",
+    "@headlessui/react": "^2.2.10",
+    "@supabase/ssr": "^0.10.2",
     "@supabase/supabase-js": "^2.95.3",
     "@toast-ui/editor": "^3.2.2",
     "@toast-ui/react-editor": "^3.2.3",
@@ -32,6 +34,7 @@
     "@types/node": "^20.19.28",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "env-cmd": "^11.0.0",
     "eslint": "^9",
     "eslint-config-next": "16.1.1",
     "tailwindcss": "^4",

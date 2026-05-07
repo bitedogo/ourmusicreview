@@ -28,7 +28,10 @@ const ADMIN_LINKS = [
 export function AppHeader() {
   const { data: session, status } = useSession();
   const nickname = session?.user?.name ?? null;
-  const profileImage = (session?.user as { profileImage?: string | null })?.profileImage ?? null;
+  const sessionUser = session?.user as
+    | { profileImage?: string | null; image?: string | null; name?: string | null }
+    | undefined;
+  const profileImage = sessionUser?.profileImage ?? sessionUser?.image ?? null;
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);

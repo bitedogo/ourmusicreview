@@ -54,6 +54,7 @@ export async function GET() {
     const favoriteByUser = byUserId(favoriteCounts);
 
     return apiOk({
+      totalMemberCount: users.length,
       members: users.map((user) => ({
         id: user.id,
         email: user.email,

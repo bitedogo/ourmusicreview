@@ -5,6 +5,13 @@ interface ServerEnv {
   supabaseUrl: string;
   supabaseServiceRoleKey: string;
   nodeEnv: "development" | "production" | "test";
+  googleClientId: string;
+  googleClientSecret: string;
+}
+
+interface ClientEnv {
+  nextPublicSupabaseUrl: string;
+  nextPublicSupabaseAnonKey: string;
 }
 
 function requireEnv(name: string, value: string | undefined): string {
@@ -32,6 +39,21 @@ export function getServerEnv(): ServerEnv {
       "SUPABASE_SERVICE_ROLE_KEY",
       process.env.SUPABASE_SERVICE_ROLE_KEY
     ),
+    googleClientId: requireEnv("GOOGLE_CLIENT_ID", process.env.GOOGLE_CLIENT_ID),
+    googleClientSecret: requireEnv("GOOGLE_CLIENT_SECRET", process.env.GOOGLE_CLIENT_SECRET),
     nodeEnv: getNodeEnv(),
+  };
+}
+
+export function getClientEnv(): ClientEnv {
+  return {
+    nextPublicSupabaseUrl: requireEnv(
+      "NEXT_PUBLIC_SUPABASE_URL",
+      process.env.NEXT_PUBLIC_SUPABASE_URL
+    ),
+    nextPublicSupabaseAnonKey: requireEnv(
+      "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    ),
   };
 }

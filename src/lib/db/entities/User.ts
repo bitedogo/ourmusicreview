@@ -5,8 +5,8 @@ export class User {
   @PrimaryColumn({ name: "user_id", type: "varchar", length: 50 })
   id!: string;
 
-  @Column({ name: "password", type: "varchar", length: 100 })
-  password!: string;
+  @Column({ name: "password", type: "varchar", length: 100, nullable: true })
+  password?: string | null;
 
   @Column({ name: "nickname", type: "varchar", length: 50 })
   nickname!: string;

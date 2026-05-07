@@ -54,10 +54,17 @@ export async function POST(request: Request) {
       });
     }
 
-    const isHashed = isBcryptHash(user.password);
+    if (typeof user.password !== "string" || !user.password) {
+      return apiError("비밀번호 로그인 계정이 아니거나 비밀번호 정보가 없습니다.", {
+        status: 400,
+      });
+    }
+
+    const currentPasswordHash = user.password;
+    const isHashed = isBcryptHash(currentPasswordHash);
     const isCurrentPasswordValid = isHashed
-      ? await bcrypt.compare(currentPassword, user.password)
-      : currentPassword === user.password;
+      ? await bcrypt.compare(currentPassword, currentPasswordHash)
+      : currentPassword === currentPasswordHash;
 
     if (!isCurrentPasswordValid) {
       return apiError("현재 비밀번호가 올바르지 않습니다.", { status: 400 });

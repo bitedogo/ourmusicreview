@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import { initializeDatabase } from "@/src/lib/db";
 import { Post } from "@/src/lib/db/entities/Post";
@@ -10,6 +9,7 @@ import {
   NOTICE_CATEGORY_LABEL,
 } from "@/src/lib/community/notice-category";
 import { PostContentClient } from "./post-content-client";
+import { PostAuthorRow } from "./post-author-row";
 
 function getTimeAgo(date: Date) {
   const now = new Date();
@@ -107,34 +107,14 @@ export default async function CommunityDetailPage({
             {post.title}
           </h1>
 
-          <div className="flex items-center gap-3 pt-2 pb-4 border-b border-zinc-100">
-            <div className="h-6 w-6 overflow-hidden rounded-md bg-zinc-100">
-              {post.user?.profileImage ? (
-                <Image
-                  src={post.user.profileImage}
-                  alt="게시글 작성자 프로필"
-                  width={24}
-                  height={24}
-                  unoptimized
-                  className="h-full w-full object-cover"
-                />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center text-[10px] font-bold text-zinc-400">
-                  {post.nickname.charAt(0).toUpperCase()}
-                </div>
-              )}
-            </div>
-
-            <div className="flex items-center gap-2 text-[13px] text-zinc-500">
-              <span className="font-semibold text-zinc-900">{post.nickname}</span>
-              <span className="text-zinc-300">|</span>
-              <span>{getTimeAgo(new Date(post.createdAt))}</span>
-              <span className="text-zinc-300">|</span>
-              <span>조회 수 <span className="text-zinc-900">{post.views}</span></span>
-              <span className="text-zinc-300">|</span>
-              <span>댓글 <span className="text-red-500 font-medium">{commentCount}</span></span>
-            </div>
-          </div>
+          <PostAuthorRow
+            userId={post.userId}
+            nickname={post.nickname}
+            profileImage={post.user?.profileImage ?? null}
+            timeAgo={getTimeAgo(new Date(post.createdAt))}
+            views={post.views}
+            commentCount={commentCount}
+          />
         </header>
 
         <PostContentClient 

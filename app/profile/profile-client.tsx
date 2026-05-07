@@ -10,7 +10,7 @@ import { MyPicksSection } from "./my-picks-section";
 interface ProfileClientProps {
   id: string;
   nickname: string;
-  name: string | null;
+    name: string | null;
   gender: "MALE" | "FEMALE" | "NONE" | null;
   role: "USER" | "ADMIN";
   createdAtText: string;
@@ -191,6 +191,7 @@ export function ProfileClient({
                 <p className="text-base font-bold text-zinc-900 md:text-lg">{nickname}</p>
                 <p className="mt-0.5 truncate text-xs text-zinc-500">{id}</p>
               </div>
+
               <div className="grid w-full grid-cols-2 gap-3">
                 <div className="rounded-lg bg-zinc-50 px-3 py-2 text-center">
                   <p className="text-lg font-bold text-zinc-900">{myReviews.length}</p>
@@ -321,7 +322,7 @@ export function ProfileClient({
                               style={{ transition: "stroke-dashoffset 0.6s ease-out" }}
                             />
                             <circle
-                              cx={dotX}
+                           cx={dotX}
                               cy={dotY}
                               r="5"
                               fill="white"
@@ -434,7 +435,7 @@ export function ProfileClient({
             {isLoadingFavorites ? (
               <p className="text-xs text-zinc-500">불러오는 중...</p>
             ) : favoriteAlbums.length === 0 ? (
-              <p className="text-xs text-zinc-500">좋아요한 앨범이 없습니다.</p>
+                <p className="text-xs text-zinc-500">좋아요한 앨범이 없습니다.</p>
             ) : (
               <div className="grid grid-cols-3 grid-rows-2 gap-3">
                 {favoriteAlbums.slice(0, 6).map((fav) => (
@@ -480,5 +481,3 @@ export function ProfileClient({
     </div>
   );
 }
-
-

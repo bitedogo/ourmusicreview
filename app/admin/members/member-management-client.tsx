@@ -280,9 +280,25 @@ export function MemberManagementClient() {
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-4xl flex-col gap-6 px-6 py-10 sm:px-16">
       <section className="flex flex-col gap-4">
-        <h1 className="text-xl font-semibold tracking-tight text-zinc-900">
-          멤버 관리
-        </h1>
+        <div className="flex w-full flex-wrap items-baseline justify-between gap-3">
+          <h1 className="text-xl font-semibold tracking-tight text-zinc-900">
+            멤버 관리
+          </h1>
+          <p className="text-right text-sm text-zinc-500">
+            총 멤버{" "}
+            <span className="font-semibold text-zinc-800">{members.length}</span>명
+            {filteredMembers.length !== members.length ? (
+              <>
+                {" "}
+                · 현재 목록{" "}
+                <span className="font-semibold text-zinc-800">
+                  {filteredMembers.length}
+                </span>
+                명
+              </>
+            ) : null}
+          </p>
+        </div>
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-100 pb-3">
           {[
             { key: "all" as TabType, label: "전체회원" },

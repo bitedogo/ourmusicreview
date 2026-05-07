@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { fetchJson, getApiErrorMessage } from "@/src/lib/http/client";
 
@@ -24,7 +24,9 @@ interface FindPasswordResponse {
 
 export default function SigninPage() {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const callbackUrl = "/";
+  const loginCallbackUrl = "/auth/signin";
   const savedIdKey = "oru.savedSigninId";
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -53,6 +55,12 @@ export default function SigninPage() {
       setIsRememberId(true);
     }
   }, []);
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.push(callbackUrl);
+    }
+  }, [status, router, callbackUrl]);
 
   function closeModal() {
     setModal(null);
@@ -146,6 +154,18 @@ export default function SigninPage() {
     router.push(result.url ?? callbackUrl);
   }
 
+  async function handleGoogleLogin() {
+    const result = await signIn("google", { callbackUrl: loginCallbackUrl });
+    if (result?.error) {
+      setErrorMessage(result.error);
+    } else if (result?.url) {
+      // NextAuth.js가 자체적으로 loginCallbackUrl로 리디렉션할 것이므로, 여기서 추가 리디렉션은 필요 없음
+    } else {
+      // signIn 성공했으나 result.url이 없는 경우, loginCallbackUrl으로 명시적 리디렉션
+      router.push(loginCallbackUrl);
+    }
+  }
+
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col px-6 pb-20 pt-20">
       <div className="mb-6 pb-8 flex justify-center">
@@ -220,16 +240,32 @@ export default function SigninPage() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="mt-3 inline-flex h-14 w-full items-center justify-center bg-[var(--color-brand-primary)] px-4 text-lg font-semibold text-white transition hover:bg-[var(--color-brand-primary-hover)] disabled:cursor-not-allowed disabled:bg-zinc-400"
+          className="inline-flex h-14 w-full items-center justify-center bg-[var(--color-brand-primary)] px-4 text-lg font-semibold text-white transition hover:bg-[var(--color-brand-primary-hover)] disabled:cursor-not-allowed disabled:bg-zinc-400"
         >
           {isSubmitting ? "로그인 중..." : "로그인"}
         </button>
+        <button
+          type="button"
+          onClick={handleGoogleLogin}
+          className="flex h-14 w-full items-center justify-center gap-3 border border-zinc-300 bg-white px-4 text-lg font-semibold text-zinc-900 transition hover:bg-zinc-50"
+        >
+          <Image
+            src="/google-logo.svg"
+            alt="Google"
+            width={24}
+            height={24}
+            unoptimized
+          />
+          구글로 로그인
+        </button>
+
         <Link
           href="/auth/signup"
           className="inline-flex h-14 w-full items-center justify-center border border-zinc-300 bg-white px-4 text-lg font-semibold text-zinc-900 transition hover:bg-zinc-50"
         >
           회원가입
         </Link>
+
       </form>
 
       {modal === "find-id" && (
