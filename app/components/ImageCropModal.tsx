@@ -105,7 +105,6 @@ export function ImageCropModal({
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
-      onClick={onCancel}
     >
       <div
         className="relative max-h-[90vh] w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-xl"
@@ -125,7 +124,7 @@ export function ImageCropModal({
               onComplete={(pixelCrop) => setCompletedCrop(pixelCrop)}
               aspect={1}
               circularCrop
-              className="max-h-[50vh]"
+              className="min-h-[200px] min-w-[200px] flex items-center justify-center"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
@@ -133,8 +132,7 @@ export function ImageCropModal({
                 src={imageSrc}
                 alt="크롭할 이미지"
                 onLoad={onImageLoad}
-                className="max-h-[50vh] w-auto"
-                style={{ maxWidth: "100%" }}
+                className="w-full h-auto object-contain"
               />
             </ReactCrop>
           </div>
