@@ -2,9 +2,11 @@
 
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { useEffect, useState, useCallback } from "react";
 import { HtmlRenderer } from "@/src/components/common/HtmlRenderer";
 import { InteractionButtons } from "@/src/components/interaction/InteractionButtons";
 import { CommentSection } from "@/src/components/interaction/CommentSection";
+import { PostAuthorRow } from "./post-author-row"; // PostAuthorRow 임포트
 
 interface PostContentClientProps {
   content: string;
@@ -12,11 +14,63 @@ interface PostContentClientProps {
   userId: string;
   category: string;
   isNotice?: boolean;
+  initialViews: number; // 추가
+  initialCommentCount: number; // 추가
+  postAuthorNickname: string; // 추가
+  postAuthorProfileImage: string | null; // 추가
+  postCreatedAt: string; // 추가
 }
 
-export function PostContentClient({ content, postId, userId, category, isNotice }: PostContentClientProps) {
+function getTimeAgo(date: Date) {
+  const now = new Date();
+  const diff = now.getTime() - date.getTime();
+  const minutes = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
+
+  if (minutes < 1) return "방금 전";
+  if (minutes < 60) return `${minutes}분 전`;
+  if (hours < 24) return `${hours}시간 전`;
+  return `${days}일 전`;
+}
+
+export function PostContentClient({
+  content,
+  postId,
+  userId,
+  category,
+  isNotice,
+  initialViews,
+  initialCommentCount,
+  postAuthorNickname,
+  postAuthorProfileImage,
+  postCreatedAt,
+}: PostContentClientProps) {
   const router = useRouter();
   const { data: session } = useSession();
+  const [displayedViews, setDisplayedViews] = useState(initialViews);
+
+  useEffect(() => {
+    const hasIncremented = sessionStorage.getItem(`post-${postId}-view-incremented`);
+
+    if (!hasIncremented) {
+      sessionStorage.setItem(`post-${postId}-view-incremented`, "true"); // API 호출 시도 전에 플래그 설정
+
+      fetch(`/api/posts/${postId}/view`, {
+        method: "POST",
+      })
+      .then(response => {
+        if (!response.ok) {
+          console.error(`Client: Failed to increment view count - status: ${response.status}`);
+        } else {
+          setDisplayedViews(prev => prev + 1);
+        }
+      })
+      .catch(error => {
+        console.error("Client: API call failed for view increment:", error);
+      });
+    }
+  }, [postId]);
   const isOwner = session?.user?.id === userId || (session?.user as { role?: string })?.role === "ADMIN";
 
   const handleDelete = async () => {
@@ -63,6 +117,15 @@ export function PostContentClient({ content, postId, userId, category, isNotice 
 
   return (
     <div className="space-y-10">
+      <PostAuthorRow
+        userId={userId}
+        nickname={postAuthorNickname}
+        profileImage={postAuthorProfileImage}
+        timeAgo={getTimeAgo(new Date(postCreatedAt))}
+        views={displayedViews}
+        commentCount={initialCommentCount}
+      />
+
       <section className="text-[15px] leading-relaxed text-zinc-800">
         <HtmlRenderer html={content} />
       </section>

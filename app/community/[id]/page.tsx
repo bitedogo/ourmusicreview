@@ -9,20 +9,6 @@ import {
   NOTICE_CATEGORY_LABEL,
 } from "@/src/lib/community/notice-category";
 import { PostContentClient } from "./post-content-client";
-import { PostAuthorRow } from "./post-author-row";
-
-function getTimeAgo(date: Date) {
-  const now = new Date();
-  const diff = now.getTime() - date.getTime();
-  const minutes = Math.floor(diff / 60000);
-  const hours = Math.floor(diff / 3600000);
-  const days = Math.floor(diff / 86400000);
-
-  if (minutes < 1) return "방금 전";
-  if (minutes < 60) return `${minutes}분 전`;
-  if (hours < 24) return `${hours}시간 전`;
-  return `${days}일 전`;
-}
 
 export default async function CommunityDetailPage({
   params,
@@ -49,8 +35,6 @@ export default async function CommunityDetailPage({
       ? post.views
       : Number(post.views ?? 0);
 
-  post.views = currentViews + 1;
-  await postRepository.save(post);
 
   const commentCount = await commentRepository.count({
     where: { postId: id },
@@ -107,14 +91,6 @@ export default async function CommunityDetailPage({
             {post.title}
           </h1>
 
-          <PostAuthorRow
-            userId={post.userId}
-            nickname={post.nickname}
-            profileImage={post.user?.profileImage ?? null}
-            timeAgo={getTimeAgo(new Date(post.createdAt))}
-            views={post.views}
-            commentCount={commentCount}
-          />
         </header>
 
         <PostContentClient 
@@ -123,6 +99,11 @@ export default async function CommunityDetailPage({
           userId={post.userId} 
           category={post.category} 
           isNotice={post.category === "N" || post.isGlobal === "Y"}
+          initialViews={currentViews}
+          initialCommentCount={commentCount}
+          postAuthorNickname={post.nickname}
+          postAuthorProfileImage={post.user?.profileImage ?? null}
+          postCreatedAt={post.createdAt}
         />
       </article>
     </div>
