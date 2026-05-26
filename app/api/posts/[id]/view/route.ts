@@ -8,7 +8,7 @@ interface Params {
   id: string;
 }
 
-export async function POST(req: NextRequest, context: { params: Params }) {
+export async function POST(req: NextRequest, context: { params: Promise<Params> }) {
   const { id } = await context.params;
 
   if (!id) {
