@@ -103,7 +103,7 @@ export default async function CommunityDetailPage({
           initialCommentCount={commentCount}
           postAuthorNickname={post.nickname}
           postAuthorProfileImage={post.user?.profileImage ?? null}
-          postCreatedAt={post.createdAt}
+          postCreatedAt={post.createdAt.toISOString()}
         />
       </article>
     </div>
