@@ -1,7 +1,7 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";
 import Image from "next/image";
-import { MusicInfo } from "@/src/lib/deezer/types";
+import { MusicInfo } from "@/src/lib/itunes/types";
 
 interface AlbumDetailModalProps {
   isOpen: boolean;
