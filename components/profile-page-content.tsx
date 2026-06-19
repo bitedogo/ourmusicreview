@@ -61,7 +61,7 @@ export function ProfilePageContent(props: ProfilePageContentProps) {
     profileImage,
     privacy,
     onPrivacyChange,
-    isSavingPrivacy,
+    isSavingPrivacy = false,
     reviews,
     isLoadingReviews,
     reviewsHidden = false,

@@ -4,12 +4,12 @@ import { signOut } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { fetchJson } from "@/src/lib/http/client";
 import { MyPicksSection } from "./my-picks-section";
+import { ProfilePageContent } from "@/components/profile-page-content";
 import {
-  ProfilePageContent,
   ProfileFavoriteItem,
   ProfilePrivacySettings,
   ProfileReviewItem,
-} from "@/components/profile-page-content";
+} from "@/components/profile/profile-types";
 
 interface ProfileClientProps {
   id: string;

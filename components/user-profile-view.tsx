@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useLayoutEffect, useState } from "react";
-import Link from "next/image";
+import Link from "next/link";
+import Image from "next/image";
 import { fetchJson } from "@/src/lib/http/client";
 import {
   ProfileReviewItem,
@@ -171,7 +172,6 @@ interface UserProfilePanelProps {
   ratingHidden?: boolean;
 }
 
-import Image from "next/image";
 import { GENDER_LABEL } from "./profile/profile-types";
 
 export function UserProfilePanel({
