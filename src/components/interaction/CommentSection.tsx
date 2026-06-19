@@ -3,7 +3,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
-import { UserProfileModal } from "@/components/user-profile-modal";
+import Link from "next/link";
+import { getUserProfilePath } from "@/components/user-profile-view";
 
 interface Comment {
   id: string;
@@ -27,18 +28,6 @@ export function CommentSection({ postId, reviewId }: CommentSectionProps) {
   const [content, setContent] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
-  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
-
-  const handleOpenProfileModal = (userId: string) => {
-    setSelectedUserId(userId);
-    setIsProfileModalOpen(true);
-  };
-
-  const handleCloseProfileModal = () => {
-    setIsProfileModalOpen(false);
-    setSelectedUserId(null);
-  };
 
   const fetchComments = useCallback(async () => {
     setIsLoading(true);
@@ -115,9 +104,8 @@ export function CommentSection({ postId, reviewId }: CommentSectionProps) {
         ) : (
           comments.map((comment) => (
             <div key={comment.id} className="flex gap-4">
-              <button
-                type="button"
-                onClick={() => handleOpenProfileModal(comment.user.id)}
+              <Link
+                href={getUserProfilePath(comment.user.id)}
                 className="h-8 w-8 shrink-0 overflow-hidden rounded-full bg-zinc-100"
                 aria-label={`${comment.user.nickname} 프로필 보기`}
               >
@@ -135,17 +123,16 @@ export function CommentSection({ postId, reviewId }: CommentSectionProps) {
                     {comment.user.nickname.charAt(0).toUpperCase()}
                   </div>
                 )}
-              </button>
+              </Link>
               <div className="flex-1 space-y-1">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => handleOpenProfileModal(comment.user.id)}
+                    <Link
+                      href={getUserProfilePath(comment.user.id)}
                       className="text-xs font-bold text-zinc-900 hover:underline"
                     >
                       {comment.user.nickname}
-                    </button>
+                    </Link>
                     <span className="text-[10px] text-zinc-400">
                       {new Date(comment.createdAt).toLocaleDateString("ko-KR")}
                     </span>
@@ -191,12 +178,6 @@ export function CommentSection({ postId, reviewId }: CommentSectionProps) {
           <p className="text-xs text-zinc-500">로그인 후 댓글을 남길 수 있습니다.</p>
         </div>
       )}
-
-      <UserProfileModal
-        userId={selectedUserId}
-        isOpen={isProfileModalOpen}
-        onClose={handleCloseProfileModal}
-      />
     </section>
   );
 }

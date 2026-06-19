@@ -41,6 +41,12 @@ export default async function ProfilePage() {
       role={user.role}
       createdAtText={createdAtText}
       profileImage={user.profileImage ?? null}
+      initialPrivacy={{
+        showReviewsPublic: user.showReviewsPublic !== "N",
+        showFavoritesPublic: user.showFavoritesPublic !== "N",
+        showMasterpiecesPublic: user.showMasterpiecesPublic !== "N",
+        showRatingPublic: user.showRatingPublic !== "N",
+      }}
     />
   );
 }

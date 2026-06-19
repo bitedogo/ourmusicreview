@@ -7,7 +7,7 @@ import { useSession } from "next-auth/react";
 import { HtmlRenderer } from "@/src/components/common/HtmlRenderer";
 import { InteractionButtons } from "@/src/components/interaction/InteractionButtons";
 import { CommentSection } from "@/src/components/interaction/CommentSection";
-import { UserProfileModal } from "@/components/user-profile-modal";
+import { getUserProfilePath } from "@/components/user-profile-view";
 import Image from "next/image";
 import { fetchJson, getApiErrorMessage } from "@/src/lib/http/client";
 import { formatDateYYYYMMDD } from "@/src/lib/utils/date";
@@ -61,20 +61,8 @@ export function ReviewDetailClient({ reviewId }: { reviewId: string }) {
   const [averageRating, setAverageRating] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
-  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
   const isOwner = session?.user?.id === review?.userId || (session?.user as { role?: string })?.role === "ADMIN";
-
-  const handleOpenProfileModal = (userId: string) => {
-    setSelectedUserId(userId);
-    setIsProfileModalOpen(true);
-  };
-
-  const handleCloseProfileModal = () => {
-    setIsProfileModalOpen(false);
-    setSelectedUserId(null);
-  };
 
   const handleDelete = async () => {
     if (!confirm("정말로 이 리뷰를 삭제하시겠습니까?")) return;
@@ -225,9 +213,8 @@ export function ReviewDetailClient({ reviewId }: { reviewId: string }) {
       <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => handleOpenProfileModal(review.user.id)}
+            <Link
+              href={getUserProfilePath(review.user.id)}
               className="shrink-0 rounded-full"
               aria-label={`${review.user.nickname} 프로필 보기`}
             >
@@ -245,15 +232,14 @@ export function ReviewDetailClient({ reviewId }: { reviewId: string }) {
                   {review.user.nickname.charAt(0).toUpperCase()}
                 </div>
               )}
-            </button>
+            </Link>
             <div>
-              <button
-                type="button"
-                onClick={() => handleOpenProfileModal(review.user.id)}
+              <Link
+                href={getUserProfilePath(review.user.id)}
                 className="text-sm font-semibold text-zinc-900 hover:underline"
               >
                 {review.user.nickname}
-              </button>
+              </Link>
               <p className="text-xs text-zinc-500">
                 {formatDateYYYYMMDD(review.createdAt)}
               </p>
@@ -299,11 +285,6 @@ export function ReviewDetailClient({ reviewId }: { reviewId: string }) {
 
       <InteractionButtons reviewId={reviewId} authorUserId={review.userId} />
       <CommentSection reviewId={reviewId} />
-      <UserProfileModal
-        userId={selectedUserId}
-        isOpen={isProfileModalOpen}
-        onClose={handleCloseProfileModal}
-      />
 
     </div>
   );

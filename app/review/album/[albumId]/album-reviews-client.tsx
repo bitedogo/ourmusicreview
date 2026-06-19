@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { UserProfileModal } from "@/components/user-profile-modal";
+import { getUserProfilePath } from "@/components/user-profile-view";
 import { getHtmlPlainText } from "@/src/lib/utils/editor";
 import { formatDateYYYYMMDD } from "@/src/lib/utils/date";
 
@@ -41,8 +41,6 @@ export function AlbumReviewsClient({ albumId }: { albumId: string }) {
   const [error, setError] = useState<string | null>(null);
   const [isCheckingDuplicate, setIsCheckingDuplicate] = useState(false);
   const [isDuplicateModalOpen, setIsDuplicateModalOpen] = useState(false);
-  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
-  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
   useEffect(() => {
     let isCancelled = false;
@@ -169,16 +167,6 @@ export function AlbumReviewsClient({ albumId }: { albumId: string }) {
       setIsCheckingDuplicate(false);
     }
   }
-
-  const handleOpenProfileModal = (userId: string) => {
-    setSelectedUserId(userId);
-    setIsProfileModalOpen(true);
-  };
-
-  const handleCloseProfileModal = () => {
-    setIsProfileModalOpen(false);
-    setSelectedUserId(null);
-  };
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-3xl flex-col gap-6 px-6 py-10 sm:px-16">
@@ -307,12 +295,9 @@ export function AlbumReviewsClient({ albumId }: { albumId: string }) {
             >
               <div className="mb-4 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      handleOpenProfileModal(review.user.id);
-                    }}
+                  <Link
+                    href={getUserProfilePath(review.user.id)}
+                    onClick={(event) => event.stopPropagation()}
                     className="shrink-0 rounded-full"
                     aria-label={`${review.user.nickname} 프로필 보기`}
                   >
@@ -330,18 +315,15 @@ export function AlbumReviewsClient({ albumId }: { albumId: string }) {
                         {review.user.nickname.charAt(0).toUpperCase()}
                       </div>
                     )}
-                  </button>
+                  </Link>
                   <div>
-                    <button
-                      type="button"
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        handleOpenProfileModal(review.user.id);
-                      }}
+                    <Link
+                      href={getUserProfilePath(review.user.id)}
+                      onClick={(event) => event.stopPropagation()}
                       className="text-sm font-semibold text-zinc-900 hover:underline"
                     >
                       {review.user.nickname}
-                    </button>
+                    </Link>
                     <p className="text-xs text-zinc-500">
                       {formatDateYYYYMMDD(review.createdAt)}
                     </p>
@@ -396,11 +378,6 @@ export function AlbumReviewsClient({ albumId }: { albumId: string }) {
           </div>
         </div>
       )}
-      <UserProfileModal
-        userId={selectedUserId}
-        isOpen={isProfileModalOpen}
-        onClose={handleCloseProfileModal}
-      />
     </div>
   );
 }

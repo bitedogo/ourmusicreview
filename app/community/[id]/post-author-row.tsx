@@ -1,8 +1,6 @@
-"use client";
-
 import Image from "next/image";
-import { useState } from "react";
-import { UserProfileModal } from "@/components/user-profile-modal";
+import Link from "next/link";
+import { getUserProfilePath } from "@/components/user-profile-view";
 
 interface PostAuthorRowProps {
   userId: string;
@@ -21,24 +19,12 @@ export function PostAuthorRow({
   views,
   commentCount,
 }: PostAuthorRowProps) {
-  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
-  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
-
-  const handleOpenProfileModal = () => {
-    setSelectedUserId(userId);
-    setIsProfileModalOpen(true);
-  };
-
-  const handleCloseProfileModal = () => {
-    setIsProfileModalOpen(false);
-    setSelectedUserId(null);
-  };
+  const profileHref = getUserProfilePath(userId);
 
   return (
     <div className="flex items-center gap-3 border-b border-zinc-100 pb-4 pt-2">
-      <button
-        type="button"
-        onClick={handleOpenProfileModal}
+      <Link
+        href={profileHref}
         className="h-6 w-6 shrink-0 overflow-hidden rounded-md bg-zinc-100"
         aria-label={`${nickname} 프로필 보기`}
       >
@@ -56,16 +42,12 @@ export function PostAuthorRow({
             {nickname.charAt(0).toUpperCase()}
           </div>
         )}
-      </button>
+      </Link>
 
       <div className="flex flex-wrap items-center gap-2 text-[13px] text-zinc-500">
-        <button
-          type="button"
-          onClick={handleOpenProfileModal}
-          className="font-semibold text-zinc-900 hover:underline"
-        >
+        <Link href={profileHref} className="font-semibold text-zinc-900 hover:underline">
           {nickname}
-        </button>
+        </Link>
         <span className="text-zinc-300">|</span>
         <span>{timeAgo}</span>
         <span className="text-zinc-300">|</span>
@@ -77,12 +59,6 @@ export function PostAuthorRow({
           댓글 <span className="font-medium text-red-500">{commentCount}</span>
         </span>
       </div>
-
-      <UserProfileModal
-        userId={selectedUserId}
-        isOpen={isProfileModalOpen}
-        onClose={handleCloseProfileModal}
-      />
     </div>
   );
 }

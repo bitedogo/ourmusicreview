@@ -50,7 +50,7 @@ interface UserSlideResponse {
   };
 }
 
-export function MyPicksSection() {
+export function MyPicksSection({ embedded = false }: { embedded?: boolean }) {
   const [albums, setAlbums] = useState<SlideAlbum[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -226,11 +226,27 @@ export function MyPicksSection() {
 
   return (
     <section className="flex shrink-0 flex-col space-y-3 md:space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold tracking-tight text-zinc-900 md:text-base">
-          나만의 명반
-        </h2>
-        <div className="flex items-center gap-2">
+      {!embedded ? (
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-semibold tracking-tight text-zinc-900 md:text-base">
+            나만의 명반
+          </h2>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-zinc-500">
+              {albums.length}/{MAX_COUNT}
+            </span>
+            <button
+              type="button"
+              onClick={openAddModal}
+              disabled={albums.length >= MAX_COUNT || isLoading}
+              className="rounded-lg border border-zinc-300 px-3 py-1.5 text-xs font-medium text-zinc-700 hover:bg-zinc-50 disabled:opacity-50"
+            >
+              앨범 추가
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="flex items-center justify-end gap-2">
           <span className="text-xs text-zinc-500">
             {albums.length}/{MAX_COUNT}
           </span>
@@ -243,7 +259,7 @@ export function MyPicksSection() {
             앨범 추가
           </button>
         </div>
-      </div>
+      )}
 
       {canShowInSlide && (
         <div className="flex gap-2">

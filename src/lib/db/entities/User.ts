@@ -52,4 +52,36 @@ export class User {
     default: () => "CURRENT_TIMESTAMP",
   })
   createdAt!: Date;
+
+  @Column({
+    name: "show_reviews_public",
+    type: "varchar",
+    length: 1,
+    default: () => "'Y'",
+  })
+  showReviewsPublic!: "Y" | "N";
+
+  @Column({
+    name: "show_favorites_public",
+    type: "varchar",
+    length: 1,
+    default: () => "'Y'",
+  })
+  showFavoritesPublic!: "Y" | "N";
+
+  @Column({
+    name: "show_masterpieces_public",
+    type: "varchar",
+    length: 1,
+    default: () => "'Y'",
+  })
+  showMasterpiecesPublic!: "Y" | "N";
+
+  @Column({
+    name: "show_rating_public",
+    type: "varchar",
+    length: 1,
+    default: () => "'Y'",
+  })
+  showRatingPublic!: "Y" | "N";
 }
