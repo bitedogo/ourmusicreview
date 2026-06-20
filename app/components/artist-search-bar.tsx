@@ -2,7 +2,7 @@
 
 import type { RefObject } from "react";
 import type { ItunesArtistResult } from "@/src/lib/itunes/types";
-import { HOME_CONTENT_MAX_WIDTH } from "@/src/lib/layout/constants";
+import { SEARCH_BAR_MAX_WIDTH } from "@/src/lib/layout/constants";
 import { ArtistSearchSuggestions } from "./artist-search-suggestions";
 
 interface ArtistSearchBarProps {
@@ -31,7 +31,7 @@ export function ArtistSearchBar({
       <div
         ref={containerRef}
         className="relative w-full"
-        style={{ maxWidth: HOME_CONTENT_MAX_WIDTH }}
+        style={{ maxWidth: SEARCH_BAR_MAX_WIDTH }}
       >
         <div
           className={`flex w-full flex-col overflow-hidden bg-white transition-[border-radius,box-shadow] ${

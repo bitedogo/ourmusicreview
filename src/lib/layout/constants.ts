@@ -1,5 +1,8 @@
 export const HOME_CONTENT_MAX_WIDTH = 1100;
 
+/** 검색창 최대 너비 */
+export const SEARCH_BAR_MAX_WIDTH = 700;
+
 /** 헤더 구분선 ↔ 검색창 간격 */
 export const HEADER_SEARCH_GAP = 24;
 
