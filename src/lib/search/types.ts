@@ -1,0 +1,45 @@
+export interface SearchAlbumResult {
+  collectionId: number;
+  collectionName: string;
+  artistName: string;
+  artworkUrl100: string;
+  releaseDate: string;
+  primaryGenreName: string;
+  imageUrl600: string | null;
+}
+
+export interface ArtistSearchResponse {
+  ok: boolean;
+  data: {
+    artists: import("@/src/lib/itunes/types").ItunesArtistResult[];
+  };
+}
+
+export interface ArtistAlbumsResponse {
+  ok: boolean;
+  data: {
+    albums: SearchAlbumResult[];
+  };
+}
+
+export interface BatchAlbumRatingsResponse {
+  ok: boolean;
+  data: {
+    ratings: Record<string, { averageRating: number | null; reviewCount: number }>;
+  };
+}
+
+export interface FavoritesResponse {
+  ok: boolean;
+  data: {
+    favorites: Array<{ albumId?: string | number | null }>;
+  };
+}
+
+export interface ReviewDuplicateCheckResponse {
+  ok: boolean;
+  data: {
+    exists: boolean;
+    reviewId: string | null;
+  };
+}

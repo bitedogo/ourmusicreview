@@ -5,7 +5,7 @@ import type { ItunesArtistResult } from "@/src/lib/itunes/types";
 import { HOME_CONTENT_MAX_WIDTH } from "@/src/lib/layout/constants";
 import { ArtistSearchSuggestions } from "./artist-search-suggestions";
 
-interface HomeArtistSearchBarProps {
+interface ArtistSearchBarProps {
   containerRef: RefObject<HTMLDivElement | null>;
   searchQuery: string;
   onSearchQueryChange: (value: string) => void;
@@ -16,7 +16,7 @@ interface HomeArtistSearchBarProps {
   onArtistSelect: (artist: ItunesArtistResult) => void;
 }
 
-export function HomeArtistSearchBar({
+export function ArtistSearchBar({
   containerRef,
   searchQuery,
   onSearchQueryChange,
@@ -25,7 +25,7 @@ export function HomeArtistSearchBar({
   isLoading,
   isDropdownOpen,
   onArtistSelect,
-}: HomeArtistSearchBarProps) {
+}: ArtistSearchBarProps) {
   return (
     <form onSubmit={onSubmit} className="flex justify-center">
       <div

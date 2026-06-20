@@ -1,4 +1,12 @@
-import type { FeaturedAlbumCardData } from "@/app/components/featured-album-card";
+export interface FeaturedAlbumCardData {
+  collectionId: number;
+  title: string;
+  artist: string;
+  imageUrl: string | null;
+  releaseDate: string;
+  genre: string;
+  averageRating: number | null;
+}
 
 export interface FeaturedAlbumsApiResponse {
   ok: boolean;

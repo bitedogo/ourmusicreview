@@ -54,7 +54,7 @@ export const metadata: Metadata = {
     locale: "ko_KR",
     images: [
       {
-        url: "/oru-num6-hq.png",
+        url: "/orumusicweb.png",
         width: 824,
         height: 232,
         alt: "ORU 로고",
@@ -66,7 +66,7 @@ export const metadata: Metadata = {
     title: "ORU | Music Review & Community",
     description:
       "음악을 기록하고 공유하는 커뮤니티 ORU. 앨범 리뷰를 남기고, 새로운 음악을 발견해보세요.",
-    images: ["/oru-num6-hq.png"],
+    images: ["/orumusicweb.png"],
   },
   robots: {
     index: true,
@@ -102,7 +102,7 @@ export default function RootLayout({
       >
         <Providers>
           <AppHeader />
-          <main className="flex-1 bg-white pt-20 sm:pt-24">{children}</main>
+          <main className="flex-1 bg-white">{children}</main>
           <Footer />
         </Providers>
       </body>

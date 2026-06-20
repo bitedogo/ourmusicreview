@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { Session } from "next-auth";
-import type { FeaturedAlbumCardData } from "@/app/components/featured-album-card";
+import type { FeaturedAlbumCardData } from "@/src/lib/featured-albums/types";
 import type { FeaturedAlbumsApiResponse } from "@/src/lib/featured-albums/types";
 
 export function useFeaturedAlbums(

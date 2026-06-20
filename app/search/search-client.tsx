@@ -1,59 +1,25 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Image from "next/image";
+import { useCallback, useEffect, useState } from "react";
+import { ArtistSearchBar } from "@/app/components/artist-search-bar";
+import { DuplicateReviewModal } from "@/src/components/common/duplicate-review-modal";
+import { useArtistAutocomplete } from "@/src/hooks/use-artist-autocomplete";
 import { ApiClientError, fetchJson, getApiErrorMessage } from "@/src/lib/http/client";
 import type { ItunesArtistResult } from "@/src/lib/itunes/types";
 import { buildArtistSearchPath } from "@/src/lib/itunes/search";
-import { useArtistAutocomplete } from "@/src/hooks/use-artist-autocomplete";
-import { ArtistSearchSuggestions } from "@/app/components/artist-search-suggestions";
-
-interface AlbumResult {
-  collectionId: number;
-  collectionName: string;
-  artistName: string;
-  artworkUrl100: string;
-  releaseDate: string;
-  primaryGenreName: string;
-  imageUrl600: string | null;
-}
-
-interface ArtistSearchResponse {
-  ok: boolean;
-  data: {
-    artists: ItunesArtistResult[];
-  };
-}
-
-interface ArtistAlbumsResponse {
-  ok: boolean;
-  data: {
-    albums: AlbumResult[];
-  };
-}
-
-interface BatchAlbumRatingsResponse {
-  ok: boolean;
-  data: {
-    ratings: Record<string, { averageRating: number | null; reviewCount: number }>;
-  };
-}
-
-interface FavoritesResponse {
-  ok: boolean;
-  data: {
-    favorites: Array<{ albumId?: string | number | null }>;
-  };
-}
-
-interface ReviewDuplicateCheckResponse {
-  ok: boolean;
-  data: {
-    exists: boolean;
-    reviewId: string | null;
-  };
-}
+import { ContentContainer } from "@/src/lib/layout/content-container";
+import { HEADER_SEARCH_GAP, PAGE_PADDING_X } from "@/src/lib/layout/constants";
+import type {
+  ArtistAlbumsResponse,
+  ArtistSearchResponse,
+  BatchAlbumRatingsResponse,
+  FavoritesResponse,
+  ReviewDuplicateCheckResponse,
+  SearchAlbumResult,
+} from "@/src/lib/search/types";
+import { buildReviewWritePath } from "@/src/lib/utils/album";
+import { SearchAlbumCard } from "./search-album-card";
 
 export function SearchClient() {
   const router = useRouter();
@@ -76,7 +42,7 @@ export function SearchClient() {
   } = useArtistAutocomplete({ initialQuery });
 
   const [selectedArtist, setSelectedArtist] = useState<ItunesArtistResult | null>(null);
-  const [albums, setAlbums] = useState<AlbumResult[]>([]);
+  const [albums, setAlbums] = useState<SearchAlbumResult[]>([]);
   const [isLoadingAlbums, setIsLoadingAlbums] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [albumRatings, setAlbumRatings] = useState<
@@ -86,27 +52,30 @@ export function SearchClient() {
   const [isDuplicateModalOpen, setIsDuplicateModalOpen] = useState(false);
   const [checkingReviewAlbumId, setCheckingReviewAlbumId] = useState<string | null>(null);
 
-  const handleSearchAndRedirect = useCallback(async (term: string) => {
-    if (!term.trim()) return;
+  const handleSearchAndRedirect = useCallback(
+    async (term: string) => {
+      if (!term.trim()) return;
 
-    setErrorMessage(null);
-    try {
-      const data = await fetchJson<ArtistSearchResponse>(
-        `/api/itunes/artists?term=${encodeURIComponent(term)}`
-      );
-      const artistsList = data.data.artists || [];
-      if (artistsList.length === 0) {
-        setErrorMessage("검색 결과가 없습니다.");
-        return;
+      setErrorMessage(null);
+      try {
+        const data = await fetchJson<ArtistSearchResponse>(
+          `/api/itunes/artists?term=${encodeURIComponent(term)}`
+        );
+        const artistsList = data.data.artists || [];
+        if (artistsList.length === 0) {
+          setErrorMessage("검색 결과가 없습니다.");
+          return;
+        }
+        const first = artistsList[0];
+        router.replace(
+          `/search?artistId=${first.artistId}&artist=${encodeURIComponent(first.artistName)}`
+        );
+      } catch (error) {
+        setErrorMessage(getApiErrorMessage(error, "검색 중 오류가 발생했습니다."));
       }
-      const first = artistsList[0];
-      router.replace(
-        `/search?artistId=${first.artistId}&artist=${encodeURIComponent(first.artistName)}`
-      );
-    } catch (error) {
-      setErrorMessage(getApiErrorMessage(error, "검색 중 오류가 발생했습니다."));
-    }
-  }, [router]);
+    },
+    [router]
+  );
 
   function handleSearchSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -155,9 +124,16 @@ export function SearchClient() {
       setSearchQuery(q);
       handleSearchAndRedirect(q);
     }
-  }, [artistIdFromUrl, artistParamFromUrl, searchParams, handleArtistSelect, handleSearchAndRedirect]);
+  }, [
+    artistIdFromUrl,
+    artistParamFromUrl,
+    searchParams,
+    handleArtistSelect,
+    handleSearchAndRedirect,
+    setSearchQuery,
+  ]);
 
-  async function handleRegister(album: AlbumResult) {
+  async function handleRegister(album: SearchAlbumResult) {
     const albumId = album.collectionId.toString();
     if (checkingReviewAlbumId) {
       return;
@@ -180,20 +156,17 @@ export function SearchClient() {
       setCheckingReviewAlbumId(null);
     }
 
-    const params = new URLSearchParams({
-      albumId,
-      title: album.collectionName,
-      artist: album.artistName,
-    });
-    
-    if (album.imageUrl600) {
-      params.append("imageUrl", album.imageUrl600);
-    }
-    
-    router.push(`/review/write?${params.toString()}`);
+    router.push(
+      buildReviewWritePath({
+        albumId,
+        title: album.collectionName,
+        artist: album.artistName,
+        imageUrl: album.imageUrl600,
+      })
+    );
   }
 
-  async function toggleFavorite(album: AlbumResult) {
+  async function toggleFavorite(album: SearchAlbumResult) {
     const albumId = album.collectionId.toString();
     const isFavorite = favoriteAlbumIds.has(albumId);
 
@@ -211,11 +184,7 @@ export function SearchClient() {
           }),
         });
 
-        setFavoriteAlbumIds((prev) => {
-          const next = new Set(prev);
-          next.add(albumId);
-          return next;
-        });
+        setFavoriteAlbumIds((prev) => new Set(prev).add(albumId));
       } else {
         await fetchJson<{ ok: boolean }>("/api/favorites", {
           method: "DELETE",
@@ -282,63 +251,21 @@ export function SearchClient() {
   }, []);
 
   return (
-    <div className="mx-auto flex min-h-screen w-[956px] max-w-full flex-col gap-6 px-6 py-10 sm:px-10">
+    <ContentContainer
+      className={`mx-auto flex min-h-screen w-full max-w-full flex-col gap-6 pb-10 ${PAGE_PADDING_X}`}
+      style={{ paddingTop: HEADER_SEARCH_GAP }}
+    >
       <section className="space-y-4">
-        <form onSubmit={handleSearchSubmit} className="flex justify-center">
-          <div ref={searchContainerRef} className="relative w-full max-w-[956px]">
-            <div
-              className={`flex flex-col overflow-hidden bg-white transition-[border-radius,box-shadow] ${
-                isDropdownOpen
-                  ? "rounded-t-2xl rounded-b-none"
-                  : "rounded-2xl border-2 border-[var(--color-brand-primary)]"
-              }`}
-            >
-              <div
-                className={`flex h-[68px] cursor-text items-center gap-3 ${
-                  isDropdownOpen
-                    ? "border-b-2 border-[var(--color-brand-primary)] px-4"
-                    : "overflow-hidden px-3"
-                }`}
-              >
-                <input
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="h-full flex-1 cursor-text bg-transparent pl-2 text-sm text-black caret-black outline-none placeholder:text-zinc-400"
-                  placeholder="아티스트 이름으로 검색해보세요"
-                />
-                <button
-                  type="submit"
-                  className="flex h-[54px] w-[65px] shrink-0 items-center justify-center rounded-xl bg-[var(--color-brand-primary)] text-white transition hover:bg-[var(--color-brand-primary-hover)]"
-                  aria-label="검색"
-                >
-                  <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <circle cx="11" cy="11" r="8" />
-                    <path d="m21 21-4.35-4.35" />
-                  </svg>
-                </button>
-              </div>
-
-              {isDropdownOpen && (
-                <ul role="listbox">
-                  <ArtistSearchSuggestions
-                    suggestions={suggestions}
-                    isLoading={isLoadingSuggestions}
-                    onSelect={handleArtistSelectFromDropdown}
-                  />
-                </ul>
-              )}
-            </div>
-          </div>
-        </form>
+        <ArtistSearchBar
+          containerRef={searchContainerRef}
+          searchQuery={searchQuery}
+          onSearchQueryChange={setSearchQuery}
+          onSubmit={handleSearchSubmit}
+          suggestions={suggestions}
+          isLoading={isLoadingSuggestions}
+          isDropdownOpen={isDropdownOpen}
+          onArtistSelect={handleArtistSelectFromDropdown}
+        />
 
         {errorMessage && (
           <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-900">
@@ -363,111 +290,16 @@ export function SearchClient() {
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {albums.map((album) => {
                 const albumId = album.collectionId.toString();
-                const ratingInfo = albumRatings[album.collectionId.toString()];
-                const ratingValue =
-                  ratingInfo?.reviewCount && ratingInfo.averageRating != null
-                    ? ratingInfo.averageRating.toFixed(1)
-                    : "-";
-                const isHighRating =
-                  ratingInfo?.reviewCount != null &&
-                  ratingInfo.reviewCount > 0 &&
-                  ratingInfo.averageRating != null &&
-                  ratingInfo.averageRating >= 9;
-
                 return (
-                  <div
+                  <SearchAlbumCard
                     key={album.collectionId}
-                    className="flex flex-col rounded-2xl bg-white p-4"
-                  >
-                    <div className="text-left">
-                      <div className="relative mb-3 aspect-square overflow-hidden rounded-xl">
-                        {album.imageUrl600 ? (
-                          <Image
-                            src={album.imageUrl600}
-                            alt={album.collectionName}
-                            fill
-                            unoptimized
-                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                            className="h-full w-full object-contain"
-                          />
-                        ) : (
-                          <div className="flex h-full w-full items-center justify-center bg-zinc-100 text-xs text-zinc-400">
-                            이미지 없음
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="flex-1 space-y-1 min-h-[80px]">
-                        <h3 className="line-clamp-2 text-sm font-semibold text-zinc-900 min-h-[2.5rem]">
-                          {album.collectionName}
-                        </h3>
-                        <p className="line-clamp-1 text-xs text-zinc-600">
-                          {album.artistName}
-                        </p>
-                        {album.primaryGenreName && (
-                          <p className="text-[11px] text-zinc-500">
-                            {album.primaryGenreName}
-                          </p>
-                        )}
-                        {album.releaseDate && (
-                          <p className="text-[11px] text-zinc-500">
-                            {new Date(album.releaseDate).getFullYear()}
-                          </p>
-                        )}
-                        <div className="flex items-center gap-1 mt-1">
-                          <span className="text-[10px] text-zinc-600">평점:</span>
-                          <span
-                            className={`text-sm font-bold ${
-                              isHighRating ? "text-red-600" : "text-zinc-900"
-                            }`}
-                          >
-                            {ratingValue}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="mt-3 flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleFavorite(album);
-                        }}
-                        className={`flex h-8 w-8 items-center justify-center rounded-full border text-xs font-semibold transition ${
-                          favoriteAlbumIds.has(albumId)
-                            ? "border-red-500 bg-red-50 text-red-500"
-                            : "border-zinc-200 bg-white text-zinc-500 hover:bg-zinc-50"
-                        }`}
-                        aria-label="좋아요"
-                      >
-                        {favoriteAlbumIds.has(albumId)
-                          ? "❤️"
-                          : "♡"}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          router.push(`/review/album/${encodeURIComponent(album.collectionId.toString())}`);
-                        }}
-                        className="flex-1 rounded-full border border-zinc-200 bg-white px-3 py-2 text-xs font-semibold text-zinc-700 transition hover:bg-zinc-50"
-                      >
-                        리뷰 보기
-                      </button>
-                      <button
-                        type="button"
-                        disabled={checkingReviewAlbumId === albumId}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          void handleRegister(album);
-                        }}
-                        className="flex-1 rounded-full bg-[var(--color-brand-primary)] px-3 py-2 text-xs font-semibold text-white transition hover:bg-[var(--color-brand-primary-hover)] disabled:cursor-not-allowed disabled:bg-zinc-500"
-                      >
-                        {checkingReviewAlbumId === albumId ? "확인 중..." : "리뷰 작성"}
-                      </button>
-                    </div>
-                  </div>
+                    album={album}
+                    ratingInfo={albumRatings[albumId]}
+                    isFavorite={favoriteAlbumIds.has(albumId)}
+                    isCheckingReview={checkingReviewAlbumId === albumId}
+                    onToggleFavorite={toggleFavorite}
+                    onRegister={handleRegister}
+                  />
                 );
               })}
             </div>
@@ -486,31 +318,8 @@ export function SearchClient() {
       )}
 
       {isDuplicateModalOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4"
-          onClick={() => setIsDuplicateModalOpen(false)}
-        >
-          <div
-            className="w-full max-w-sm rounded-2xl bg-white p-5 shadow-xl"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <h3 className="text-base font-semibold text-zinc-900">리뷰 작성 불가</h3>
-            <p className="mt-2 text-sm text-zinc-600">
-              동일한 앨범에는 리뷰를 1개만 작성할 수 있습니다.
-            </p>
-            <div className="mt-5 flex justify-end">
-              <button
-                type="button"
-                onClick={() => setIsDuplicateModalOpen(false)}
-                className="rounded-full bg-[var(--color-brand-primary)] px-4 py-2 text-xs font-semibold text-white hover:bg-[var(--color-brand-primary-hover)]"
-              >
-                확인
-              </button>
-            </div>
-          </div>
-        </div>
+        <DuplicateReviewModal onClose={() => setIsDuplicateModalOpen(false)} />
       )}
-    </div>
+    </ContentContainer>
   );
 }
-

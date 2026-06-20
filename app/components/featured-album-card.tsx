@@ -1,17 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
-import { formatGenreYear } from "@/src/lib/utils/album";
+import type { FeaturedAlbumCardData } from "@/src/lib/featured-albums/types";
+import { buildAlbumReviewPath, formatGenreYear } from "@/src/lib/utils/album";
 import { RatingDisplay } from "./rating-display";
 
-export interface FeaturedAlbumCardData {
-  collectionId: number;
-  title: string;
-  artist: string;
-  imageUrl: string | null;
-  releaseDate: string;
-  genre: string;
-  averageRating: number | null;
-}
+export type { FeaturedAlbumCardData };
 
 interface FeaturedAlbumCardProps {
   album: FeaturedAlbumCardData;
@@ -20,10 +13,10 @@ interface FeaturedAlbumCardProps {
 export function FeaturedAlbumCard({ album }: FeaturedAlbumCardProps) {
   return (
     <Link
-      href={`/review/album/${album.collectionId}`}
+      href={buildAlbumReviewPath(album.collectionId)}
       className="mx-3 flex w-48 shrink-0 flex-col gap-3 rounded-3xl border border-zinc-200 bg-white p-4 shadow-md transition-transform duration-300 hover:scale-105 sm:w-56"
     >
-      <div className="relative aspect-square overflow-hidden rounded-2xl bg-[#444444]">
+      <div className="relative aspect-square overflow-hidden rounded-2xl">
         {album.imageUrl ? (
           <Image
             src={album.imageUrl}

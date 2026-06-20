@@ -3,7 +3,8 @@
 import dynamic from "next/dynamic";
 import { Suspense } from "react";
 import { HomeHeroSearch } from "./components/home-hero-search";
-import { HOME_CONTENT_MAX_WIDTH } from "@/src/lib/layout/constants";
+import { ContentContainer } from "@/src/lib/layout/content-container";
+import { PAGE_PADDING_X } from "@/src/lib/layout/constants";
 
 const FeaturedAlbums = dynamic(() => import("./components/FeaturedAlbums"), {
   loading: () => (
@@ -27,14 +28,11 @@ export default function Home() {
       }
     >
       <div className="min-h-screen bg-white text-zinc-900">
-        <main
-          className="mx-auto w-full px-6 py-8 sm:px-10 sm:py-10"
-          style={{ maxWidth: HOME_CONTENT_MAX_WIDTH }}
-        >
+        <ContentContainer className={`mx-auto w-full pb-8 sm:pb-10 ${PAGE_PADDING_X}`}>
           <HomeHeroSearch />
           <FeaturedAlbums />
           <TodayAlbumCard />
-        </main>
+        </ContentContainer>
       </div>
     </Suspense>
   );

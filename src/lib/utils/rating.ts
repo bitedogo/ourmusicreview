@@ -17,3 +17,34 @@ export function getRatingScoreColor(rating: number | null): string {
   if (rating >= 3) return RATING_COLORS.mid;
   return RATING_COLORS.low;
 }
+
+export function isHighRating(
+  averageRating: number | null | undefined,
+  reviewCount: number | null | undefined
+): boolean {
+  return (
+    reviewCount != null &&
+    reviewCount > 0 &&
+    averageRating != null &&
+    averageRating >= 9
+  );
+}
+
+export function getRatingTextClassName(
+  averageRating: number | null | undefined,
+  reviewCount: number | null | undefined
+): string {
+  return isHighRating(averageRating, reviewCount)
+    ? "text-red-600"
+    : "text-zinc-900";
+}
+
+export function getDisplayRating(
+  averageRating: number | null | undefined,
+  reviewCount: number | null | undefined
+): string {
+  if (reviewCount && averageRating != null) {
+    return averageRating.toFixed(1);
+  }
+  return "-";
+}
