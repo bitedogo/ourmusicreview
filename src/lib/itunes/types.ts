@@ -20,8 +20,8 @@ export interface ItunesSearchResponse {
 export interface ItunesArtistResult {
   artistId: number;
   artistName: string;
-  artistViewUrl: string;
-  artworkUrl100?: string; // 아티스트 이미지
+  artistViewUrl?: string;
+  artworkUrl100?: string;
   primaryGenreName?: string;
 }
 

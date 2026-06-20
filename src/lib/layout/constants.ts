@@ -1,0 +1,1 @@
+export const HOME_CONTENT_MAX_WIDTH = 1100;

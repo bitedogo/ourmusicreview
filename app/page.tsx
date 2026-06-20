@@ -1,17 +1,9 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import Image from "next/image";
 import { Suspense } from "react";
-import { useRouter } from "next/navigation";
-import { useState, useRef, useEffect, useCallback } from "react";
-
-interface ArtistSuggestion {
-  artistId: number;
-  artistName: string;
-  artworkUrl100?: string;
-  primaryGenreName?: string;
-}
+import { HomeHeroSearch } from "./components/home-hero-search";
+import { HOME_CONTENT_MAX_WIDTH } from "@/src/lib/layout/constants";
 
 const FeaturedAlbums = dynamic(() => import("./components/FeaturedAlbums"), {
   loading: () => (
@@ -25,201 +17,25 @@ const TodayAlbumCard = dynamic(() => import("./components/TodayAlbumCard"), {
   loading: () => null,
 });
 
-const DEBOUNCE_MS = 300;
-
-function HomeContent() {
-  const router = useRouter();
-  const searchContainerRef = useRef<HTMLDivElement>(null);
-
-  const [searchQuery, setSearchQuery] = useState("");
-  const [suggestions, setSuggestions] = useState<ArtistSuggestion[]>([]);
-  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const fetchSuggestions = useCallback(async (term: string) => {
-    if (!term.trim()) {
-      setSuggestions([]);
-      setIsDropdownOpen(false);
-      return;
-    }
-    setIsLoadingSuggestions(true);
-    setIsDropdownOpen(true);
-    try {
-      const res = await fetch(
-        `/api/itunes/search-autocomplete?term=${encodeURIComponent(term.trim())}`
-      );
-      const data = await res.json().catch(() => null);
-      if (data?.ok && Array.isArray(data?.data?.results)) {
-        setSuggestions(data.data.results);
-        setIsDropdownOpen(data.data.results.length > 0);
-      } else {
-        setSuggestions([]);
-        setIsDropdownOpen(false);
-      }
-    } catch {
-      setSuggestions([]);
-      setIsDropdownOpen(false);
-    } finally {
-      setIsLoadingSuggestions(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    const q = searchQuery.trim();
-    if (!q) {
-      setSuggestions([]);
-      setIsDropdownOpen(false);
-      return;
-    }
-    if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
-    debounceTimerRef.current = setTimeout(() => {
-      fetchSuggestions(q);
-    }, DEBOUNCE_MS);
-    return () => {
-      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
-    };
-  }, [searchQuery, fetchSuggestions]);
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        searchContainerRef.current &&
-        !searchContainerRef.current.contains(event.target as Node)
-      ) {
-        setIsDropdownOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  function handleSearchSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const q = searchQuery.trim();
-    if (!q) return;
-    setIsDropdownOpen(false);
-    router.push(`/search?q=${encodeURIComponent(q)}`);
-  }
-
-  function handleArtistSelect(artist: ArtistSuggestion) {
-    setIsDropdownOpen(false);
-    router.push(`/search?artistId=${artist.artistId}&artist=${encodeURIComponent(artist.artistName)}`);
-  }
-
-  return (
-    <div className="min-h-screen bg-white text-zinc-900">
-      <main className="mx-auto w-[956px] max-w-full px-6 py-8 sm:px-10 sm:py-10">
-        <section className="bg-white pt-2 pb-8 sm:pt-4 sm:pb-12">
-          <div className="translate-y-[6px] space-y-[6px] text-center">
-            <h1 className="text-[42px] font-bold tracking-tight text-zinc-900 sm:text-[44px]">
-              당신의 음악을 <br className="sm:hidden" />
-              <span className="hidden sm:inline"> </span>
-              기록하고 공유하세요
-            </h1>
-            <p className="mx-auto hidden max-w-xl text-[15px] leading-7 text-zinc-600 sm:block sm:text-[17px]">
-              좋아하는 앨범을 저장하고, 리뷰로 감상을 남기고,
-              <br className="sm:hidden" />
-              <span className="hidden sm:inline"> </span>
-              새로운 음악을 발견하세요.
-            </p>
-          </div>
-
-          <form onSubmit={handleSearchSubmit} className="mt-[32px] flex justify-center sm:mt-[48px]">
-            <div ref={searchContainerRef} className="relative w-[956px] max-w-full">
-              <div
-                className={`flex flex-col bg-white overflow-hidden transition-[border-radius,box-shadow] ${isDropdownOpen
-                  ? "rounded-t-2xl rounded-b-none"
-                  : "rounded-2xl border-2 border-[var(--color-brand-primary)]"
-                  }`}
-              >
-                <div
-                  className={`flex h-[72px] cursor-text items-center gap-3 sm:h-[68px] ${isDropdownOpen ? "border-b-2 border-[var(--color-brand-primary)] px-4" : "overflow-hidden px-3"
-                    }`}
-                >
-                  <input
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="h-full flex-1 cursor-text bg-transparent text-black caret-black pl-2 text-sm outline-none placeholder:text-zinc-400"
-                    placeholder="아티스트 이름으로 검색해보세요"
-                  />
-                  <button
-                    type="submit"
-                    className="flex h-[58px] w-[65px] shrink-0 items-center justify-center rounded-xl bg-[var(--color-brand-primary)] text-white transition hover:bg-[var(--color-brand-primary-hover)] sm:h-[54px]"
-                    aria-label="검색"
-                  >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <circle cx="11" cy="11" r="8" />
-                      <path d="m21 21-4.35-4.35" />
-                    </svg>
-                  </button>
-                </div>
-
-                {isDropdownOpen && (
-                  <ul role="listbox">
-                    {isLoadingSuggestions ? (
-                      <li className="px-4 py-3 text-sm text-zinc-500">검색 중...</li>
-                    ) : (
-                      suggestions.map((artist) => (
-                        <li
-                          key={artist.artistId}
-                          role="option"
-                          aria-selected="false"
-                          className="border-b border-zinc-100 last:border-b-0"
-                        >
-                          <button
-                            type="button"
-                            onClick={() => handleArtistSelect(artist)}
-                            className="flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-zinc-50"
-                          >
-                            <Image
-                              src={
-                                artist.artworkUrl100 ??
-                                "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Crect fill='%23e4e4e7' width='40' height='40'/%3E%3Cpath fill='%23a1a1aa' d='M20 18a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm0 2c-5 0-8 2.5-8 5v5h16v-5c0-2.5-3-5-8-5z'/%3E%3C/svg%3E"
-                              }
-                              alt={`${artist.artistName} 프로필`}
-                              width={40}
-                              height={40}
-                              unoptimized
-                              className="h-10 w-10 shrink-0 rounded-lg bg-zinc-200 object-cover"
-                            />
-                            <div className="min-w-0 flex-1 text-left">
-                              <div className="truncate text-sm font-medium text-black">
-                                {artist.artistName}
-                              </div>
-                              {artist.primaryGenreName && (
-                                <div className="truncate text-xs text-zinc-400">
-                                  {artist.primaryGenreName}
-                                </div>
-                              )}
-                            </div>
-                          </button>
-                        </li>
-                      ))
-                    )}
-                  </ul>
-                )}
-              </div>
-            </div>
-          </form>
-        </section>
-
-        <FeaturedAlbums />
-
-        <TodayAlbumCard />
-      </main>
-    </div>
-  );
-}
-
 export default function Home() {
   return (
-    <Suspense fallback={
-      <div className="flex min-h-screen items-center justify-center bg-white">
-        <div className="text-sm text-zinc-500">로딩 중...</div>
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-white">
+          <div className="text-sm text-zinc-500">로딩 중...</div>
+        </div>
+      }
+    >
+      <div className="min-h-screen bg-white text-zinc-900">
+        <main
+          className="mx-auto w-full px-6 py-8 sm:px-10 sm:py-10"
+          style={{ maxWidth: HOME_CONTENT_MAX_WIDTH }}
+        >
+          <HomeHeroSearch />
+          <FeaturedAlbums />
+          <TodayAlbumCard />
+        </main>
       </div>
-    }>
-      <HomeContent />
     </Suspense>
   );
 }

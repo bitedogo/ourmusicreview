@@ -7,6 +7,14 @@
   --foreground: #171717;
   --color-brand-primary: #1E264D;
   --color-brand-primary-hover: #151B38;
+  --color-accent: #43A7B2;
+  --color-accent-hover: #3a96a0;
+  --color-subtitle: #C3DADD;
+  --color-rating-label: #11747C;
+  --color-rating-score-high: #F82512;
+  --color-rating-score-mid-high: #F35319;
+  --color-rating-score-mid: #F8CA12;
+  --color-rating-score-low: #11747C;
 }
 
 @theme inline {

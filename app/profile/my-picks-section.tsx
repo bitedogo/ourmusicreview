@@ -5,13 +5,7 @@ import { reorderById } from "@/src/lib/utils/reorder";
 import Image from "next/image";
 import { fetchJson, getApiErrorMessage } from "@/src/lib/http/client";
 import Link from "next/link";
-import { setSlideSource, SLIDE_SOURCE_KEY } from "@/app/components/FeaturedAlbums";
-
-function getStoredSlideSource(): "user" | "admin" {
-  if (typeof window === "undefined") return "user";
-  const v = localStorage.getItem(SLIDE_SOURCE_KEY);
-  return v === "admin" ? "admin" : "user";
-}
+import { useSlideSourceState } from "@/src/hooks/use-slide-source-state";
 
 const MIN_FOR_SLIDE = 15;
 const MAX_COUNT = 30;
@@ -66,11 +60,7 @@ export function MyPicksSection({ embedded = false }: { embedded?: boolean }) {
   const [addError, setAddError] = useState<string | null>(null);
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [isSavingOrder, setIsSavingOrder] = useState(false);
-  const [slideSource, setSlideSourceState] = useState<"user" | "admin">("user");
-
-  useEffect(() => {
-    setSlideSourceState(getStoredSlideSource());
-  }, []);
+  const { slideSource, updateSlideSource } = useSlideSourceState();
 
   useEffect(() => {
     fetchAlbums();
@@ -266,10 +256,7 @@ export function MyPicksSection({ embedded = false }: { embedded?: boolean }) {
           <button
             type="button"
             disabled={slideSource === "user"}
-            onClick={() => {
-              setSlideSource("user");
-              setSlideSourceState("user");
-            }}
+            onClick={() => updateSlideSource("user")}
             className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition ${
               slideSource === "user"
                 ? "border-[var(--color-brand-primary)] bg-[var(--color-brand-primary)] text-white cursor-default"
@@ -281,10 +268,7 @@ export function MyPicksSection({ embedded = false }: { embedded?: boolean }) {
           <button
             type="button"
             disabled={slideSource === "admin"}
-            onClick={() => {
-              setSlideSource("admin");
-              setSlideSourceState("admin");
-            }}
+            onClick={() => updateSlideSource("admin")}
             className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition ${
               slideSource === "admin"
                 ? "border-[var(--color-brand-primary)] bg-[var(--color-brand-primary)] text-white cursor-default"

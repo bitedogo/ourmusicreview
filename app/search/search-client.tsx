@@ -1,16 +1,13 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { ApiClientError, fetchJson, getApiErrorMessage } from "@/src/lib/http/client";
-
-interface ArtistResult {
-  artistId: number;
-  artistName: string;
-  primaryGenreName?: string;
-  artworkUrl100?: string;
-}
+import type { ItunesArtistResult } from "@/src/lib/itunes/types";
+import { buildArtistSearchPath } from "@/src/lib/itunes/search";
+import { useArtistAutocomplete } from "@/src/hooks/use-artist-autocomplete";
+import { ArtistSearchSuggestions } from "@/app/components/artist-search-suggestions";
 
 interface AlbumResult {
   collectionId: number;
@@ -22,17 +19,10 @@ interface AlbumResult {
   imageUrl600: string | null;
 }
 
-interface SearchAutocompleteResponse {
-  ok: boolean;
-  data: {
-    results: ArtistResult[];
-  };
-}
-
 interface ArtistSearchResponse {
   ok: boolean;
   data: {
-    artists: ArtistResult[];
+    artists: ItunesArtistResult[];
   };
 }
 
@@ -65,8 +55,6 @@ interface ReviewDuplicateCheckResponse {
   };
 }
 
-const DEBOUNCE_MS = 300;
-
 export function SearchClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -76,14 +64,18 @@ export function SearchClient() {
     artistIdFromUrl != null && artistIdFromUrl !== ""
       ? ""
       : artistParamFromUrl || searchParams.get("q") || "";
-  const searchContainerRef = useRef<HTMLDivElement>(null);
-  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const [searchQuery, setSearchQuery] = useState(initialQuery);
-  const [suggestions, setSuggestions] = useState<ArtistResult[]>([]);
-  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [selectedArtist, setSelectedArtist] = useState<ArtistResult | null>(null);
+  const {
+    containerRef: searchContainerRef,
+    searchQuery,
+    setSearchQuery,
+    suggestions,
+    isLoading: isLoadingSuggestions,
+    isDropdownOpen,
+    closeDropdown,
+  } = useArtistAutocomplete({ initialQuery });
+
+  const [selectedArtist, setSelectedArtist] = useState<ItunesArtistResult | null>(null);
   const [albums, setAlbums] = useState<AlbumResult[]>([]);
   const [isLoadingAlbums, setIsLoadingAlbums] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -93,62 +85,6 @@ export function SearchClient() {
   const [favoriteAlbumIds, setFavoriteAlbumIds] = useState<Set<string>>(new Set());
   const [isDuplicateModalOpen, setIsDuplicateModalOpen] = useState(false);
   const [checkingReviewAlbumId, setCheckingReviewAlbumId] = useState<string | null>(null);
-
-  const fetchSuggestions = useCallback(async (term: string) => {
-    if (!term.trim()) {
-      setSuggestions([]);
-      setIsDropdownOpen(false);
-      return;
-    }
-    setIsLoadingSuggestions(true);
-    setIsDropdownOpen(true);
-    try {
-      const data = await fetchJson<SearchAutocompleteResponse>(
-        `/api/itunes/search-autocomplete?term=${encodeURIComponent(term.trim())}`
-      );
-      if (Array.isArray(data.data?.results)) {
-        setSuggestions(data.data.results);
-        setIsDropdownOpen(data.data.results.length > 0);
-      } else {
-        setSuggestions([]);
-        setIsDropdownOpen(false);
-      }
-    } catch {
-      setSuggestions([]);
-      setIsDropdownOpen(false);
-    } finally {
-      setIsLoadingSuggestions(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    const q = searchQuery.trim();
-    if (!q) {
-      setSuggestions([]);
-      setIsDropdownOpen(false);
-      return;
-    }
-    if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
-    debounceTimerRef.current = setTimeout(() => {
-      fetchSuggestions(q);
-    }, DEBOUNCE_MS);
-    return () => {
-      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
-    };
-  }, [searchQuery, fetchSuggestions]);
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        searchContainerRef.current &&
-        !searchContainerRef.current.contains(event.target as Node)
-      ) {
-        setIsDropdownOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   const handleSearchAndRedirect = useCallback(async (term: string) => {
     if (!term.trim()) return;
@@ -176,18 +112,16 @@ export function SearchClient() {
     event.preventDefault();
     const q = searchQuery.trim();
     if (!q) return;
-    setIsDropdownOpen(false);
+    closeDropdown();
     handleSearchAndRedirect(q);
   }
 
-  function handleArtistSelectFromDropdown(artist: ArtistResult) {
-    setIsDropdownOpen(false);
-    router.push(
-      `/search?artistId=${artist.artistId}&artist=${encodeURIComponent(artist.artistName)}`
-    );
+  function handleArtistSelectFromDropdown(artist: ItunesArtistResult) {
+    closeDropdown();
+    router.push(buildArtistSearchPath(artist));
   }
 
-  const handleArtistSelect = useCallback(async (artist: ArtistResult) => {
+  const handleArtistSelect = useCallback(async (artist: ItunesArtistResult) => {
     setSelectedArtist(artist);
     setIsLoadingAlbums(true);
     setAlbums([]);
@@ -395,46 +329,11 @@ export function SearchClient() {
 
               {isDropdownOpen && (
                 <ul role="listbox">
-                  {isLoadingSuggestions ? (
-                    <li className="px-4 py-3 text-sm text-zinc-500">검색 중...</li>
-                  ) : (
-                    suggestions.map((artist) => (
-                      <li
-                        key={artist.artistId}
-                        role="option"
-                        aria-selected="false"
-                        className="border-b border-zinc-100 last:border-b-0"
-                      >
-                        <button
-                          type="button"
-                          onClick={() => handleArtistSelectFromDropdown(artist)}
-                          className="flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-zinc-50"
-                        >
-                          <Image
-                            src={
-                              artist.artworkUrl100 ??
-                              "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Crect fill='%23e4e4e7' width='40' height='40'/%3E%3Cpath fill='%23a1a1aa' d='M20 18a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm0 2c-5 0-8 2.5-8 5v5h16v-5c0-2.5-3-5-8-5z'/%3E%3C/svg%3E"
-                            }
-                            alt={`${artist.artistName} 프로필`}
-                            width={40}
-                            height={40}
-                            unoptimized
-                            className="h-10 w-10 shrink-0 rounded-lg bg-zinc-200 object-cover"
-                          />
-                          <div className="min-w-0 flex-1 text-left">
-                            <div className="truncate text-sm font-medium text-black">
-                              {artist.artistName}
-                            </div>
-                            {artist.primaryGenreName && (
-                              <div className="truncate text-xs text-zinc-400">
-                                {artist.primaryGenreName}
-                              </div>
-                            )}
-                          </div>
-                        </button>
-                      </li>
-                    ))
-                  )}
+                  <ArtistSearchSuggestions
+                    suggestions={suggestions}
+                    isLoading={isLoadingSuggestions}
+                    onSelect={handleArtistSelectFromDropdown}
+                  />
                 </ul>
               )}
             </div>

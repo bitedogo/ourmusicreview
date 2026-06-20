@@ -1,87 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
 import { useSession } from "next-auth/react";
-
-export const SLIDE_SOURCE_KEY = "slide-source";
-
-function getStoredSlideSource(): "user" | "admin" {
-  if (typeof window === "undefined") return "user";
-  const v = localStorage.getItem(SLIDE_SOURCE_KEY);
-  return v === "admin" ? "admin" : "user";
-}
-
-export function setSlideSource(source: "user" | "admin") {
-  localStorage.setItem(SLIDE_SOURCE_KEY, source);
-}
-
-interface FeaturedAlbum {
-  collectionId: number;
-  title: string;
-  artist: string;
-  imageUrl: string | null;
-  releaseDate: string;
-  genre: string;
-  averageRating: number | null;
-}
-
-function getReleaseYear(releaseDate: string): string {
-  if (!releaseDate) return "";
-  try {
-    return new Date(releaseDate).getFullYear().toString();
-  } catch {
-    return "";
-  }
-}
+import { useFeaturedAlbums } from "@/src/hooks/use-featured-albums";
+import { useSlideSourceState } from "@/src/hooks/use-slide-source-state";
+import { FeaturedAlbumCard } from "./featured-album-card";
 
 export default function FeaturedAlbums() {
   const { data: session, status } = useSession();
-  const [slideSource, setSlideSourceState] = useState<"user" | "admin">("user");
-
-  useEffect(() => {
-    setSlideSourceState(getStoredSlideSource());
-  }, []);
-
+  const { slideSource } = useSlideSourceState();
   const showAdminSlide = slideSource === "admin";
-  const [albums, setAlbums] = useState<FeaturedAlbum[]>([]);
-  const [hasUserSlide, setHasUserSlide] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    if (status === "loading") return;
-
-    setIsLoading(true);
-    (async () => {
-      try {
-        const url = showAdminSlide
-          ? "/api/featured-albums?source=admin"
-          : "/api/featured-albums";
-        const res = await fetch(url, {
-          credentials: "include",
-          cache: "no-store",
-        });
-        if (!res.ok) throw new Error("Failed to fetch");
-        const data = await res.json().catch(() => null);
-        if (data?.ok && Array.isArray(data?.albums)) {
-          setAlbums(data.albums);
-          setHasUserSlide(data.hasUserSlide === true);
-        }
-      } catch {
-        setAlbums([]);
-        setHasUserSlide(false);
-      } finally {
-        setIsLoading(false);
-      }
-    })();
-  }, [status, session?.user?.id, showAdminSlide]);
-
-  useEffect(() => {
-    const handler = () => setSlideSourceState(getStoredSlideSource());
-    window.addEventListener("storage", handler);
-    return () => window.removeEventListener("storage", handler);
-  }, []);
+  const { albums, isLoading } = useFeaturedAlbums(status, session, showAdminSlide);
 
   if (isLoading) {
     return (
@@ -99,59 +27,13 @@ export default function FeaturedAlbums() {
 
   return (
     <section className="relative left-1/2 mt-[6px] w-screen max-w-none -translate-x-1/2">
-      <div className="relative overflow-hidden">
-        <div className="group flex flex-nowrap items-stretch animate-marquee-force">
+      <div className="relative overflow-hidden py-4">
+        <div className="group flex flex-nowrap items-start animate-marquee-force">
           {duplicatedAlbums.map((album, index) => (
-            <Link
+            <FeaturedAlbumCard
               key={`${album.collectionId}-${index}`}
-              href={`/review/album/${album.collectionId}`}
-              className="flex w-48 shrink-0 flex-col sm:w-56 mx-3 rounded-xl bg-white shadow-sm overflow-hidden transition-transform duration-300 hover:scale-105"
-            >
-              <div className="relative aspect-square bg-zinc-100 rounded-t-xl overflow-hidden">
-                {album.imageUrl ? (
-                  <Image
-                    src={album.imageUrl}
-                    alt={`${album.title} cover`}
-                    fill
-                    unoptimized
-                    sizes="(max-width: 640px) 192px, 224px"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="flex items-center justify-center w-full h-full text-xs text-zinc-400">
-                    이미지 없음
-                  </div>
-                )}
-              </div>
-
-              <div className="p-4 space-y-1">
-                <h3 className="font-bold text-base text-left line-clamp-2">
-                  {album.title}
-                </h3>
-                <p className="text-sm text-zinc-700 text-left">
-                  {album.artist}
-                </p>
-                <div className="flex items-center gap-1.5 mt-1">
-                  <span className="text-[10px] text-zinc-600">Rating :</span>
-                  <span
-                    className={`text-sm font-bold ${album.averageRating != null && album.averageRating >= 9 ? "text-red-600" : "text-zinc-900"}`}
-                  >
-                    {album.averageRating != null ? album.averageRating.toFixed(1) : "-"}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2 text-xs text-zinc-500">
-                  {album.genre && (
-                    <span className="text-left">{album.genre}</span>
-                  )}
-                  {album.releaseDate && (
-                    <>
-                      {album.genre && <span>•</span>}
-                      <span>{getReleaseYear(album.releaseDate)}</span>
-                    </>
-                  )}
-                </div>
-              </div>
-            </Link>
+              album={album}
+            />
           ))}
         </div>
       </div>
