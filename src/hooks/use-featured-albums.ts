@@ -2,8 +2,11 @@
 
 import { useEffect, useState } from "react";
 import type { Session } from "next-auth";
-import type { FeaturedAlbumCardData } from "@/src/lib/featured-albums/types";
-import type { FeaturedAlbumsApiResponse } from "@/src/lib/featured-albums/types";
+import { fetchJson } from "@/src/lib/http/client";
+import type {
+  FeaturedAlbumCardData,
+  FeaturedAlbumsApiResponse,
+} from "@/src/lib/featured-albums/types";
 
 export function useFeaturedAlbums(
   sessionStatus: "loading" | "authenticated" | "unauthenticated",
@@ -16,30 +19,38 @@ export function useFeaturedAlbums(
   useEffect(() => {
     if (sessionStatus === "loading") return;
 
+    let isCancelled = false;
     setIsLoading(true);
-    (async () => {
+
+    async function fetchAlbums() {
       try {
         const url = showAdminSlide
           ? "/api/featured-albums?source=admin"
           : "/api/featured-albums";
-        const response = await fetch(url, {
+        const data = await fetchJson<FeaturedAlbumsApiResponse>(url, {
           credentials: "include",
           cache: "no-store",
         });
-        if (!response.ok) throw new Error("Failed to fetch");
 
-        const data = (await response.json().catch(() => null)) as FeaturedAlbumsApiResponse | null;
-        if (data?.ok && Array.isArray(data.albums)) {
-          setAlbums(data.albums);
-        } else {
-          setAlbums([]);
+        if (!isCancelled) {
+          setAlbums(data.ok && Array.isArray(data.albums) ? data.albums : []);
         }
       } catch {
-        setAlbums([]);
+        if (!isCancelled) {
+          setAlbums([]);
+        }
       } finally {
-        setIsLoading(false);
+        if (!isCancelled) {
+          setIsLoading(false);
+        }
       }
-    })();
+    }
+
+    fetchAlbums();
+
+    return () => {
+      isCancelled = true;
+    };
   }, [sessionStatus, session?.user?.id, showAdminSlide]);
 
   return { albums, isLoading };

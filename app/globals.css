@@ -15,6 +15,89 @@
   --color-rating-score-mid-high: #F35319;
   --color-rating-score-mid: #F8CA12;
   --color-rating-score-low: #11747C;
+  --color-today-album-title: #0D0D0D;
+  --color-today-album-body: #333333;
+  --color-text-primary: #18181b;
+  --color-text-secondary: #71717a;
+  --color-text-muted: #a1a1aa;
+  --color-border: #e4e4e7;
+  --color-divider: #71717a;
+
+  /* layout — design-tokens.ts LAYOUT */
+  --layout-content-max-width: 1100px;
+  --layout-search-bar-max-width: 700px;
+  --layout-header-search-gap: 24px;
+  --page-padding-x-mobile: 24px;
+  --page-padding-x-desktop: 40px;
+  --site-padding-x-mobile: 16px;
+
+  /* logo — design-tokens.ts LOGO */
+  --logo-width: 141px;
+  --logo-height: 72.9px;
+
+  /* search bar — design-tokens.ts SEARCH_BAR */
+  --search-bar-max-width: 700px;
+  --search-bar-height-mobile: 56px;
+  --search-bar-height-desktop: 65px;
+  --search-bar-button-height-mobile: 44px;
+  --search-bar-button-height-desktop: 51px;
+  --search-bar-button-padding-x-mobile: 20px;
+  --search-bar-button-padding-x-desktop: 28px;
+  --search-bar-radius-open-top: 32px;
+  --search-bar-input-padding-left-mobile: 8px;
+  --search-bar-input-padding-left-desktop: 12px;
+  --search-bar-track-padding-x-mobile: 8px;
+  --search-bar-track-padding-x-desktop: 12px;
+  --search-bar-track-gap-mobile: 8px;
+  --search-bar-track-gap-desktop: 12px;
+
+  /* featured slide card — design-tokens.ts FEATURED_CARD */
+  --featured-card-width-mobile: 192px;
+  --featured-card-width-desktop: 224px;
+  --featured-card-margin-x: 12px;
+  --featured-card-padding: 16px;
+  --featured-card-gap: 12px;
+  --featured-card-inner-gap: 8px;
+  --featured-card-radius: 15px;
+  --featured-cover-radius: 15px;
+  --text-featured-title: 16px;
+  --text-featured-meta: 10px;
+  --text-featured-rating: 14px;
+  --featured-rating-divider-padding-top: 8px;
+  --featured-rating-divider-padding-bottom: 4px;
+
+  /* featured track — design-tokens.ts FEATURED_TRACK */
+  --featured-track-margin-top: 6px;
+  --featured-track-padding-y: 16px;
+
+  /* today album — design-tokens.ts TODAY_ALBUM */
+  --today-album-cover-size: 320px;
+  --today-album-section-margin-top: 40px;
+  --today-album-content-padding-x-mobile: 20px;
+  --today-album-content-padding-x-desktop: 32px;
+  --today-album-content-padding-y-mobile: 24px;
+  --today-album-content-padding-y-desktop: 32px;
+  --today-album-layout-gap-mobile: 20px;
+  --today-album-layout-gap-desktop: 40px;
+  --text-today-album-title: 24px;
+  --text-today-album-body-mobile: 14px;
+  --text-today-album-body-desktop: 15px;
+  --leading-today-album-title: 145%;
+  --leading-today-album-body: 170%;
+  --tracking-ui: 0.03em;
+  --today-album-description-max-height: 320px;
+  --text-today-album-empty: 14px;
+
+  /* hero — design-tokens.ts HERO */
+  --hero-copy-margin-top-mobile: 40px;
+  --hero-copy-margin-top-desktop: 48px;
+  --text-hero-title-mobile: 32px;
+  --text-hero-title-desktop: 40px;
+  --text-hero-subtitle-mobile: 14px;
+  --text-hero-subtitle-desktop: 16px;
+  --leading-hero-subtitle: 1.75;
+  --hero-section-padding-bottom-mobile: 32px;
+  --hero-section-padding-bottom-desktop: 48px;
 }
 
 @theme inline {

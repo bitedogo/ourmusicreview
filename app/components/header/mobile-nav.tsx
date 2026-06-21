@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { ADMIN_LINKS, NAV_LINKS } from "@/src/lib/navigation/nav-config";
-import { HOME_CONTENT_MAX_WIDTH } from "@/src/lib/layout/constants";
 
 interface MobileNavProps {
   isAdmin: boolean;
@@ -12,7 +11,7 @@ export function MobileNav({ isAdmin, onNavigate }: MobileNavProps) {
     <div className="absolute left-0 right-0 top-full z-40 bg-white shadow-lg md:hidden">
       <nav
         className="mx-auto w-full px-4 py-4 sm:px-0"
-        style={{ maxWidth: HOME_CONTENT_MAX_WIDTH }}
+        style={{ maxWidth: "var(--layout-content-max-width)" }}
       >
         <ul className="space-y-1">
           {NAV_LINKS.map(({ href, label }) => (

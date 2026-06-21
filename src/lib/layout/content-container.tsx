@@ -1,5 +1,4 @@
 import type { CSSProperties, ReactNode } from "react";
-import { HOME_CONTENT_MAX_WIDTH } from "./constants";
 
 interface ContentContainerProps {
   children: ReactNode;
@@ -17,7 +16,7 @@ export function ContentContainer({
   return (
     <Tag
       className={className}
-      style={{ maxWidth: HOME_CONTENT_MAX_WIDTH, ...style }}
+      style={{ maxWidth: "var(--layout-content-max-width)", ...style }}
     >
       {children}
     </Tag>

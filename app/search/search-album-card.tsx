@@ -2,14 +2,14 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { ApiClientError, fetchJson, getApiErrorMessage } from "@/src/lib/http/client";
 import { buildAlbumReviewPath, getReleaseYear } from "@/src/lib/utils/album";
 import { getDisplayRating, getRatingTextClassName } from "@/src/lib/utils/rating";
+import type { AlbumRatingInfo } from "@/src/hooks/use-batch-album-ratings";
 import type { SearchAlbumResult } from "@/src/lib/search/types";
 
 interface SearchAlbumCardProps {
   album: SearchAlbumResult;
-  ratingInfo?: { averageRating: number | null; reviewCount: number };
+  ratingInfo?: AlbumRatingInfo;
   isFavorite: boolean;
   isCheckingReview: boolean;
   onToggleFavorite: (album: SearchAlbumResult) => void;

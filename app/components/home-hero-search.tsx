@@ -2,7 +2,6 @@
 
 import { useArtistAutocomplete } from "@/src/hooks/use-artist-autocomplete";
 import { useArtistSearchNavigation } from "@/src/hooks/use-artist-search-navigation";
-import { HEADER_SEARCH_GAP } from "@/src/lib/layout/constants";
 import type { ItunesArtistResult } from "@/src/lib/itunes/types";
 import { ArtistSearchBar } from "./artist-search-bar";
 import { HomeHeroCopy } from "./home-hero-copy";
@@ -34,7 +33,10 @@ export function HomeHeroSearch() {
   }
 
   return (
-    <section className="bg-white pb-8 sm:pb-12" style={{ paddingTop: HEADER_SEARCH_GAP }}>
+    <section
+      className="bg-white pb-[var(--hero-section-padding-bottom-mobile)] sm:pb-[var(--hero-section-padding-bottom-desktop)]"
+      style={{ paddingTop: "var(--layout-header-search-gap)" }}
+    >
       <ArtistSearchBar
         containerRef={containerRef}
         searchQuery={searchQuery}

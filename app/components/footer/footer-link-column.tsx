@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { externalLinkProps, isExternalLink } from "@/src/lib/navigation/link-utils";
 import type { NavLinkItem } from "@/src/lib/navigation/nav-config";
 
 interface FooterLinkColumnProps {
@@ -6,23 +7,20 @@ interface FooterLinkColumnProps {
   links: NavLinkItem[];
 }
 
-function isExternalLink(href: string) {
-  return href.startsWith("http") || href.startsWith("mailto:");
-}
-
 export function FooterLinkColumn({ title, links }: FooterLinkColumnProps) {
   return (
-    <div className="flex flex-col items-start gap-3">
-      <p className="text-sm font-semibold text-zinc-900">{title}</p>
-      <nav className="flex flex-col items-start gap-2">
+    <div className="flex flex-col items-start gap-[var(--featured-card-inner-gap)]">
+      <p className="text-[length:var(--text-today-album-body-mobile)] font-semibold text-[var(--color-text-primary)]">
+        {title}
+      </p>
+      <nav className="flex flex-col items-start gap-[var(--featured-card-inner-gap)]">
         {links.map(({ href, label }) =>
           isExternalLink(href) ? (
             <a
               key={href}
               href={href}
-              target={href.startsWith("http") ? "_blank" : undefined}
-              rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
-              className="text-sm text-zinc-500 transition hover:text-zinc-900"
+              {...externalLinkProps(href)}
+              className="text-[length:var(--text-today-album-body-mobile)] text-[var(--color-text-secondary)] transition hover:text-[var(--color-text-primary)]"
             >
               {label}
             </a>
@@ -30,7 +28,7 @@ export function FooterLinkColumn({ title, links }: FooterLinkColumnProps) {
             <Link
               key={href}
               href={href}
-              className="text-sm text-zinc-500 transition hover:text-zinc-900"
+              className="text-[length:var(--text-today-album-body-mobile)] text-[var(--color-text-secondary)] transition hover:text-[var(--color-text-primary)]"
             >
               {label}
             </Link>

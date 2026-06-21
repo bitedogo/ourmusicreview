@@ -1,20 +1,21 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { ArtistSearchBar } from "@/app/components/artist-search-bar";
 import { DuplicateReviewModal } from "@/src/components/common/duplicate-review-modal";
+import { EmptyState } from "@/src/components/common/empty-state";
 import { useArtistAutocomplete } from "@/src/hooks/use-artist-autocomplete";
+import { useBatchAlbumRatings } from "@/src/hooks/use-batch-album-ratings";
+import { useFavoriteAlbumIds } from "@/src/hooks/use-favorite-album-ids";
 import { ApiClientError, fetchJson, getApiErrorMessage } from "@/src/lib/http/client";
 import type { ItunesArtistResult } from "@/src/lib/itunes/types";
 import { buildArtistSearchPath } from "@/src/lib/itunes/search";
 import { ContentContainer } from "@/src/lib/layout/content-container";
-import { HEADER_SEARCH_GAP, PAGE_PADDING_X } from "@/src/lib/layout/constants";
+import { PAGE_PADDING_X } from "@/src/lib/layout/constants";
 import type {
   ArtistAlbumsResponse,
   ArtistSearchResponse,
-  BatchAlbumRatingsResponse,
-  FavoritesResponse,
   ReviewDuplicateCheckResponse,
   SearchAlbumResult,
 } from "@/src/lib/search/types";
@@ -45,12 +46,17 @@ export function SearchClient() {
   const [albums, setAlbums] = useState<SearchAlbumResult[]>([]);
   const [isLoadingAlbums, setIsLoadingAlbums] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [albumRatings, setAlbumRatings] = useState<
-    Record<string, { averageRating: number | null; reviewCount: number }>
-  >({});
-  const [favoriteAlbumIds, setFavoriteAlbumIds] = useState<Set<string>>(new Set());
   const [isDuplicateModalOpen, setIsDuplicateModalOpen] = useState(false);
   const [checkingReviewAlbumId, setCheckingReviewAlbumId] = useState<string | null>(null);
+
+  const albumIds = useMemo(
+    () => albums.map((album) => album.collectionId.toString()),
+    [albums]
+  );
+  const albumRatings = useBatchAlbumRatings(albumIds);
+  const { favoriteAlbumIds, toggleFavorite } = useFavoriteAlbumIds({
+    onUnauthorized: () => router.push("/auth/signin?callbackUrl=/search"),
+  });
 
   const handleSearchAndRedirect = useCallback(
     async (term: string) => {
@@ -166,96 +172,12 @@ export function SearchClient() {
     );
   }
 
-  async function toggleFavorite(album: SearchAlbumResult) {
-    const albumId = album.collectionId.toString();
-    const isFavorite = favoriteAlbumIds.has(albumId);
-
-    try {
-      if (!isFavorite) {
-        await fetchJson<{ ok: boolean }>("/api/favorites", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            albumId,
-            albumTitle: album.collectionName,
-            albumArtist: album.artistName,
-            albumImageUrl: album.imageUrl600,
-            albumReleaseDate: album.releaseDate,
-          }),
-        });
-
-        setFavoriteAlbumIds((prev) => new Set(prev).add(albumId));
-      } else {
-        await fetchJson<{ ok: boolean }>("/api/favorites", {
-          method: "DELETE",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ albumId }),
-        });
-
-        setFavoriteAlbumIds((prev) => {
-          const next = new Set(prev);
-          next.delete(albumId);
-          return next;
-        });
-      }
-    } catch (error) {
-      if (error instanceof ApiClientError && error.status === 401) {
-        router.push("/auth/signin?callbackUrl=/search");
-      }
-    }
-  }
-
-  useEffect(() => {
-    async function fetchRatings() {
-      if (albums.length === 0) {
-        setAlbumRatings({});
-        return;
-      }
-
-      const albumIds = Array.from(
-        new Set(albums.map((album) => album.collectionId.toString()))
-      );
-
-      try {
-        const ratingData = await fetchJson<BatchAlbumRatingsResponse>(
-          `/api/albums/ratings?ids=${encodeURIComponent(albumIds.join(","))}`
-        );
-        setAlbumRatings(ratingData.data.ratings ?? {});
-      } catch {
-        setAlbumRatings({});
-      }
-    }
-
-    fetchRatings();
-  }, [albums]);
-
-  useEffect(() => {
-    async function fetchFavorites() {
-      try {
-        const data = await fetchJson<FavoritesResponse>("/api/favorites");
-        const ids = new Set<string>();
-        for (const favorite of data.data.favorites || []) {
-          if (favorite.albumId) {
-            ids.add(String(favorite.albumId));
-          }
-        }
-        setFavoriteAlbumIds(ids);
-      } catch (error) {
-        if (error instanceof ApiClientError && error.status === 401) {
-          return;
-        }
-      }
-    }
-
-    fetchFavorites();
-  }, []);
-
   return (
     <ContentContainer
-      className={`mx-auto flex min-h-screen w-full max-w-full flex-col gap-6 pb-10 ${PAGE_PADDING_X}`}
-      style={{ paddingTop: HEADER_SEARCH_GAP }}
+      className={`mx-auto flex min-h-screen w-full max-w-full flex-col gap-[var(--featured-card-gap)] pb-[var(--page-padding-x-mobile)] ${PAGE_PADDING_X}`}
+      style={{ paddingTop: "var(--layout-header-search-gap)" }}
     >
-      <section className="space-y-4">
+      <section className="space-y-[var(--featured-card-padding)]">
         <ArtistSearchBar
           containerRef={searchContainerRef}
           searchQuery={searchQuery}
@@ -268,26 +190,26 @@ export function SearchClient() {
         />
 
         {errorMessage && (
-          <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-900">
+          <div className="rounded-[var(--featured-cover-radius)] border border-red-200 bg-red-50 px-[var(--featured-card-inner-gap)] py-[var(--featured-card-inner-gap)] text-[length:var(--text-today-album-body-mobile)] text-red-900">
             {errorMessage}
           </div>
         )}
       </section>
 
       {selectedArtist && (
-        <section className="mt-8">
-          <div className="mb-4">
-            <h2 className="text-xl font-semibold tracking-tight text-zinc-900">
+        <section className="mt-[var(--featured-card-gap)]">
+          <div className="mb-[var(--featured-card-padding)]">
+            <h2 className="text-[length:var(--text-today-album-title)] font-semibold tracking-tight text-[var(--color-text-primary)]">
               {selectedArtist.artistName} 의 앨범
             </h2>
           </div>
 
           {isLoadingAlbums ? (
-            <div className="rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 px-4 py-8 text-center text-sm text-zinc-500">
+            <EmptyState className="py-[var(--featured-card-gap)]">
               앨범 목록을 불러오는 중...
-            </div>
+            </EmptyState>
           ) : albums.length > 0 ? (
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-[var(--featured-card-padding)] sm:grid-cols-2 lg:grid-cols-3">
               {albums.map((album) => {
                 const albumId = album.collectionId.toString();
                 return (
@@ -304,17 +226,13 @@ export function SearchClient() {
               })}
             </div>
           ) : (
-            <div className="rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 px-4 py-6 text-center text-sm text-zinc-500">
-              등록 가능한 앨범이 없습니다.
-            </div>
+            <EmptyState>등록 가능한 앨범이 없습니다.</EmptyState>
           )}
         </section>
       )}
 
       {!selectedArtist && (
-        <div className="rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 px-4 py-6 text-center text-sm text-zinc-500">
-          위 검색창에 아티스트 이름을 입력하고 검색해보세요.
-        </div>
+        <EmptyState>위 검색창에 아티스트 이름을 입력하고 검색해보세요.</EmptyState>
       )}
 
       {isDuplicateModalOpen && (

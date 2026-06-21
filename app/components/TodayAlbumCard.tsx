@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useState } from "react";
 import { ContentContainer } from "@/src/lib/layout/content-container";
-import { TODAY_ALBUM_COVER_SIZE } from "@/src/lib/layout/constants";
 import { buildAlbumReviewPath } from "@/src/lib/utils/album";
 import { useTodayAlbums } from "@/src/hooks/use-today-albums";
 import type { TodayAlbumTab } from "@/src/lib/today-album/types";
@@ -41,7 +40,7 @@ export default function TodayAlbumCard() {
   return (
     <ContentContainer
       as="section"
-      className="relative left-1/2 mt-10 w-full max-w-[calc(100vw-2rem)] -translate-x-1/2 px-0"
+      className="relative left-1/2 mt-[var(--today-album-section-margin-top)] w-full max-w-[calc(100vw-2rem)] -translate-x-1/2 px-0"
     >
       <div className="w-full">
         <TodayAlbumTabs
@@ -50,12 +49,12 @@ export default function TodayAlbumCard() {
           onTabChange={setActiveTab}
         />
 
-        <article className="rounded-b-2xl rounded-tr-2xl border border-zinc-200 bg-white px-5 py-6 shadow-sm sm:px-8 sm:py-8">
+        <article className="rounded-b-[var(--featured-cover-radius)] rounded-tr-[var(--featured-cover-radius)] border border-[var(--color-border)] bg-white px-[var(--today-album-content-padding-x-mobile)] py-[var(--today-album-content-padding-y-mobile)] shadow-sm sm:px-[var(--today-album-content-padding-x-desktop)] sm:py-[var(--today-album-content-padding-y-desktop)]">
           {activeAlbum ? (
-            <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-center sm:gap-10">
+            <div className="flex flex-col items-center gap-[var(--today-album-layout-gap-mobile)] sm:flex-row sm:items-center sm:gap-[var(--today-album-layout-gap-desktop)]">
               <div
                 className="w-full shrink-0 sm:shrink-0"
-                style={{ width: "100%", maxWidth: TODAY_ALBUM_COVER_SIZE }}
+                style={{ width: "100%", maxWidth: "var(--today-album-cover-size)" }}
               >
                 {albumReviewHref ? (
                   <Link
@@ -73,7 +72,7 @@ export default function TodayAlbumCard() {
               <TodayAlbumDescription album={activeAlbum} resetKey={activeTab} />
             </div>
           ) : (
-            <p className="py-12 text-center text-sm text-zinc-400">
+            <p className="py-[var(--today-album-section-margin-top)] text-center text-[length:var(--text-today-album-empty)] text-[var(--color-text-muted)]">
               해당 날짜의 앨범이 없습니다.
             </p>
           )}

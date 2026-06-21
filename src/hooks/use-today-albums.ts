@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { fetchJson } from "@/src/lib/http/client";
 import type { TodayAlbumsResponse, TodayAlbumTab } from "@/src/lib/today-album/types";
 
 const INITIAL_IMAGE_ERRORS: Record<TodayAlbumTab, boolean> = {
@@ -20,11 +21,8 @@ export function useTodayAlbums() {
 
     async function fetchAlbums() {
       try {
-        const response = await fetch("/api/today-album");
-        const data = (await response.json().catch(() => null)) as
-          | TodayAlbumsResponse
-          | null;
-        if (!isCancelled && data?.ok) {
+        const data = await fetchJson<TodayAlbumsResponse>("/api/today-album");
+        if (!isCancelled && data.ok) {
           setAlbums(data.albums);
         }
       } catch {

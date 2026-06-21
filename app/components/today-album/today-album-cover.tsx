@@ -8,6 +8,9 @@ interface TodayAlbumCoverProps {
   onImageError: () => void;
 }
 
+const coverSizeClass =
+  "max-w-[var(--today-album-cover-size)] sm:h-[var(--today-album-cover-size)] sm:w-[var(--today-album-cover-size)]";
+
 export function TodayAlbumCover({
   album,
   hasImageError,
@@ -15,14 +18,18 @@ export function TodayAlbumCover({
 }: TodayAlbumCoverProps) {
   if (!album) {
     return (
-      <div className="mx-auto flex aspect-square w-full max-w-[320px] items-center justify-center text-sm text-zinc-400 sm:mx-0 sm:h-[320px] sm:w-[320px] sm:shrink-0">
+      <div
+        className={`mx-auto flex aspect-square w-full items-center justify-center text-[length:var(--text-today-album-empty)] text-[var(--color-text-muted)] sm:mx-0 sm:shrink-0 ${coverSizeClass}`}
+      >
         앨범 없음
       </div>
     );
   }
 
   return (
-    <div className="relative mx-auto aspect-square w-full max-w-[320px] overflow-hidden rounded-2xl sm:mx-0 sm:h-[320px] sm:w-[320px] sm:shrink-0">
+    <div
+      className={`relative mx-auto aspect-square w-full overflow-hidden rounded-[var(--featured-cover-radius)] sm:mx-0 sm:shrink-0 ${coverSizeClass}`}
+    >
       {album.imageUrl && !hasImageError ? (
         <Image
           src={album.imageUrl}
@@ -34,7 +41,7 @@ export function TodayAlbumCover({
           onError={onImageError}
         />
       ) : (
-        <div className="flex h-full w-full items-center justify-center text-xs font-medium text-zinc-400">
+        <div className="flex h-full w-full items-center justify-center text-[length:var(--text-featured-meta)] font-medium text-[var(--color-text-muted)]">
           {ALBUM_COVER_PLACEHOLDER}
         </div>
       )}

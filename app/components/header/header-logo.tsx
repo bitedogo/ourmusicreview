@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
-import { LOGO_ALT, LOGO_HEIGHT, LOGO_SRC, LOGO_WIDTH } from "@/src/lib/site/branding";
+import { LOGO } from "@/src/lib/layout/design-tokens";
+import { LOGO_ALT, LOGO_SRC } from "@/src/lib/site/branding";
 
 export function HeaderLogo() {
   return (
@@ -8,10 +9,10 @@ export function HeaderLogo() {
       <Image
         src={LOGO_SRC}
         alt={LOGO_ALT}
-        width={LOGO_WIDTH}
-        height={Math.round(LOGO_HEIGHT)}
-        className="h-auto w-[141px]"
-        style={{ width: LOGO_WIDTH, height: LOGO_HEIGHT }}
+        width={LOGO.width}
+        height={Math.round(LOGO.height)}
+        className="h-auto w-[var(--logo-width)]"
+        style={{ width: "var(--logo-width)", height: "var(--logo-height)" }}
         priority
       />
     </Link>
