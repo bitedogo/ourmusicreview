@@ -14,7 +14,7 @@
 
 ## 🛠 Tech Stack
 - **Framework:** Next.js (App Router)
-- **Database:** Oracle Cloud (OCI) Autonomous Database
+- **Database:** Supabase
 - **Styling:** Tailwind CSS
 - **Deployment:** Vercel
 
