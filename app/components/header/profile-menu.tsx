@@ -11,10 +11,8 @@ import { UserOutlineIcon } from "./user-outline-icon";
 export function ProfileMenu() {
   const { data: session, status } = useSession();
   const nickname = session?.user?.name ?? null;
-  const sessionUser = session?.user as
-    | { profileImage?: string | null; image?: string | null; name?: string | null }
-    | undefined;
-  const profileImage = sessionUser?.profileImage ?? sessionUser?.image ?? null;
+  const profileImage =
+    session?.user?.profileImage ?? session?.user?.image ?? null;
   const [profileOpen, setProfileOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
 

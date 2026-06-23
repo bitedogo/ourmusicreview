@@ -5,7 +5,8 @@ import { useSession } from "next-auth/react";
 import { useClickOutside } from "@/src/hooks/use-click-outside";
 import {
   SITE_CONTAINER_PADDING_X,
-} from "@/src/lib/layout/constants";
+  contentMaxWidthStyle,
+} from "@/src/lib/layout";
 import { DesktopNav } from "./header/desktop-nav";
 import { HamburgerButton } from "./header/hamburger-button";
 import { HeaderLogo } from "./header/header-logo";
@@ -25,7 +26,7 @@ export function AppHeader() {
     <header className="relative z-50 w-full bg-white">
       <div
         className={`relative mx-auto w-full md:border-b md:border-[var(--color-divider)] ${SITE_CONTAINER_PADDING_X}`}
-        style={{ maxWidth: "var(--layout-content-max-width)" }}
+        style={contentMaxWidthStyle}
       >
         <div className="relative flex items-center justify-center pt-5 md:pt-6">
           <div

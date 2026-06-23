@@ -9,11 +9,11 @@ export type AlbumRatingInfo = {
   reviewCount: number;
 };
 
-export function useBatchAlbumRatings(albumIds: string[]) {
+export function useBatchAlbumRatings(albumIdsKey: string) {
   const [ratings, setRatings] = useState<Record<string, AlbumRatingInfo>>({});
 
   useEffect(() => {
-    if (albumIds.length === 0) {
+    if (!albumIdsKey) {
       setRatings({});
       return;
     }
@@ -23,7 +23,7 @@ export function useBatchAlbumRatings(albumIds: string[]) {
     async function fetchRatings() {
       try {
         const ratingData = await fetchJson<BatchAlbumRatingsResponse>(
-          `/api/albums/ratings?ids=${encodeURIComponent(albumIds.join(","))}`
+          `/api/albums/ratings?ids=${encodeURIComponent(albumIdsKey)}`
         );
         if (!isCancelled) {
           setRatings(ratingData.data.ratings ?? {});
@@ -40,7 +40,7 @@ export function useBatchAlbumRatings(albumIds: string[]) {
     return () => {
       isCancelled = true;
     };
-  }, [albumIds]);
+  }, [albumIdsKey]);
 
   return ratings;
 }

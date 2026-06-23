@@ -9,7 +9,11 @@ export default function FeaturedAlbums() {
   const { data: session, status } = useSession();
   const { slideSource } = useSlideSourceState();
   const showAdminSlide = slideSource === "admin";
-  const { albums, isLoading } = useFeaturedAlbums(status, session, showAdminSlide);
+  const { albums, isLoading } = useFeaturedAlbums(
+    status,
+    session?.user?.id,
+    showAdminSlide
+  );
 
   if (isLoading) {
     return (

@@ -5,7 +5,6 @@
 
 export const LAYOUT = {
   contentMaxWidth: 1100,
-  searchBarMaxWidth: 700,
   headerSearchGap: 24,
   pagePaddingXMobile: 24,
   pagePaddingXDesktop: 40,
@@ -89,21 +88,7 @@ export const HERO = {
   sectionPaddingBottomDesktop: 48,
 } as const;
 
-/** @deprecated LAYOUT.contentMaxWidth 사용 */
-export const HOME_CONTENT_MAX_WIDTH = LAYOUT.contentMaxWidth;
-
-/** @deprecated SEARCH_BAR.maxWidth 사용 */
-export const SEARCH_BAR_MAX_WIDTH = SEARCH_BAR.maxWidth;
-
-/** @deprecated LAYOUT.headerSearchGap 사용 */
-export const HEADER_SEARCH_GAP = LAYOUT.headerSearchGap;
-
-/** @deprecated TODAY_ALBUM.coverSize 사용 */
-export const TODAY_ALBUM_COVER_SIZE = TODAY_ALBUM.coverSize;
-
 export const PAGE_PADDING_X = "px-[var(--page-padding-x-mobile)] sm:px-[var(--page-padding-x-desktop)]";
 
 export const SITE_CONTAINER_PADDING_X =
   "px-[var(--site-padding-x-mobile)] sm:px-0";
-
-export const SITE_DIVIDER_CLASS = "border-[var(--color-divider)]";

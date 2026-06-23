@@ -1,5 +1,5 @@
 import { ContentContainer } from "@/src/lib/layout/content-container";
-import { SITE_CONTAINER_PADDING_X } from "@/src/lib/layout/constants";
+import { SITE_CONTAINER_PADDING_X } from "@/src/lib/layout";
 import { FooterBrand } from "./footer/footer-brand";
 import { FOOTER_LINK_COLUMNS } from "./footer/footer-config";
 import { FooterLinkColumn } from "./footer/footer-link-column";

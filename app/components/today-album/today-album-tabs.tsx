@@ -13,10 +13,6 @@ const TAB_BACKGROUND: Record<TodayAlbumTab, string> = {
   previous: "var(--color-today-album-tab-previous)",
 };
 
-function getInactiveTabTextClass(_tab: TodayAlbumTab): string {
-  return "text-[var(--color-text-secondary)]";
-}
-
 export function TodayAlbumTabs({
   activeTab,
   hasAlbum,
@@ -38,7 +34,7 @@ export function TodayAlbumTabs({
               isActive
                 ? "border border-b-0 border-[var(--color-border)] bg-white text-[var(--color-text-primary)]"
                 : tabHasAlbum
-                  ? `border border-[var(--color-border)] hover:opacity-90 ${getInactiveTabTextClass(tab.id)}`
+                  ? `border border-[var(--color-border)] hover:opacity-90 text-[var(--color-text-secondary)]`
                   : "cursor-not-allowed border border-[var(--color-border)] bg-[var(--color-today-album-tab-today)] text-[var(--color-text-muted)]"
             }`}
             style={

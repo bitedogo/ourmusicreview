@@ -12,7 +12,7 @@ import { ApiClientError, fetchJson, getApiErrorMessage } from "@/src/lib/http/cl
 import type { ItunesArtistResult } from "@/src/lib/itunes/types";
 import { buildArtistSearchPath } from "@/src/lib/itunes/search";
 import { ContentContainer } from "@/src/lib/layout/content-container";
-import { PAGE_PADDING_X } from "@/src/lib/layout/constants";
+import { PAGE_PADDING_X } from "@/src/lib/layout";
 import type {
   ArtistAlbumsResponse,
   ArtistSearchResponse,
@@ -27,10 +27,11 @@ export function SearchClient() {
   const searchParams = useSearchParams();
   const artistParamFromUrl = searchParams.get("artist");
   const artistIdFromUrl = searchParams.get("artistId");
+  const qFromUrl = searchParams.get("q");
   const initialQuery =
     artistIdFromUrl != null && artistIdFromUrl !== ""
       ? ""
-      : artistParamFromUrl || searchParams.get("q") || "";
+      : artistParamFromUrl || qFromUrl || "";
 
   const {
     containerRef: searchContainerRef,
@@ -49,11 +50,11 @@ export function SearchClient() {
   const [isDuplicateModalOpen, setIsDuplicateModalOpen] = useState(false);
   const [checkingReviewAlbumId, setCheckingReviewAlbumId] = useState<string | null>(null);
 
-  const albumIds = useMemo(
-    () => albums.map((album) => album.collectionId.toString()),
+  const albumIdsKey = useMemo(
+    () => albums.map((album) => album.collectionId.toString()).join(","),
     [albums]
   );
-  const albumRatings = useBatchAlbumRatings(albumIds);
+  const albumRatings = useBatchAlbumRatings(albumIdsKey);
   const { favoriteAlbumIds, toggleFavorite } = useFavoriteAlbumIds({
     onUnauthorized: () => router.push("/auth/signin?callbackUrl=/search"),
   });
@@ -125,7 +126,7 @@ export function SearchClient() {
       });
       return;
     }
-    const q = searchParams.get("q")?.trim();
+    const q = qFromUrl?.trim();
     if (q) {
       setSearchQuery(q);
       handleSearchAndRedirect(q);
@@ -133,7 +134,7 @@ export function SearchClient() {
   }, [
     artistIdFromUrl,
     artistParamFromUrl,
-    searchParams,
+    qFromUrl,
     handleArtistSelect,
     handleSearchAndRedirect,
     setSearchQuery,

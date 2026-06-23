@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { Session } from "next-auth";
 import { fetchJson } from "@/src/lib/http/client";
 import type {
   FeaturedAlbumCardData,
@@ -10,7 +9,7 @@ import type {
 
 export function useFeaturedAlbums(
   sessionStatus: "loading" | "authenticated" | "unauthenticated",
-  session: Session | null,
+  userId: string | undefined,
   showAdminSlide: boolean
 ) {
   const [albums, setAlbums] = useState<FeaturedAlbumCardData[]>([]);
@@ -51,7 +50,7 @@ export function useFeaturedAlbums(
     return () => {
       isCancelled = true;
     };
-  }, [sessionStatus, session?.user?.id, showAdminSlide]);
+  }, [sessionStatus, userId, showAdminSlide]);
 
   return { albums, isLoading };
 }

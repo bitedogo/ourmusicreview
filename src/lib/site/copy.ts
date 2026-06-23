@@ -7,4 +7,4 @@ export const FOOTER_DESCRIPTION =
 export const FOOTER_COPYRIGHT = "© 2026 ORU. All rights reserved.";
 export const FOOTER_POWERED_BY = "Powered by Team ORU";
 
-export const ALBUM_COVER_PLACEHOLDER = "No Image";
+export const ALBUM_COVER_PLACEHOLDER = "이미지 없음";

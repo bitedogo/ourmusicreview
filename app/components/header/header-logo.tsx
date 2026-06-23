@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { LOGO } from "@/src/lib/layout/design-tokens";
+import { LOGO } from "@/src/lib/layout";
 import { LOGO_ALT, LOGO_SRC } from "@/src/lib/site/branding";
 
 export function HeaderLogo() {

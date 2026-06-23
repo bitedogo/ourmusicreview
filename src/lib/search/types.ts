@@ -1,3 +1,5 @@
+import type { ItunesArtistResult } from "@/src/lib/itunes/types";
+
 export interface SearchAlbumResult {
   collectionId: number;
   collectionName: string;
@@ -11,7 +13,7 @@ export interface SearchAlbumResult {
 export interface ArtistSearchResponse {
   ok: boolean;
   data: {
-    artists: import("@/src/lib/itunes/types").ItunesArtistResult[];
+    artists: ItunesArtistResult[];
   };
 }
 

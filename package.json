@@ -10,7 +10,6 @@
     "postinstall": "patch-package"
   },
   "dependencies": {
-    "@fontsource/pretendard": "^5.2.5",
     "@headlessui/react": "^2.2.10",
     "@supabase/ssr": "^0.10.2",
     "@supabase/supabase-js": "^2.95.3",

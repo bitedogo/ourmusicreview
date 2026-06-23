@@ -1,36 +1,9 @@
 import type { Metadata, Viewport } from "next";
-import localFont from "next/font/local";
 import "./globals.css";
 import { Providers } from "./providers";
 import { AppHeader } from "./components/app-header";
 import { Footer } from "./components/Footer";
-
-const pretendard = localFont({
-  src: [
-    {
-      path: "../node_modules/@fontsource/pretendard/files/pretendard-latin-400-normal.woff2",
-      weight: "400",
-      style: "normal",
-    },
-    {
-      path: "../node_modules/@fontsource/pretendard/files/pretendard-latin-700-normal.woff2",
-      weight: "700",
-      style: "normal",
-    },
-    {
-      path: "../node_modules/@fontsource/pretendard/files/pretendard-latin-800-normal.woff2",
-      weight: "800",
-      style: "normal",
-    },
-    {
-      path: "../node_modules/@fontsource/pretendard/files/pretendard-latin-900-normal.woff2",
-      weight: "900",
-      style: "normal",
-    },
-  ],
-  variable: "--font-pretendard",
-  display: "swap",
-});
+import { pretendard } from "@/src/lib/fonts/pretendard";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.comeonoru.com"),
@@ -79,11 +52,6 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
-  icons: {
-    icon: "/icon.png",
-    shortcut: "/icon.png",
-    apple: "/icon.png",
-  },
 };
 
 export const viewport: Viewport = {
@@ -96,10 +64,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko" suppressHydrationWarning>
-      <body
-        className={`${pretendard.variable} font-sans flex min-h-screen flex-col antialiased overflow-x-hidden bg-white text-zinc-900`}
-      >
+    <html
+      lang="ko"
+      className={`${pretendard.variable} ${pretendard.className}`}
+      suppressHydrationWarning
+    >
+      <body className="font-sans flex min-h-screen flex-col antialiased overflow-x-hidden bg-white text-zinc-900">
         <Providers>
           <AppHeader />
           <main className="flex-1 bg-white">{children}</main>

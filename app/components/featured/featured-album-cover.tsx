@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { ALBUM_COVER_PLACEHOLDER } from "@/src/lib/site/copy";
 
 interface FeaturedAlbumCoverProps {
   title: string;
@@ -19,7 +20,7 @@ export function FeaturedAlbumCover({ title, imageUrl }: FeaturedAlbumCoverProps)
         />
       ) : (
         <div className="flex h-full w-full items-center justify-center bg-zinc-100 text-[length:var(--text-featured-meta)] text-[var(--color-text-muted)]">
-          이미지 없음
+          {ALBUM_COVER_PLACEHOLDER}
         </div>
       )}
     </div>

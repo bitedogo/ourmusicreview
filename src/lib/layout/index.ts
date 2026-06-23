@@ -1,16 +1,12 @@
 export {
   FEATURED_CARD,
   FEATURED_TRACK,
-  HEADER_SEARCH_GAP,
   HERO,
-  HOME_CONTENT_MAX_WIDTH,
   LAYOUT,
   LOGO,
   PAGE_PADDING_X,
   SEARCH_BAR,
-  SEARCH_BAR_MAX_WIDTH,
   SITE_CONTAINER_PADDING_X,
-  SITE_DIVIDER_CLASS,
   TODAY_ALBUM,
-  TODAY_ALBUM_COVER_SIZE,
 } from "./design-tokens";
+export { ContentContainer, contentMaxWidthStyle } from "./content-container";

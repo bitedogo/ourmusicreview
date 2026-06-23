@@ -3,7 +3,7 @@ export function isExternalLink(href: string): boolean {
 }
 
 export function externalLinkProps(href: string) {
-  if (!href.startsWith("http")) {
+  if (!isExternalLink(href) || href.startsWith("mailto:")) {
     return {};
   }
 

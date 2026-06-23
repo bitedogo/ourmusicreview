@@ -75,6 +75,7 @@
   /* featured track — design-tokens.ts FEATURED_TRACK */
   --featured-track-margin-top: 6px;
   --featured-track-padding-y: 16px;
+  --featured-track-animation-duration: 72s;
 
   /* today album — design-tokens.ts TODAY_ALBUM */
   --today-album-cover-size: 320px;
@@ -109,13 +110,14 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-pretendard), system-ui, -apple-system, sans-serif;
-  --font-mono: var(--font-pretendard), system-ui, -apple-system, sans-serif;
+  --font-sans: var(--font-pretendard);
+  --font-mono: var(--font-pretendard);
 }
 
 html {
   color-scheme: light;
   background-color: #ffffff;
+  font-family: var(--font-pretendard);
 }
 
 html,
@@ -128,7 +130,14 @@ body {
 body {
   background: #ffffff !important;
   color: #171717 !important;
-  font-family: var(--font-pretendard), system-ui, -apple-system, sans-serif;
+  font-family: inherit;
+}
+
+button,
+input,
+textarea,
+select {
+  font-family: inherit;
 }
 
 @keyframes marquee-force {
@@ -146,7 +155,7 @@ body {
   flex-wrap: nowrap !important;
   width: max-content;
   will-change: transform;
-  animation: marquee-force 72s linear infinite;
+  animation: marquee-force var(--featured-track-animation-duration) linear infinite;
 }
 
 .group:hover .animate-marquee-force {
@@ -189,8 +198,12 @@ body {
 
 .toastui-editor-main,
 .toastui-editor-ww-container,
+.toastui-editor-defaultUI,
+.toastui-editor-defaultUI-toolbar,
+.toastui-editor-contents,
 .toastui-editor-ww-container .toastui-editor-ww-editor,
 .toastui-editor-ww-container .toastui-editor-ww-editor .prose {
+  font-family: inherit !important;
   height: 100% !important;
   min-height: 200px !important;
   cursor: text !important;
