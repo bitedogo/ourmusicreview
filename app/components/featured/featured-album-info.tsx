@@ -15,7 +15,7 @@ export function FeaturedAlbumInfo({ album }: FeaturedAlbumInfoProps) {
         {album.title}
       </h3>
 
-      <p className="mt-[var(--featured-card-inner-gap)] truncate text-left text-[length:var(--text-featured-artist)] font-bold text-[var(--color-text-secondary)]">
+      <p className="mt-[var(--featured-card-title-artist-gap)] truncate text-left text-[length:var(--text-featured-artist)] font-bold text-[var(--color-text-secondary)]">
         {album.artist}
       </p>
 

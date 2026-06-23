@@ -40,6 +40,7 @@ export const FEATURED_CARD = {
   marginX: 12,
   padding: 16,
   gap: 12,
+  titleArtistGap: 4,
   innerGap: 8,
   radius: 15,
   coverRadius: 15,

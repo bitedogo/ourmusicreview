@@ -7,6 +7,16 @@ interface TodayAlbumTabsProps {
   onTabChange: (tab: TodayAlbumTab) => void;
 }
 
+const TAB_BACKGROUND: Record<TodayAlbumTab, string> = {
+  today: "var(--color-today-album-tab-today)",
+  yesterday: "var(--color-today-album-tab-yesterday)",
+  previous: "var(--color-today-album-tab-previous)",
+};
+
+function getInactiveTabTextClass(_tab: TodayAlbumTab): string {
+  return "text-[var(--color-text-secondary)]";
+}
+
 export function TodayAlbumTabs({
   activeTab,
   hasAlbum,
@@ -24,13 +34,18 @@ export function TodayAlbumTabs({
             type="button"
             onClick={() => onTabChange(tab.id)}
             disabled={!tabHasAlbum}
-            className={`rounded-t-2xl px-6 py-2.5 text-sm font-semibold transition sm:px-8 sm:text-base ${
+            className={`rounded-t-2xl px-6 py-2.5 text-sm font-semibold shadow-[var(--shadow-today-album-tab)] transition sm:px-8 sm:text-base ${
               isActive
-                ? "border border-b-0 border-zinc-200 bg-white text-zinc-900"
+                ? "border border-b-0 border-[var(--color-border)] bg-white text-[var(--color-text-primary)]"
                 : tabHasAlbum
-                  ? "border border-zinc-200 bg-zinc-100 text-zinc-500 hover:bg-zinc-50"
-                  : "cursor-not-allowed border border-zinc-200 bg-zinc-50 text-zinc-300"
+                  ? `border border-[var(--color-border)] hover:opacity-90 ${getInactiveTabTextClass(tab.id)}`
+                  : "cursor-not-allowed border border-[var(--color-border)] bg-[var(--color-today-album-tab-today)] text-[var(--color-text-muted)]"
             }`}
+            style={
+              !isActive && tabHasAlbum
+                ? { backgroundColor: TAB_BACKGROUND[tab.id] }
+                : undefined
+            }
           >
             {tab.label}
           </button>

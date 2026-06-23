@@ -17,6 +17,10 @@
   --color-rating-score-low: #11747C;
   --color-today-album-title: #0D0D0D;
   --color-today-album-body: #333333;
+  --color-today-album-tab-today: #FBFBFB;
+  --color-today-album-tab-yesterday: #F4F4F4;
+  --color-today-album-tab-previous: #E3E3E3;
+  --shadow-today-album-tab: 0 1px 3px 0 rgb(0 0 0 / 0.08), 0 1px 2px -1px rgb(0 0 0 / 0.08);
   --color-text-primary: #18181b;
   --color-text-secondary: #71717a;
   --color-text-muted: #a1a1aa;
@@ -57,6 +61,7 @@
   --featured-card-margin-x: 12px;
   --featured-card-padding: 16px;
   --featured-card-gap: 12px;
+  --featured-card-title-artist-gap: 4px;
   --featured-card-inner-gap: 8px;
   --featured-card-radius: 15px;
   --featured-cover-radius: 15px;
