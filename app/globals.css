@@ -70,13 +70,13 @@
   --featured-rating-divider-padding-bottom: 4px;
 
   /* featured track — design-tokens.ts FEATURED_TRACK */
-  --featured-track-margin-top: 6px;
+  --featured-track-margin-top: 48px;
   --featured-track-padding-y: 16px;
   --featured-track-animation-duration: 72s;
 
   /* today album — design-tokens.ts TODAY_ALBUM */
   --today-album-cover-size: 320px;
-  --today-album-section-margin-top: 40px;
+  --today-album-section-margin-top: 72px;
   --today-album-content-padding-x-mobile: 20px;
   --today-album-content-padding-x-desktop: 32px;
   --today-album-content-padding-y-mobile: 24px;

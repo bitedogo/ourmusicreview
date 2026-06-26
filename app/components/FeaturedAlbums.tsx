@@ -33,6 +33,9 @@ export default function FeaturedAlbums() {
 
   return (
     <section className="relative left-1/2 mt-[var(--featured-track-margin-top)] w-screen max-w-none -translate-x-1/2">
+      <h2 className="text-center text-xl font-medium text-[var(--color-accent)]">
+        Recent Rate
+      </h2>
       <div className="relative overflow-hidden py-[var(--featured-track-padding-y)]">
         <div className="group flex flex-nowrap items-start animate-marquee-force">
           {duplicatedAlbums.map((album, index) => (

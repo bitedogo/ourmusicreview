@@ -46,7 +46,7 @@ export function HomeHeroSearch() {
       <div className="sticky top-0 z-40">
         <div className="relative left-1/2 w-screen -translate-x-1/2 bg-white/50 backdrop-blur-md">
           <div
-            className={`mx-auto w-full pb-8 pt-8 ${PAGE_PADDING_X}`}
+            className={`mx-auto w-full pb-4 pt-8 ${PAGE_PADDING_X}`}
             style={contentMaxWidthStyle}
           >
             <DesktopNav
