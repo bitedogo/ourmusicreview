@@ -18,7 +18,7 @@ export function AppHeader() {
   const { data: session } = useSession();
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLElement>(null);
 
   useClickOutside(menuRef, () => setMenuOpen(false), menuOpen);
 
@@ -26,16 +26,13 @@ export function AppHeader() {
   const showDesktopNav = pathname !== "/";
 
   return (
-    <header className="relative z-50 w-full bg-white">
+    <header className="relative z-50 w-full bg-white" ref={menuRef}>
       <div
         className={`relative mx-auto w-full ${SITE_CONTAINER_PADDING_X}`}
         style={contentMaxWidthStyle}
       >
         <div className="relative flex items-center justify-center pt-5 md:pt-6">
-          <div
-            className="absolute left-0 flex items-center sm:left-0 md:hidden"
-            ref={menuRef}
-          >
+          <div className="absolute left-0 flex items-center sm:left-0 md:hidden">
             <HamburgerButton
               isOpen={menuOpen}
               onToggle={() => setMenuOpen((prev) => !prev)}

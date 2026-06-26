@@ -70,7 +70,7 @@
   --featured-rating-divider-padding-bottom: 4px;
 
   /* featured track — design-tokens.ts FEATURED_TRACK */
-  --featured-track-margin-top: 48px;
+  --featured-track-margin-top: 24px;
   --featured-track-padding-y: 16px;
   --featured-track-animation-duration: 72s;
 
@@ -93,14 +93,14 @@
   --text-today-album-empty: 14px;
 
   /* hero — design-tokens.ts HERO */
-  --hero-copy-margin-top-mobile: 40px;
+  --hero-copy-margin-top-mobile: 24px;
   --hero-copy-margin-top-desktop: 48px;
   --text-hero-title-mobile: 32px;
   --text-hero-title-desktop: 40px;
   --text-hero-subtitle-mobile: 16px;
   --text-hero-subtitle-desktop: 20px;
   --leading-hero-subtitle: 1.75;
-  --hero-section-padding-bottom-mobile: 32px;
+  --hero-section-padding-bottom-mobile: 20px;
   --hero-section-padding-bottom-desktop: 48px;
 }
 
@@ -108,6 +108,7 @@
   :root {
     --logo-width: 141px;
     --logo-height: 72.9px;
+    --featured-track-margin-top: 48px;
   }
 }
 
