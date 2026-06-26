@@ -34,8 +34,8 @@
   --page-padding-x-desktop: 40px;
   --site-padding-x-mobile: 16px;
 
-  --logo-width: 141px;
-  --logo-height: 72.9px;
+  --logo-width: 104px;
+  --logo-height: 53.8px;
 
   --search-bar-max-width: 700px;
   --search-bar-height-mobile: 56px;
@@ -102,6 +102,13 @@
   --leading-hero-subtitle: 1.75;
   --hero-section-padding-bottom-mobile: 32px;
   --hero-section-padding-bottom-desktop: 48px;
+}
+
+@media (min-width: 640px) {
+  :root {
+    --logo-width: 141px;
+    --logo-height: 72.9px;
+  }
 }
 
 @theme inline {

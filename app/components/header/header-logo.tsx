@@ -5,7 +5,7 @@ import { LOGO_ALT, LOGO_SRC } from "@/src/lib/site/branding";
 
 export function HeaderLogo() {
   return (
-    <Link href="/" className="ml-3 inline-flex shrink-0 items-center justify-center sm:ml-5">
+    <Link href="/" className="inline-flex shrink-0 items-center justify-center">
       <Image
         src={LOGO_SRC}
         alt={LOGO_ALT}
