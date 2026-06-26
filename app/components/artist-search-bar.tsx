@@ -35,7 +35,7 @@ export function ArtistSearchBar({
         <div
           className={`flex w-full flex-col overflow-hidden bg-white transition-[border-radius,box-shadow] ${
             isDropdownOpen
-              ? "rounded-t-[var(--search-bar-radius-open-top)] rounded-b-none border border-[var(--color-border)] shadow-sm"
+              ? "rounded-[var(--search-bar-radius-open-top)] border border-[var(--color-border)] shadow-sm"
               : "rounded-full border border-[var(--color-border)] shadow-sm"
           }`}
         >
