@@ -1,6 +1,5 @@
 import localFont from "next/font/local";
 
-/** 앱 전역 폰트 — Pretendard만 사용합니다. */
 export const pretendard = localFont({
   src: [
     {

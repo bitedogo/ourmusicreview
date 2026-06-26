@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { StreamingLinkButtons } from "@/src/components/streaming/streaming-link-buttons";
+import { useStreamingLinks } from "@/src/hooks/use-streaming-links";
 import type { TodayAlbumData } from "@/src/lib/today-album/types";
 
 interface TodayAlbumDescriptionProps {
@@ -11,23 +13,27 @@ interface TodayAlbumDescriptionProps {
 export function TodayAlbumDescription({ album, resetKey }: TodayAlbumDescriptionProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const description = album.description?.trim() ?? "";
+  const streamingLinks = useStreamingLinks(album.albumId);
 
   useEffect(() => {
     setIsExpanded(false);
   }, [resetKey]);
 
   return (
-    <div className="w-full min-w-0 flex-1 sm:self-center">
-      <h3
-        className="truncate text-[length:var(--text-today-album-title)] font-bold leading-[var(--leading-today-album-title)] tracking-[var(--tracking-ui)] text-[var(--color-today-album-title)]"
-        title={`${album.artist} - ${album.title}`}
-      >
-        {album.artist} - {album.title}
-      </h3>
+    <div className="w-full min-w-0 flex-1 sm:self-start">
+      <div className="flex items-center gap-[var(--featured-card-gap)]">
+        <h3
+          className="min-w-0 flex-1 truncate text-[length:var(--text-today-album-title)] font-bold leading-[var(--leading-today-album-title)] tracking-[var(--tracking-ui)] text-[var(--color-today-album-title)]"
+          title={`${album.artist} - ${album.title}`}
+        >
+          {album.artist} - {album.title}
+        </h3>
+        <StreamingLinkButtons links={streamingLinks} className="shrink-0" />
+      </div>
       {description ? (
         <>
           <p
-            className={`mt-[var(--featured-card-gap)] max-h-[var(--today-album-description-max-height)] overflow-y-auto whitespace-pre-line break-words text-[length:var(--text-today-album-body-mobile)] font-normal leading-[var(--leading-today-album-body)] tracking-[var(--tracking-ui)] text-[var(--color-today-album-body)] sm:text-[length:var(--text-today-album-body-desktop)] ${
+            className={`mt-6 max-h-[var(--today-album-description-max-height)] overflow-y-auto whitespace-pre-line break-words text-[length:var(--text-today-album-body-mobile)] font-normal leading-[var(--leading-today-album-body)] tracking-[var(--tracking-ui)] text-[var(--color-today-album-body)] sm:text-[length:var(--text-today-album-body-desktop)] ${
               isExpanded ? "block" : "hidden sm:block"
             }`}
           >
@@ -44,7 +50,7 @@ export function TodayAlbumDescription({ album, resetKey }: TodayAlbumDescription
           </div>
         </>
       ) : (
-        <p className="mt-[var(--featured-card-gap)] hidden text-[length:var(--text-today-album-empty)] text-[var(--color-text-muted)] sm:block">
+        <p className="mt-6 hidden text-[length:var(--text-today-album-empty)] text-[var(--color-text-muted)] sm:block">
           등록된 소개글이 없습니다.
         </p>
       )}

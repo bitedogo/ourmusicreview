@@ -27,7 +27,6 @@
   --color-border: #e4e4e7;
   --color-divider: #71717a;
 
-  /* layout — design-tokens.ts LAYOUT */
   --layout-content-max-width: 1100px;
   --layout-search-bar-max-width: 700px;
   --layout-header-search-gap: 24px;
@@ -35,11 +34,9 @@
   --page-padding-x-desktop: 40px;
   --site-padding-x-mobile: 16px;
 
-  /* logo — design-tokens.ts LOGO */
   --logo-width: 141px;
   --logo-height: 72.9px;
 
-  /* search bar — design-tokens.ts SEARCH_BAR */
   --search-bar-max-width: 700px;
   --search-bar-height-mobile: 56px;
   --search-bar-height-desktop: 65px;
@@ -100,8 +97,8 @@
   --hero-copy-margin-top-desktop: 48px;
   --text-hero-title-mobile: 32px;
   --text-hero-title-desktop: 40px;
-  --text-hero-subtitle-mobile: 14px;
-  --text-hero-subtitle-desktop: 16px;
+  --text-hero-subtitle-mobile: 16px;
+  --text-hero-subtitle-desktop: 20px;
   --leading-hero-subtitle: 1.75;
   --hero-section-padding-bottom-mobile: 32px;
   --hero-section-padding-bottom-desktop: 48px;
@@ -122,7 +119,7 @@ html {
 
 html,
 body {
-  overflow-x: hidden;
+  overflow-x: clip;
   background-color: #ffffff !important;
   color: #171717 !important;
 }

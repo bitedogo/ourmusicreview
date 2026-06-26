@@ -159,9 +159,7 @@ export default function SigninPage() {
     if (result?.error) {
       setErrorMessage(result.error);
     } else if (result?.url) {
-      // NextAuth.js가 자체적으로 loginCallbackUrl로 리디렉션할 것이므로, 여기서 추가 리디렉션은 필요 없음
     } else {
-      // signIn 성공했으나 result.url이 없는 경우, loginCallbackUrl으로 명시적 리디렉션
       router.push(loginCallbackUrl);
     }
   }

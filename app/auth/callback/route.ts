@@ -36,18 +36,10 @@ export async function GET(request: Request) {
     );
     const { error } = await supabase.auth.exchangeCodeForSession(code);
 
-    if (error) {
-      console.error("Supabase exchangeCodeForSession error:", error);
-      // return NextResponse.redirect(`${origin}/auth/auth-error`); // Remove this redirection for now
-      return NextResponse.json({ error: error.message }, { status: 500 }); // Return JSON error for debugging
-    }
-
     if (!error) {
       return NextResponse.redirect(`${origin}${next}`);
     }
   }
 
-  // return the user to an error page with some instructions
-  // For now, if no code, just redirect to home or login
   return NextResponse.redirect(`${origin}/auth/signin`);
 }

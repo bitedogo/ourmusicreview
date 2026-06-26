@@ -26,7 +26,7 @@ export async function POST(req: NextRequest, context: { params: Promise<Params> 
 
     const post = await postRepository.findOne({
       where: { id },
-      select: ["userId"], // 작성자 ID만 가져옵니다.
+      select: ["userId"],
     });
 
     if (post && session?.user?.id === post.userId) {
@@ -37,7 +37,6 @@ export async function POST(req: NextRequest, context: { params: Promise<Params> 
 
     return NextResponse.json({ ok: true });
   } catch (error) {
-    console.error("Error incrementing post views:", error);
     return NextResponse.json(
       { message: "Failed to increment views" },
       { status: 500 }

@@ -1,4 +1,3 @@
-/** delta=2 → 현재 기준 최대 5개 연속 페이지 번호 + 1·끝·ellipsis */
 export function getPaginationItems(
   currentPage: number,
   totalPages: number,

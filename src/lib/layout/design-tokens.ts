@@ -1,7 +1,3 @@
-/**
- * px 단위 디자인 토큰.
- * `app/globals.css` `:root` 변수와 값을 맞춰 유지합니다.
- */
 
 export const LAYOUT = {
   contentMaxWidth: 1100,
@@ -81,8 +77,8 @@ export const HERO = {
   copyMarginTopDesktop: 48,
   titleSizeMobile: 32,
   titleSizeDesktop: 40,
-  subtitleSizeMobile: 14,
-  subtitleSizeDesktop: 16,
+  subtitleSizeMobile: 16,
+  subtitleSizeDesktop: 20,
   subtitleLineHeight: 1.75,
   sectionPaddingBottomMobile: 32,
   sectionPaddingBottomDesktop: 48,

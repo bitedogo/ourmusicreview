@@ -8,7 +8,7 @@ export function Footer() {
   return (
     <footer className="mt-auto w-full bg-white">
       <ContentContainer
-        className={`mx-auto w-full border-t border-[var(--color-divider)] py-[var(--page-padding-x-mobile)] ${SITE_CONTAINER_PADDING_X} sm:py-[var(--today-album-content-padding-y-desktop)]`}
+        className={`mx-auto w-full py-[var(--page-padding-x-mobile)] ${SITE_CONTAINER_PADDING_X} sm:py-[var(--today-album-content-padding-y-desktop)]`}
       >
         <div className="grid w-full grid-cols-1 items-start sm:grid-cols-[minmax(0,1fr)_auto]">
           <FooterBrand />

@@ -101,7 +101,6 @@ export function useUserProfileData(
         }
       } catch (err) {
         if (!cancelled) {
-          console.error("Failed to fetch user profile:", err);
           setError("프로필 정보를 가져오는 중 오류가 발생했습니다.");
         }
       } finally {

@@ -4,11 +4,15 @@ import { HeaderDropdownPanel } from "./header-dropdown-panel";
 
 interface DesktopNavProps {
   isAdmin: boolean;
+  className?: string;
 }
 
-export function DesktopNav({ isAdmin }: DesktopNavProps) {
+const DEFAULT_NAV_CLASS =
+  "mt-20 hidden items-center justify-center gap-14 pb-1 text-lg font-medium text-black md:flex";
+
+export function DesktopNav({ isAdmin, className }: DesktopNavProps) {
   return (
-    <nav className="mt-12 hidden items-center justify-center gap-8 pb-5 text-sm font-medium text-zinc-900 md:flex">
+    <nav className={className ?? DEFAULT_NAV_CLASS}>
       {NAV_LINKS.map(({ href, label }) => (
         <Link
           key={href}

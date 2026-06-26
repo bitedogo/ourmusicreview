@@ -51,7 +51,7 @@ export function ArtistSearchBar({
             />
             <button
               type="submit"
-              className="flex h-[var(--search-bar-button-height-mobile)] shrink-0 items-center justify-center rounded-full bg-[var(--color-accent)] px-[var(--search-bar-button-padding-x-mobile)] text-[length:var(--text-today-album-body-mobile)] font-medium lowercase text-white transition hover:bg-[var(--color-accent-hover)] sm:h-[var(--search-bar-button-height-desktop)] sm:px-[var(--search-bar-button-padding-x-desktop)] sm:text-[length:var(--text-today-album-body-desktop)]"
+              className="flex h-[var(--search-bar-button-height-mobile)] shrink-0 items-center justify-center rounded-full bg-[var(--color-accent)] px-[var(--search-bar-button-padding-x-mobile)] text-[20px] font-normal lowercase text-white transition hover:bg-[var(--color-accent-hover)] sm:h-[var(--search-bar-button-height-desktop)] sm:px-[var(--search-bar-button-padding-x-desktop)]"
               aria-label="검색"
             >
               search

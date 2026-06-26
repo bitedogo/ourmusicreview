@@ -4,13 +4,16 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import type { AlbumRatingInfo } from "@/src/hooks/use-batch-album-ratings";
 import type { SearchAlbumResult } from "@/src/lib/search/types";
+import type { AlbumStreamingLinks } from "@/src/lib/streaming/types";
 import { ALBUM_COVER_PLACEHOLDER } from "@/src/lib/site/copy";
+import { StreamingLinkButtons } from "@/src/components/streaming/streaming-link-buttons";
 import { buildAlbumReviewPath, getReleaseYear } from "@/src/lib/utils/album";
 import { getDisplayRating, getRatingScoreColor } from "@/src/lib/utils/rating";
 
 interface SearchAlbumCardProps {
   album: SearchAlbumResult;
   ratingInfo?: AlbumRatingInfo;
+  streamingLinks?: AlbumStreamingLinks;
   isFavorite: boolean;
   isCheckingReview: boolean;
   onToggleFavorite: (album: SearchAlbumResult) => void;
@@ -20,6 +23,7 @@ interface SearchAlbumCardProps {
 export function SearchAlbumCard({
   album,
   ratingInfo,
+  streamingLinks,
   isFavorite,
   isCheckingReview,
   onToggleFavorite,
@@ -82,6 +86,11 @@ export function SearchAlbumCard({
           </div>
         </div>
       </div>
+
+      <StreamingLinkButtons
+        links={streamingLinks}
+        className="mt-[var(--featured-card-inner-gap)]"
+      />
 
       <div className="mt-[var(--featured-card-inner-gap)] flex items-center gap-2">
         <button

@@ -7,6 +7,7 @@ import { DuplicateReviewModal } from "@/src/components/common/duplicate-review-m
 import { EmptyState } from "@/src/components/common/empty-state";
 import { useArtistAutocomplete } from "@/src/hooks/use-artist-autocomplete";
 import { useBatchAlbumRatings } from "@/src/hooks/use-batch-album-ratings";
+import { useBatchStreamingLinks } from "@/src/hooks/use-streaming-links";
 import { useFavoriteAlbumIds } from "@/src/hooks/use-favorite-album-ids";
 import { ApiClientError, fetchJson, getApiErrorMessage } from "@/src/lib/http/client";
 import type { ItunesArtistResult } from "@/src/lib/itunes/types";
@@ -55,6 +56,7 @@ export function SearchClient() {
     [albums]
   );
   const albumRatings = useBatchAlbumRatings(albumIdsKey);
+  const streamingLinksByAlbumId = useBatchStreamingLinks(albumIdsKey);
   const { favoriteAlbumIds, toggleFavorite } = useFavoriteAlbumIds({
     onUnauthorized: () => router.push("/auth/signin?callbackUrl=/search"),
   });
@@ -218,6 +220,7 @@ export function SearchClient() {
                     key={album.collectionId}
                     album={album}
                     ratingInfo={albumRatings[albumId]}
+                    streamingLinks={streamingLinksByAlbumId[albumId]}
                     isFavorite={favoriteAlbumIds.has(albumId)}
                     isCheckingReview={checkingReviewAlbumId === albumId}
                     onToggleFavorite={toggleFavorite}

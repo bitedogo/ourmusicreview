@@ -47,7 +47,6 @@ export async function POST(request: Request) {
     return apiOk({ url });
 
   } catch (error) {
-    console.error("Upload Error:", error);
     
     const errorMessage = error instanceof Error ? error.message : "";
     if (errorMessage.includes("body size") || errorMessage.includes("too large")) {

@@ -56,7 +56,6 @@ export const authOptions: NextAuthOptions = {
             const upgradedHash = await bcrypt.hash(credentials.password, 10);
             await userRepository.update({ id: user.id }, { password: upgradedHash });
           } catch {
-            // 오류 로깅 추가 필요
           }
         }
 
@@ -85,7 +84,6 @@ export const authOptions: NextAuthOptions = {
         const { data: { user }, error } = await supabase.auth.getUser();
 
         if (error) {
-          console.error("Supabase getUser error:", error);
           return null;
         }
         if (!user) {
@@ -100,7 +98,6 @@ export const authOptions: NextAuthOptions = {
         });
 
         if (!dbUser) {
-          // Supabase를 통해 로그인했지만 DB에 없는 경우, 새로 생성
           dbUser = userRepository.create({
             id: user.id,
             email: user.email!,
@@ -110,9 +107,6 @@ export const authOptions: NextAuthOptions = {
           });
           await userRepository.save(dbUser);
         } else if (dbUser.id !== user.id) {
-          // Supabase ID와 DB ID가 다른 경우 (기존 사용자 병합 또는 업데이트 필요)
-          // 이 부분은 비즈니스 로직에 따라 다르게 처리될 수 있습니다.
-          // 여기서는 Supabase ID로 업데이트
           await userRepository.update({ email: user.email! }, { id: user.id });
           dbUser.id = user.id;
         }
@@ -141,22 +135,19 @@ export const authOptions: NextAuthOptions = {
           const picture = profile.picture || null;
 
           if (!dbUser) {
-            // Google을 통해 로그인했지만 DB에 없는 경우, 새로 생성
             dbUser = userRepository.create({
-              id: profile.sub, // Google의 고유 sub 값을 id로 사용
+              id: profile.sub,
               email: profile.email!,
               nickname: profile.name || profile.email!.split("@")[0],
               profileImage: picture,
-              role: "USER", // 기본 역할 설정
+              role: "USER",
             });
             await userRepository.save(dbUser);
           } else {
             if (dbUser.id !== profile.sub) {
-              // 기존 사용자가 있지만 Google sub와 DB ID가 다른 경우 업데이트
               await userRepository.update({ email: profile.email! }, { id: profile.sub });
               dbUser.id = profile.sub;
             }
-            // Google 프로필 사진이 바뀐 경우 DB에 맞춰 갱신 (헤더/세션과 일치)
             if (picture && picture !== dbUser.profileImage) {
               await userRepository.update({ id: dbUser.id }, { profileImage: picture });
               dbUser.profileImage = picture;
@@ -174,9 +165,7 @@ export const authOptions: NextAuthOptions = {
             role: dbUser.role,
           };
         } catch (error) {
-          console.error("GoogleProvider profile 콜백 데이터베이스 연동 중 오류 발생:", error);
-          // 데이터베이스 오류 발생 시 null을 반환하여 로그인 실패 처리
-          return { id: "", name: "", email: "", image: "", role: "" }; // NextAuth.js user type에 맞게 빈 객체 반환
+          return { id: "", name: "", email: "", image: "", role: "" };
         }
       },
     }),
@@ -191,8 +180,6 @@ export const authOptions: NextAuthOptions = {
         };
         const profileImage = userWithProfile.profileImage ?? userWithProfile.image ?? null;
 
-        // profile 콜백에서 이미 필요한 정보를 모두 포함한 user 객체를 반환했으므로
-        // 여기서 user 객체를 직접 사용
         token.id = user.id;
         token.name = user.name;
         token.email = user.email;

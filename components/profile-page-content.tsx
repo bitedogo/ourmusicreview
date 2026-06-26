@@ -91,7 +91,6 @@ export function ProfilePageContent(props: ProfilePageContentProps) {
   return (
     <div className="min-h-screen">
       <div className="mx-auto max-w-5xl px-3 py-6 sm:px-6 sm:py-8 md:px-10">
-        {/* Header */}
         <div className="mb-6 flex items-center justify-between gap-4">
           <h1 className="text-xl font-semibold tracking-tight text-zinc-900 md:text-2xl">
             {pageTitle}
@@ -99,10 +98,8 @@ export function ProfilePageContent(props: ProfilePageContentProps) {
           {headerAction}
         </div>
 
-        {/* Profile Card */}
         <div className="mb-6 overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm">
           <div className="flex flex-col md:flex-row">
-            {/* Left: Avatar & Basic Stats */}
             <div className="flex flex-1 flex-col items-center gap-4 border-b border-zinc-100 p-6 md:min-w-0 md:border-b-0 md:border-r md:border-zinc-100">
               <ProfileAvatar
                 isOwner={isOwner}
@@ -137,7 +134,6 @@ export function ProfilePageContent(props: ProfilePageContentProps) {
               )}
             </div>
 
-            {/* Middle: Detailed Info */}
             <div className="flex min-w-0 flex-1 flex-col gap-6 border-b border-zinc-100 p-6 md:border-b-0 md:border-r md:border-zinc-100">
               <div className="grid grid-cols-2 gap-x-10 gap-y-6 sm:grid-cols-4">
                 {isOwner && <ProfileInfoItem label="이름" value={name ?? "-"} />}
@@ -150,7 +146,6 @@ export function ProfilePageContent(props: ProfilePageContentProps) {
               {isOwner && <ProfileActivityLinks />}
             </div>
 
-            {/* Right: Rating Gauge */}
             <div className="flex min-w-0 flex-1 flex-col items-center justify-center gap-3 border-zinc-100 py-6 md:border-l md:border-zinc-100 md:py-0">
               {isOwner && onPrivacyChange && (
                 <div className="flex items-center gap-2">
@@ -174,10 +169,8 @@ export function ProfilePageContent(props: ProfilePageContentProps) {
           </div>
         </div>
 
-        {/* Content Sections */}
         <div className="flex flex-col gap-6">
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            {/* Reviews Section */}
             <section className="overflow-hidden rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
               <SectionHeader
                 title={isOwner ? "나의 리뷰" : "작성 리뷰"}
@@ -204,7 +197,6 @@ export function ProfilePageContent(props: ProfilePageContentProps) {
               )}
             </section>
 
-            {/* Favorites Section */}
             <section className="overflow-hidden rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
               <SectionHeader
                 title="좋아하는 앨범"
@@ -232,7 +224,6 @@ export function ProfilePageContent(props: ProfilePageContentProps) {
             </section>
           </div>
 
-          {/* Masterpieces Section */}
           <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm md:p-8">
             <div className="mb-4 flex items-center justify-between gap-2">
               <h2 className="text-sm font-semibold tracking-tight text-zinc-900 md:text-base">나만의 명반</h2>
@@ -260,8 +251,6 @@ export function ProfilePageContent(props: ProfilePageContentProps) {
     </div>
   );
 }
-
-/* Internal Sub-components */
 
 interface ProfileAvatarProps {
   isOwner: boolean;
@@ -409,4 +398,3 @@ function MasterpiecesReadOnly({ albums }: { albums: ProfileMasterpieceItem[] }) 
     </div>
   );
 }
-

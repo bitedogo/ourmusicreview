@@ -6,7 +6,7 @@ import { useEffect, useState, useCallback } from "react";
 import { HtmlRenderer } from "@/src/components/common/HtmlRenderer";
 import { InteractionButtons } from "@/src/components/interaction/InteractionButtons";
 import { CommentSection } from "@/src/components/interaction/CommentSection";
-import { PostAuthorRow } from "./post-author-row"; // PostAuthorRow 임포트
+import { PostAuthorRow } from "./post-author-row";
 
 interface PostContentClientProps {
   content: string;
@@ -14,11 +14,11 @@ interface PostContentClientProps {
   userId: string;
   category: string;
   isNotice?: boolean;
-  initialViews: number; // 추가
-  initialCommentCount: number; // 추가
-  postAuthorNickname: string; // 추가
-  postAuthorProfileImage: string | null; // 추가
-  postCreatedAt: string; // 추가
+  initialViews: number;
+  initialCommentCount: number;
+  postAuthorNickname: string;
+  postAuthorProfileImage: string | null;
+  postCreatedAt: string;
 }
 
 function getTimeAgo(date: Date) {
@@ -61,13 +61,11 @@ export function PostContentClient({
       })
       .then(response => {
         if (!response.ok) {
-          console.error(`Client: Failed to increment view count - status: ${response.status}`);
         } else {
           setDisplayedViews(prev => prev + 1);
         }
       })
       .catch(error => {
-        console.error("Client: API call failed for view increment:", error);
       });
     }
   }, [postId]);
