@@ -21,6 +21,10 @@ const TodayAlbumCard = dynamic(() => import("./components/TodayAlbumCard"), {
   loading: () => null,
 });
 
+const MusicChart = dynamic(() => import("./components/MusicChart"), {
+  loading: () => null,
+});
+
 export default function Home() {
   return (
     <div className="min-h-screen bg-white text-zinc-900">
@@ -28,6 +32,7 @@ export default function Home() {
         <HomeHeroSearch />
         <FeaturedAlbums />
         <TodayAlbumCard />
+        <MusicChart />
       </ContentContainer>
     </div>
   );
