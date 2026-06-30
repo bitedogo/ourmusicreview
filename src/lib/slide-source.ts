@@ -8,6 +8,19 @@ export function getStoredSlideSource(): SlideSource {
   return value === "admin" ? "admin" : "user";
 }
 
+const listeners = new Set<() => void>();
+
 export function setSlideSource(source: SlideSource) {
   localStorage.setItem(SLIDE_SOURCE_KEY, source);
+  listeners.forEach((listener) => listener());
+}
+
+export function subscribeSlideSource(listener: () => void): () => void {
+  if (typeof window === "undefined") return () => {};
+  listeners.add(listener);
+  window.addEventListener("storage", listener);
+  return () => {
+    listeners.delete(listener);
+    window.removeEventListener("storage", listener);
+  };
 }

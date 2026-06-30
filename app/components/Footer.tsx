@@ -13,7 +13,7 @@ export function Footer() {
         <div className="grid w-full grid-cols-1 items-start sm:grid-cols-[minmax(0,1fr)_auto]">
           <FooterBrand />
 
-          <div className="flex shrink-0 justify-self-end gap-x-[var(--featured-card-inner-gap)] sm:gap-x-[var(--featured-card-gap)]">
+          <div className="flex shrink-0 justify-center justify-self-center gap-x-[var(--featured-card-inner-gap)] sm:justify-start sm:justify-self-end sm:gap-x-[var(--featured-card-gap)]">
             {FOOTER_LINK_COLUMNS.map((column) => (
               <FooterLinkColumn
                 key={column.title}

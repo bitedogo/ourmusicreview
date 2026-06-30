@@ -119,8 +119,8 @@ export function SearchClient() {
   }, []);
 
   useEffect(() => {
-    const artistId = artistIdFromUrl ? Number(artistIdFromUrl) : NaN;
-    if (Number.isFinite(artistId) && artistParamFromUrl) {
+    const artistId = artistIdFromUrl?.trim();
+    if (artistId && artistParamFromUrl) {
       setSearchQuery("");
       handleArtistSelect({
         artistId,

@@ -18,7 +18,7 @@ export interface ItunesSearchResponse {
 }
 
 export interface ItunesArtistResult {
-  artistId: number;
+  artistId: string;
   artistName: string;
   artistViewUrl?: string;
   artworkUrl100?: string;

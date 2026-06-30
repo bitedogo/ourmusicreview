@@ -1,3 +1,22 @@
+import type { AlbumDetail } from "@/src/lib/album/types";
+import type { ItunesArtistResult } from "@/src/lib/itunes/types";
+import {
+  fetchItunesResults,
+  getLargeImageUrl,
+  itunesArtistSearchUrls,
+  itunesLookupUrls,
+  type ItunesResult,
+} from "@/src/lib/itunes/http";
+import { createTtlCache } from "@/src/lib/utils/ttl-cache";
+
+export { getLargeImageUrl };
+
+const ARTIST_CACHE_TTL_MS = 10 * 60 * 1000;
+const ARTIST_SEARCH_MAX_LIMIT = 25;
+
+const artistSearchCache = createTtlCache<ItunesArtistResult[]>(ARTIST_CACHE_TTL_MS);
+const artistArtworkCache = createTtlCache<string | null>(ARTIST_CACHE_TTL_MS);
+
 export interface iTunesAlbum {
   collectionId: number;
   collectionName: string;
@@ -5,406 +24,199 @@ export interface iTunesAlbum {
   artworkUrl100: string;
   releaseDate: string;
   primaryGenreName: string;
-  country?: string;
   collectionType?: string;
   trackCount?: number;
 }
 
-export interface iTunesArtist {
-  artistId: number;
-  artistName: string;
-  primaryGenreName?: string;
-  artworkUrl100?: string;
+const ALBUM_TITLE_FILTER_KEYWORDS = [
+  "LEAK",
+  "FANMADE",
+  "TRIBUTE",
+  "COVER",
+  "PARODY",
+  "BOOTLEG",
+  "UNOFFICIAL",
+  "FAN MADE",
+  "FAN-MADE",
+  "- SINGLE",
+  " - SINGLE",
+  "INSTRUMENTAL",
+  "REMASTERED",
+];
+
+function asString(value: unknown): string | undefined {
+  return typeof value === "string" ? value : undefined;
 }
 
-export interface iTunesArtistLookupResult {
-  artistId: number;
-  artistName: string;
-  primaryGenreName?: string;
-  artworkUrl100?: string;
+function asFiniteNumber(value: unknown): number | undefined {
+  return typeof value === "number" && Number.isFinite(value) ? value : undefined;
 }
 
-export interface iTunesSearchResponse {
-  resultCount: number;
-  results: iTunesAlbum[] | iTunesArtist[];
+function normalizeName(value: unknown): string {
+  return String(value ?? "").trim().toLowerCase();
 }
 
-export interface iTunesLookupResponse {
-  resultCount: number;
-  results: iTunesAlbum[];
+export async function getAlbumByCollectionId(
+  collectionId: number
+): Promise<AlbumDetail | null> {
+  for (const url of itunesLookupUrls(collectionId)) {
+    const results = await fetchItunesResults(url);
+    const first = results[0];
+    const id = asFiniteNumber(first?.collectionId);
+    if (id !== collectionId || !first?.collectionName || !first?.artistName) continue;
+
+    return {
+      collectionId: String(id),
+      artistId: asFiniteNumber(first.artistId) != null ? String(first.artistId) : null,
+      title: String(first.collectionName),
+      artist: String(first.artistName),
+      imageUrl: getLargeImageUrl(asString(first.artworkUrl100)),
+      releaseDate: asString(first.releaseDate)?.slice(0, 10) ?? "",
+      genre: asString(first.primaryGenreName) ?? "",
+    };
+  }
+
+  return null;
 }
 
-const FETCH_OPTIONS = { headers: { Accept: "application/json" as const }, cache: "no-store" as const };
+function isDisplayableItunesAlbum(album: iTunesAlbum): boolean {
+  const trackCount = album.trackCount ?? 0;
+  const collectionType = (album.collectionType ?? "").toLowerCase();
+  if (trackCount < 2) return false;
+  if (collectionType === "single" && trackCount < 5) return false;
 
-export function getLargeImageUrl(artworkUrl100: string | undefined): string | null {
-  if (!artworkUrl100) return null;
-  return artworkUrl100.replace(/100x100bb\.jpg$/, "600x600bb.jpg");
-}
-
-function isKoreanSearch(term: string): boolean {
-  return /[가-힣]/.test(term);
-}
-
-function isValidAlbum(album: iTunesAlbum): boolean {
   const title = (album.collectionName || "").toUpperCase();
-  const genre = (album.primaryGenreName || "").toUpperCase();
-  const titleFilterKeywords = [
-    "LEAK", "FANMADE", "TRIBUTE", "COVER", "PARODY", "BOOTLEG", "UNOFFICIAL",
-    "FAN MADE", "FAN-MADE", "- SINGLE", " - SINGLE", "INSTRUMENTAL", "REMASTERED",
-  ];
-  for (const keyword of titleFilterKeywords) {
-    if (title.includes(keyword)) return false;
-  }
-  if (genre === "COMEDY") return false;
-  return true;
-}
-
-function isArtistRelevantToSearch(artistName: string, searchTerm: string): boolean {
-  const termLower = searchTerm.toLowerCase().trim();
-  const artistLower = artistName.toLowerCase();
-  if (artistLower === termLower || artistLower.includes(termLower)) return true;
-  const termWords = termLower.split(/\s+/).filter((w) => w.length > 1);
-  if (termWords.length === 0) return true;
-  const matchedWords = termWords.filter((word) => artistLower.includes(word)).length;
-  return matchedWords >= Math.ceil(termWords.length / 2);
-}
-
-function mergeWithPriority<T>(
-  primary: T[],
-  secondary: T[],
-  getKey: (item: T) => string | number
-): T[] {
-  const keySet = new Set(primary.map(getKey).filter((k) => k !== undefined && k !== ""));
-  const fromSecondary = secondary.filter((item) => {
-    const key = getKey(item);
-    if (key === undefined || key === "") return false;
-    if (keySet.has(key)) return false;
-    keySet.add(key);
-    return true;
-  });
-  return [...primary, ...fromSecondary];
-}
-
-async function fetchHybridData<T>(params: {
-  urlKR: string;
-  urlGlobal: string;
-  parseResponse: (data: unknown) => T[];
-  getKey: (item: T) => string | number;
-}): Promise<T[]> {
-  const { urlKR, urlGlobal, parseResponse, getKey } = params;
-  const [responseKR, responseGlobal] = await Promise.all([
-    fetch(urlKR, FETCH_OPTIONS),
-    fetch(urlGlobal, FETCH_OPTIONS),
-  ]);
-
-  let primary: T[] = [];
-  try {
-    if (responseKR.ok) {
-      const data = await responseKR.json();
-      primary = parseResponse(data) ?? [];
-    }
-  } catch {
-    primary = [];
-  }
-
-  let secondary: T[] = [];
-  try {
-    if (responseGlobal.ok) {
-      const data = await responseGlobal.json();
-      secondary = parseResponse(data) ?? [];
-    }
-  } catch {
-    secondary = [];
-  }
-
-  return primary.length > 0 || secondary.length > 0
-    ? mergeWithPriority(primary, secondary, getKey)
-    : primary;
-}
-
-async function fetchHybridArtists(urlKR: string, urlGlobal: string): Promise<iTunesArtist[]> {
-  return fetchHybridData<iTunesArtist>({
-    urlKR,
-    urlGlobal,
-    parseResponse: (data) => {
-      const results = (data as iTunesSearchResponse).results;
-      return Array.isArray(results) ? (results as iTunesArtist[]) : [];
-    },
-    getKey: (a) => a.artistId ?? "",
-  });
-}
-
-async function fetchHybridAlbums(urlKR: string, urlGlobal: string): Promise<iTunesAlbum[]> {
-  return fetchHybridData<iTunesAlbum>({
-    urlKR,
-    urlGlobal,
-    parseResponse: (data) => {
-      const results = (data as iTunesLookupResponse).results;
-      return Array.isArray(results) ? results : [];
-    },
-    getKey: (a) => a.collectionId ?? "",
-  });
-}
-
-function filterAlbumsByTrackRules(albums: iTunesAlbum[]): iTunesAlbum[] {
-  return albums.filter((album) => {
-    const collectionType = (album.collectionType ?? "").toLowerCase();
-    const trackCount = album.trackCount ?? 0;
-    if (trackCount < 2) return false;
-    if (collectionType === "single" && trackCount < 5) return false;
-    return isValidAlbum(album);
-  });
+  return !ALBUM_TITLE_FILTER_KEYWORDS.some((keyword) => title.includes(keyword));
 }
 
 function dedupeAlbumsByTitleArtist(albums: iTunesAlbum[]): iTunesAlbum[] {
   const seen = new Set<string>();
   return albums.filter((album) => {
-    const title = (album.collectionName ?? "").trim();
-    const artist = (album.artistName ?? "").trim();
-    const key = `${title}_${artist}`;
+    const key = `${normalizeName(album.collectionName)}_${normalizeName(album.artistName)}`;
     if (seen.has(key)) return false;
     seen.add(key);
     return true;
   });
 }
 
-function sortAlbumsByReleaseDate(albums: iTunesAlbum[]): iTunesAlbum[] {
-  return [...albums].sort((a, b) => {
+function toItunesAlbum(item: ItunesResult): iTunesAlbum | null {
+  const id = asFiniteNumber(item.collectionId);
+  if (!id) return null;
+  return {
+    collectionId: id,
+    collectionName: String(item.collectionName ?? ""),
+    artistName: String(item.artistName ?? ""),
+    artworkUrl100: String(item.artworkUrl100 ?? ""),
+    releaseDate: String(item.releaseDate ?? ""),
+    primaryGenreName: String(item.primaryGenreName ?? ""),
+    collectionType: asString(item.collectionType),
+    trackCount: asFiniteNumber(item.trackCount),
+  };
+}
+
+export async function getArtistAlbums(
+  artistId: number,
+  limit: number = 50
+): Promise<iTunesAlbum[]> {
+  if (!Number.isFinite(artistId) || artistId <= 0) return [];
+
+  const byId = new Map<number, iTunesAlbum>();
+  for (const url of itunesLookupUrls(artistId, { limit })) {
+    const results = await fetchItunesResults(url);
+    for (const item of results) {
+      if (item.wrapperType !== "collection") continue;
+      const album = toItunesAlbum(item);
+      if (album && !byId.has(album.collectionId)) {
+        byId.set(album.collectionId, album);
+      }
+    }
+  }
+
+  const filtered = Array.from(byId.values()).filter(isDisplayableItunesAlbum);
+  const deduped = dedupeAlbumsByTitleArtist(filtered);
+
+  return deduped.sort((a, b) => {
     const timeA = a.releaseDate ? new Date(a.releaseDate).getTime() : 0;
     const timeB = b.releaseDate ? new Date(b.releaseDate).getTime() : 0;
     return timeB - timeA;
   });
 }
 
-function dedupeArtistsById(artists: iTunesArtist[]): iTunesArtist[] {
-  const byId = new Map<number, iTunesArtist>();
-  artists.forEach((a) => {
-    if (a.artistId && !byId.has(a.artistId)) byId.set(a.artistId, a);
-  });
-  return Array.from(byId.values());
-}
+async function fetchArtistArtworkUrl(
+  artistId: number,
+  artistName: string
+): Promise<string | undefined> {
+  if (!Number.isFinite(artistId) || artistId <= 0) return undefined;
 
-function sortArtistsBySearchRelevance(artists: iTunesArtist[], searchTerm: string): iTunesArtist[] {
-  const termLower = searchTerm.toLowerCase().trim();
-  const termHasKorean = /[가-힣]/.test(searchTerm);
-  return [...artists].sort((a, b) => {
-    const aName = a.artistName.toLowerCase();
-    const bName = b.artistName.toLowerCase();
-    const aContainsTerm = aName.includes(termLower) || termLower.includes(aName);
-    const bContainsTerm = bName.includes(termLower) || termLower.includes(bName);
-    if (aContainsTerm && !bContainsTerm) return -1;
-    if (!aContainsTerm && bContainsTerm) return 1;
-    if (aContainsTerm && bContainsTerm) {
-      if (aName === termLower && bName !== termLower) return -1;
-      if (bName === termLower && aName !== termLower) return 1;
-    }
-    if (termHasKorean) {
-      const aHasKorean = /[가-힣]/.test(a.artistName);
-      const bHasKorean = /[가-힣]/.test(b.artistName);
-      if (aHasKorean && !bHasKorean) return -1;
-      if (!aHasKorean && bHasKorean) return 1;
-    }
-    return 0;
-  });
-}
+  const cacheKey = String(artistId);
+  const cached = artistArtworkCache.get(cacheKey);
+  if (cached !== undefined) return cached ?? undefined;
 
-async function getKoreanAlbumTitle(collectionId: number): Promise<string | null> {
-  try {
-    const url = `https://itunes.apple.com/lookup?id=${collectionId}&country=KR&lang=ko_kr`;
-    const response = await fetch(url, FETCH_OPTIONS);
-    if (!response.ok) return null;
-    const data = (await response.json()) as iTunesLookupResponse;
-    const albums = data.results ?? [];
-    const title = albums[0]?.collectionName;
-    return title && /[가-힣]/.test(title) ? title : null;
-  } catch {
-    return null;
-  }
-}
+  const normalizedName = artistName.trim().toLowerCase();
 
-const ITUNES_LOOKUP_URLS = (id: number) => [
-  `https://itunes.apple.com/lookup?id=${id}&entity=album&limit=1&country=KR&lang=ko_kr`,
-  `https://itunes.apple.com/lookup?id=${id}&entity=album&limit=1`,
-];
-
-async function lookupAlbumFromItunes(collectionId: number): Promise<{
-  collectionId: number;
-  artistId: number | null;
-  collectionName: string;
-  artistName: string;
-  artworkUrl100?: string;
-  primaryGenreName?: string;
-  releaseDate?: string;
-} | null> {
-  for (const url of ITUNES_LOOKUP_URLS(collectionId)) {
-    try {
-      const res = await fetch(url, FETCH_OPTIONS);
-      if (!res.ok) continue;
-      const data = (await res.json()) as { results?: Array<Record<string, unknown>> };
-      const first = data.results?.[0] as Record<string, unknown> | undefined;
-      const id = first?.collectionId as number | undefined;
-      if (id !== collectionId || !first?.collectionName || !first?.artistName) continue;
-      return {
-        collectionId: id,
-        artistId:
-          typeof first.artistId === "number" && Number.isFinite(first.artistId)
-            ? first.artistId
-            : null,
-        collectionName: String(first.collectionName),
-        artistName: String(first.artistName),
-        artworkUrl100: first.artworkUrl100 as string | undefined,
-        primaryGenreName: first.primaryGenreName as string | undefined,
-        releaseDate: first.releaseDate as string | undefined,
-      };
-    } catch {
-      continue;
-    }
-  }
-  return null;
-}
-
-export async function getAlbumByCollectionId(
-  collectionId: number
-): Promise<{
-  collectionId: number;
-  artistId: string | null;
-  title: string;
-  artist: string;
-  imageUrl: string | null;
-  releaseDate: string;
-  genre: string;
-} | null> {
-  const raw = await lookupAlbumFromItunes(collectionId);
-  if (!raw) return null;
-  return {
-    collectionId: raw.collectionId,
-    artistId: raw.artistId != null ? String(raw.artistId) : null,
-    title: raw.collectionName,
-    artist: raw.artistName,
-    imageUrl: getLargeImageUrl(raw.artworkUrl100) ?? null,
-    releaseDate: raw.releaseDate?.slice(0, 10) ?? "",
-    genre: raw.primaryGenreName ?? "",
-  };
-}
-
-export async function searchArtists(term: string, limit: number = 20): Promise<iTunesArtist[]> {
-  if (!term?.trim()) return [];
-
-  const trimmedTerm = term.trim();
-  const encodedTerm = encodeURIComponent(trimmedTerm);
-  const useKoreanParams = isKoreanSearch(trimmedTerm);
-
-  const urlKR = `https://itunes.apple.com/search?term=${encodedTerm}&media=music&entity=musicArtist&limit=${limit * 2}&country=KR&lang=ko_kr`;
-  const urlGlobal = `https://itunes.apple.com/search?term=${encodedTerm}&media=music&entity=musicArtist&limit=${limit * 2}`;
-
-  let artists: iTunesArtist[] = [];
-  try {
-    artists = await fetchHybridArtists(urlKR, urlGlobal);
-  } catch {
-    throw new Error("아티스트 검색 중 오류가 발생했습니다.");
-  }
-
-  if (artists.length === 0) {
-    throw new Error("아티스트 검색 결과가 없습니다.");
-  }
-
-  let relevantArtists: iTunesArtist[];
-  if (useKoreanParams) {
-    relevantArtists = artists.filter((a) => a.artistId && a.artistName);
-    if (relevantArtists.length === 0) {
-      try {
-        const fallbackUrl = `https://itunes.apple.com/search?term=${encodedTerm}&media=music&entity=musicArtist&limit=${limit * 2}&country=KR&lang=ko_kr`;
-        const res = await fetch(fallbackUrl, FETCH_OPTIONS);
-        if (res.ok) {
-          const data = (await res.json()) as iTunesSearchResponse;
-          const list = (data.results ?? []) as iTunesArtist[];
-          const matched = list.filter((a) => {
-            if (!a.artistId || !a.artistName) return false;
-            const name = a.artistName.toLowerCase();
-            const termL = trimmedTerm.toLowerCase();
-            return name.includes(termL) || termL.includes(name);
-          });
-          if (matched.length > 0) relevantArtists = matched;
-        }
-      } catch {
-      }
-    }
-  } else {
-    relevantArtists = artists.filter(
-      (a) => a.artistId && a.artistName && isArtistRelevantToSearch(a.artistName, trimmedTerm)
+  for (const url of itunesLookupUrls(artistId, { limit: 10 })) {
+    const results = await fetchItunesResults(url);
+    const albums = results.filter(
+      (item) =>
+        item.wrapperType === "collection" &&
+        typeof item.artworkUrl100 === "string" &&
+        normalizeName(item.artistName) === normalizedName
     );
+
+    const preferred =
+      albums.find((item) => String(item.collectionType ?? "").toLowerCase() === "album") ??
+      albums[0];
+    const artwork = asString(preferred?.artworkUrl100);
+    if (artwork) {
+      artistArtworkCache.set(cacheKey, artwork);
+      return artwork;
+    }
   }
 
-  const uniqueArtists = dedupeArtistsById(relevantArtists);
-  const sortedArtists = sortArtistsBySearchRelevance(uniqueArtists, trimmedTerm);
-  const limitedArtists = sortedArtists.slice(0, limit);
+  artistArtworkCache.set(cacheKey, null);
+  return undefined;
+}
 
-  const artistsWithAlbums = await Promise.all(
-    limitedArtists.map(async (artist) => {
-      try {
-        const albums = await getArtistAlbums(artist.artistId, 50);
-        if (!albums?.length) return null;
-        return artist;
-      } catch {
-        return null;
-      }
+export async function searchArtists(
+  term: string,
+  limit: number = 20
+): Promise<ItunesArtistResult[]> {
+  const trimmed = term.trim();
+  if (!trimmed) return [];
+
+  const cappedLimit = Math.min(Math.max(limit, 1), ARTIST_SEARCH_MAX_LIMIT);
+  const cacheKey = `${trimmed.toLowerCase()}_${cappedLimit}`;
+  const cached = artistSearchCache.get(cacheKey);
+  if (cached) return cached;
+
+  const byId = new Map<string, ItunesArtistResult>();
+  for (const url of itunesArtistSearchUrls(trimmed, cappedLimit)) {
+    const results = await fetchItunesResults(url);
+    for (const item of results) {
+      const id = asFiniteNumber(item.artistId);
+      const artistName = asString(item.artistName);
+      if (id == null || !artistName?.trim()) continue;
+      const artistId = String(id);
+      if (byId.has(artistId)) continue;
+      byId.set(artistId, {
+        artistId,
+        artistName,
+        artistViewUrl: asString(item.artistLinkUrl),
+        primaryGenreName: asString(item.primaryGenreName),
+      });
+    }
+    if (byId.size > 0) break;
+  }
+
+  const results = await Promise.all(
+    Array.from(byId.values()).map(async (artist) => {
+      const artworkUrl100 = await fetchArtistArtworkUrl(Number(artist.artistId), artist.artistName);
+      return artworkUrl100 ? { ...artist, artworkUrl100 } : artist;
     })
   );
 
-  const filteredArtists = artistsWithAlbums.filter((a): a is iTunesArtist => a !== null);
-
-  if (filteredArtists.length < limit && sortedArtists.length > limit) {
-    const additional = sortedArtists.slice(limit, limit * 2);
-    const additionalWithAlbums = await Promise.all(
-      additional.map(async (artist) => {
-        try {
-          const albums = await getArtistAlbums(artist.artistId, 50);
-          if (!albums?.length) return null;
-          return artist;
-        } catch {
-          return null;
-        }
-      })
-    );
-    const needed = limit - filteredArtists.length;
-    filteredArtists.push(
-      ...additionalWithAlbums.filter((a): a is iTunesArtist => a !== null).slice(0, needed)
-    );
+  if (results.length > 0) {
+    artistSearchCache.set(cacheKey, results);
   }
-
-  return filteredArtists;
-}
-
-export async function getArtistAlbums(artistId: number, limit: number = 50): Promise<iTunesAlbum[]> {
-  const artistIdNum = Number(artistId);
-  if (!Number.isFinite(artistIdNum)) {
-    throw new Error("유효하지 않은 아티스트 ID입니다.");
-  }
-
-  const urlKR = `https://itunes.apple.com/lookup?id=${artistIdNum}&entity=album&limit=${limit}&country=KR&lang=ko_kr`;
-  const urlGlobal = `https://itunes.apple.com/lookup?id=${artistIdNum}&entity=album&limit=${limit}`;
-
-  let albums: iTunesAlbum[] = [];
-  try {
-    albums = await fetchHybridAlbums(urlKR, urlGlobal);
-  } catch {
-    throw new Error("앨범 목록 조회 중 오류가 발생했습니다.");
-  }
-
-  if (albums.length === 0) {
-    throw new Error("앨범 목록을 불러올 수 없습니다.");
-  }
-
-  const filtered = filterAlbumsByTrackRules(albums);
-  const deduped = dedupeAlbumsByTitleArtist(filtered);
-
-  const withKoreanTitles = await Promise.all(
-    deduped.map(async (album) => {
-      if (/[가-힣]/.test(album.collectionName ?? "")) return album;
-      const koreanTitle = await getKoreanAlbumTitle(album.collectionId);
-      return koreanTitle ? { ...album, collectionName: koreanTitle } : album;
-    })
-  );
-
-  return sortAlbumsByReleaseDate(withKoreanTitles);
+  return results;
 }

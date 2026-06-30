@@ -1,5 +1,5 @@
 export interface FeaturedAlbumCardData {
-  collectionId: number;
+  collectionId: string;
   title: string;
   artist: string;
   imageUrl: string | null;

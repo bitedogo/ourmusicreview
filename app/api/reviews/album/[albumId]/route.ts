@@ -1,7 +1,7 @@
 import { initializeDatabase } from "@/src/lib/db";
 import { Review } from "@/src/lib/db/entities/Review";
 import { Album } from "@/src/lib/db/entities/Album";
-import { getAlbumByCollectionId } from "@/src/lib/itunes";
+import { getAlbumById } from "@/src/lib/album-lookup";
 import { apiError, apiOk } from "@/src/lib/http/response";
 
 export async function GET(
@@ -23,17 +23,15 @@ export async function GET(
       where: { albumId },
     });
 
-    const idNum = parseInt(albumId, 10);
-    const itunesAlbum =
-      Number.isFinite(idNum) ? await getAlbumByCollectionId(idNum) : null;
-    const albumForResponse = itunesAlbum
+    const lookupAlbum = await getAlbumById(albumId);
+    const albumForResponse = lookupAlbum
       ? {
-          albumId: String(itunesAlbum.collectionId),
-          artistId: itunesAlbum.artistId,
-          title: itunesAlbum.title,
-          artist: itunesAlbum.artist,
-          imageUrl: itunesAlbum.imageUrl,
-          genre: itunesAlbum.genre || null,
+          albumId: lookupAlbum.collectionId,
+          artistId: lookupAlbum.artistId,
+          title: lookupAlbum.title,
+          artist: lookupAlbum.artist,
+          imageUrl: lookupAlbum.imageUrl,
+          genre: lookupAlbum.genre || null,
         }
       : null;
 

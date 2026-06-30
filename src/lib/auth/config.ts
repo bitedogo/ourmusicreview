@@ -164,7 +164,7 @@ export const authOptions: NextAuthOptions = {
             profileImage,
             role: dbUser.role,
           };
-        } catch (error) {
+        } catch {
           return { id: "", name: "", email: "", image: "", role: "" };
         }
       },

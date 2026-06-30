@@ -1,7 +1,7 @@
 import type { ItunesArtistResult } from "@/src/lib/itunes/types";
 
 export interface SearchAlbumResult {
-  collectionId: number;
+  collectionId: string;
   collectionName: string;
   artistName: string;
   artworkUrl100: string;

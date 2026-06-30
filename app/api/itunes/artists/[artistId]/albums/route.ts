@@ -2,21 +2,21 @@ import { getArtistAlbums, getLargeImageUrl } from "@/src/lib/itunes";
 import { apiError, apiOk } from "@/src/lib/http/response";
 
 export async function GET(
-  request: Request,
+  _request: Request,
   { params }: { params: Promise<{ artistId: string }> }
 ) {
   try {
     const { artistId } = await params;
-    const artistIdNum = parseInt(artistId, 10);
+    const trimmed = artistId?.trim() ?? "";
+    const numericId = parseInt(trimmed, 10);
 
-    if (isNaN(artistIdNum)) {
+    if (!/^\d+$/.test(trimmed) || !Number.isFinite(numericId) || numericId <= 0) {
       return apiError("유효하지 않은 아티스트 ID입니다.", { status: 400 });
     }
 
-    const itunesResults = await getArtistAlbums(artistIdNum, 50);
-
+    const itunesResults = await getArtistAlbums(numericId, 50);
     const albums = itunesResults.map((album) => ({
-      collectionId: album.collectionId,
+      collectionId: String(album.collectionId),
       collectionName: album.collectionName,
       artistName: album.artistName,
       artworkUrl100: album.artworkUrl100,

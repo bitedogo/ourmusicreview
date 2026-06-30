@@ -6,13 +6,13 @@ import Image from "next/image";
 import { getPaginationItems } from "@/src/lib/utils/pagination";
 
 interface ArtistResult {
-  artistId: number;
+  artistId: string;
   artistName: string;
   primaryGenreName?: string;
 }
 
 interface SearchAlbum {
-  collectionId: number;
+  collectionId: string;
   collectionName: string;
   artistName: string;
   imageUrl600: string | null;

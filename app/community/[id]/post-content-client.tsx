@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { HtmlRenderer } from "@/src/components/common/HtmlRenderer";
 import { InteractionButtons } from "@/src/components/interaction/InteractionButtons";
 import { CommentSection } from "@/src/components/interaction/CommentSection";
@@ -60,13 +60,11 @@ export function PostContentClient({
         method: "POST",
       })
       .then(response => {
-        if (!response.ok) {
-        } else {
+        if (response.ok) {
           setDisplayedViews(prev => prev + 1);
         }
       })
-      .catch(error => {
-      });
+      .catch(() => {});
     }
   }, [postId]);
   const isOwner = session?.user?.id === userId || (session?.user as { role?: string })?.role === "ADMIN";

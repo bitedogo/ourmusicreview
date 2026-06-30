@@ -10,12 +10,6 @@ import { Comment } from "@/src/lib/db/entities/Comment";
 import { Review } from "@/src/lib/db/entities/Review";
 import { apiError, apiOk } from "@/src/lib/http/response";
 
-const GENDER_LABEL: Record<string, string> = {
-  MALE: "남성",
-  FEMALE: "여성",
-  NONE: "-",
-};
-
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }

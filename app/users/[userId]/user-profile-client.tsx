@@ -66,7 +66,7 @@ export function UserProfileClient({ userId, showAllReviews = false }: UserProfil
         } else {
           setError("프로필 정보를 가져오는 데 실패했습니다.");
         }
-      } catch (err) {
+      } catch {
         if (!cancelled) {
           setError("프로필 정보를 가져오는 중 오류가 발생했습니다.");
         }

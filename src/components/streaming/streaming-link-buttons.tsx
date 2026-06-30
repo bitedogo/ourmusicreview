@@ -22,7 +22,7 @@ export function StreamingLinkButtons({ links, className = "" }: StreamingLinkBut
           target="_blank"
           rel="noopener noreferrer"
           aria-label={platform.label}
-          className="inline-flex h-8 w-8 items-center justify-center overflow-hidden rounded-full transition hover:opacity-80"
+          className="inline-flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg transition hover:opacity-80"
         >
           <Image
             src={platform.iconSrc}

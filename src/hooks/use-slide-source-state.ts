@@ -1,28 +1,24 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useSyncExternalStore } from "react";
 import {
   getStoredSlideSource,
   setSlideSource,
+  subscribeSlideSource,
   type SlideSource,
 } from "@/src/lib/slide-source";
 
+const getServerSlideSource = (): SlideSource => "user";
+
 export function useSlideSourceState() {
-  const [slideSource, setSlideSourceState] = useState<SlideSource>("user");
-
-  useEffect(() => {
-    setSlideSourceState(getStoredSlideSource());
-  }, []);
-
-  useEffect(() => {
-    const handler = () => setSlideSourceState(getStoredSlideSource());
-    window.addEventListener("storage", handler);
-    return () => window.removeEventListener("storage", handler);
-  }, []);
+  const slideSource = useSyncExternalStore(
+    subscribeSlideSource,
+    getStoredSlideSource,
+    getServerSlideSource
+  );
 
   const updateSlideSource = useCallback((source: SlideSource) => {
     setSlideSource(source);
-    setSlideSourceState(source);
   }, []);
 
   return { slideSource, updateSlideSource };

@@ -2,7 +2,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/src/lib/auth/config";
 import { initializeDatabase } from "@/src/lib/db";
 import { FeaturedSlideAlbum } from "@/src/lib/db/entities/FeaturedSlideAlbum";
-import { getAlbumByCollectionId } from "@/src/lib/itunes";
+import { getAlbumById } from "@/src/lib/album-lookup";
 import { apiError, apiOk } from "@/src/lib/http/response";
 
 const MIN_COUNT = 10;
@@ -53,12 +53,9 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    const collectionId =
-      typeof body.collectionId === "number"
-        ? body.collectionId
-        : parseInt(String(body.collectionId ?? ""), 10);
+    const collectionId = String(body.collectionId ?? "").trim();
 
-    if (Number.isNaN(collectionId) || collectionId <= 0) {
+    if (!collectionId) {
       return apiError("유효한 앨범(collectionId)을 선택해 주세요.", { status: 400 });
     }
 
@@ -70,15 +67,15 @@ export async function POST(request: Request) {
     }
 
     const existing = await repo.findOne({
-      where: { collectionId: String(collectionId) },
+      where: { collectionId },
     });
     if (existing) {
       return apiError("이미 슬라이드바에 등록된 앨범입니다.", { status: 400 });
     }
 
-    const albumInfo = await getAlbumByCollectionId(collectionId);
+    const albumInfo = await getAlbumById(collectionId);
     if (!albumInfo) {
-      return apiError("iTunes에서 앨범 정보를 가져올 수 없습니다.", { status: 400 });
+      return apiError("앨범 정보를 가져올 수 없습니다.", { status: 400 });
     }
 
     const position = currentCount + 1;
@@ -86,7 +83,7 @@ export async function POST(request: Request) {
     const entity = repo.create({
       id,
       position,
-      collectionId: String(albumInfo.collectionId),
+      collectionId: albumInfo.collectionId,
       title: albumInfo.title,
       artist: albumInfo.artist,
       imageUrl: albumInfo.imageUrl ?? undefined,

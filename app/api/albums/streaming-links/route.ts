@@ -7,7 +7,7 @@ function parseAlbumIds(raw: string | null): string[] {
   return raw
     .split(",")
     .map((value) => value.trim())
-    .filter((value) => /^\d+$/.test(value))
+    .filter((value) => /^[A-Za-z0-9]+$/.test(value))
     .slice(0, 50);
 }
 

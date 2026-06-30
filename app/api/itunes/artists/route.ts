@@ -12,6 +12,10 @@ export async function GET(request: Request) {
 
     const artists = await searchArtists(term, 20);
 
+    if (artists.length === 0) {
+      return apiError("아티스트 검색 결과가 없습니다.", { status: 404 });
+    }
+
     return apiOk({ artists });
   } catch (error) {
     return apiError(

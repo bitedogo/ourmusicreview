@@ -42,15 +42,12 @@ export async function POST(request: Request) {
       return apiError("지원 형식은 MP3, WAV 입니다.", { status: 400 });
     }
 
-    // 4. Supabase 업로드 실행
     const url = await uploadAudioFile(audioFile, session.user.id);
     return apiOk({ url });
-
   } catch (error) {
-    
     const errorMessage = error instanceof Error ? error.message : "";
     if (errorMessage.includes("body size") || errorMessage.includes("too large")) {
-        return apiError("4MB 이하의 파일만 업로드 가능합니다.", { status: 413 });
+      return apiError("4MB 이하의 파일만 업로드 가능합니다.", { status: 413 });
     }
 
     return apiError(

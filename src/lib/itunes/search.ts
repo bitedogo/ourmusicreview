@@ -21,7 +21,7 @@ export async function fetchArtistAutocomplete(term: string): Promise<ItunesArtis
       return data.data.results;
     }
   } catch {
-    // Ignore autocomplete failures and fall back to an empty list.
+    return [];
   }
 
   return [];

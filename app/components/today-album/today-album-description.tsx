@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { StreamingLinkButtons } from "@/src/components/streaming/streaming-link-buttons";
 import { useStreamingLinks } from "@/src/hooks/use-streaming-links";
 import type { TodayAlbumData } from "@/src/lib/today-album/types";
@@ -12,12 +12,14 @@ interface TodayAlbumDescriptionProps {
 
 export function TodayAlbumDescription({ album, resetKey }: TodayAlbumDescriptionProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [prevResetKey, setPrevResetKey] = useState(resetKey);
   const description = album.description?.trim() ?? "";
   const streamingLinks = useStreamingLinks(album.albumId);
 
-  useEffect(() => {
+  if (resetKey !== prevResetKey) {
+    setPrevResetKey(resetKey);
     setIsExpanded(false);
-  }, [resetKey]);
+  }
 
   return (
     <div className="w-full min-w-0 flex-1 sm:self-start">

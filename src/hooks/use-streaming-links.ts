@@ -8,14 +8,14 @@ export function useBatchStreamingLinks(albumIdsKey: string) {
   const [linksByAlbumId, setLinksByAlbumId] = useState<Record<string, AlbumStreamingLinks>>({});
 
   useEffect(() => {
-    if (!albumIdsKey) {
-      setLinksByAlbumId({});
-      return;
-    }
-
     let isCancelled = false;
 
     async function fetchLinks() {
+      if (!albumIdsKey) {
+        if (!isCancelled) setLinksByAlbumId({});
+        return;
+      }
+
       try {
         const data = await fetchJson<BatchStreamingLinksResponse>(
           `/api/albums/streaming-links?ids=${encodeURIComponent(albumIdsKey)}`
@@ -44,21 +44,20 @@ export function useStreamingLinks(albumId: string | null | undefined) {
   const [links, setLinks] = useState<AlbumStreamingLinks | null>(null);
 
   useEffect(() => {
-    if (!albumId) {
-      setLinks(null);
-      return;
-    }
-
-    const collectionId = albumId;
     let isCancelled = false;
 
     async function fetchLinks() {
+      if (!albumId) {
+        if (!isCancelled) setLinks(null);
+        return;
+      }
+
       try {
         const data = await fetchJson<BatchStreamingLinksResponse>(
-          `/api/albums/streaming-links?ids=${encodeURIComponent(collectionId)}`
+          `/api/albums/streaming-links?ids=${encodeURIComponent(albumId)}`
         );
         if (!isCancelled) {
-          setLinks(data.data.links?.[collectionId] ?? null);
+          setLinks(data.data.links?.[albumId] ?? null);
         }
       } catch {
         if (!isCancelled) {

@@ -8,13 +8,13 @@ const MIN_COUNT = 10;
 const MAX_COUNT = 30;
 
 interface ArtistResult {
-  artistId: number;
+  artistId: string;
   artistName: string;
   primaryGenreName?: string;
 }
 
 interface SearchAlbum {
-  collectionId: number;
+  collectionId: string;
   collectionName: string;
   artistName: string;
   imageUrl600: string | null;
@@ -125,7 +125,7 @@ export function FeaturedSlideClient() {
     setModalOpen(true);
   }
 
-  async function addAlbum(collectionId: number) {
+  async function addAlbum(collectionId: string) {
     if (albums.length >= MAX_COUNT) {
       setAddError(`최대 ${MAX_COUNT}개까지 등록할 수 있습니다.`);
       return;

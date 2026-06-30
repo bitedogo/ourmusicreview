@@ -24,7 +24,7 @@ interface FindPasswordResponse {
 
 export default function SigninPage() {
   const router = useRouter();
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const callbackUrl = "/";
   const loginCallbackUrl = "/auth/signin";
   const savedIdKey = "oru.savedSigninId";

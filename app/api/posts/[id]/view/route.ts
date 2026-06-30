@@ -36,7 +36,7 @@ export async function POST(req: NextRequest, context: { params: Promise<Params> 
     await postRepository.increment({ id }, "views", 1);
 
     return NextResponse.json({ ok: true });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { message: "Failed to increment views" },
       { status: 500 }

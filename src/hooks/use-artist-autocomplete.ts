@@ -40,16 +40,12 @@ export function useArtistAutocomplete(options: UseArtistAutocompleteOptions = {}
 
   useEffect(() => {
     const query = searchQuery.trim();
-    if (!query) {
-      setSuggestions([]);
-      setIsDropdownOpen(false);
-      return;
-    }
 
     if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
-    debounceTimerRef.current = setTimeout(() => {
-      fetchSuggestions(query);
-    }, ARTIST_SEARCH_DEBOUNCE_MS);
+    debounceTimerRef.current = setTimeout(
+      () => fetchSuggestions(query),
+      query ? ARTIST_SEARCH_DEBOUNCE_MS : 0
+    );
 
     return () => {
       if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);

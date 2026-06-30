@@ -169,21 +169,15 @@ export default async function BoardPage(props: {
     currentPage * PAGE_SIZE_BOARD
   );
 
-  // 최종적으로 렌더링할 게시물 목록 (정렬 순서: 전체 공지 -> 릴리즈 노트 -> 일반 게시물)
   const finalPostsToRender = [
     ...globalPinnedPosts,
     ...releasePinnedPosts,
     ...paginatedOtherPosts,
   ].sort((a, b) => {
-    // 전체 공지 우선 (isPinned)
     if (a.isPinned && !b.isPinned) return -1;
     if (!a.isPinned && b.isPinned) return 1;
-    // 릴리즈 노트 다음 (isReleasePinned)
-    // 단, 전체 공지가 아닌 경우에만 릴리즈 노트로 간주 (위에서 필터링되었지만 안전 장치)
     if (a.isReleasePinned && !a.isPinned && !b.isReleasePinned) return -1;
     if (!a.isReleasePinned && b.isReleasePinned && !b.isPinned) return 1;
-
-    // 나머지는 최신순
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
 

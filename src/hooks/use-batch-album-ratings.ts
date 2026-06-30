@@ -13,14 +13,14 @@ export function useBatchAlbumRatings(albumIdsKey: string) {
   const [ratings, setRatings] = useState<Record<string, AlbumRatingInfo>>({});
 
   useEffect(() => {
-    if (!albumIdsKey) {
-      setRatings({});
-      return;
-    }
-
     let isCancelled = false;
 
     async function fetchRatings() {
+      if (!albumIdsKey) {
+        if (!isCancelled) setRatings({});
+        return;
+      }
+
       try {
         const ratingData = await fetchJson<BatchAlbumRatingsResponse>(
           `/api/albums/ratings?ids=${encodeURIComponent(albumIdsKey)}`

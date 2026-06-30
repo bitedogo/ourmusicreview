@@ -61,7 +61,7 @@ export async function GET(request: Request) {
     }
 
     const albums = rows.map((row) => ({
-      collectionId: parseInt(row.collectionId, 10) || 0,
+      collectionId: row.collectionId,
       title: row.title,
       artist: row.artist,
       imageUrl: row.imageUrl ?? null,

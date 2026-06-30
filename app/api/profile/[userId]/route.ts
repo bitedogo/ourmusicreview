@@ -197,7 +197,7 @@ export async function GET(
         })),
       },
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { message: "Internal Server Error" },
       { status: 500 },

@@ -1,16 +1,19 @@
 import { unstable_cache } from "next/cache";
+import { fetchItunesResults, itunesLookupUrls } from "@/src/lib/itunes/http";
+import { searchSpotifyAlbumUrl } from "@/src/lib/spotify/album-search";
+import { looseMatch, normalizeForMatch } from "@/src/lib/text/match";
 import type { AlbumStreamingLinks } from "./types";
 
-const ITUNES_LOOKUP_URLS = (collectionId: number) => [
-  `https://itunes.apple.com/lookup?id=${collectionId}&entity=album&limit=1&country=KR&lang=ko_kr`,
-  `https://itunes.apple.com/lookup?id=${collectionId}&entity=album&limit=1`,
-];
-
 const ODESLI_API = "https://api.song.link/v1-alpha.1/links";
+const DEEZER_SEARCH_API = "https://api.deezer.com/search/album";
 
 const FETCH_JSON = {
   headers: { Accept: "application/json" as const },
 };
+
+function buildSearchTerm(artist: string, title: string): string {
+  return `${artist} ${title}`.trim();
+}
 
 function buildAppleMusicFallbackUrl(collectionId: number): string {
   return `https://music.apple.com/kr/album/id/${collectionId}`;
@@ -21,34 +24,70 @@ function pickUrl(value: unknown): string | undefined {
   return value;
 }
 
-async function lookupAppleMusicUrl(collectionId: number): Promise<string> {
-  for (const url of ITUNES_LOOKUP_URLS(collectionId)) {
-    try {
-      const response = await fetch(url, FETCH_JSON);
-      if (!response.ok) continue;
+interface ItunesAlbumInfo {
+  appleMusicUrl: string;
+  title: string;
+  artist: string;
+}
 
-      const data = (await response.json()) as {
-        results?: Array<Record<string, unknown>>;
+async function lookupItunesAlbum(collectionId: number): Promise<ItunesAlbumInfo> {
+  for (const url of itunesLookupUrls(collectionId)) {
+    const results = await fetchItunesResults(url);
+    const first = results[0];
+    const collectionViewUrl = pickUrl(first?.collectionViewUrl);
+    if (collectionViewUrl) {
+      return {
+        appleMusicUrl: collectionViewUrl,
+        title: String(first?.collectionName ?? ""),
+        artist: String(first?.artistName ?? ""),
       };
-      const first = data.results?.[0];
-      const collectionViewUrl = pickUrl(first?.collectionViewUrl);
-      if (collectionViewUrl) {
-        return collectionViewUrl;
-      }
-    } catch {
-      continue;
     }
   }
 
-  return buildAppleMusicFallbackUrl(collectionId);
+  return {
+    appleMusicUrl: buildAppleMusicFallbackUrl(collectionId),
+    title: "",
+    artist: "",
+  };
 }
 
-interface OdesliPlatformLink {
-  url?: string;
+interface DeezerAlbum {
+  title?: string;
+  link?: string;
+  artist?: { name?: string };
+}
+
+async function searchDeezerAlbumUrl(
+  artist: string,
+  title: string
+): Promise<string | undefined> {
+  const query = buildSearchTerm(artist, title);
+  if (!query) return undefined;
+
+  try {
+    const response = await fetch(
+      `${DEEZER_SEARCH_API}?q=${encodeURIComponent(query)}&limit=10`,
+      FETCH_JSON
+    );
+    if (!response.ok) return undefined;
+
+    const data = (await response.json()) as { data?: DeezerAlbum[] };
+    const targetArtist = normalizeForMatch(artist);
+    const matched = (data.data ?? []).find(
+      (album) =>
+        looseMatch(album.title ?? "", title) &&
+        !!targetArtist &&
+        looseMatch(album.artist?.name ?? "", artist)
+    );
+
+    return pickUrl(matched?.link);
+  } catch {
+    return undefined;
+  }
 }
 
 interface OdesliResponse {
-  linksByPlatform?: Record<string, OdesliPlatformLink>;
+  linksByPlatform?: Record<string, { url?: string }>;
 }
 
 async function fetchOdesliLinks(sourceUrl: string): Promise<AlbumStreamingLinks> {
@@ -57,13 +96,10 @@ async function fetchOdesliLinks(sourceUrl: string): Promise<AlbumStreamingLinks>
       `${ODESLI_API}?url=${encodeURIComponent(sourceUrl)}&userCountry=KR`,
       FETCH_JSON
     );
-    if (!response.ok) {
-      return {};
-    }
+    if (!response.ok) return {};
 
     const data = (await response.json()) as OdesliResponse;
     const platforms = data.linksByPlatform ?? {};
-
     return {
       appleMusic: pickUrl(platforms.appleMusic?.url ?? platforms.itunes?.url),
       spotify: pickUrl(platforms.spotify?.url),
@@ -74,39 +110,38 @@ async function fetchOdesliLinks(sourceUrl: string): Promise<AlbumStreamingLinks>
   }
 }
 
-function mergeStreamingLinks(
-  appleMusicUrl: string,
-  odesliLinks: AlbumStreamingLinks
-): AlbumStreamingLinks {
-  const links: AlbumStreamingLinks = {
-    appleMusic: odesliLinks.appleMusic ?? appleMusicUrl,
-  };
+async function fetchItunesAlbumLinks(numericId: number): Promise<AlbumStreamingLinks> {
+  const { appleMusicUrl, title, artist } = await lookupItunesAlbum(numericId);
+  const hasMeta = Boolean(artist && title);
 
-  if (odesliLinks.spotify) {
-    links.spotify = odesliLinks.spotify;
-  }
-  if (odesliLinks.youtubeMusic) {
-    links.youtubeMusic = odesliLinks.youtubeMusic;
-  }
+  const [odesli, spotifySearch, deezer] = await Promise.all([
+    fetchOdesliLinks(appleMusicUrl),
+    hasMeta ? searchSpotifyAlbumUrl(artist, title) : Promise.resolve(undefined),
+    hasMeta ? searchDeezerAlbumUrl(artist, title) : Promise.resolve(undefined),
+  ]);
 
+  const links: AlbumStreamingLinks = { appleMusic: appleMusicUrl };
+  const spotify = odesli.spotify ?? spotifySearch;
+  if (spotify) links.spotify = spotify;
+  if (odesli.youtubeMusic) links.youtubeMusic = odesli.youtubeMusic;
+  if (deezer) links.deezer = deezer;
   return links;
 }
 
-async function fetchAlbumStreamingLinks(collectionId: string): Promise<AlbumStreamingLinks> {
-  const numericId = Number(collectionId);
-  if (!Number.isFinite(numericId) || numericId <= 0) {
-    return {};
-  }
+async function fetchAlbumStreamingLinks(albumId: string): Promise<AlbumStreamingLinks> {
+  const trimmed = albumId.trim();
+  if (!/^\d+$/.test(trimmed)) return {};
 
-  const appleMusicUrl = await lookupAppleMusicUrl(numericId);
-  const odesliLinks = await fetchOdesliLinks(appleMusicUrl);
-  return mergeStreamingLinks(appleMusicUrl, odesliLinks);
+  const numericId = Number(trimmed);
+  if (!Number.isFinite(numericId) || numericId <= 0) return {};
+
+  return fetchItunesAlbumLinks(numericId);
 }
 
 function getCachedAlbumStreamingLinks(collectionId: string) {
   return unstable_cache(
     async () => fetchAlbumStreamingLinks(collectionId),
-    [`album-streaming-links-v1-${collectionId}`],
+    [`album-streaming-links-v8-${collectionId}`],
     { revalidate: 60 * 60 * 24 * 30 }
   )();
 }

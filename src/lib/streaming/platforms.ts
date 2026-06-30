@@ -20,6 +20,11 @@ export const STREAMING_PLATFORMS: {
     label: "YouTube Music에서 듣기",
     iconSrc: "/streaming/youtube-music.png",
   },
+  {
+    key: "deezer",
+    label: "Deezer에서 듣기",
+    iconSrc: "/streaming/deezer-mark.png",
+  },
 ];
 
 export function getVisibleStreamingPlatforms(links: AlbumStreamingLinks | undefined | null) {

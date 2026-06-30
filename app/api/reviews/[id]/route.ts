@@ -2,7 +2,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/src/lib/auth/config";
 import { initializeDatabase } from "@/src/lib/db";
 import { Review } from "@/src/lib/db/entities/Review";
-import { getAlbumByCollectionId } from "@/src/lib/itunes";
+import { getAlbumById } from "@/src/lib/album-lookup";
 import { apiError, apiOk } from "@/src/lib/http/response";
 
 export async function GET(
@@ -28,11 +28,7 @@ export async function GET(
       return apiError("리뷰를 찾을 수 없습니다.", { status: 404 });
     }
 
-    const collectionId = Number(review.album.albumId);
-    const albumInfo =
-      Number.isFinite(collectionId) && collectionId > 0
-        ? await getAlbumByCollectionId(collectionId)
-        : null;
+    const albumInfo = await getAlbumById(review.album.albumId);
 
     return apiOk({
       review: {
@@ -110,7 +106,6 @@ export async function PATCH(
       return apiError("수정 권한이 없습니다.", { status: 403 });
     }
 
-    const isAdminEditor = session.user.role === "ADMIN";
     let hasUserEdit = false;
     let contentChanged = false;
 
