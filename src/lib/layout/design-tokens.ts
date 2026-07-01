@@ -1,7 +1,7 @@
 
 export const LAYOUT = {
   contentMaxWidth: 1100,
-  headerSearchGap: 24,
+  headerSearchGap: 6,
   pagePaddingXMobile: 24,
   pagePaddingXDesktop: 40,
   sitePaddingXMobile: 16,
@@ -13,14 +13,14 @@ export const LOGO = {
 } as const;
 
 export const SEARCH_BAR = {
-  maxWidth: 700,
-  heightMobile: 56,
-  heightDesktop: 65,
-  buttonHeightMobile: 44,
-  buttonHeightDesktop: 51,
-  buttonPaddingXMobile: 20,
-  buttonPaddingXDesktop: 28,
-  radiusOpenTop: 32,
+  maxWidth: 667,
+  heightMobile: 57,
+  heightDesktop: 57,
+  buttonWidth: 117,
+  buttonHeight: 41,
+  trackInset: 8,
+  radius: 15,
+  radiusOpenTop: 15,
   inputPaddingLeftMobile: 8,
   inputPaddingLeftDesktop: 12,
   trackPaddingXMobile: 8,
@@ -48,8 +48,8 @@ export const FEATURED_CARD = {
 } as const;
 
 export const FEATURED_TRACK = {
-  marginTop: 6,
-  paddingY: 16,
+  marginTop: 8,
+  paddingY: 4,
   animationDuration: 72,
 } as const;
 
@@ -73,15 +73,15 @@ export const TODAY_ALBUM = {
 } as const;
 
 export const HERO = {
-  copyMarginTopMobile: 40,
-  copyMarginTopDesktop: 48,
+  copyMarginTopMobile: 8,
+  copyMarginTopDesktop: 12,
   titleSizeMobile: 32,
   titleSizeDesktop: 40,
   subtitleSizeMobile: 16,
   subtitleSizeDesktop: 20,
-  subtitleLineHeight: 1.75,
-  sectionPaddingBottomMobile: 32,
-  sectionPaddingBottomDesktop: 48,
+  subtitleLineHeight: 1.5,
+  sectionPaddingBottomMobile: 8,
+  sectionPaddingBottomDesktop: 10,
 } as const;
 
 export const PAGE_PADDING_X = "px-[var(--page-padding-x-mobile)] sm:px-[var(--page-padding-x-desktop)]";

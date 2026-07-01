@@ -41,17 +41,17 @@ export function HomeHeroSearch() {
     <>
       <div
         aria-hidden
-        className="h-[var(--layout-header-search-gap)] sm:h-12"
+        className="h-[var(--layout-header-search-gap)]"
       />
       <div className="sticky top-0 z-40">
         <div className="relative left-1/2 w-screen -translate-x-1/2 bg-white/50 backdrop-blur-md">
           <div
-            className={`mx-auto w-full pb-4 pt-8 ${PAGE_PADDING_X}`}
+            className={`mx-auto w-full pb-1 pt-2 ${PAGE_PADDING_X}`}
             style={contentMaxWidthStyle}
           >
             <DesktopNav
               isAdmin={isAdmin}
-              className="hidden items-center justify-center gap-14 pb-4 text-lg font-medium text-black md:flex"
+              className="hidden items-center justify-center gap-14 pb-1 text-lg font-medium text-black md:flex"
             />
             <ArtistSearchBar
               containerRef={containerRef}

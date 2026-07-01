@@ -32,26 +32,20 @@ export function ArtistSearchBar({
         className="relative w-full"
         style={{ maxWidth: "var(--search-bar-max-width)" }}
       >
-        <div
-          className={`flex w-full flex-col overflow-hidden bg-white transition-[border-radius,box-shadow] ${
-            isDropdownOpen
-              ? "rounded-[var(--search-bar-radius-open-top)] border border-[var(--color-border)] shadow-[0_1px_4px_rgba(0,0,0,0.45)]"
-              : "rounded-full border border-[var(--color-border)] shadow-[0_1px_4px_rgba(0,0,0,0.45)]"
-          }`}
-        >
+        <div className="flex w-full flex-col overflow-hidden rounded-[var(--search-bar-radius)] border border-[var(--color-border)] bg-white shadow-[0_1px_4px_rgba(0,0,0,0.45)] transition-[border-radius,box-shadow]">
           <div
-            className={`flex h-[var(--search-bar-height-mobile)] w-full min-w-0 cursor-text items-center gap-[var(--search-bar-track-gap-mobile)] px-[var(--search-bar-track-padding-x-mobile)] sm:h-[var(--search-bar-height-desktop)] sm:gap-[var(--search-bar-track-gap-desktop)] sm:px-[var(--search-bar-track-padding-x-desktop)] ${
+            className={`flex h-[var(--search-bar-height-mobile)] w-full min-w-0 cursor-text items-center gap-[var(--search-bar-track-gap-mobile)] sm:h-[var(--search-bar-height-desktop)] sm:gap-[var(--search-bar-track-gap-desktop)] ${
               isDropdownOpen ? "border-b border-[var(--color-border)]" : ""
             }`}
           >
             <input
               value={searchQuery}
               onChange={(event) => onSearchQueryChange(event.target.value)}
-              className="h-full min-w-0 flex-1 cursor-text bg-transparent pl-[var(--search-bar-input-padding-left-mobile)] text-[length:var(--text-today-album-body-mobile)] text-black caret-black outline-none sm:pl-[var(--search-bar-input-padding-left-desktop)]"
+              className="min-w-0 flex-1 cursor-text bg-transparent pl-[var(--search-bar-track-inset)] text-[length:var(--text-today-album-body-mobile)] text-black caret-black outline-none"
             />
             <button
               type="submit"
-              className="flex h-[var(--search-bar-button-height-mobile)] shrink-0 items-center justify-center rounded-full bg-[var(--color-accent)] px-[var(--search-bar-button-padding-x-mobile)] text-[20px] font-normal lowercase text-white transition hover:bg-[var(--color-accent-hover)] sm:h-[var(--search-bar-button-height-desktop)] sm:px-[var(--search-bar-button-padding-x-desktop)]"
+              className="mr-[var(--search-bar-track-inset)] flex h-[var(--search-bar-button-height)] w-[var(--search-bar-button-width)] shrink-0 items-center justify-center rounded-[var(--search-bar-radius)] bg-[var(--color-accent)] text-[20px] font-normal lowercase text-white transition hover:bg-[var(--color-accent-hover)]"
               aria-label="검색"
             >
               search

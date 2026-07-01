@@ -28,8 +28,8 @@
   --color-divider: #71717a;
 
   --layout-content-max-width: 1100px;
-  --layout-search-bar-max-width: 700px;
-  --layout-header-search-gap: 24px;
+  --layout-search-bar-max-width: 667px;
+  --layout-header-search-gap: 6px;
   --page-padding-x-mobile: 24px;
   --page-padding-x-desktop: 40px;
   --site-padding-x-mobile: 16px;
@@ -37,14 +37,14 @@
   --logo-width: 104px;
   --logo-height: 53.8px;
 
-  --search-bar-max-width: 700px;
-  --search-bar-height-mobile: 56px;
-  --search-bar-height-desktop: 65px;
-  --search-bar-button-height-mobile: 44px;
-  --search-bar-button-height-desktop: 51px;
-  --search-bar-button-padding-x-mobile: 20px;
-  --search-bar-button-padding-x-desktop: 28px;
-  --search-bar-radius-open-top: 32px;
+  --search-bar-max-width: 667px;
+  --search-bar-height-mobile: 57px;
+  --search-bar-height-desktop: 57px;
+  --search-bar-button-width: 117px;
+  --search-bar-button-height: 41px;
+  --search-bar-track-inset: 8px;
+  --search-bar-radius: 15px;
+  --search-bar-radius-open-top: 15px;
   --search-bar-input-padding-left-mobile: 8px;
   --search-bar-input-padding-left-desktop: 12px;
   --search-bar-track-padding-x-mobile: 8px;
@@ -70,8 +70,8 @@
   --featured-rating-divider-padding-bottom: 4px;
 
   /* featured track — design-tokens.ts FEATURED_TRACK */
-  --featured-track-margin-top: 24px;
-  --featured-track-padding-y: 16px;
+  --featured-track-margin-top: 8px;
+  --featured-track-padding-y: 4px;
   --featured-track-animation-duration: 72s;
 
   /* today album — design-tokens.ts TODAY_ALBUM */
@@ -93,22 +93,22 @@
   --text-today-album-empty: 14px;
 
   /* hero — design-tokens.ts HERO */
-  --hero-copy-margin-top-mobile: 24px;
-  --hero-copy-margin-top-desktop: 48px;
+  --hero-copy-margin-top-mobile: 8px;
+  --hero-copy-margin-top-desktop: 12px;
   --text-hero-title-mobile: 32px;
   --text-hero-title-desktop: 40px;
   --text-hero-subtitle-mobile: 16px;
   --text-hero-subtitle-desktop: 20px;
-  --leading-hero-subtitle: 1.75;
-  --hero-section-padding-bottom-mobile: 20px;
-  --hero-section-padding-bottom-desktop: 48px;
+  --leading-hero-subtitle: 1.5;
+  --hero-section-padding-bottom-mobile: 8px;
+  --hero-section-padding-bottom-desktop: 10px;
 }
 
 @media (min-width: 640px) {
   :root {
     --logo-width: 141px;
     --logo-height: 72.9px;
-    --featured-track-margin-top: 48px;
+    --featured-track-margin-top: 12px;
   }
 }
 

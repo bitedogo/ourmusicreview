@@ -2,7 +2,7 @@ import { ResponsiveLineJoin } from "./responsive-line-join";
 
 export function HomeHeroCopy() {
   return (
-    <div className="mt-[var(--hero-copy-margin-top-mobile)] space-y-[var(--featured-card-inner-gap)] text-center sm:mt-[var(--hero-copy-margin-top-desktop)]">
+    <div className="mt-[var(--hero-copy-margin-top-mobile)] space-y-1 text-center sm:mt-[var(--hero-copy-margin-top-desktop)]">
       <h1 className="text-[length:var(--text-hero-title-mobile)] font-normal leading-tight tracking-tight text-[#35909A] sm:text-[length:var(--text-hero-title-desktop)]">
         <ResponsiveLineJoin before="당신의 음악을 기록하고" after="공유하세요" />
       </h1>
