@@ -1,7 +1,7 @@
 
 export const LAYOUT = {
   contentMaxWidth: 1100,
-  headerSearchGap: 6,
+  headerSearchGap: 24,
   pagePaddingXMobile: 24,
   pagePaddingXDesktop: 40,
   sitePaddingXMobile: 16,
@@ -48,8 +48,8 @@ export const FEATURED_CARD = {
 } as const;
 
 export const FEATURED_TRACK = {
-  marginTop: 8,
-  paddingY: 4,
+  marginTop: 6,
+  paddingY: 16,
   animationDuration: 72,
 } as const;
 
@@ -73,15 +73,15 @@ export const TODAY_ALBUM = {
 } as const;
 
 export const HERO = {
-  copyMarginTopMobile: 8,
-  copyMarginTopDesktop: 12,
+  copyMarginTopMobile: 40,
+  copyMarginTopDesktop: 48,
   titleSizeMobile: 32,
   titleSizeDesktop: 40,
   subtitleSizeMobile: 16,
   subtitleSizeDesktop: 20,
-  subtitleLineHeight: 1.5,
-  sectionPaddingBottomMobile: 8,
-  sectionPaddingBottomDesktop: 10,
+  subtitleLineHeight: 1.75,
+  sectionPaddingBottomMobile: 32,
+  sectionPaddingBottomDesktop: 48,
 } as const;
 
 export const PAGE_PADDING_X = "px-[var(--page-padding-x-mobile)] sm:px-[var(--page-padding-x-desktop)]";

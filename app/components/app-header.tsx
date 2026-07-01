@@ -31,7 +31,7 @@ export function AppHeader() {
         className={`relative mx-auto w-full ${SITE_CONTAINER_PADDING_X}`}
         style={contentMaxWidthStyle}
       >
-        <div className="relative flex items-center justify-center pt-2 md:pt-3">
+        <div className="relative flex items-center justify-center pt-5 md:pt-6">
           <div className="absolute left-0 flex items-center sm:left-0 md:hidden">
             <HamburgerButton
               isOpen={menuOpen}

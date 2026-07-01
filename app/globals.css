@@ -29,7 +29,7 @@
 
   --layout-content-max-width: 1100px;
   --layout-search-bar-max-width: 667px;
-  --layout-header-search-gap: 6px;
+  --layout-header-search-gap: 24px;
   --page-padding-x-mobile: 24px;
   --page-padding-x-desktop: 40px;
   --site-padding-x-mobile: 16px;
@@ -70,8 +70,8 @@
   --featured-rating-divider-padding-bottom: 4px;
 
   /* featured track — design-tokens.ts FEATURED_TRACK */
-  --featured-track-margin-top: 8px;
-  --featured-track-padding-y: 4px;
+  --featured-track-margin-top: 24px;
+  --featured-track-padding-y: 16px;
   --featured-track-animation-duration: 72s;
 
   /* today album — design-tokens.ts TODAY_ALBUM */
@@ -93,22 +93,22 @@
   --text-today-album-empty: 14px;
 
   /* hero — design-tokens.ts HERO */
-  --hero-copy-margin-top-mobile: 8px;
-  --hero-copy-margin-top-desktop: 12px;
+  --hero-copy-margin-top-mobile: 24px;
+  --hero-copy-margin-top-desktop: 48px;
   --text-hero-title-mobile: 32px;
   --text-hero-title-desktop: 40px;
   --text-hero-subtitle-mobile: 16px;
   --text-hero-subtitle-desktop: 20px;
-  --leading-hero-subtitle: 1.5;
-  --hero-section-padding-bottom-mobile: 8px;
-  --hero-section-padding-bottom-desktop: 10px;
+  --leading-hero-subtitle: 1.75;
+  --hero-section-padding-bottom-mobile: 20px;
+  --hero-section-padding-bottom-desktop: 48px;
 }
 
 @media (min-width: 640px) {
   :root {
     --logo-width: 141px;
     --logo-height: 72.9px;
-    --featured-track-margin-top: 12px;
+    --featured-track-margin-top: 48px;
   }
 }
 
