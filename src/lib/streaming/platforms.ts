@@ -8,12 +8,12 @@ export const STREAMING_PLATFORMS: {
   {
     key: "appleMusic",
     label: "Apple Music에서 듣기",
-    iconSrc: "/streaming/apple-music.png",
+    iconSrc: "/streaming/apple-music.svg",
   },
   {
     key: "spotify",
     label: "Spotify에서 듣기",
-    iconSrc: "/streaming/spotify.png",
+    iconSrc: "/streaming/spotify.svg",
   },
   {
     key: "youtubeMusic",
@@ -23,7 +23,7 @@ export const STREAMING_PLATFORMS: {
   {
     key: "deezer",
     label: "Deezer에서 듣기",
-    iconSrc: "/streaming/deezer-mark.png",
+    iconSrc: "/streaming/deezer.svg",
   },
 ];
 

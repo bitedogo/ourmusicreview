@@ -1,4 +1,3 @@
-import Image from "next/image";
 import type { AlbumStreamingLinks } from "@/src/lib/streaming/types";
 import { getVisibleStreamingPlatforms } from "@/src/lib/streaming/platforms";
 
@@ -22,14 +21,16 @@ export function StreamingLinkButtons({ links, className = "" }: StreamingLinkBut
           target="_blank"
           rel="noopener noreferrer"
           aria-label={platform.label}
-          className="inline-flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg transition hover:opacity-80"
+          className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg transition hover:opacity-80"
         >
-          <Image
+          <img
             src={platform.iconSrc}
             alt=""
             width={32}
             height={32}
-            className="h-8 w-8 object-cover"
+            className="size-8 object-contain"
+            loading="lazy"
+            decoding="async"
           />
         </a>
       ))}
