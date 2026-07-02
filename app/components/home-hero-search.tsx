@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useArtistAutocomplete } from "@/src/hooks/use-artist-autocomplete";
 import { useArtistSearchNavigation } from "@/src/hooks/use-artist-search-navigation";
@@ -10,6 +11,7 @@ import { DesktopNav } from "./header/desktop-nav";
 import { HomeHeroCopy } from "./home-hero-copy";
 
 export function HomeHeroSearch() {
+  const [isScrolled, setIsScrolled] = useState(false);
   const { data: session } = useSession();
   const isAdmin = session?.user?.role === "ADMIN";
   const { navigateToTextSearch, navigateToArtist } = useArtistSearchNavigation();
@@ -22,6 +24,16 @@ export function HomeHeroSearch() {
     isDropdownOpen,
     closeDropdown,
   } = useArtistAutocomplete();
+
+  useEffect(() => {
+    const onScroll = () => {
+      setIsScrolled(window.scrollY > 8);
+    };
+
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   function handleSearchSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -44,7 +56,11 @@ export function HomeHeroSearch() {
         className="h-[var(--layout-header-search-gap)] sm:h-12"
       />
       <div className="sticky top-0 z-40">
-        <div className="relative left-1/2 w-screen -translate-x-1/2 bg-white/50 backdrop-blur-md">
+        <div
+          className={`relative left-1/2 w-screen -translate-x-1/2 transition-[background-color,backdrop-filter] duration-200 ${
+            isScrolled ? "bg-white/50 backdrop-blur-md" : "bg-white"
+          }`}
+        >
           <div
             className={`mx-auto w-full pb-4 pt-8 ${PAGE_PADDING_X}`}
             style={contentMaxWidthStyle}
