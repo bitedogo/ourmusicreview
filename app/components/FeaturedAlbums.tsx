@@ -17,7 +17,7 @@ export default function FeaturedAlbums() {
 
   if (isLoading) {
     return (
-      <section className="mt-[var(--today-album-section-margin-top)]">
+      <section className="mt-[var(--hero-subtitle-masterpiece-gap)]">
         <div className="flex items-center justify-center py-[var(--featured-track-padding-y)]">
           <div className="text-[length:var(--text-today-album-body-mobile)] text-[var(--color-text-secondary)]">
             앨범을 불러오는 중...
@@ -32,11 +32,11 @@ export default function FeaturedAlbums() {
   const duplicatedAlbums = [...albums, ...albums];
 
   return (
-    <section className="relative left-1/2 mt-[var(--featured-track-margin-top)] w-screen max-w-none -translate-x-1/2">
-      <h2 className="text-center text-xl font-medium text-[var(--color-accent)]">
+    <section className="relative left-1/2 mt-[var(--hero-subtitle-masterpiece-gap)] w-screen max-w-none -translate-x-1/2">
+      <h2 className="mb-[var(--masterpiece-slider-gap)] text-center text-xl font-medium text-[var(--color-accent)]">
         Masterpiece
       </h2>
-      <div className="relative overflow-hidden py-[var(--featured-track-padding-y)]">
+      <div className="relative overflow-hidden">
         <div className="group flex flex-nowrap items-start animate-marquee-force">
           {duplicatedAlbums.map((album, index) => (
             <FeaturedAlbumCard

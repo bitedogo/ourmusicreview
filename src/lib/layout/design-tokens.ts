@@ -15,6 +15,7 @@ export const NAV = {
 export const LOGO = {
   width: 141,
   height: 72.9,
+  paddingTop: 35,
 } as const;
 
 export const SEARCH_BAR = {
@@ -36,8 +37,10 @@ export const SEARCH_BAR = {
 } as const;
 
 export const FEATURED_CARD = {
-  widthMobile: 192,
+  widthMobile: 224,
   widthDesktop: 224,
+  height: 326,
+  coverSize: 224,
   marginX: 12,
   padding: 16,
   gap: 12,
@@ -57,6 +60,16 @@ export const FEATURED_TRACK = {
   marginTop: 6,
   paddingY: 16,
   animationDuration: 72,
+} as const;
+
+export const HOME_SECTION = {
+  titleSubtitleGap: 22,
+  subtitleMasterpieceGap: 101,
+  masterpieceSliderGap: 45,
+  sliderTodayAlbumGap: 101,
+  todayAlbumTitleContentGap: 45,
+  todayAlbumChartGap: 101,
+  chartTitleContentGap: 45,
 } as const;
 
 export const TODAY_ALBUM = {
@@ -79,6 +92,7 @@ export const TODAY_ALBUM = {
 } as const;
 
 export const HERO = {
+  searchCopyGap: 65,
   copyMarginTopMobile: 40,
   copyMarginTopDesktop: 48,
   titleSizeMobile: 32,
@@ -90,7 +104,7 @@ export const HERO = {
   sectionPaddingBottomDesktop: 48,
   stickyHeight: 139,
   stickyPaddingTop: 16,
-  stickyPaddingBottom: 11,
+  stickyPaddingBottom: 16,
   stickyNavSearchGap: 43,
 } as const;
 

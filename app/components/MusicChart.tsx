@@ -17,15 +17,12 @@ export default function MusicChart() {
   }
 
   return (
-    <section className="mt-[var(--today-album-section-margin-top)]">
-      <h2 className="text-center text-xl font-medium text-[var(--color-accent)]">
+    <section className="mt-[var(--today-album-chart-gap)]">
+      <h2 className="mb-[var(--chart-title-content-gap)] text-center text-xl font-medium text-[var(--color-accent)]">
         Chart
       </h2>
-      <p className="mt-1 text-center text-[length:var(--text-featured-meta)] text-[var(--color-text-muted)]">
-        Apple Music 인기 앨범
-      </p>
 
-      <div className="mt-3 flex justify-center">
+      <div className="flex justify-center">
         <div className="inline-flex gap-1 rounded-full border border-[var(--color-border)] bg-zinc-50 p-1">
           {CHART_REGIONS.map((entry) => {
             const isActive = entry.id === region;

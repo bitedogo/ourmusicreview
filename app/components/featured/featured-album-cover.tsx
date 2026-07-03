@@ -8,14 +8,14 @@ interface FeaturedAlbumCoverProps {
 
 export function FeaturedAlbumCover({ title, imageUrl }: FeaturedAlbumCoverProps) {
   return (
-    <div className="relative aspect-square w-full">
+    <div className="relative h-[var(--featured-card-cover-size)] w-full shrink-0">
       {imageUrl ? (
         <Image
           src={imageUrl}
           alt={`${title} cover`}
           fill
           unoptimized
-          sizes="(max-width: 640px) 192px, 224px"
+          sizes="224px"
           className="h-full w-full object-cover"
         />
       ) : (

@@ -1,8 +1,12 @@
 import { ResponsiveLineJoin } from "./responsive-line-join";
 
-export function HomeHeroCopy() {
+interface HomeHeroCopyProps {
+  className?: string;
+}
+
+export function HomeHeroCopy({ className = "" }: HomeHeroCopyProps) {
   return (
-    <div className="mt-[var(--hero-copy-margin-top-mobile)] space-y-[var(--featured-card-inner-gap)] text-center sm:mt-[var(--hero-copy-margin-top-desktop)]">
+    <div className={`flex flex-col gap-[var(--hero-title-subtitle-gap)] text-center ${className}`.trim()}>
       <h1 className="text-[length:var(--text-hero-title-mobile)] font-normal leading-tight tracking-tight text-[#35909A] sm:text-[length:var(--text-hero-title-desktop)]">
         <ResponsiveLineJoin before="당신의 음악을 기록하고" after="공유하세요" />
       </h1>

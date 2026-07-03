@@ -8,9 +8,8 @@ import { PAGE_PADDING_X, contentMaxWidthStyle } from "@/src/lib/layout";
 import type { ItunesArtistResult } from "@/src/lib/itunes/types";
 import { ArtistSearchBar } from "./artist-search-bar";
 import { DesktopNav } from "./header/desktop-nav";
-import { HomeHeroCopy } from "./home-hero-copy";
 
-export function HomeHeroSearch() {
+export function HomeHeroSticky() {
   const [isScrolled, setIsScrolled] = useState(false);
   const { data: session } = useSession();
   const isAdmin = session?.user?.role === "ADMIN";
@@ -51,10 +50,7 @@ export function HomeHeroSearch() {
 
   return (
     <>
-      <div
-        aria-hidden
-        className="h-[var(--layout-logo-menu-gap)]"
-      />
+      <div aria-hidden className="h-[var(--layout-logo-menu-gap)]" />
       <div className="sticky top-0 z-40">
         <div
           className={`relative left-1/2 w-screen -translate-x-1/2 transition-[background-color,backdrop-filter] duration-200 ${
@@ -90,9 +86,6 @@ export function HomeHeroSearch() {
             </div>
           </div>
         </div>
-      </div>
-      <div className="pb-[var(--hero-section-padding-bottom-mobile)] sm:pb-[var(--hero-section-padding-bottom-desktop)]">
-        <HomeHeroCopy />
       </div>
     </>
   );
