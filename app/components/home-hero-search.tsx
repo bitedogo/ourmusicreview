@@ -53,32 +53,41 @@ export function HomeHeroSearch() {
     <>
       <div
         aria-hidden
-        className="h-[var(--layout-header-search-gap)] sm:h-12"
+        className="h-[var(--layout-logo-menu-gap)]"
       />
       <div className="sticky top-0 z-40">
         <div
           className={`relative left-1/2 w-screen -translate-x-1/2 transition-[background-color,backdrop-filter] duration-200 ${
             isScrolled ? "bg-white/50 backdrop-blur-md" : "bg-white"
           }`}
+          style={{
+            paddingTop: "var(--hero-sticky-padding-top)",
+            paddingBottom: "var(--hero-sticky-padding-bottom)",
+          }}
         >
           <div
-            className={`mx-auto w-full pb-4 pt-8 ${PAGE_PADDING_X}`}
+            className={`mx-auto flex w-full flex-col ${PAGE_PADDING_X}`}
             style={contentMaxWidthStyle}
           >
             <DesktopNav
               isAdmin={isAdmin}
-              className="hidden items-center justify-center gap-14 pb-4 text-lg font-medium text-black md:flex"
+              className="hidden shrink-0 items-center justify-center gap-14 pb-0 text-[length:var(--nav-menu-font-size)] leading-[18px] font-medium text-black md:flex"
             />
-            <ArtistSearchBar
-              containerRef={containerRef}
-              searchQuery={searchQuery}
-              onSearchQueryChange={setSearchQuery}
-              onSubmit={handleSearchSubmit}
-              suggestions={suggestions}
-              isLoading={isLoading}
-              isDropdownOpen={isDropdownOpen}
-              onArtistSelect={handleArtistSelect}
-            />
+            <div
+              className="shrink-0"
+              style={{ marginTop: "var(--hero-sticky-nav-search-gap)" }}
+            >
+              <ArtistSearchBar
+                containerRef={containerRef}
+                searchQuery={searchQuery}
+                onSearchQueryChange={setSearchQuery}
+                onSubmit={handleSearchSubmit}
+                suggestions={suggestions}
+                isLoading={isLoading}
+                isDropdownOpen={isDropdownOpen}
+                onArtistSelect={handleArtistSelect}
+              />
+            </div>
           </div>
         </div>
       </div>

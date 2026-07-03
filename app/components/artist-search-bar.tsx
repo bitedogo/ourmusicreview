@@ -41,7 +41,8 @@ export function ArtistSearchBar({
             <input
               value={searchQuery}
               onChange={(event) => onSearchQueryChange(event.target.value)}
-              className="min-w-0 flex-1 cursor-text bg-transparent pl-[var(--search-bar-track-inset)] text-[length:var(--text-today-album-body-mobile)] text-black caret-black outline-none"
+              placeholder="아티스트 이름으로 검색"
+              className="min-w-0 flex-1 cursor-text bg-transparent pl-[calc(var(--search-bar-track-padding-x-mobile)+var(--search-bar-input-padding-left-mobile))] text-[length:var(--search-bar-input-font-size)] text-black caret-black outline-none placeholder:text-[var(--color-text-muted)] sm:pl-[calc(var(--search-bar-track-padding-x-desktop)+var(--search-bar-input-padding-left-desktop))]"
             />
             <button
               type="submit"

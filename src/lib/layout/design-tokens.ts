@@ -2,9 +2,14 @@
 export const LAYOUT = {
   contentMaxWidth: 1100,
   headerSearchGap: 24,
+  logoMenuGap: 61,
   pagePaddingXMobile: 24,
   pagePaddingXDesktop: 40,
   sitePaddingXMobile: 16,
+} as const;
+
+export const NAV = {
+  menuFontSize: 18,
 } as const;
 
 export const LOGO = {
@@ -27,6 +32,7 @@ export const SEARCH_BAR = {
   trackPaddingXDesktop: 12,
   trackGapMobile: 8,
   trackGapDesktop: 12,
+  inputFontSize: 16,
 } as const;
 
 export const FEATURED_CARD = {
@@ -82,6 +88,10 @@ export const HERO = {
   subtitleLineHeight: 1.75,
   sectionPaddingBottomMobile: 32,
   sectionPaddingBottomDesktop: 48,
+  stickyHeight: 139,
+  stickyPaddingTop: 16,
+  stickyPaddingBottom: 11,
+  stickyNavSearchGap: 43,
 } as const;
 
 export const PAGE_PADDING_X = "px-[var(--page-padding-x-mobile)] sm:px-[var(--page-padding-x-desktop)]";

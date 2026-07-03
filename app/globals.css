@@ -30,6 +30,8 @@
   --layout-content-max-width: 1100px;
   --layout-search-bar-max-width: 667px;
   --layout-header-search-gap: 24px;
+  --layout-logo-menu-gap: 61px;
+  --nav-menu-font-size: 18px;
   --page-padding-x-mobile: 24px;
   --page-padding-x-desktop: 40px;
   --site-padding-x-mobile: 16px;
@@ -51,6 +53,7 @@
   --search-bar-track-padding-x-desktop: 12px;
   --search-bar-track-gap-mobile: 8px;
   --search-bar-track-gap-desktop: 12px;
+  --search-bar-input-font-size: 16px;
 
   /* featured slide card — design-tokens.ts FEATURED_CARD */
   --featured-card-width-mobile: 192px;
@@ -102,6 +105,10 @@
   --leading-hero-subtitle: 1.75;
   --hero-section-padding-bottom-mobile: 20px;
   --hero-section-padding-bottom-desktop: 48px;
+  --hero-sticky-height: 139px;
+  --hero-sticky-padding-top: 16px;
+  --hero-sticky-padding-bottom: 11px;
+  --hero-sticky-nav-search-gap: 43px;
 
   /* footer */
   --footer-height: 274px;
