@@ -68,7 +68,7 @@ export default function MusicChart() {
                     {ALBUM_COVER_PLACEHOLDER}
                   </div>
                 )}
-                <span className="absolute left-0 top-0 flex h-7 w-7 items-center justify-center rounded-br-[var(--featured-card-radius)] bg-[var(--color-accent)] text-sm font-bold text-white">
+                <span className="absolute left-0 top-0 flex h-7 w-7 items-center justify-center rounded-br-[var(--featured-card-radius)] bg-white text-sm font-bold text-black">
                   {album.rank}
                 </span>
               </div>
