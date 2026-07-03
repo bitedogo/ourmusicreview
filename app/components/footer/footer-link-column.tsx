@@ -18,7 +18,7 @@ function FooterLinkContent({ label, iconSrc }: Pick<FooterLinkItem, "label" | "i
     return (
       <span
         aria-hidden
-        className="size-6 shrink-0 bg-[var(--footer-text-link)] transition group-hover/icon:bg-[var(--footer-text-menu)] [mask-size:contain] [mask-repeat:no-repeat] [mask-position:center]"
+        className="size-5 shrink-0 translate-y-0.5 bg-[var(--footer-text-link)] transition group-hover/icon:bg-[var(--footer-text-menu)] [mask-size:contain] [mask-repeat:no-repeat] [mask-position:left_center]"
         style={{
           maskImage: `url(${iconSrc})`,
           WebkitMaskImage: `url(${iconSrc})`,
