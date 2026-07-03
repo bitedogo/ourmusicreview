@@ -9,18 +9,18 @@ interface FooterLinkColumnProps {
 
 export function FooterLinkColumn({ title, links }: FooterLinkColumnProps) {
   return (
-    <div className="flex flex-col items-start gap-[var(--featured-card-inner-gap)]">
-      <p className="text-[length:var(--text-today-album-body-mobile)] font-semibold text-[var(--color-text-primary)]">
+    <div className="flex flex-col gap-[var(--footer-gap-two-lines)]">
+      <p className="m-0 text-[length:var(--footer-text-size-primary)] font-semibold leading-[var(--footer-line-height-primary)] text-[var(--footer-text-menu)]">
         {title}
       </p>
-      <nav className="flex flex-col items-start gap-[var(--featured-card-inner-gap)]">
+      <nav className="m-0 flex flex-col gap-[var(--footer-gap-link-items)]">
         {links.map(({ href, label }) =>
           isExternalLink(href) ? (
             <a
               key={href}
               href={href}
               {...externalLinkProps(href)}
-              className="text-[length:var(--text-today-album-body-mobile)] text-[var(--color-text-secondary)] transition hover:text-[var(--color-text-primary)]"
+              className="text-[length:var(--footer-text-size-primary)] leading-[var(--footer-line-height-primary)] text-[var(--footer-text-link)] underline decoration-[var(--footer-text-link)] underline-offset-2 transition hover:text-[var(--footer-text-menu)] hover:decoration-[var(--footer-text-menu)]"
             >
               {label}
             </a>
@@ -28,7 +28,7 @@ export function FooterLinkColumn({ title, links }: FooterLinkColumnProps) {
             <Link
               key={href}
               href={href}
-              className="text-[length:var(--text-today-album-body-mobile)] text-[var(--color-text-secondary)] transition hover:text-[var(--color-text-primary)]"
+              className="text-[length:var(--footer-text-size-primary)] leading-[var(--footer-line-height-primary)] text-[var(--footer-text-link)] underline decoration-[var(--footer-text-link)] underline-offset-2 transition hover:text-[var(--footer-text-menu)] hover:decoration-[var(--footer-text-menu)]"
             >
               {label}
             </Link>

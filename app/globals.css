@@ -102,6 +102,23 @@
   --leading-hero-subtitle: 1.75;
   --hero-section-padding-bottom-mobile: 20px;
   --hero-section-padding-bottom-desktop: 48px;
+
+  /* footer */
+  --footer-height: 274px;
+  --footer-padding-top: 48px;
+  --footer-text-brand: #949494;
+  --footer-text-menu: #949494;
+  --footer-text-link: #c4c4c4;
+  --footer-text-size-primary: 16px;
+  --footer-text-size-secondary: 12px;
+  --footer-line-height-primary: 150%;
+  --footer-line-height-secondary: 150%;
+  --footer-brand-max-width: 42rem;
+  --footer-gap-one-line: calc(var(--footer-text-size-primary) * 1.5);
+  --footer-gap-two-lines: 32px;
+  --footer-gap-legal-lines: 8px;
+  --footer-gap-link-items: 8px;
+  --footer-column-gap: 40px;
 }
 
 @media (min-width: 640px) {
