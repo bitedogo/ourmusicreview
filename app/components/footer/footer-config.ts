@@ -1,9 +1,14 @@
-import type { NavLinkItem } from "@/src/lib/navigation/nav-config";
 import { INSTAGRAM_URL, SUPPORT_EMAIL } from "@/src/lib/site/contact";
+
+export interface FooterLinkItem {
+  href: string;
+  label: string;
+  iconSrc?: string;
+}
 
 export interface FooterLinkColumnConfig {
   title: string;
-  links: NavLinkItem[];
+  links: FooterLinkItem[];
 }
 
 export const FOOTER_LINK_COLUMNS: FooterLinkColumnConfig[] = [
@@ -26,7 +31,7 @@ export const FOOTER_LINK_COLUMNS: FooterLinkColumnConfig[] = [
     title: "Contact",
     links: [
       { href: `mailto:${SUPPORT_EMAIL}`, label: "Email" },
-      { href: INSTAGRAM_URL, label: "Instagram" },
+      { href: INSTAGRAM_URL, label: "Instagram", iconSrc: "/social/instagram.svg" },
     ],
   },
 ];
