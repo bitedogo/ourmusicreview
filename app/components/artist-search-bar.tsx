@@ -32,7 +32,7 @@ export function ArtistSearchBar({
         className="relative w-full"
         style={{ maxWidth: "var(--search-bar-max-width)" }}
       >
-        <div className="flex w-full flex-col overflow-hidden rounded-[var(--search-bar-radius)] border border-[var(--color-border)] bg-white shadow-[0_1px_4px_rgba(0,0,0,0.45)] transition-[border-radius,box-shadow]">
+        <div className="flex w-full flex-col overflow-hidden rounded-[28px] border border-[var(--color-border)] bg-white shadow-[0_1px_4px_rgba(0,0,0,0.45)] transition-[border-radius,box-shadow]">
           <div
             className={`flex h-[var(--search-bar-height-mobile)] w-full min-w-0 cursor-text items-center gap-[var(--search-bar-track-gap-mobile)] sm:h-[var(--search-bar-height-desktop)] sm:gap-[var(--search-bar-track-gap-desktop)] ${
               isDropdownOpen ? "border-b border-[var(--color-border)]" : ""
@@ -46,7 +46,7 @@ export function ArtistSearchBar({
             />
             <button
               type="submit"
-              className="mr-[var(--search-bar-track-inset)] flex h-[var(--search-bar-button-height)] w-[var(--search-bar-button-width)] shrink-0 items-center justify-center rounded-[var(--search-bar-radius)] bg-[var(--color-accent)] text-[20px] font-normal lowercase text-white transition hover:bg-[var(--color-accent-hover)]"
+              className="mr-[var(--search-bar-track-inset)] flex h-[var(--search-bar-button-height)] w-[var(--search-bar-button-width)] shrink-0 items-center justify-center rounded-full bg-[var(--color-accent)] text-[20px] font-normal lowercase text-white transition hover:bg-[var(--color-accent-hover)]"
               aria-label="검색"
             >
               search
