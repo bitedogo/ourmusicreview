@@ -104,21 +104,23 @@
   --today-album-layout-gap-mobile: 20px;
   --today-album-layout-gap-desktop: 40px;
   --text-today-album-title: 25px;
+  --text-today-album-artist: 18px;
+  --today-album-desc-offset-top: 16px;
   --text-today-album-body-mobile: 14px;
   --text-today-album-body-desktop: 15px;
   --leading-today-album-title: 145%;
   --leading-today-album-body: 170%;
   --tracking-ui: 0.03em;
-  --today-album-description-max-height: 320px;
+  --today-album-description-max-height: calc(var(--today-album-card-height) - 174px);
   --text-today-album-empty: 14px;
 
   /* hero — design-tokens.ts HERO */
   --hero-search-copy-gap: 65px;
   --hero-copy-margin-top-mobile: 24px;
   --hero-copy-margin-top-desktop: 48px;
-  --text-hero-title-mobile: 20px;
+  --text-hero-title-mobile: 22px;
   --text-hero-title-desktop: 40px;
-  --text-hero-subtitle-mobile: 10px;
+  --text-hero-subtitle-mobile: 16px;
   --text-hero-subtitle-desktop: 20px;
   --leading-hero-subtitle: 1.75;
   /* hero sticky — 스티키 영역 전용 */

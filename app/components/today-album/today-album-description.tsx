@@ -22,14 +22,22 @@ export function TodayAlbumDescription({ album, resetKey }: TodayAlbumDescription
   }
 
   return (
-    <div className="w-full min-w-0 flex-1 sm:self-start">
+    <div className="w-full min-w-0 flex-1 sm:self-start sm:pt-[var(--today-album-desc-offset-top)]">
       <div className="flex flex-col gap-[var(--featured-card-inner-gap)] sm:flex-row sm:items-center sm:gap-[var(--featured-card-gap)]">
-        <h3
-          className="min-w-0 flex-1 truncate text-[length:var(--text-today-album-title)] font-bold leading-[var(--leading-today-album-title)] tracking-[var(--tracking-ui)] text-[var(--color-today-album-title)]"
-          title={`${album.artist} - ${album.title}`}
-        >
-          {album.artist} - {album.title}
-        </h3>
+        <div className="min-w-0 flex-1">
+          <h3
+            className="truncate text-[length:var(--text-today-album-title)] font-bold leading-[var(--leading-today-album-title)] tracking-[var(--tracking-ui)] text-[var(--color-text-primary)]"
+            title={album.title}
+          >
+            {album.title}
+          </h3>
+          <p
+            className="truncate text-[length:var(--text-today-album-artist)] font-bold tracking-[var(--tracking-ui)] text-[var(--color-text-secondary)]"
+            title={album.artist}
+          >
+            {album.artist}
+          </p>
+        </div>
         <StreamingLinkButtons links={streamingLinks} className="shrink-0" />
       </div>
       {description ? (
