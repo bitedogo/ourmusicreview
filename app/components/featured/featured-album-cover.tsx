@@ -8,7 +8,7 @@ interface FeaturedAlbumCoverProps {
 
 export function FeaturedAlbumCover({ title, imageUrl }: FeaturedAlbumCoverProps) {
   return (
-    <div className="relative min-h-0 w-full flex-1 shrink-0">
+    <div className="relative aspect-square w-full shrink-0">
       {imageUrl ? (
         <Image
           src={imageUrl}
