@@ -41,7 +41,7 @@ export function AppHeader() {
 
           <HeaderLogo />
 
-          <div className="absolute right-0 top-[calc(50%+6px)] flex -translate-y-1/2 items-center sm:right-0">
+          <div className="absolute right-0 top-[calc(50%+12px)] flex -translate-y-1/2 items-center sm:right-0">
             <ProfileMenu />
           </div>
         </div>
