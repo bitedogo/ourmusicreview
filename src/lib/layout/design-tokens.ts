@@ -67,6 +67,7 @@ export const HOME_SECTION = {
   titleSubtitleGap: 22,
   subtitleMasterpieceGap: 101,
   masterpieceSliderGap: 45,
+  masterpieceSliderPadY: 16,
   sliderTodayAlbumGap: 101,
   todayAlbumTitleContentGap: 45,
   todayAlbumChartGap: 101,

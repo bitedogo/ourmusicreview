@@ -33,10 +33,10 @@ export default function FeaturedAlbums() {
 
   return (
     <section className="relative left-1/2 mt-[var(--hero-subtitle-masterpiece-gap)] w-screen max-w-none -translate-x-1/2">
-      <h2 className="mb-[var(--masterpiece-slider-gap)] text-center text-xl font-medium text-[var(--color-accent)]">
+      <h2 className="mb-[calc(var(--masterpiece-slider-gap)-var(--masterpiece-slider-pad-y))] text-center text-xl font-medium text-[var(--color-accent)]">
         Masterpiece
       </h2>
-      <div className="relative overflow-hidden">
+      <div className="relative overflow-hidden py-[var(--masterpiece-slider-pad-y)]">
         <div className="group flex flex-nowrap items-start animate-marquee-force">
           {duplicatedAlbums.map((album, index) => (
             <FeaturedAlbumCard

@@ -40,7 +40,7 @@ export default function TodayAlbumCard() {
   return (
     <ContentContainer
       as="section"
-      className="relative left-1/2 mt-[var(--featured-slider-today-album-gap)] w-full max-w-[calc(100vw-2rem)] -translate-x-1/2 px-0"
+      className="relative left-1/2 mt-[calc(var(--featured-slider-today-album-gap)-var(--masterpiece-slider-pad-y))] w-full max-w-[calc(100vw-2rem)] -translate-x-1/2 px-0"
     >
       <div className="w-full">
         <h2 className="mb-[var(--today-album-title-content-gap)] text-center text-xl font-medium text-[var(--color-accent)]">
