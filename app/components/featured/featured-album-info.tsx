@@ -10,7 +10,7 @@ export function FeaturedAlbumInfo({ album }: FeaturedAlbumInfoProps) {
   const releaseYear = getReleaseYear(album.releaseDate);
 
   return (
-    <div className="min-h-0 flex-1 overflow-hidden px-[var(--featured-card-padding)] pt-[var(--featured-card-gap)] pb-[var(--featured-card-padding)]">
+    <div className="shrink-0 px-[var(--featured-card-padding)] pt-[var(--featured-card-gap)] pb-[var(--featured-card-padding)]">
       <h3 className="truncate text-left text-[length:var(--text-featured-title)] font-bold text-[var(--color-text-primary)]">
         {album.title}
       </h3>
