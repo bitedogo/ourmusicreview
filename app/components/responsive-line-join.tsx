@@ -1,15 +1,12 @@
-interface ResponsiveLineJoinProps {
+interface HeroLineJoinProps {
   before: string;
   after: string;
 }
 
-export function ResponsiveLineJoin({ before, after }: ResponsiveLineJoinProps) {
+export function HeroLineJoin({ before, after }: HeroLineJoinProps) {
   return (
     <>
-      {before}
-      <br className="sm:hidden" />
-      <span className="hidden sm:inline"> </span>
-      {after}
+      {before} {after}
     </>
   );
 }

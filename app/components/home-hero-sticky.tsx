@@ -69,10 +69,7 @@ export function HomeHeroSticky() {
               isAdmin={isAdmin}
               className="hidden shrink-0 items-center justify-center gap-14 pb-0 text-[length:var(--nav-menu-font-size)] leading-[18px] font-medium text-black md:flex"
             />
-            <div
-              className="shrink-0"
-              style={{ marginTop: "var(--hero-sticky-nav-search-gap)" }}
-            >
+            <div className="mt-0 shrink-0 md:mt-[var(--hero-sticky-nav-search-gap)]">
               <ArtistSearchBar
                 containerRef={containerRef}
                 searchQuery={searchQuery}

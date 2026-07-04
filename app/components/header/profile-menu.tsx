@@ -36,10 +36,10 @@ export function ProfileMenu() {
             <Image
               src={profileImage}
               alt={nickname}
-              width={28}
-              height={28}
+              width={37}
+              height={37}
               unoptimized
-              className="h-7 w-7 rounded-full border border-zinc-300 object-cover"
+              className="h-[37px] w-[37px] rounded-full border border-zinc-300 object-cover"
             />
           ) : (
             <UserOutlineIcon />

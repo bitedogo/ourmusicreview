@@ -23,7 +23,7 @@ export function TodayAlbumDescription({ album, resetKey }: TodayAlbumDescription
 
   return (
     <div className="w-full min-w-0 flex-1 sm:self-start">
-      <div className="flex items-center gap-[var(--featured-card-gap)]">
+      <div className="flex flex-col gap-[var(--featured-card-inner-gap)] sm:flex-row sm:items-center sm:gap-[var(--featured-card-gap)]">
         <h3
           className="min-w-0 flex-1 truncate text-[length:var(--text-today-album-title)] font-bold leading-[var(--leading-today-album-title)] tracking-[var(--tracking-ui)] text-[var(--color-today-album-title)]"
           title={`${album.artist} - ${album.title}`}
@@ -41,7 +41,7 @@ export function TodayAlbumDescription({ album, resetKey }: TodayAlbumDescription
           >
             {description}
           </p>
-          <div className="mt-[var(--featured-card-inner-gap)] sm:hidden">
+          <div className="mt-[var(--featured-card-inner-gap)] flex justify-end sm:hidden">
             <button
               type="button"
               onClick={() => setIsExpanded((prev) => !prev)}

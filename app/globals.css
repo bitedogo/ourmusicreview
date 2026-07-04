@@ -44,6 +44,7 @@
   --search-bar-height-mobile: 57px;
   --search-bar-height-desktop: 57px;
   --search-bar-button-width: 117px;
+  --search-bar-button-width-mobile: 100px;
   --search-bar-button-height: 41px;
   --search-bar-track-inset: 8px;
   --search-bar-radius: 15px;
@@ -115,9 +116,9 @@
   --hero-search-copy-gap: 65px;
   --hero-copy-margin-top-mobile: 24px;
   --hero-copy-margin-top-desktop: 48px;
-  --text-hero-title-mobile: 32px;
+  --text-hero-title-mobile: 20px;
   --text-hero-title-desktop: 40px;
-  --text-hero-subtitle-mobile: 16px;
+  --text-hero-subtitle-mobile: 10px;
   --text-hero-subtitle-desktop: 20px;
   --leading-hero-subtitle: 1.75;
   /* hero sticky — 스티키 영역 전용 */
