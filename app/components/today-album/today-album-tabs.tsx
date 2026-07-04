@@ -30,7 +30,7 @@ export function TodayAlbumTabs({
             type="button"
             onClick={() => onTabChange(tab.id)}
             disabled={!tabHasAlbum}
-            className={`rounded-t-2xl px-6 py-2.5 text-sm font-semibold shadow-[var(--shadow-today-album-tab)] transition sm:px-8 sm:text-base ${
+            className={`flex h-[45px] w-[130px] items-center justify-center rounded-t-2xl text-sm font-semibold shadow-[var(--shadow-today-album-tab)] transition sm:text-base ${
               isActive
                 ? "border border-b-0 border-[var(--color-border)] bg-white text-[var(--color-text-primary)]"
                 : tabHasAlbum

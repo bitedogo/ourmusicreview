@@ -35,7 +35,7 @@ export function TodayAlbumDescription({ album, resetKey }: TodayAlbumDescription
       {description ? (
         <>
           <p
-            className={`mt-6 max-h-[var(--today-album-description-max-height)] overflow-y-auto whitespace-pre-line break-words text-[length:var(--text-today-album-body-mobile)] font-normal leading-[var(--leading-today-album-body)] tracking-[var(--tracking-ui)] text-[var(--color-today-album-body)] sm:text-[length:var(--text-today-album-body-desktop)] ${
+            className={`mt-6 max-h-[var(--today-album-description-max-height)] overflow-y-auto whitespace-pre-line break-words text-[length:var(--text-today-album-body-desktop)] font-normal leading-[var(--leading-today-album-body)] tracking-[var(--tracking-ui)] text-[var(--color-today-album-body)] ${
               isExpanded ? "block" : "hidden sm:block"
             }`}
           >

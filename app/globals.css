@@ -67,6 +67,7 @@
   --featured-card-title-artist-gap: 4px;
   --featured-card-inner-gap: 8px;
   --featured-card-radius: 15px;
+  --featured-slide-card-radius: 24px;
   --featured-cover-radius: 15px;
   --text-featured-title: 15px;
   --text-featured-artist: 13px;
@@ -90,7 +91,9 @@
   --chart-title-content-gap: 45px;
 
   /* today album — design-tokens.ts TODAY_ALBUM */
-  --today-album-cover-size: 320px;
+  --today-album-card-width: 1099px;
+  --today-album-card-height: 529px;
+  --today-album-cover-size: 449.58px;
   --today-album-section-margin-top: 72px;
   --today-album-content-padding-x-mobile: 20px;
   --today-album-content-padding-x-desktop: 32px;
@@ -98,7 +101,7 @@
   --today-album-content-padding-y-desktop: 32px;
   --today-album-layout-gap-mobile: 20px;
   --today-album-layout-gap-desktop: 40px;
-  --text-today-album-title: 24px;
+  --text-today-album-title: 25px;
   --text-today-album-body-mobile: 14px;
   --text-today-album-body-desktop: 15px;
   --leading-today-album-title: 145%;

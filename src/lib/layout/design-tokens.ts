@@ -47,6 +47,7 @@ export const FEATURED_CARD = {
   titleArtistGap: 4,
   innerGap: 8,
   radius: 15,
+  slideCardRadius: 24,
   coverRadius: 15,
   titleSize: 15,
   artistSize: 13,
@@ -73,7 +74,9 @@ export const HOME_SECTION = {
 } as const;
 
 export const TODAY_ALBUM = {
-  coverSize: 320,
+  cardWidth: 1099,
+  cardHeight: 529,
+  coverSize: 449.58,
   sectionMarginTop: 40,
   contentPaddingXMobile: 20,
   contentPaddingXDesktop: 32,
@@ -81,7 +84,7 @@ export const TODAY_ALBUM = {
   contentPaddingYDesktop: 32,
   layoutGapMobile: 20,
   layoutGapDesktop: 40,
-  titleSize: 24,
+  titleSize: 25,
   bodySizeMobile: 14,
   bodySizeDesktop: 15,
   titleLineHeight: 1.45,
