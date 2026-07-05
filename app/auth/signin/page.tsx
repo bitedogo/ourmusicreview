@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { signIn, useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { fetchJson, getApiErrorMessage } from "@/src/lib/http/client";
+import { LOGO_ALT, LOGO_SRC } from "@/src/lib/site/branding";
 
 type ModalType = "find-id" | "find-password" | null;
 interface FindIdResponse {
@@ -158,113 +159,119 @@ export default function SigninPage() {
     const result = await signIn("google", { callbackUrl: loginCallbackUrl });
     if (result?.error) {
       setErrorMessage(result.error);
-    } else if (result?.url) {
-    } else {
+    } else if (!result?.url) {
       router.push(loginCallbackUrl);
     }
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col px-6 pb-20 pt-20">
-      <div className="mb-6 pb-8 flex justify-center">
-        <Image
-          src="/login-logo.png"
-          alt="로그인"
-          width={400}
-          height={120}
-          className="w-full max-w-[200px] h-auto object-contain"
-          priority
-          unoptimized
-        />
-      </div>
-
-      <form onSubmit={handleSubmit} className="space-y-3">
-        <label className="block">
-          <input
-            value={id}
-            onChange={(e) => setId(e.target.value)}
-            className="h-14 w-full border-2 border-zinc-400 px-4 text-sm outline-none transition focus:border-zinc-600"
-            placeholder="아이디"
-            autoComplete="username"
-          />
-        </label>
-
-        <label className="block">
-          <input
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            type="password"
-            className="h-14 w-full border-2 border-zinc-400 px-4 text-sm outline-none transition focus:border-zinc-600"
-            placeholder="비밀번호"
-            autoComplete="current-password"
-          />
-        </label>
-
-        <div className="flex items-center justify-between gap-3 py-1">
-          <label className="inline-flex items-center gap-2 text-xs font-medium text-zinc-700">
-            <input
-              type="checkbox"
-              checked={isRememberId}
-              onChange={(e) => setIsRememberId(e.target.checked)}
-              className="h-4 w-4 rounded border-zinc-300"
+    <div className="flex w-full flex-col items-center px-4 pb-16">
+      <div className="flex w-full max-w-[var(--auth-form-width)] flex-col items-center pt-[var(--auth-logo-padding-top)]">
+        <div className="mb-10 flex justify-center">
+          <Link href="/" className="inline-flex shrink-0 items-center justify-center">
+            <Image
+              src={LOGO_SRC}
+              alt={LOGO_ALT}
+              width={141}
+              height={72.9}
+              className="h-[72.9px] w-[141px] object-contain"
+              priority
             />
-            아이디 저장
-          </label>
-          <div className="flex items-center gap-3 text-xs font-medium text-zinc-700">
-            <button
-              type="button"
-              onClick={() => setModal("find-id")}
-              className="hover:text-[var(--color-brand-primary)]"
-            >
-              아이디 찾기
-            </button>
-            <span className="text-zinc-300">|</span>
-            <button
-              type="button"
-              onClick={() => setModal("find-password")}
-              className="hover:text-[var(--color-brand-primary)]"
-            >
-              비밀번호 재설정
-            </button>
-          </div>
+          </Link>
         </div>
 
-        {errorMessage && (
-          <div className="border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-900">
-            {errorMessage}
-          </div>
-        )}
+        <form onSubmit={handleSubmit} className="flex w-full flex-col">
+          <label className="block">
+            <div className="rounded-[var(--auth-field-radius)] border border-[var(--color-border)] bg-white shadow-[0_2px_4px_-2px_rgba(0,0,0,0.55)] transition-[border-color,box-shadow] focus-within:border-[var(--color-accent)]">
+              <input
+                value={id}
+                onChange={(e) => setId(e.target.value)}
+                className="h-[var(--auth-input-height)] w-full bg-transparent px-4 text-sm text-[var(--color-text-primary)] outline-none placeholder:text-[var(--color-text-muted)]"
+                placeholder="Id"
+                autoComplete="username"
+              />
+            </div>
+          </label>
 
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="inline-flex h-14 w-full items-center justify-center bg-[var(--color-brand-primary)] px-4 text-lg font-semibold text-white transition hover:bg-[var(--color-brand-primary-hover)] disabled:cursor-not-allowed disabled:bg-zinc-400"
-        >
-          {isSubmitting ? "로그인 중..." : "로그인"}
-        </button>
+          <label className="mt-3 block">
+            <div className="rounded-[var(--auth-field-radius)] border border-[var(--color-border)] bg-white shadow-[0_2px_4px_-2px_rgba(0,0,0,0.55)] transition-[border-color,box-shadow] focus-within:border-[var(--color-accent)]">
+              <input
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                type="password"
+                className="h-[var(--auth-input-height)] w-full bg-transparent px-4 text-sm text-[var(--color-text-primary)] outline-none placeholder:text-[var(--color-text-muted)]"
+                placeholder="Password"
+                autoComplete="current-password"
+              />
+            </div>
+          </label>
+
+          <div className="mt-3 flex items-center justify-between gap-3">
+            <label className="inline-flex items-center gap-2 text-sm text-[var(--color-text-secondary)]">
+              <input
+                type="checkbox"
+                checked={isRememberId}
+                onChange={(e) => setIsRememberId(e.target.checked)}
+                className="h-4 w-4 rounded border-[var(--color-border)] accent-[var(--color-accent)]"
+              />
+              Save Id
+            </label>
+            <div className="flex items-center gap-2 text-sm text-[var(--color-text-secondary)]">
+              <button
+                type="button"
+                onClick={() => setModal("find-id")}
+                className="transition hover:text-[var(--color-accent)]"
+              >
+                Find Id
+              </button>
+              <span className="text-[var(--color-border)]">|</span>
+              <button
+                type="button"
+                onClick={() => setModal("find-password")}
+                className="transition hover:text-[var(--color-accent)]"
+              >
+                Reset Password
+              </button>
+            </div>
+          </div>
+
+          {errorMessage && (
+            <div className="mt-3 rounded-[var(--auth-field-radius)] border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-900">
+              {errorMessage}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="mt-5 inline-flex h-[var(--auth-button-height)] w-full items-center justify-center rounded-[var(--auth-field-radius)] bg-[var(--color-accent)] text-sm font-bold uppercase tracking-wide text-white transition hover:bg-[var(--color-accent-hover)] disabled:cursor-not-allowed disabled:bg-zinc-400"
+          >
+            {isSubmitting ? "Logging in..." : "Login"}
+          </button>
+
+          <Link
+            href="/auth/signup"
+            className="mt-3 inline-flex h-[var(--auth-button-height)] w-full items-center justify-center rounded-[var(--auth-field-radius)] border border-[var(--color-border)] bg-white text-sm font-bold uppercase tracking-wide text-[var(--color-accent)] transition hover:bg-zinc-50"
+          >
+            Join ORU
+          </Link>
+        </form>
+
         <button
           type="button"
           onClick={handleGoogleLogin}
-          className="flex h-14 w-full items-center justify-center gap-3 border border-zinc-300 bg-white px-4 text-lg font-semibold text-zinc-900 transition hover:bg-zinc-50"
+          aria-label="Sign in with Google"
+          className="mt-4 flex h-[30px] w-[30px] items-center justify-center rounded-full transition hover:bg-zinc-100"
         >
           <Image
-            src="/google-logo.svg"
-            alt="Google"
-            width={24}
-            height={24}
+            src="/social/google.svg"
+            alt=""
+            width={30}
+            height={30}
             unoptimized
           />
-          구글로 로그인
         </button>
-
-        <Link
-          href="/auth/signup"
-          className="inline-flex h-14 w-full items-center justify-center border border-zinc-300 bg-white px-4 text-lg font-semibold text-zinc-900 transition hover:bg-zinc-50"
-        >
-          회원가입
-        </Link>
-
-      </form>
+      </div>
 
       {modal === "find-id" && (
         <div

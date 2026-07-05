@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Providers } from "./providers";
-import { AppHeader } from "./components/app-header";
+import { ConditionalAppHeader } from "./components/conditional-app-header";
 import { Footer } from "./components/Footer";
 import { pretendard } from "@/src/lib/fonts/pretendard";
 import {
@@ -77,8 +77,8 @@ export default function RootLayout({
     >
       <body className="font-sans flex min-h-screen flex-col antialiased overflow-x-clip bg-white text-zinc-900">
         <Providers>
-          <AppHeader />
-          <main className="flex-1 bg-white">{children}</main>
+          <ConditionalAppHeader />
+          <main className="flex flex-1 flex-col bg-white">{children}</main>
           <Footer />
         </Providers>
       </body>

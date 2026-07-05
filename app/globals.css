@@ -36,6 +36,12 @@
   --page-padding-x-desktop: 40px;
   --site-padding-x-mobile: 16px;
 
+  --auth-form-width: 445px;
+  --auth-input-height: 50px;
+  --auth-button-height: 47px;
+  --auth-field-radius: 15px;
+  --auth-logo-padding-top: 190px;
+
   --logo-width: 104px;
   --logo-height: 53.8px;
   --header-logo-padding-top: 35px;
