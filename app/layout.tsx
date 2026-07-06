@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Providers } from "./providers";
 import { ConditionalAppHeader } from "./components/conditional-app-header";
-import { Footer } from "./components/Footer";
+import { ConditionalFooter } from "./components/conditional-footer";
 import { pretendard } from "@/src/lib/fonts/pretendard";
 import {
   LOGO_ALT,
@@ -79,7 +79,7 @@ export default function RootLayout({
         <Providers>
           <ConditionalAppHeader />
           <main className="flex flex-1 flex-col bg-white">{children}</main>
-          <Footer />
+          <ConditionalFooter />
         </Providers>
       </body>
     </html>

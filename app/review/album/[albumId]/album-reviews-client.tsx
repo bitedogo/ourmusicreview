@@ -6,6 +6,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { getUserProfilePath } from "@/components/user-profile-view";
 import { DuplicateReviewModal } from "@/src/components/common/duplicate-review-modal";
+import { StreamingLinkButtons } from "@/src/components/streaming/streaming-link-buttons";
+import { useStreamingLinks } from "@/src/hooks/use-streaming-links";
 import { getHtmlPlainText } from "@/src/lib/utils/editor";
 import { formatDateYYYYMMDD } from "@/src/lib/utils/date";
 
@@ -35,6 +37,7 @@ interface AlbumInfo {
 
 export function AlbumReviewsClient({ albumId }: { albumId: string }) {
   const router = useRouter();
+  const streamingLinks = useStreamingLinks(albumId);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [albumInfo, setAlbumInfo] = useState<AlbumInfo | null>(null);
   const [averageRating, setAverageRating] = useState<number | null>(null);
@@ -140,6 +143,12 @@ export function AlbumReviewsClient({ albumId }: { albumId: string }) {
     ? `/review/write?albumId=${encodeURIComponent(albumInfo.albumId)}&title=${encodeURIComponent(albumInfo.title)}&artist=${encodeURIComponent(albumInfo.artist)}${albumInfo.imageUrl ? `&imageUrl=${encodeURIComponent(albumInfo.imageUrl)}` : ""}`
     : null;
 
+  const artistAlbumListUrl = albumInfo
+    ? albumInfo.artistId
+      ? `/search?artistId=${encodeURIComponent(albumInfo.artistId)}&artist=${encodeURIComponent(albumInfo.artist)}`
+      : `/search?artist=${encodeURIComponent(albumInfo.artist)}`
+    : null;
+
   async function handleReviewWriteClick() {
     if (!albumInfo || isCheckingDuplicate) return;
     setIsCheckingDuplicate(true);
@@ -173,12 +182,9 @@ export function AlbumReviewsClient({ albumId }: { albumId: string }) {
     <div className="mx-auto flex min-h-screen w-full max-w-3xl flex-col gap-6 px-6 py-10 sm:px-16">
       <section className="space-y-2">
         {albumInfo ? (
-          <Link
-            href={
-              albumInfo.artistId
-                ? `/search?artistId=${encodeURIComponent(albumInfo.artistId)}&artist=${encodeURIComponent(albumInfo.artist)}`
-                : `/search?artist=${encodeURIComponent(albumInfo.artist)}`
-            }
+          <button
+            type="button"
+            onClick={() => router.back()}
             className="mb-4 flex w-fit items-center gap-2 text-sm text-zinc-600 hover:text-[var(--color-brand-primary)]"
           >
             <svg
@@ -196,8 +202,8 @@ export function AlbumReviewsClient({ albumId }: { albumId: string }) {
                 strokeLinejoin="round"
               />
             </svg>
-            {albumInfo.artist} 앨범 목록
-          </Link>
+            뒤로가기
+          </button>
         ) : (
           <button
             onClick={() => router.back()}
@@ -218,12 +224,12 @@ export function AlbumReviewsClient({ albumId }: { albumId: string }) {
                 strokeLinejoin="round"
               />
             </svg>
-            뒤로 가기
+            뒤로가기
           </button>
         )}
 
         {albumInfo && (
-          <div className="mb-4 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+          <div className="relative mb-4 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
             <div className="flex gap-4">
               {albumInfo.imageUrl && (
                 <div className="shrink-0">
@@ -237,7 +243,7 @@ export function AlbumReviewsClient({ albumId }: { albumId: string }) {
                   />
                 </div>
               )}
-              <div className="flex min-h-24 min-w-0 flex-1 flex-col">
+              <div className="flex min-h-[104px] min-w-0 flex-1 flex-col pr-20">
                 <div className="flex items-start justify-between gap-3">
                   <h2 className="truncate text-base font-semibold text-zinc-900">
                     {albumInfo.title}
@@ -250,10 +256,23 @@ export function AlbumReviewsClient({ albumId }: { albumId: string }) {
                   <p className="text-[11px] font-medium text-zinc-500">
                     {albumInfo.genre?.trim() || "장르 정보 없음"}
                   </p>
-                  <p className="mt-0.5 truncate text-sm text-zinc-600">{albumInfo.artist}</p>
+                  {artistAlbumListUrl ? (
+                    <Link
+                      href={artistAlbumListUrl}
+                      className="mt-0.5 block truncate text-sm text-zinc-600 hover:text-[var(--color-brand-primary)] hover:underline"
+                    >
+                      {albumInfo.artist}
+                    </Link>
+                  ) : (
+                    <p className="mt-0.5 truncate text-sm text-zinc-600">{albumInfo.artist}</p>
+                  )}
                 </div>
               </div>
             </div>
+            <StreamingLinkButtons
+              links={streamingLinks}
+              className="absolute bottom-4 right-4"
+            />
           </div>
         )}
         <div className="flex flex-wrap items-center justify-between gap-3">
