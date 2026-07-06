@@ -52,7 +52,7 @@ export default function TodayAlbumCard() {
           onTabChange={setActiveTab}
         />
 
-        <article className="relative z-0 rounded-b-[var(--featured-cover-radius)] border border-t-0 border-[var(--color-border)] bg-white px-[var(--today-album-content-padding-x-mobile)] py-[var(--today-album-content-padding-y-mobile)] shadow-sm sm:h-[var(--today-album-card-height)] sm:w-[var(--today-album-card-width)] sm:max-w-full sm:rounded-tr-[var(--featured-cover-radius)] sm:px-[var(--today-album-content-padding-x-desktop)] sm:py-[var(--today-album-content-padding-y-desktop)]">
+        <article className="relative z-0 -mt-px rounded-b-[var(--featured-cover-radius)] border border-[var(--color-border)] bg-white px-[var(--today-album-content-padding-x-mobile)] py-[var(--today-album-content-padding-y-mobile)] shadow-sm sm:h-[var(--today-album-card-height)] sm:w-[var(--today-album-card-width)] sm:max-w-full sm:rounded-tr-[var(--featured-cover-radius)] sm:px-[var(--today-album-content-padding-x-desktop)] sm:py-[var(--today-album-content-padding-y-desktop)]">
           {activeAlbum ? (
             <div className="flex flex-col items-center gap-[var(--today-album-layout-gap-mobile)] sm:h-full sm:flex-row sm:items-center sm:gap-[var(--today-album-layout-gap-desktop)]">
               <div
