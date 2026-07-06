@@ -98,6 +98,10 @@
   --today-album-title-content-gap: 45px;
   --today-album-chart-gap: 101px;
   --chart-title-content-gap: 45px;
+  --chart-region-track-shadow:
+    inset 2px 2px 5px rgba(0, 0, 0, 0.1),
+    inset -2px -2px 5px rgba(0, 0, 0, 0.06);
+  --chart-region-active-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 
   /* today album — design-tokens.ts TODAY_ALBUM */
   --today-album-card-width: 1099px;
@@ -193,6 +197,14 @@ input,
 textarea,
 select {
   font-family: inherit;
+}
+
+.chart-region-track {
+  box-shadow: var(--chart-region-track-shadow);
+}
+
+.chart-region-tab-active {
+  box-shadow: var(--chart-region-active-shadow);
 }
 
 @keyframes marquee-force {

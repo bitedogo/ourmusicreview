@@ -23,7 +23,7 @@ export default function MusicChart() {
       </h2>
 
       <div className="flex justify-center">
-        <div className="inline-flex gap-1 rounded-full border border-[var(--color-border)] bg-zinc-50 p-1">
+        <div className="chart-region-track inline-flex gap-1 rounded-full border border-[var(--color-border)] bg-white p-1">
           {CHART_REGIONS.map((entry) => {
             const isActive = entry.id === region;
             return (
@@ -34,7 +34,7 @@ export default function MusicChart() {
                 aria-pressed={isActive}
                 className={`rounded-full px-5 py-1.5 text-sm font-semibold transition ${
                   isActive
-                    ? "bg-[var(--color-accent)] text-white shadow-sm"
+                    ? "chart-region-tab-active bg-[var(--color-accent)] text-white"
                     : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
                 }`}
               >
