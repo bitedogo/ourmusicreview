@@ -26,7 +26,7 @@ export function AppHeader() {
   const showDesktopNav = pathname !== "/";
 
   return (
-    <header className="relative z-50 w-full bg-white" ref={menuRef}>
+    <header className="relative z-50 w-full bg-white pt-[var(--safe-area-top)]" ref={menuRef}>
       <div
         className={`relative mx-auto w-full ${SITE_CONTAINER_PADDING_X}`}
         style={contentMaxWidthStyle}

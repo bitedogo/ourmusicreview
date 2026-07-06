@@ -139,6 +139,7 @@
   --hero-sticky-padding-top: 16px;
   --hero-sticky-padding-bottom: 16px;
   --hero-sticky-nav-search-gap: 43px;
+  --safe-area-top: env(safe-area-inset-top, 0px);
 
   /* footer */
   --footer-height: 274px;
@@ -205,6 +206,20 @@ select {
 
 .chart-region-tab-active {
   box-shadow: var(--chart-region-active-shadow);
+}
+
+.hero-sticky-scrolled {
+  background-color: rgb(255 255 255 / 0.5);
+  backdrop-filter: blur(12px);
+  margin-top: calc(-1 * var(--safe-area-top));
+  padding-top: calc(var(--safe-area-top) + var(--hero-sticky-padding-top));
+}
+
+@media (min-width: 768px) {
+  .hero-sticky-scrolled {
+    margin-top: 0;
+    padding-top: var(--hero-sticky-padding-top);
+  }
 }
 
 @keyframes marquee-force {

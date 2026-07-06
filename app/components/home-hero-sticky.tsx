@@ -53,13 +53,9 @@ export function HomeHeroSticky() {
       <div aria-hidden className="h-[var(--layout-logo-menu-gap)]" />
       <div className="sticky top-0 z-40">
         <div
-          className={`relative left-1/2 w-screen -translate-x-1/2 transition-[background-color,backdrop-filter] duration-200 ${
-            isScrolled ? "bg-white/50 backdrop-blur-md" : "bg-white"
-          }`}
-          style={{
-            paddingTop: "var(--hero-sticky-padding-top)",
-            paddingBottom: "var(--hero-sticky-padding-bottom)",
-          }}
+          className={`relative left-1/2 w-screen -translate-x-1/2 transition-[background-color,backdrop-filter,padding,margin] duration-200 ${
+            isScrolled ? "hero-sticky-scrolled" : "bg-white pt-[var(--hero-sticky-padding-top)]"
+          } pb-[var(--hero-sticky-padding-bottom)]`}
         >
           <div
             className={`mx-auto flex w-full flex-col ${PAGE_PADDING_X}`}

@@ -30,12 +30,12 @@ export function TodayAlbumTabs({
             type="button"
             onClick={() => onTabChange(tab.id)}
             disabled={!tabHasAlbum}
-            className={`flex h-[45px] w-[130px] items-center justify-center rounded-t-2xl text-sm font-semibold shadow-[var(--shadow-today-album-tab)] transition sm:text-base ${
+            className={`box-border flex h-[45px] w-[130px] items-center justify-center rounded-t-2xl text-sm font-semibold transition sm:text-base ${
               isActive
-                ? "border border-b-0 border-[var(--color-border)] bg-white text-[var(--color-text-primary)]"
+                ? "relative z-10 border border-[var(--color-border)] border-b-white bg-white text-[var(--color-text-primary)] shadow-none"
                 : tabHasAlbum
-                  ? `border border-[var(--color-border)] hover:opacity-90 text-[var(--color-text-secondary)]`
-                  : "cursor-not-allowed border border-[var(--color-border)] bg-[var(--color-today-album-tab-today)] text-[var(--color-text-muted)]"
+                  ? "border border-[var(--color-border)] shadow-[var(--shadow-today-album-tab)] hover:opacity-90 text-[var(--color-text-secondary)]"
+                  : "cursor-not-allowed border border-[var(--color-border)] bg-[var(--color-today-album-tab-today)] text-[var(--color-text-muted)] shadow-[var(--shadow-today-album-tab)]"
             }`}
             style={
               !isActive && tabHasAlbum

@@ -20,6 +20,11 @@ export const metadata: Metadata = {
   description:
     "음악을 기록하고 공유하는 커뮤니티 ORU. 앨범 리뷰를 남기고, 새로운 음악을 발견해보세요.",
   applicationName: "ORU",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+  },
   alternates: {
     canonical: "/",
   },
@@ -62,6 +67,7 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   colorScheme: "light",
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
