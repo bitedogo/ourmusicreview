@@ -32,10 +32,10 @@ export function TodayAlbumTabs({
             disabled={!tabHasAlbum}
             className={`box-border flex h-[45px] w-[130px] items-center justify-center rounded-t-2xl text-sm font-semibold transition sm:text-base ${
               isActive
-                ? "relative z-10 border border-[var(--color-border)] border-b-white bg-white text-[var(--color-text-primary)] shadow-none"
+                ? "relative z-10 border border-[var(--color-border)] border-b-white bg-white text-[var(--color-text-primary)]"
                 : tabHasAlbum
-                  ? "border border-[var(--color-border)] shadow-[var(--shadow-today-album-tab)] hover:opacity-90 text-[var(--color-text-secondary)]"
-                  : "cursor-not-allowed border border-[var(--color-border)] bg-[var(--color-today-album-tab-today)] text-[var(--color-text-muted)] shadow-[var(--shadow-today-album-tab)]"
+                  ? "border border-[var(--color-border)] hover:opacity-90 text-[var(--color-text-secondary)]"
+                  : "cursor-not-allowed border border-[var(--color-border)] bg-[var(--color-today-album-tab-today)] text-[var(--color-text-muted)]"
             }`}
             style={
               !isActive && tabHasAlbum
