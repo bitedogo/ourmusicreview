@@ -185,7 +185,7 @@ export default function SigninPage() {
           type="button"
           onClick={handleGoogleLogin}
           aria-label="Sign in with Google"
-          className="group mt-5 inline-flex items-center justify-center gap-2 rounded-full px-3 py-1.5"
+          className="group mt-10 inline-flex items-center justify-center gap-2 rounded-full px-3 py-1.5"
         >
           <Image src="/social/google.svg" alt="" width={30} height={30} unoptimized />
           <span className="text-sm font-semibold text-[#43A7B2] transition-colors group-hover:text-[#3796A0]">Google Login</span>
