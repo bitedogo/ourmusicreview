@@ -87,7 +87,7 @@ export default function SigninPage() {
   return (
     <div className="flex w-full flex-col items-center px-4 pb-[var(--auth-logo-padding-bottom)]">
       <div className="flex w-full max-w-[var(--auth-form-width)] flex-col items-center pt-[var(--auth-logo-padding-top)]">
-        <div className="mb-4 flex w-full">
+        <div className="mb-4 hidden w-full sm:flex">
           <button
             type="button"
             onClick={handleGoBack}
