@@ -63,7 +63,6 @@
   --search-bar-track-gap-desktop: 12px;
   --search-bar-input-font-size: 16px;
 
-  /* featured slide card — design-tokens.ts FEATURED_CARD */
   --featured-card-width-mobile: 224px;
   --featured-card-width-desktop: 224px;
   --featured-card-height: 326px;
@@ -83,12 +82,10 @@
   --featured-rating-divider-padding-top: 8px;
   --featured-rating-divider-padding-bottom: 4px;
 
-  /* featured track — design-tokens.ts FEATURED_TRACK */
   --featured-track-margin-top: 24px;
   --featured-track-padding-y: 16px;
   --featured-track-animation-duration: 72s;
 
-  /* home section spacing (sticky와 무관) */
   --hero-title-subtitle-gap: 22px;
   --hero-subtitle-masterpiece-gap: 101px;
   --masterpiece-slider-gap: 45px;
@@ -102,7 +99,6 @@
     inset -2px -2px 5px rgba(0, 0, 0, 0.06);
   --chart-region-active-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 
-  /* today album — design-tokens.ts TODAY_ALBUM */
   --today-album-card-width: 1099px;
   --today-album-card-height: 529px;
   --today-album-cover-size: 449.58px;
@@ -124,7 +120,6 @@
   --today-album-description-max-height: calc(var(--today-album-card-height) - 174px);
   --text-today-album-empty: 14px;
 
-  /* hero — design-tokens.ts HERO */
   --hero-search-copy-gap: 65px;
   --hero-copy-margin-top-mobile: 24px;
   --hero-copy-margin-top-desktop: 48px;
@@ -133,14 +128,12 @@
   --text-hero-subtitle-mobile: 16px;
   --text-hero-subtitle-desktop: 20px;
   --leading-hero-subtitle: 1.75;
-  /* hero sticky — 스티키 영역 전용 */
   --hero-sticky-height: 139px;
   --hero-sticky-padding-top: 16px;
   --hero-sticky-padding-bottom: 16px;
   --hero-sticky-nav-search-gap: 43px;
   --safe-area-top: env(safe-area-inset-top, 0px);
 
-  /* footer */
   --footer-height: 274px;
   --footer-padding-top: 48px;
   --footer-text-brand: #949494;

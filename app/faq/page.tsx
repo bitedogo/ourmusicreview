@@ -24,10 +24,10 @@ export default function FaqPage() {
       try {
         const response = await fetch("/api/faq", { signal: controller.signal });
         const data = await response.json();
-        if (data?.ok && Array.isArray(data?.faqs)) {
-          setFaqs(data.faqs);
-          if (data.faqs.length > 0) {
-            setExpandedId(data.faqs[0].id);
+        if (data?.ok && Array.isArray(data?.data?.faqs)) {
+          setFaqs(data.data.faqs);
+          if (data.data.faqs.length > 0) {
+            setExpandedId(data.data.faqs[0].id);
           }
         }
       } catch {

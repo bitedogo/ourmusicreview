@@ -1,14 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
-import {
-  ApiClientError,
-  fetchJson,
-  getApiErrorMessage,
-} from "@/src/lib/http/client";
+import { ProfileListPageLayout } from "@/src/components/profile/profile-list-page-layout";
+import { useAuthenticatedFetch } from "@/src/hooks/use-authenticated-fetch";
 
 interface FavoriteAlbum {
   id: string;
@@ -31,105 +26,54 @@ interface FavoritesResponse {
 }
 
 export default function FavoriteAlbumsPage() {
-  const router = useRouter();
-  const [favorites, setFavorites] = useState<FavoriteAlbum[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function fetchFavorites() {
-      try {
-        setIsLoading(true);
-        const data = await fetchJson<FavoritesResponse>("/api/favorites");
-        setFavorites(data.data.favorites || []);
-      } catch (error) {
-        if (error instanceof ApiClientError && error.status === 401) {
-          router.push("/auth/signin?callbackUrl=/profile/albums");
-          return;
-        }
-        setError(getApiErrorMessage(error, "데이터를 불러오는 중 오류가 발생했습니다."));
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    fetchFavorites();
-  }, [router]);
+  const { data, isLoading, error } = useAuthenticatedFetch<FavoritesResponse>(
+    "/api/favorites",
+    "/profile/albums"
+  );
+  const favorites = data?.data.favorites ?? [];
 
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-3xl flex-col gap-6 px-6 py-10 sm:px-16">
-      <section className="space-y-2">
-        <button
-          onClick={() => router.push("/profile")}
-          className="mb-4 flex items-center gap-2 text-sm text-zinc-600 hover:text-[var(--color-brand-primary)]"
-        >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
+    <ProfileListPageLayout
+      title="좋아하는 앨범 전체보기"
+      description="내가 좋아요 표시한 모든 앨범 목록입니다."
+      isLoading={isLoading}
+      error={error}
+      emptyMessage="아직 좋아하는 앨범이 없습니다."
+      isEmpty={favorites.length === 0}
+      loadingMessage="앨범을 불러오는 중..."
+    >
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {favorites.map((fav) => (
+          <Link
+            key={fav.id}
+            href={`/review/album/${encodeURIComponent(fav.albumId || (fav.album?.albumId ?? ""))}`}
+            className="flex flex-col rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm transition hover:border-zinc-300 hover:shadow-md"
           >
-            <path
-              d="M15 18L9 12L15 6"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-          마이페이지로
-        </button>
-        <h1 className="text-xl font-semibold tracking-tight">좋아하는 앨범 전체보기</h1>
-        <p className="text-xs text-zinc-500">내가 좋아요 표시한 모든 앨범 목록입니다.</p>
-      </section>
-
-      {isLoading ? (
-        <div className="py-12 text-center text-sm text-zinc-500">앨범을 불러오는 중...</div>
-      ) : error ? (
-        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900">
-          {error}
-        </div>
-      ) : favorites.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 px-4 py-12 text-center text-sm text-zinc-500">
-          아직 좋아하는 앨범이 없습니다.
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {favorites.map((fav) => (
-            <Link
-              key={fav.id}
-              href={`/review/album/${encodeURIComponent(fav.albumId || (fav.album?.albumId ?? ""))}`}
-              className="flex flex-col rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm transition hover:border-zinc-300 hover:shadow-md"
-            >
-              <div className="relative mb-3 aspect-square overflow-hidden rounded-xl bg-zinc-100">
-                {fav.album?.imageUrl ? (
-                  <Image
-                    src={fav.album.imageUrl}
-                    alt={fav.album.title}
-                    fill
-                    unoptimized
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    className="h-full w-full object-contain"
-                  />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center text-xs text-zinc-400">
-                    이미지 없음
-                  </div>
-                )}
-              </div>
-              <div className="min-h-[60px] space-y-1">
-                <p className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500 truncate">
-                  {fav.album?.artist}
-                </p>
-                <h3 className="line-clamp-2 text-sm font-bold text-zinc-900">
-                  {fav.album?.title}
-                </h3>
-              </div>
-            </Link>
-          ))}
-        </div>
-      )}
-    </div>
+            <div className="relative mb-3 aspect-square overflow-hidden rounded-xl bg-zinc-100">
+              {fav.album?.imageUrl ? (
+                <Image
+                  src={fav.album.imageUrl}
+                  alt={fav.album.title}
+                  fill
+                  unoptimized
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  className="h-full w-full object-contain"
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center text-xs text-zinc-400">
+                  이미지 없음
+                </div>
+              )}
+            </div>
+            <div className="min-h-[60px] space-y-1">
+              <p className="truncate text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
+                {fav.album?.artist}
+              </p>
+              <h3 className="line-clamp-2 text-sm font-bold text-zinc-900">{fav.album?.title}</h3>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </ProfileListPageLayout>
   );
 }

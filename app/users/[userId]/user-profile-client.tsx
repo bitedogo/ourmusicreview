@@ -4,14 +4,14 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLayoutEffect, useState } from "react";
 import { fetchJson } from "@/src/lib/http/client";
-import { ProfilePageContent } from "@/components/profile-page-content";
+import { ProfilePageContent } from "@/src/components/profile/profile-page-content";
 import {
   ProfileFavoriteItem,
   ProfileMasterpieceItem,
   ProfilePrivacySettings,
   ProfileReviewItem,
-} from "@/components/profile/profile-types";
-import { getUserProfilePath, getUserProfileReviewsPath } from "@/components/user-profile-view";
+} from "@/src/components/profile/profile-types";
+import { getUserProfilePath, getUserProfileReviewsPath } from "@/src/components/profile/user-profile-view";
 
 interface UserProfileClientProps {
   userId: string;

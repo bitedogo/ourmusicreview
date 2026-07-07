@@ -1,6 +1,5 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/src/lib/auth/config";
-import { AppDataSource } from "@/src/lib/db/data-source";
+import { requireSessionApi } from "@/src/lib/auth/session";
+import { initializeDatabase } from "@/src/lib/db";
 import { Report } from "@/src/lib/db/entities/Report";
 import { Post } from "@/src/lib/db/entities/Post";
 import { Review } from "@/src/lib/db/entities/Review";
@@ -9,10 +8,8 @@ import { apiError, apiOk } from "@/src/lib/http/response";
 
 export async function POST(request: Request) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
-      return apiError("로그인이 필요합니다.", { status: 401 });
-    }
+    const { session, response } = await requireSessionApi();
+    if (response) return response;
 
     const { reason, postId, reviewId } = await request.json();
 
@@ -20,11 +17,7 @@ export async function POST(request: Request) {
       return apiError("필수 정보가 누락되었습니다.", { status: 400 });
     }
 
-    if (!AppDataSource.isInitialized) {
-      await AppDataSource.initialize();
-    }
-
-    const dataSource = AppDataSource;
+    const dataSource = await initializeDatabase();
 
     if (postId) {
       const postRepository = dataSource.getRepository(Post);
@@ -42,7 +35,7 @@ export async function POST(request: Request) {
     }
 
     const reportRepository = dataSource.getRepository(Report);
-    
+
     const existingReport = await reportRepository.findOne({
       where: {
         userId: session.user.id,
@@ -67,10 +60,7 @@ export async function POST(request: Request) {
 
     await reportRepository.save(newReport);
 
-    return apiOk(
-      { reported: true },
-      { message: "신고가 접수되었습니다." }
-    );
+    return apiOk({ reported: true }, { message: "신고가 접수되었습니다." });
   } catch {
     return apiError("신고 접수 중 오류가 발생했습니다.", { status: 500 });
   }

@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { getUserProfilePath } from "@/components/user-profile-view";
+import { getUserProfilePath } from "@/src/components/profile/user-profile-view";
 import { DuplicateReviewModal } from "@/src/components/common/duplicate-review-modal";
 import { StreamingLinkButtons } from "@/src/components/streaming/streaming-link-buttons";
 import { useStreamingLinks } from "@/src/hooks/use-streaming-links";

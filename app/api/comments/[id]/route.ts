@@ -1,6 +1,5 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/src/lib/auth/config";
-import { AppDataSource } from "@/src/lib/db/data-source";
+import { isAdmin, requireSessionApi } from "@/src/lib/auth/session";
+import { initializeDatabase } from "@/src/lib/db";
 import { Comment } from "@/src/lib/db/entities/Comment";
 import { apiError, apiOk } from "@/src/lib/http/response";
 
@@ -9,17 +8,12 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
-      return apiError("로그인이 필요합니다.", { status: 401 });
-    }
+    const { session, response } = await requireSessionApi();
+    if (response) return response;
 
-    if (!AppDataSource.isInitialized) {
-      await AppDataSource.initialize();
-    }
-
+    const dataSource = await initializeDatabase();
     const { id } = await params;
-    const commentRepository = AppDataSource.getRepository(Comment);
+    const commentRepository = dataSource.getRepository(Comment);
     const comment = await commentRepository.findOne({
       where: { id },
     });
@@ -28,7 +22,7 @@ export async function DELETE(
       return apiError("댓글을 찾을 수 없습니다.", { status: 404 });
     }
 
-    if (comment.userId !== session.user.id && session.user.role !== "ADMIN") {
+    if (comment.userId !== session.user.id && !isAdmin(session)) {
       return apiError("삭제 권한이 없습니다.", { status: 403 });
     }
 

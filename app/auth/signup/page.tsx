@@ -5,16 +5,21 @@ import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import { USER_ID_MAX, validateUserId } from "@/src/lib/auth/user-id";
+import {
+  validateName,
+  validateNickname,
+  validatePassword,
+} from "@/src/lib/auth/validation";
 
 const TermsContent = dynamic(
-  () => import("@/app/components/TermsContent").then((module) => module.TermsContent),
+  () => import("@/src/components/app/TermsContent").then((module) => module.TermsContent),
   {
     loading: () => <p className="text-xs text-zinc-500">약관을 불러오는 중...</p>,
   }
 );
 
 const ImageCropModal = dynamic(
-  () => import("@/app/components/ImageCropModal").then((module) => module.ImageCropModal),
+  () => import("@/src/components/app/ImageCropModal").then((module) => module.ImageCropModal),
   {
     ssr: false,
   }
@@ -50,39 +55,6 @@ export default function SignupPage() {
     if (cropModal?.src) URL.revokeObjectURL(cropModal.src);
     setCropModal(null);
   }, [cropModal?.src]);
-
-  function validatePassword(pwd: string): string | null {
-    if (pwd.length < 6) {
-      return "비밀번호는 6자리 이상이어야 합니다.";
-    }
-    if (!/.*[a-zA-Z].*/.test(pwd) || !/.*[0-9].*/.test(pwd)) {
-      return "비밀번호는 영문과 숫자를 반드시 포함해야 합니다.";
-    }
-    return null;
-  }
-
-  function validateNickname(nick: string): string | null {
-    if (!nick) return null;
-    if (/[^a-zA-Z0-9가-힣]/.test(nick)) {
-      return "특수문자 및 공백 사용불가";
-    }
-    const koreanCount = (nick.match(/[가-힣]/g) || []).length;
-    const englishCount = (nick.match(/[a-zA-Z]/g) || []).length;
-    const otherCount = nick.length - koreanCount - englishCount;
-    if (koreanCount > 0 && koreanCount > 6) {
-      return "최대 글자 수: 한글 6자";
-    }
-    if (englishCount + otherCount > 12) {
-      return "최대 글자 수: 영문 12자";
-    }
-    return null;
-  }
-
-  function validateName(input: string): string | null {
-    if (!input) return "이름을 입력해주세요.";
-    if (input.length > 30) return "이름은 30자 이하로 입력해주세요.";
-    return null;
-  }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();

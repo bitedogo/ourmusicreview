@@ -54,7 +54,7 @@ export function PostContentClient({
     const hasIncremented = sessionStorage.getItem(`post-${postId}-view-incremented`);
 
     if (!hasIncremented) {
-      sessionStorage.setItem(`post-${postId}-view-incremented`, "true"); // API 호출 시도 전에 플래그 설정
+      sessionStorage.setItem(`post-${postId}-view-incremented`, "true");
 
       fetch(`/api/posts/${postId}/view`, {
         method: "POST",

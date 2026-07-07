@@ -6,22 +6,11 @@ import Image from "next/image";
 import { fetchJson, getApiErrorMessage } from "@/src/lib/http/client";
 import Link from "next/link";
 import { useSlideSourceState } from "@/src/hooks/use-slide-source-state";
+import { ItunesAlbumPickerModal } from "@/src/components/itunes/itunes-album-picker-modal";
+import type { SearchAlbumResult } from "@/src/lib/search/types";
 
 const MIN_FOR_SLIDE = 15;
 const MAX_COUNT = 30;
-
-interface ArtistResult {
-  artistId: number;
-  artistName: string;
-  primaryGenreName?: string;
-}
-
-interface SearchAlbum {
-  collectionId: number;
-  collectionName: string;
-  artistName: string;
-  imageUrl600: string | null;
-}
 
 interface SlideAlbum {
   id: string;
@@ -50,12 +39,6 @@ export function MyPicksSection({ embedded = false }: { embedded?: boolean }) {
   const [error, setError] = useState<string | null>(null);
   const [processingIds, setProcessingIds] = useState<Set<string>>(new Set());
   const [modalOpen, setModalOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [artists, setArtists] = useState<ArtistResult[]>([]);
-  const [selectedArtist, setSelectedArtist] = useState<ArtistResult | null>(null);
-  const [artistAlbums, setArtistAlbums] = useState<SearchAlbum[]>([]);
-  const [isSearchingArtists, setIsSearchingArtists] = useState(false);
-  const [isLoadingAlbums, setIsLoadingAlbums] = useState(false);
   const [addSubmitting, setAddSubmitting] = useState(false);
   const [addError, setAddError] = useState<string | null>(null);
   const [draggingId, setDraggingId] = useState<string | null>(null);
@@ -80,59 +63,12 @@ export function MyPicksSection({ embedded = false }: { embedded?: boolean }) {
     }
   }
 
-  async function handleArtistSearch(e?: React.FormEvent) {
-    e?.preventDefault();
-    const term = searchQuery.trim();
-    if (!term) {
-      setArtists([]);
-      setSelectedArtist(null);
-      setArtistAlbums([]);
-      return;
-    }
-    setIsSearchingArtists(true);
-    setSelectedArtist(null);
-    setArtistAlbums([]);
-    setAddError(null);
-    try {
-      const data = await fetchJson<{ ok: true; data: { artists: ArtistResult[] } }>(
-        `/api/itunes/artists?term=${encodeURIComponent(term)}`
-      );
-      setArtists(Array.isArray(data.data?.artists) ? data.data.artists : []);
-    } catch (err) {
-      setAddError(getApiErrorMessage(err, "아티스트 검색 중 오류가 발생했습니다."));
-      setArtists([]);
-    } finally {
-      setIsSearchingArtists(false);
-    }
-  }
-
-  async function handleArtistSelect(artist: ArtistResult) {
-    setSelectedArtist(artist);
-    setIsLoadingAlbums(true);
-    setArtistAlbums([]);
-    try {
-      const data = await fetchJson<{ ok: true; data: { albums: SearchAlbum[] } }>(
-        `/api/itunes/artists/${artist.artistId}/albums`
-      );
-      setArtistAlbums(Array.isArray(data.data?.albums) ? data.data.albums : []);
-    } catch (err) {
-      setAddError(getApiErrorMessage(err, "앨범 목록 로딩 중 오류가 발생했습니다."));
-      setArtistAlbums([]);
-    } finally {
-      setIsLoadingAlbums(false);
-    }
-  }
-
   function openAddModal() {
     setAddError(null);
-    setSearchQuery("");
-    setArtists([]);
-    setSelectedArtist(null);
-    setArtistAlbums([]);
     setModalOpen(true);
   }
 
-  async function addAlbum(collectionId: number) {
+  async function handleAlbumSelect(album: SearchAlbumResult) {
     if (albums.length >= MAX_COUNT) {
       setAddError(`최대 ${MAX_COUNT}개까지 등록할 수 있습니다.`);
       return;
@@ -145,7 +81,7 @@ export function MyPicksSection({ embedded = false }: { embedded?: boolean }) {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ collectionId }),
+          body: JSON.stringify({ collectionId: album.collectionId }),
         }
       );
       const createdAlbum = data.data.album;
@@ -340,121 +276,14 @@ export function MyPicksSection({ embedded = false }: { embedded?: boolean }) {
         </div>
       )}
 
-      {modalOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="add-pick-album-title"
-        >
-          <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl">
-            <h2 id="add-pick-album-title" className="text-lg font-bold text-zinc-900">
-              앨범 추가
-            </h2>
-            <p className="mt-1 text-sm text-zinc-500">
-              아티스트 검색 후 앨범을 선택하세요.
-            </p>
-
-            <form onSubmit={handleArtistSearch} className="mt-4 flex gap-2">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="아티스트 검색"
-                className="flex-1 rounded-lg border border-zinc-300 px-3 py-2 text-sm"
-              />
-              <button
-                type="submit"
-                disabled={isSearchingArtists}
-                className="rounded-lg bg-zinc-800 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 disabled:opacity-50"
-              >
-                {isSearchingArtists ? "검색 중..." : "검색"}
-              </button>
-            </form>
-
-            {addError && <p className="mt-2 text-sm text-red-600">{addError}</p>}
-
-            {!selectedArtist && artists.length > 0 && (
-              <ul className="mt-4 max-h-48 overflow-y-auto rounded-lg border border-zinc-200">
-                {artists.map((a) => (
-                  <li key={a.artistId}>
-                    <button
-                      type="button"
-                      onClick={() => handleArtistSelect(a)}
-                      className="w-full px-4 py-2 text-left text-sm hover:bg-zinc-50"
-                    >
-                      {a.artistName}
-                      {a.primaryGenreName ? ` · ${a.primaryGenreName}` : ""}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-
-            {selectedArtist && (
-              <>
-                <div className="mt-4 flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSelectedArtist(null);
-                      setArtistAlbums([]);
-                    }}
-                    className="text-sm text-zinc-600 hover:underline"
-                  >
-                    ← 아티스트 다시 선택
-                  </button>
-                </div>
-                {isLoadingAlbums ? (
-                  <p className="mt-2 text-sm text-zinc-500">앨범 목록 불러오는 중...</p>
-                ) : artistAlbums.length === 0 ? (
-                  <p className="mt-2 text-sm text-zinc-500">앨범이 없습니다.</p>
-                ) : (
-                  <ul className="mt-2 max-h-64 overflow-y-auto rounded-lg border border-zinc-200">
-                    {artistAlbums.map((album) => (
-                      <li key={album.collectionId}>
-                        <button
-                          type="button"
-                          disabled={addSubmitting}
-                          onClick={() => addAlbum(album.collectionId)}
-                          className="flex w-full items-center gap-3 px-4 py-2 text-left text-sm hover:bg-zinc-50 disabled:opacity-50"
-                        >
-                          {album.imageUrl600 ? (
-                            <Image
-                              src={album.imageUrl600}
-                              alt={album.collectionName ?? "앨범 커버"}
-                              width={40}
-                              height={40}
-                              unoptimized
-                              className="h-10 w-10 shrink-0 rounded object-cover"
-                            />
-                          ) : (
-                            <div className="h-10 w-10 shrink-0 rounded bg-zinc-200" />
-                          )}
-                          <div className="min-w-0 flex-1">
-                            <p className="truncate font-medium">{album.collectionName}</p>
-                            <p className="truncate text-zinc-600">{album.artistName}</p>
-                          </div>
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </>
-            )}
-
-            <div className="mt-6 flex justify-end">
-              <button
-                type="button"
-                onClick={() => setModalOpen(false)}
-                className="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
-              >
-                닫기
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ItunesAlbumPickerModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onAlbumSelect={handleAlbumSelect}
+        isSelecting={addSubmitting}
+        selectError={addError}
+        titleId="add-pick-album-title"
+      />
     </section>
   );
 }

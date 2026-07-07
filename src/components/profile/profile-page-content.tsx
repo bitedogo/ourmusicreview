@@ -3,18 +3,25 @@
 import Link from "next/link";
 import Image from "next/image";
 import { ReactNode } from "react";
-import { getUserProfilePath } from "@/components/user-profile-view";
+import { getUserProfilePath } from "./user-profile-view";
 import {
   ProfilePrivacySettings,
   ProfileReviewItem,
   ProfileFavoriteItem,
   ProfileMasterpieceItem,
   GENDER_LABEL,
-} from "./profile/profile-types";
-import { PrivacyToggle } from "./profile/PrivacyToggle";
-import { PrivateSectionMessage } from "./profile/PrivateSectionMessage";
-import { ProfileRatingGauge } from "./profile/ProfileRatingGauge";
-import { ProfileReviewRow } from "./profile/ProfileReviewRow";
+} from "./profile-types";
+import { PrivacyToggle } from "./PrivacyToggle";
+import { PrivateSectionMessage } from "./PrivateSectionMessage";
+import { ProfileRatingGauge } from "./ProfileRatingGauge";
+import { ProfileReviewRow } from "./ProfileReviewRow";
+
+export type {
+  ProfilePrivacySettings,
+  ProfileReviewItem,
+  ProfileFavoriteItem,
+  ProfileMasterpieceItem,
+} from "./profile-types";
 
 export interface ProfilePageContentProps {
   mode: "owner" | "viewer";

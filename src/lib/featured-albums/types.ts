@@ -8,8 +8,10 @@ export interface FeaturedAlbumCardData {
   averageRating: number | null;
 }
 
-export interface FeaturedAlbumsApiResponse {
-  ok: boolean;
-  albums: FeaturedAlbumCardData[];
-  hasUserSlide?: boolean;
-}
+import type { ApiSuccessResponse } from "@/src/lib/http/client";
+
+export interface FeaturedAlbumsApiResponse
+  extends ApiSuccessResponse<{
+    albums: FeaturedAlbumCardData[];
+    hasUserSlide?: boolean;
+  }> {}

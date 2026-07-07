@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { getPaginationItems } from "@/src/lib/utils/pagination";
+import { fetchJson, getApiErrorMessage } from "@/src/lib/http/client";
 
 interface Member {
   id: string;
@@ -43,6 +44,16 @@ interface MemberDetail {
 }
 
 type TabType = "all" | "admin";
+
+interface MembersListResponse {
+  ok: true;
+  data: { members: Member[] };
+}
+
+interface MemberDetailResponse {
+  ok: true;
+  data: { member: MemberDetail };
+}
 
 export function MemberManagementClient() {
   const router = useRouter();
@@ -120,19 +131,10 @@ export function MemberManagementClient() {
     setIsLoading(true);
     setError(null);
     try {
-      const res = await fetch("/api/admin/members");
-      const data = await res.json();
-      if (!res.ok || !data?.ok) {
-        setError(data?.error ?? "멤버 목록을 불러올 수 없습니다.");
-        return;
-      }
-      setMembers(data?.data?.members || []);
+      const data = await fetchJson<MembersListResponse>("/api/admin/members");
+      setMembers(data.data.members || []);
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "멤버 목록을 불러오는 중 오류가 발생했습니다."
-      );
+      setError(getApiErrorMessage(err, "멤버 목록을 불러오는 중 오류가 발생했습니다."));
     } finally {
       setIsLoading(false);
     }
@@ -141,13 +143,10 @@ export function MemberManagementClient() {
   async function fetchDetail(id: string) {
     setIsLoadingDetail(true);
     try {
-      const res = await fetch(`/api/admin/members/${encodeURIComponent(id)}`);
-      const data = await res.json();
-      if (res.ok && data?.ok) {
-        setDetail(data.data.member);
-      } else {
-        setDetail(null);
-      }
+      const data = await fetchJson<MemberDetailResponse>(
+        `/api/admin/members/${encodeURIComponent(id)}`
+      );
+      setDetail(data.data.member);
     } catch {
       setDetail(null);
     } finally {
@@ -164,23 +163,14 @@ export function MemberManagementClient() {
       return;
     setProcessingIds((prev) => new Set(prev).add(memberId));
     try {
-      const res = await fetch(
+      await fetchJson<{ ok: true }>(
         `/api/admin/members/${encodeURIComponent(memberId)}`,
         { method: "DELETE" }
       );
-      const data = await res.json();
-      if (!res.ok || !data?.ok) {
-        alert(data?.error ?? "계정 삭제에 실패했습니다.");
-        return;
-      }
       setMembers((prev) => prev.filter((m) => m.id !== memberId));
       if (selectedId === memberId) setSelectedId(null);
     } catch (err) {
-      alert(
-        err instanceof Error
-          ? `계정 삭제 중 오류가 발생했습니다: ${err.message}`
-          : "계정 삭제 중 알 수 없는 오류가 발생했습니다."
-      );
+      alert(getApiErrorMessage(err, "계정 삭제 중 오류가 발생했습니다."));
     } finally {
       setProcessingIds((prev) => {
         const next = new Set(prev);
@@ -193,7 +183,7 @@ export function MemberManagementClient() {
   async function handleRoleChange(memberId: string, newRole: "USER" | "ADMIN") {
     setProcessingIds((prev) => new Set(prev).add(memberId));
     try {
-      const res = await fetch(
+      await fetchJson<{ ok: true }>(
         `/api/admin/members/${encodeURIComponent(memberId)}`,
         {
           method: "PATCH",
@@ -201,11 +191,6 @@ export function MemberManagementClient() {
           body: JSON.stringify({ role: newRole }),
         }
       );
-      const data = await res.json();
-      if (!res.ok || !data?.ok) {
-        alert(data?.error ?? "멤버 권한 변경에 실패했습니다.");
-        return;
-      }
       setMembers((prev) =>
         prev.map((m) => (m.id === memberId ? { ...m, role: newRole } : m))
       );
@@ -213,11 +198,7 @@ export function MemberManagementClient() {
         setDetail((d) => (d ? { ...d, role: newRole } : null));
       }
     } catch (err) {
-      alert(
-        err instanceof Error
-          ? `멤버 권한 변경 중 오류가 발생했습니다: ${err.message}`
-          : "멤버 권한 변경 중 알 수 없는 오류가 발생했습니다."
-      );
+      alert(getApiErrorMessage(err, "멤버 권한 변경 중 오류가 발생했습니다."));
     } finally {
       setProcessingIds((prev) => {
         const next = new Set(prev);

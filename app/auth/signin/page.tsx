@@ -5,23 +5,11 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { signIn, useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
-import { fetchJson, getApiErrorMessage } from "@/src/lib/http/client";
 import { LOGO_ALT, LOGO_SRC } from "@/src/lib/site/branding";
+import { FindIdModal } from "./find-id-modal";
+import { FindPasswordModal } from "./find-password-modal";
 
 type ModalType = "find-id" | "find-password" | null;
-interface FindIdResponse {
-  ok: boolean;
-  data: {
-    id: string;
-  };
-}
-
-interface FindPasswordResponse {
-  ok: boolean;
-  data: {
-    temporaryPassword: string;
-  };
-}
 
 export default function SigninPage() {
   const router = useRouter();
@@ -32,98 +20,22 @@ export default function SigninPage() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [id, setId] = useState("");
+  const [id, setId] = useState(() => {
+    if (typeof window === "undefined") return "";
+    return window.localStorage.getItem(savedIdKey) ?? "";
+  });
   const [password, setPassword] = useState("");
-  const [isRememberId, setIsRememberId] = useState(false);
-
+  const [isRememberId, setIsRememberId] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return Boolean(window.localStorage.getItem(savedIdKey));
+  });
   const [modal, setModal] = useState<ModalType>(null);
-  const [findIdEmail, setFindIdEmail] = useState("");
-  const [findIdSubmitting, setFindIdSubmitting] = useState(false);
-  const [findIdError, setFindIdError] = useState<string | null>(null);
-  const [foundId, setFoundId] = useState<string | null>(null);
-
-  const [findPwEmail, setFindPwEmail] = useState("");
-  const [findPwId, setFindPwId] = useState("");
-  const [findPwSubmitting, setFindPwSubmitting] = useState(false);
-  const [findPwError, setFindPwError] = useState<string | null>(null);
-  const [temporaryPassword, setTemporaryPassword] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const savedId = window.localStorage.getItem(savedIdKey);
-    if (savedId) {
-      setId(savedId);
-      setIsRememberId(true);
-    }
-  }, []);
 
   useEffect(() => {
     if (status === "authenticated") {
       router.push(callbackUrl);
     }
   }, [status, router, callbackUrl]);
-
-  function closeModal() {
-    setModal(null);
-    setFindIdEmail("");
-    setFindIdError(null);
-    setFoundId(null);
-    setFindPwEmail("");
-    setFindPwId("");
-    setFindPwError(null);
-    setTemporaryPassword(null);
-  }
-
-  async function handleFindIdSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setFindIdSubmitting(true);
-    setFindIdError(null);
-    setFoundId(null);
-    const trimmed = findIdEmail.trim();
-    if (!trimmed) {
-      setFindIdError("이메일을 입력해주세요.");
-      setFindIdSubmitting(false);
-      return;
-    }
-    try {
-      const data = await fetchJson<FindIdResponse>("/api/auth/find-id", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: trimmed }),
-      });
-      setFoundId(data.data.id);
-    } catch (error) {
-      setFindIdError(getApiErrorMessage(error, "아이디 찾기 중 오류가 발생했습니다."));
-    } finally {
-      setFindIdSubmitting(false);
-    }
-  }
-
-  async function handleFindPwSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setFindPwSubmitting(true);
-    setFindPwError(null);
-    setTemporaryPassword(null);
-    const trimmedEmail = findPwEmail.trim();
-    const trimmedId = findPwId.trim();
-    if (!trimmedEmail || !trimmedId) {
-      setFindPwError("이메일과 아이디를 모두 입력해주세요.");
-      setFindPwSubmitting(false);
-      return;
-    }
-    try {
-      const data = await fetchJson<FindPasswordResponse>("/api/auth/find-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: trimmedEmail, id: trimmedId }),
-      });
-      setTemporaryPassword(data.data.temporaryPassword);
-    } catch (error) {
-      setFindPwError(getApiErrorMessage(error, "비밀번호 찾기 중 오류가 발생했습니다."));
-    } finally {
-      setFindPwSubmitting(false);
-    }
-  }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -164,9 +76,26 @@ export default function SigninPage() {
     }
   }
 
+  function handleGoBack() {
+    if (typeof window !== "undefined" && window.history.length > 1) {
+      router.back();
+      return;
+    }
+    router.push("/");
+  }
+
   return (
     <div className="flex w-full flex-col items-center px-4 pb-[var(--auth-logo-padding-bottom)]">
       <div className="flex w-full max-w-[var(--auth-form-width)] flex-col items-center pt-[var(--auth-logo-padding-top)]">
+        <div className="mb-4 flex w-full">
+          <button
+            type="button"
+            onClick={handleGoBack}
+            className="relative inline-flex -translate-y-[50px] items-center text-sm text-[var(--color-text-secondary)] transition hover:text-[var(--color-accent)]"
+          >
+            {'< back'}
+          </button>
+        </div>
         <div className="mb-10 flex justify-center">
           <Link href="/" className="inline-flex shrink-0 items-center justify-center">
             <Image
@@ -206,8 +135,18 @@ export default function SigninPage() {
             </div>
           </label>
 
-          <div className="mt-3 flex items-center justify-between gap-3">
-            <label className="inline-flex items-center gap-2 text-sm text-[var(--color-text-secondary)]">
+          {errorMessage && <p className="mt-3 text-sm text-red-500">{errorMessage}</p>}
+
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="mt-3 inline-flex h-[var(--auth-button-height)] w-full items-center justify-center rounded-[var(--auth-field-radius)] bg-[#43A7B2] text-sm font-bold uppercase tracking-wide text-white transition hover:bg-[#3796A0] disabled:cursor-not-allowed disabled:bg-zinc-400"
+          >
+            {isSubmitting ? "Logging in..." : "Login"}
+          </button>
+
+          <div className="mt-5 grid w-full grid-cols-[1fr_auto_1fr] items-center gap-2">
+            <label className="inline-flex items-center gap-2 text-sm text-[var(--color-text-secondary)] justify-self-start">
               <input
                 type="checkbox"
                 checked={isRememberId}
@@ -216,7 +155,7 @@ export default function SigninPage() {
               />
               Save Id
             </label>
-            <div className="flex items-center gap-2 text-sm text-[var(--color-text-secondary)]">
+            <div className="flex items-center gap-1 text-sm text-[var(--color-text-secondary)] justify-self-center">
               <button
                 type="button"
                 onClick={() => setModal("find-id")}
@@ -233,206 +172,33 @@ export default function SigninPage() {
                 Reset Password
               </button>
             </div>
+            <Link
+              href="/auth/signup"
+              className="justify-self-end text-sm text-[var(--color-text-secondary)] transition hover:text-[var(--color-accent)]"
+            >
+              Create Account
+            </Link>
           </div>
-
-          {errorMessage && (
-            <div className="mt-3 rounded-[var(--auth-field-radius)] border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-900">
-              {errorMessage}
-            </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="mt-5 inline-flex h-[var(--auth-button-height)] w-full items-center justify-center rounded-[var(--auth-field-radius)] bg-[var(--color-accent)] text-sm font-bold uppercase tracking-wide text-white transition hover:bg-[var(--color-accent-hover)] disabled:cursor-not-allowed disabled:bg-zinc-400"
-          >
-            {isSubmitting ? "Logging in..." : "Login"}
-          </button>
-
-          <Link
-            href="/auth/signup"
-            className="mt-3 inline-flex h-[var(--auth-button-height)] w-full items-center justify-center rounded-[var(--auth-field-radius)] border border-[var(--color-border)] bg-white text-sm font-bold uppercase tracking-wide text-[var(--color-accent)] transition hover:bg-zinc-50"
-          >
-            Join ORU
-          </Link>
         </form>
 
         <button
           type="button"
           onClick={handleGoogleLogin}
           aria-label="Sign in with Google"
-          className="mt-4 flex h-[30px] w-[30px] items-center justify-center rounded-full transition hover:bg-zinc-100"
+          className="mt-5 flex h-[30px] w-[30px] items-center justify-center rounded-full transition hover:bg-zinc-100"
         >
-          <Image
-            src="/social/google.svg"
-            alt=""
-            width={30}
-            height={30}
-            unoptimized
-          />
+          <Image src="/social/google.svg" alt="" width={30} height={30} unoptimized />
         </button>
       </div>
 
       {modal === "find-id" && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
-          onClick={closeModal}
-        >
-          <div
-            className="w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-6 shadow-xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 className="mb-1 text-lg font-semibold text-zinc-900">아이디 찾기</h3>
-            <p className="mb-4 text-sm text-zinc-600">가입 시 등록한 이메일을 입력해주세요.</p>
-            {foundId ? (
-              <div className="space-y-4">
-                <div className="rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-4">
-                  <p className="text-sm text-zinc-600">회원님의 아이디</p>
-                  <p className="mt-1 text-lg font-semibold text-zinc-900">{foundId}</p>
-                </div>
-                <div className="flex gap-3">
-                  <button
-                    type="button"
-                    onClick={closeModal}
-                    className="flex-1 rounded-full bg-[var(--color-brand-primary)] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[var(--color-brand-primary-hover)]"
-                  >
-                    확인
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setFoundId(null);
-                      setFindIdEmail("");
-                      setFindIdError(null);
-                      setModal("find-password");
-                    }}
-                    className="flex-1 rounded-full border border-zinc-200 px-4 py-2.5 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50"
-                  >
-                    비밀번호 찾기
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <form onSubmit={handleFindIdSubmit} className="space-y-4">
-                <label className="block space-y-1">
-                  <span className="text-sm font-medium">이메일</span>
-                  <input
-                    value={findIdEmail}
-                    onChange={(e) => setFindIdEmail(e.target.value)}
-                    type="email"
-                    className="w-full rounded-xl border border-zinc-200 px-3 py-2 text-sm outline-none focus:border-zinc-400"
-                    placeholder="가입 시 등록한 이메일"
-                  />
-                </label>
-                {findIdError && (
-                  <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-900">
-                    {findIdError}
-                  </div>
-                )}
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    onClick={closeModal}
-                    className="flex-1 rounded-full border border-zinc-200 px-4 py-2.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
-                  >
-                    취소
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={findIdSubmitting}
-                    className="flex-1 rounded-full bg-[var(--color-brand-primary)] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[var(--color-brand-primary-hover)] disabled:cursor-not-allowed disabled:bg-zinc-400"
-                  >
-                    {findIdSubmitting ? "찾는 중..." : "아이디 찾기"}
-                  </button>
-                </div>
-              </form>
-            )}
-          </div>
-        </div>
+        <FindIdModal
+          onClose={() => setModal(null)}
+          onOpenFindPassword={() => setModal("find-password")}
+        />
       )}
 
-      {modal === "find-password" && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
-          onClick={closeModal}
-        >
-          <div
-            className="w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-6 shadow-xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 className="mb-1 text-lg font-semibold text-zinc-900">비밀번호 찾기</h3>
-            <p className="mb-4 text-sm text-zinc-600">
-              가입 시 등록한 이메일과 아이디를 입력해주세요. 임시 비밀번호가 발급됩니다.
-            </p>
-            {temporaryPassword ? (
-              <div className="space-y-4">
-                <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-4">
-                  <p className="text-sm font-medium text-amber-900">
-                    임시 비밀번호가 발급되었습니다.
-                  </p>
-                  <p className="mt-2 text-sm text-amber-800">
-                    아래 비밀번호로 로그인 후, 반드시 비밀번호를 변경해주세요.
-                  </p>
-                  <p className="mt-3 rounded-lg bg-white px-3 py-2 text-base font-semibold text-zinc-900">
-                    {temporaryPassword}
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={closeModal}
-                  className="w-full rounded-full bg-[var(--color-brand-primary)] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[var(--color-brand-primary-hover)]"
-                >
-                  확인
-                </button>
-              </div>
-            ) : (
-              <form onSubmit={handleFindPwSubmit} className="space-y-4">
-                <label className="block space-y-1">
-                  <span className="text-sm font-medium">이메일</span>
-                  <input
-                    value={findPwEmail}
-                    onChange={(e) => setFindPwEmail(e.target.value)}
-                    type="email"
-                    className="w-full rounded-xl border border-zinc-200 px-3 py-2 text-sm outline-none focus:border-zinc-400"
-                    placeholder="가입 시 등록한 이메일"
-                  />
-                </label>
-                <label className="block space-y-1">
-                  <span className="text-sm font-medium">아이디</span>
-                  <input
-                    value={findPwId}
-                    onChange={(e) => setFindPwId(e.target.value)}
-                    className="w-full rounded-xl border border-zinc-200 px-3 py-2 text-sm outline-none focus:border-zinc-400"
-                    placeholder="아이디"
-                  />
-                </label>
-                {findPwError && (
-                  <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-900">
-                    {findPwError}
-                  </div>
-                )}
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    onClick={closeModal}
-                    className="flex-1 rounded-full border border-zinc-200 px-4 py-2.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
-                  >
-                    취소
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={findPwSubmitting}
-                    className="flex-1 rounded-full bg-[var(--color-brand-primary)] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[var(--color-brand-primary-hover)] disabled:cursor-not-allowed disabled:bg-zinc-400"
-                  >
-                    {findPwSubmitting ? "처리 중..." : "임시 비밀번호 발급"}
-                  </button>
-                </div>
-              </form>
-            )}
-          </div>
-        </div>
-      )}
-
+      {modal === "find-password" && <FindPasswordModal onClose={() => setModal(null)} />}
     </div>
   );
 }

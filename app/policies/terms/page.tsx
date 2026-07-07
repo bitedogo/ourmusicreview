@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { TermsContent } from "@/app/components/TermsContent";
+import { TermsContent } from "@/src/components/app/TermsContent";
 
 export default function TermsPage() {
   return (

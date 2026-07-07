@@ -126,7 +126,6 @@ export function ImageCropModal({
               circularCrop
               className="min-h-[200px] min-w-[200px] flex items-center justify-center"
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 ref={setImgRef}
                 src={imageSrc}

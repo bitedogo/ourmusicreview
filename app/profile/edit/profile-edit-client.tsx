@@ -3,9 +3,10 @@
 import { useCallback, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { ImageCropModal } from "@/app/components/ImageCropModal";
+import { ImageCropModal } from "@/src/components/app/ImageCropModal";
 import Image from "next/image";
 import { fetchJson, getApiErrorMessage } from "@/src/lib/http/client";
+import { validatePassword } from "@/src/lib/auth/validation";
 
 interface ProfileEditClientProps {
   id: string;
@@ -41,16 +42,6 @@ export function ProfileEditClient({
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [changePasswordError, setChangePasswordError] = useState<string | null>(null);
   const [changePasswordSuccess, setChangePasswordSuccess] = useState<string | null>(null);
-
-  function validatePassword(passwordValue: string): string | null {
-    if (passwordValue.length < 6) {
-      return "비밀번호는 6자리 이상이어야 합니다.";
-    }
-    if (!/.*[a-zA-Z].*/.test(passwordValue) || !/.*[0-9].*/.test(passwordValue)) {
-      return "비밀번호는 영문과 숫자를 반드시 포함해야 합니다.";
-    }
-    return null;
-  }
 
   const handleProfileImageConfirm = useCallback((file: File) => {
     if (cropModal?.src) URL.revokeObjectURL(cropModal.src);

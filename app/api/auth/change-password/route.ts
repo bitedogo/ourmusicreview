@@ -1,25 +1,8 @@
 import bcrypt from "bcryptjs";
+import { isBcryptHash, sanitizeText, validatePassword } from "@/src/lib/auth/validation";
 import { initializeDatabase } from "@/src/lib/db";
 import { User } from "@/src/lib/db/entities/User";
 import { apiError, apiOk } from "@/src/lib/http/response";
-
-function sanitizeText(value: unknown) {
-  return typeof value === "string" ? value.trim() : "";
-}
-
-function isBcryptHash(value: string) {
-  return /^\$2[aby]\$\d{2}\$/.test(value);
-}
-
-function validatePassword(pwd: string): string | null {
-  if (pwd.length < 6) {
-    return "비밀번호는 6자리 이상이어야 합니다.";
-  }
-  if (!/.*[a-zA-Z].*/.test(pwd) || !/.*[0-9].*/.test(pwd)) {
-    return "비밀번호는 영문과 숫자를 반드시 포함해야 합니다.";
-  }
-  return null;
-}
 
 export async function POST(request: Request) {
   try {

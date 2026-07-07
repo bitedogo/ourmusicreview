@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/src/lib/auth/config";
+import { NextRequest } from "next/server";
+import { requireSessionApi } from "@/src/lib/auth/session";
 import { initializeDatabase } from "@/src/lib/db";
+import { apiError, apiOk } from "@/src/lib/http/response";
 import { User } from "@/src/lib/db/entities/User";
 import { Review } from "@/src/lib/db/entities/Review";
 import { UserFavoriteAlbum } from "@/src/lib/db/entities/UserFavoriteAlbum";
@@ -19,16 +19,16 @@ export async function GET(
   req: NextRequest,
   context: { params: Promise<Params> },
 ) {
-  const session = await getServerSession(authOptions);
-
-  if (!session) {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  const auth = await requireSessionApi();
+  if (auth.response) {
+    return auth.response;
   }
+  const session = auth.session;
 
   const { userId } = await context.params;
 
   if (!userId) {
-    return NextResponse.json({ message: "User ID is required" }, { status: 400 });
+    return apiError("User ID is required", { status: 400 });
   }
 
   try {
@@ -65,7 +65,7 @@ export async function GET(
     });
 
     if (!userProfile) {
-      return NextResponse.json({ message: "User not found" }, { status: 404 });
+      return apiError("User not found", { status: 404 });
     }
 
     const isOwner = session.user?.id === userId;
@@ -126,9 +126,7 @@ export async function GET(
         })
       : "-";
 
-    return NextResponse.json({
-      ok: true,
-      data: {
+    return apiOk({
         isOwner,
         privacy: {
           showReviewsPublic: isPublic(userProfile.showReviewsPublic),
@@ -144,7 +142,9 @@ export async function GET(
           profileImage: userProfile.profileImage ?? null,
           gender: userProfile.gender ?? null,
           role: null,
-          createdAt: userProfile.createdAt,
+          createdAt: userProfile.createdAt
+            ? userProfile.createdAt.toISOString()
+            : "",
           createdAtText,
           averageRating: showRating ? averageRating : 0,
         },
@@ -160,8 +160,8 @@ export async function GET(
           isApproved: review.isApproved,
           rejectReason: review.rejectReason,
           albumId: review.albumId,
-          createdAt: review.createdAt,
-          updatedAt: review.updatedAt,
+          createdAt: review.createdAt.toISOString(),
+          updatedAt: review.updatedAt.toISOString(),
           album: review.album
             ? {
                 albumId: review.album.albumId,
@@ -174,7 +174,7 @@ export async function GET(
         favorites: favorites.map((fav) => ({
           id: fav.id,
           albumId: fav.albumId,
-          createdAt: fav.createdAt,
+          createdAt: fav.createdAt.toISOString(),
           album: fav.album
             ? {
                 albumId: fav.album.albumId,
@@ -195,12 +195,8 @@ export async function GET(
           releaseDate: item.releaseDate ?? "",
           genre: item.genre ?? "",
         })),
-      },
     });
   } catch {
-    return NextResponse.json(
-      { message: "Internal Server Error" },
-      { status: 500 },
-    );
+    return apiError("Internal Server Error", { status: 500 });
   }
 }

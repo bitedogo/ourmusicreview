@@ -2,7 +2,7 @@
 
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";
-import { useUserProfileData, UserProfilePanel } from "@/components/user-profile-view";
+import { useUserProfileData, UserProfilePanel } from "./user-profile-view";
 
 interface UserProfileModalProps {
   userId: string | null;

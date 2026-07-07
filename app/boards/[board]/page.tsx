@@ -146,8 +146,8 @@ export default async function BoardPage(props: {
     return {
       ...post,
       commentCount: commentCountMap.get(post.id) ?? 0,
-      isPinned: post.isGlobal === "Y", // isGlobal === 'Y'는 전체 공지 (빨간색)으로 최상단 고정
-      isReleasePinned, // noticeCategory === 'RELEASE_NOTE'는 릴리즈 (초록색)으로 고정
+      isPinned: post.isGlobal === "Y",
+      isReleasePinned,
     };
   });
 

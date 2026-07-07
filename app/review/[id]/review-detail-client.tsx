@@ -7,7 +7,7 @@ import { useSession } from "next-auth/react";
 import { HtmlRenderer } from "@/src/components/common/HtmlRenderer";
 import { InteractionButtons } from "@/src/components/interaction/InteractionButtons";
 import { CommentSection } from "@/src/components/interaction/CommentSection";
-import { getUserProfilePath } from "@/components/user-profile-view";
+import { getUserProfilePath } from "@/src/components/profile/user-profile-view";
 import Image from "next/image";
 import { fetchJson, getApiErrorMessage } from "@/src/lib/http/client";
 import { formatDateYYYYMMDD } from "@/src/lib/utils/date";

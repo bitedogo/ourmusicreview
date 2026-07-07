@@ -1,16 +1,13 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/src/lib/auth/config";
-import { AppDataSource } from "@/src/lib/db/data-source";
+import { requireSessionApi } from "@/src/lib/auth/session";
+import { initializeDatabase } from "@/src/lib/db";
 import { Comment } from "@/src/lib/db/entities/Comment";
 import { randomUUID } from "crypto";
 import { apiError, apiOk } from "@/src/lib/http/response";
 
 export async function POST(request: Request) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
-      return apiError("로그인이 필요합니다.", { status: 401 });
-    }
+    const { session, response } = await requireSessionApi();
+    if (response) return response;
 
     const { content, postId, reviewId } = await request.json();
 
@@ -18,12 +15,9 @@ export async function POST(request: Request) {
       return apiError("필수 정보가 누락되었습니다.", { status: 400 });
     }
 
-    if (!AppDataSource.isInitialized) {
-      await AppDataSource.initialize();
-    }
+    const dataSource = await initializeDatabase();
+    const commentRepository = dataSource.getRepository(Comment);
 
-    const commentRepository = AppDataSource.getRepository(Comment);
-    
     const newComment = new Comment();
     newComment.id = randomUUID();
     newComment.content = content;
@@ -49,11 +43,8 @@ export async function GET(request: Request) {
       return apiError("postId 또는 reviewId가 필요합니다.", { status: 400 });
     }
 
-    if (!AppDataSource.isInitialized) {
-      await AppDataSource.initialize();
-    }
-
-    const commentRepository = AppDataSource.getRepository(Comment);
+    const dataSource = await initializeDatabase();
+    const commentRepository = dataSource.getRepository(Comment);
     const comments = await commentRepository.find({
       where: postId ? { postId } : { reviewId: reviewId! },
       relations: ["user"],

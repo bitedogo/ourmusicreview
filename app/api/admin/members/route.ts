@@ -1,5 +1,4 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/src/lib/auth/config";
+import { requireAdminApi } from "@/src/lib/auth/session";
 import { initializeDatabase } from "@/src/lib/db";
 import { User } from "@/src/lib/db/entities/User";
 import { UserSlideAlbum } from "@/src/lib/db/entities/UserSlideAlbum";
@@ -9,11 +8,8 @@ import { apiError, apiOk } from "@/src/lib/http/response";
 
 export async function GET() {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session?.user?.id || session.user.role !== "ADMIN") {
-      return apiError("관리자 권한이 필요합니다.", { status: 403 });
-    }
+    const { response } = await requireAdminApi();
+    if (response) return response;
 
     const dataSource = await initializeDatabase();
     const userRepository = dataSource.getRepository(User);

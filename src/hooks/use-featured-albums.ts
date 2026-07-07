@@ -32,7 +32,7 @@ export function useFeaturedAlbums(
         });
 
         if (!isCancelled) {
-          setAlbums(data.ok && Array.isArray(data.albums) ? data.albums : []);
+          setAlbums(data.data?.albums ?? []);
         }
       } catch {
         if (!isCancelled) {

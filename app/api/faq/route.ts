@@ -4,7 +4,8 @@ import { initializeDatabase } from "@/src/lib/db";
 import { Faq } from "@/src/lib/db/entities/Faq";
 import { randomUUID } from "crypto";
 import { In } from "typeorm";
-import { noStoreJson, publicCachedJson } from "@/src/lib/http/cache";
+import { publicCachedJson } from "@/src/lib/http/cache";
+import { apiError, apiOk } from "@/src/lib/http/response";
 
 export async function GET() {
   try {
@@ -15,20 +16,23 @@ export async function GET() {
       order: { sortOrder: "ASC", createdAt: "ASC" },
     });
 
-    return publicCachedJson({
-      ok: true,
-      faqs: faqs.map((f) => ({
-        id: f.id,
-        question: f.question,
-        answer: f.answer,
-        sortOrder: f.sortOrder,
-      })),
-    }, 30, 120);
-  } catch {
-    return noStoreJson(
-      { ok: false, error: "FAQ를 불러오는 중 오류가 발생했습니다." },
-      { status: 500 }
+    return publicCachedJson(
+      {
+        ok: true,
+        data: {
+          faqs: faqs.map((f) => ({
+            id: f.id,
+            question: f.question,
+            answer: f.answer,
+            sortOrder: f.sortOrder,
+          })),
+        },
+      },
+      30,
+      120
     );
+  } catch {
+    return apiError("FAQ를 불러오는 중 오류가 발생했습니다.", { status: 500 });
   }
 }
 
@@ -38,10 +42,7 @@ export async function POST(request: Request) {
     const isAdmin = (session?.user as { role?: string })?.role === "ADMIN";
 
     if (!session?.user?.id || !isAdmin) {
-      return noStoreJson(
-        { ok: false, error: "관리자 권한이 필요합니다." },
-        { status: 403 }
-      );
+      return apiError("관리자 권한이 필요합니다.", { status: 403 });
     }
 
     const body = await request.json();
@@ -50,10 +51,7 @@ export async function POST(request: Request) {
     const sortOrder = typeof body?.sortOrder === "number" ? body.sortOrder : 0;
 
     if (!question || !answer) {
-      return noStoreJson(
-        { ok: false, error: "질문과 답변을 모두 입력해주세요." },
-        { status: 400 }
-      );
+      return apiError("질문과 답변을 모두 입력해주세요.", { status: 400 });
     }
 
     const dataSource = await initializeDatabase();
@@ -70,12 +68,9 @@ export async function POST(request: Request) {
 
     await faqRepository.save(faq);
 
-    return noStoreJson({ ok: true, id: faq.id }, { status: 201 });
+    return apiOk({ id: faq.id }, { status: 201 });
   } catch {
-    return noStoreJson(
-      { ok: false, error: "FAQ 등록 중 오류가 발생했습니다." },
-      { status: 500 }
-    );
+    return apiError("FAQ 등록 중 오류가 발생했습니다.", { status: 500 });
   }
 }
 
@@ -85,27 +80,18 @@ export async function PATCH(request: Request) {
     const isAdmin = (session?.user as { role?: string })?.role === "ADMIN";
 
     if (!session?.user?.id || !isAdmin) {
-      return noStoreJson(
-        { ok: false, error: "관리자 권한이 필요합니다." },
-        { status: 403 }
-      );
+      return apiError("관리자 권한이 필요합니다.", { status: 403 });
     }
 
     const body = await request.json();
     const order = body?.order;
     if (!Array.isArray(order) || order.some((id) => typeof id !== "string")) {
-      return noStoreJson(
-        { ok: false, error: "order는 FAQ id 문자열 배열이어야 합니다." },
-        { status: 400 }
-      );
+      return apiError("order는 FAQ id 문자열 배열이어야 합니다.", { status: 400 });
     }
 
     const ids = order.map((id: string) => id.trim()).filter(Boolean);
     if (ids.length === 0) {
-      return noStoreJson(
-        { ok: false, error: "정렬할 FAQ id가 없습니다." },
-        { status: 400 }
-      );
+      return apiError("정렬할 FAQ id가 없습니다.", { status: 400 });
     }
 
     const dataSource = await initializeDatabase();
@@ -126,11 +112,8 @@ export async function PATCH(request: Request) {
       await faqRepository.save(updates);
     }
 
-    return noStoreJson({ ok: true });
+    return apiOk({});
   } catch {
-    return noStoreJson(
-      { ok: false, error: "FAQ 순서 저장 중 오류가 발생했습니다." },
-      { status: 500 }
-    );
+    return apiError("FAQ 순서 저장 중 오류가 발생했습니다.", { status: 500 });
   }
 }

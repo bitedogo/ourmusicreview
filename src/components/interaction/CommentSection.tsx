@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
-import { getUserProfilePath } from "@/components/user-profile-view";
+import { getUserProfilePath } from "@/src/components/profile/user-profile-view";
 
 interface Comment {
   id: string;

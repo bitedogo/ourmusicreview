@@ -1,3 +1,9 @@
+export interface ApiSuccessResponse<T> {
+  ok: true;
+  data: T;
+  message?: string;
+}
+
 interface ApiBaseResponse {
   ok: boolean;
   error?: string;

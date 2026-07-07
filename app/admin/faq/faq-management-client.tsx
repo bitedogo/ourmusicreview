@@ -14,7 +14,7 @@ interface FaqItem {
 
 interface FaqListResponse {
   ok: true;
-  faqs: FaqItem[];
+  data: { faqs: FaqItem[] };
 }
 
 export function FaqManagementClient() {
@@ -32,7 +32,7 @@ export function FaqManagementClient() {
   async function fetchFaqs() {
     try {
       const data = await fetchJson<FaqListResponse>("/api/faq");
-      setFaqs(data.faqs);
+      setFaqs(data.data.faqs);
     } catch (error) {
       setErrorMessage(getApiErrorMessage(error, "FAQ 목록을 불러오는 중 오류가 발생했습니다."));
     } finally {

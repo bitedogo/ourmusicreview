@@ -6,9 +6,10 @@ import Image from "next/image";
 import { fetchJson } from "@/src/lib/http/client";
 import {
   ProfileReviewItem,
-} from "./profile/profile-types";
-import { ProfileReviewRow } from "./profile/ProfileReviewRow";
-import { ProfileRatingGauge } from "./profile/ProfileRatingGauge";
+} from "./profile-types";
+import { ProfileReviewRow } from "./ProfileReviewRow";
+import { ProfileRatingGauge } from "./ProfileRatingGauge";
+import { GENDER_LABEL } from "./profile-types";
 
 export interface UserProfile {
   id: string;
@@ -170,8 +171,6 @@ interface UserProfilePanelProps {
   reviewsHidden?: boolean;
   ratingHidden?: boolean;
 }
-
-import { GENDER_LABEL } from "./profile/profile-types";
 
 export function UserProfilePanel({
   userProfile,

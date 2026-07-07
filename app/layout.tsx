@@ -1,8 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Providers } from "./providers";
-import { ConditionalAppHeader } from "./components/conditional-app-header";
-import { ConditionalFooter } from "./components/conditional-footer";
+import { ConditionalAppHeader } from "@/src/components/app/conditional-app-header";
+import { ConditionalFooter } from "@/src/components/app/conditional-footer";
 import { pretendard } from "@/src/lib/fonts/pretendard";
 import {
   LOGO_ALT,

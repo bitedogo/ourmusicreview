@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ArtistSearchBar } from "@/app/components/artist-search-bar";
+import { ArtistSearchBar } from "@/src/components/app/artist-search-bar";
 import { DuplicateReviewModal } from "@/src/components/common/duplicate-review-modal";
 import { EmptyState } from "@/src/components/common/empty-state";
 import { useArtistAutocomplete } from "@/src/hooks/use-artist-autocomplete";

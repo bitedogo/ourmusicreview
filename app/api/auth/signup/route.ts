@@ -1,46 +1,15 @@
 import bcrypt from "bcryptjs";
 import { validateUserId } from "@/src/lib/auth/user-id";
+import {
+  sanitizeText,
+  validateName,
+  validateNickname,
+  validatePassword,
+} from "@/src/lib/auth/validation";
 import { initializeDatabase } from "@/src/lib/db";
 import { User } from "@/src/lib/db/entities/User";
 import { uploadProfileImage } from "@/src/lib/supabase";
 import { apiError, apiOk } from "@/src/lib/http/response";
-
-function sanitizeText(value: unknown) {
-  return typeof value === "string" ? value.trim() : "";
-}
-
-function validatePassword(pwd: string): string | null {
-  if (pwd.length < 6) {
-    return "비밀번호는 6자리 이상이어야 합니다.";
-  }
-  if (!/.*[a-zA-Z].*/.test(pwd) || !/.*[0-9].*/.test(pwd)) {
-    return "비밀번호는 영문과 숫자를 반드시 포함해야 합니다.";
-  }
-  return null;
-}
-
-function validateNickname(nick: string): string | null {
-  if (!nick) return "닉네임을 입력해주세요.";
-  if (/[^a-zA-Z0-9가-힣]/.test(nick)) {
-    return "특수문자 및 공백 사용불가";
-  }
-  const koreanCount = (nick.match(/[가-힣]/g) || []).length;
-  const englishCount = (nick.match(/[a-zA-Z]/g) || []).length;
-  const otherCount = nick.length - koreanCount - englishCount;
-  if (koreanCount > 0 && koreanCount > 6) {
-    return "최대 글자 수: 한글 6자";
-  }
-  if (englishCount + otherCount > 12) {
-    return "최대 글자 수: 영문 12자";
-  }
-  return null;
-}
-
-function validateName(name: string): string | null {
-  if (!name) return "이름을 입력해주세요.";
-  if (name.length > 30) return "이름은 30자 이하로 입력해주세요.";
-  return null;
-}
 
 export async function POST(request: Request) {
   try {

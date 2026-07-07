@@ -1,5 +1,4 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/src/lib/auth/config";
+import { requireAdminApi } from "@/src/lib/auth/session";
 import { initializeDatabase } from "@/src/lib/db";
 import { Review } from "@/src/lib/db/entities/Review";
 import { isReviewRejectionReason } from "@/src/lib/review/rejection-reasons";
@@ -15,11 +14,8 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session?.user?.id || session.user.role !== "ADMIN") {
-      return apiError("관리자 권한이 필요합니다.", { status: 403 });
-    }
+    const { response } = await requireAdminApi();
+    if (response) return response;
 
     const { id } = await params;
     const body = (await request.json()) as UpdateReviewBody;

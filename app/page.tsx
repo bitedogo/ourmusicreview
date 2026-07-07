@@ -1,12 +1,12 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { HomeHeroCopy } from "./components/home-hero-copy";
-import { HomeHeroSticky } from "./components/home-hero-sticky";
+import { HomeHeroCopy } from "@/src/components/app/home-hero-copy";
+import { HomeHeroSticky } from "@/src/components/app/home-hero-sticky";
 import { ContentContainer } from "@/src/lib/layout/content-container";
 import { PAGE_PADDING_X } from "@/src/lib/layout";
 
-const FeaturedAlbums = dynamic(() => import("./components/FeaturedAlbums"), {
+const FeaturedAlbums = dynamic(() => import("@/src/components/app/FeaturedAlbums"), {
   loading: () => (
     <section className="mt-[var(--hero-subtitle-masterpiece-gap)]">
       <div className="flex items-center justify-center py-[var(--featured-track-padding-y)]">
@@ -18,11 +18,11 @@ const FeaturedAlbums = dynamic(() => import("./components/FeaturedAlbums"), {
   ),
 });
 
-const TodayAlbumCard = dynamic(() => import("./components/TodayAlbumCard"), {
+const TodayAlbumCard = dynamic(() => import("@/src/components/app/TodayAlbumCard"), {
   loading: () => null,
 });
 
-const MusicChart = dynamic(() => import("./components/MusicChart"), {
+const MusicChart = dynamic(() => import("@/src/components/app/MusicChart"), {
   loading: () => null,
 });
 

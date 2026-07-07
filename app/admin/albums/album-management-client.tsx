@@ -4,19 +4,10 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { getPaginationItems } from "@/src/lib/utils/pagination";
-
-interface ArtistResult {
-  artistId: string;
-  artistName: string;
-  primaryGenreName?: string;
-}
-
-interface SearchAlbum {
-  collectionId: string;
-  collectionName: string;
-  artistName: string;
-  imageUrl600: string | null;
-}
+import { useItunesAlbumPicker } from "@/src/hooks/use-itunes-album-picker";
+import { ItunesAlbumSearchPanel } from "@/src/components/itunes/itunes-album-search-panel";
+import { fetchJson, getApiErrorMessage } from "@/src/lib/http/client";
+import type { SearchAlbumResult } from "@/src/lib/search/types";
 
 interface TodayAlbumItem {
   displayDate: string;
@@ -25,6 +16,11 @@ interface TodayAlbumItem {
   artist: string;
   imageUrl: string | null;
   description: string | null;
+}
+
+interface AlbumsListResponse {
+  ok: true;
+  data: { albums: TodayAlbumItem[] };
 }
 
 export function AlbumManagementClient() {
@@ -43,12 +39,7 @@ export function AlbumManagementClient() {
     imageUrl: "",
     description: "",
   });
-  const [searchQuery, setSearchQuery] = useState("");
-  const [artists, setArtists] = useState<ArtistResult[]>([]);
-  const [selectedArtist, setSelectedArtist] = useState<ArtistResult | null>(null);
-  const [artistAlbums, setArtistAlbums] = useState<SearchAlbum[]>([]);
-  const [isSearchingArtists, setIsSearchingArtists] = useState(false);
-  const [isLoadingAlbums, setIsLoadingAlbums] = useState(false);
+  const albumPicker = useItunesAlbumPicker();
   const [currentPage, setCurrentPage] = useState(1);
   const PAGE_SIZE = 20;
 
@@ -65,90 +56,25 @@ export function AlbumManagementClient() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch("/api/admin/albums");
-      const data = await response.json();
-
-      if (!response.ok || !data?.ok) {
-        setError(data?.error ?? "목록을 불러올 수 없습니다.");
-        return;
-      }
-
-      setAlbums(data?.data?.albums || []);
+      const data = await fetchJson<AlbumsListResponse>("/api/admin/albums");
+      setAlbums(data.data.albums || []);
       setCurrentPage(1);
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "목록을 불러오는 중 오류가 발생했습니다."
-      );
+      setError(getApiErrorMessage(err, "목록을 불러오는 중 오류가 발생했습니다."));
     } finally {
       setIsLoading(false);
     }
   }
 
-  async function handleArtistSearch(e?: React.FormEvent) {
-    e?.preventDefault();
-    const term = searchQuery.trim();
-    if (!term) {
-      setArtists([]);
-      setSelectedArtist(null);
-      setArtistAlbums([]);
-      return;
-    }
-    setIsSearchingArtists(true);
-    setSelectedArtist(null);
-    setArtistAlbums([]);
-    try {
-      const response = await fetch(`/api/itunes/artists?term=${encodeURIComponent(term)}`);
-      const data = await response.json();
-      if (data.ok && Array.isArray(data?.data?.artists)) {
-        setArtists(data.data.artists);
-      } else {
-        setArtists([]);
-      }
-    } catch {
-      setArtists([]);
-    } finally {
-      setIsSearchingArtists(false);
-    }
-  }
-
-  async function handleArtistSelect(artist: ArtistResult) {
-    setSelectedArtist(artist);
-    setIsLoadingAlbums(true);
-    setArtistAlbums([]);
-    try {
-      const response = await fetch(`/api/itunes/artists/${artist.artistId}/albums`);
-      const data = await response.json();
-      if (data.ok && Array.isArray(data?.data?.albums)) {
-        setArtistAlbums(data.data.albums);
-      } else {
-        setArtistAlbums([]);
-      }
-    } catch {
-      setArtistAlbums([]);
-    } finally {
-      setIsLoadingAlbums(false);
-    }
-  }
-
-  function handleBackToArtists() {
-    setSelectedArtist(null);
-    setArtistAlbums([]);
-  }
-
-  function selectAlbum(album: SearchAlbum) {
+  function selectAlbum(album: SearchAlbumResult) {
     setForm((f) => ({
       ...f,
-      albumId: String(album.collectionId),
+      albumId: album.collectionId,
       title: album.collectionName,
       artist: album.artistName,
       imageUrl: album.imageUrl600 ?? "",
     }));
-    setSelectedArtist(null);
-    setArtistAlbums([]);
-    setArtists([]);
-    setSearchQuery("");
+    albumPicker.reset();
   }
 
   function openAddModal() {
@@ -164,10 +90,7 @@ export function AlbumManagementClient() {
       imageUrl: "",
       description: "",
     });
-    setSearchQuery("");
-    setArtists([]);
-    setSelectedArtist(null);
-    setArtistAlbums([]);
+    albumPicker.reset();
     setEditingDate(null);
     setModalOpen(true);
   }
@@ -181,10 +104,7 @@ export function AlbumManagementClient() {
       imageUrl: item.imageUrl ?? "",
       description: item.description ?? "",
     });
-    setSearchQuery("");
-    setArtists([]);
-    setSelectedArtist(null);
-    setArtistAlbums([]);
+    albumPicker.reset();
     setEditingDate(item.displayDate);
     setModalOpen(true);
   }
@@ -215,22 +135,15 @@ export function AlbumManagementClient() {
 
     setProcessingIds((prev) => new Set(prev).add("submit"));
     try {
-      const response = await fetch("/api/admin/albums", {
+      await fetchJson<{ ok: true }>("/api/admin/albums", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      const data = await response.json();
-
-      if (!response.ok || !data?.ok) {
-        alert(data?.error ?? "저장에 실패했습니다.");
-        return;
-      }
-
       setModalOpen(false);
       fetchAlbums();
     } catch (err) {
-      alert(err instanceof Error ? err.message : "저장 중 오류가 발생했습니다.");
+      alert(getApiErrorMessage(err, "저장 중 오류가 발생했습니다."));
     } finally {
       setProcessingIds((prev) => {
         const next = new Set(prev);
@@ -245,20 +158,13 @@ export function AlbumManagementClient() {
 
     setProcessingIds((prev) => new Set(prev).add(displayDate));
     try {
-      const response = await fetch(
+      await fetchJson<{ ok: true }>(
         `/api/admin/albums/${encodeURIComponent(displayDate)}`,
         { method: "DELETE" }
       );
-      const data = await response.json();
-
-      if (!response.ok || !data?.ok) {
-        alert(data?.error ?? "삭제에 실패했습니다.");
-        return;
-      }
-
       setAlbums((prev) => prev.filter((a) => a.displayDate !== displayDate));
     } catch (err) {
-      alert(err instanceof Error ? err.message : "삭제 중 오류가 발생했습니다.");
+      alert(getApiErrorMessage(err, "삭제 중 오류가 발생했습니다."));
     } finally {
       setProcessingIds((prev) => {
         const next = new Set(prev);
@@ -441,122 +347,11 @@ export function AlbumManagementClient() {
               {editingDate ? "오늘의 앨범 수정" : "오늘의 앨범 등록"}
             </h2>
             <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-              <div>
-                <label className="mb-1 block text-xs font-semibold text-zinc-600">
-                  앨범 검색
-                </label>
-                <p className="mb-2 text-[11px] text-zinc-500">
-                  아티스트를 검색한 뒤 선택하고, 앨범을 골라 등록하세요.
-                </p>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleArtistSearch())}
-                    placeholder="아티스트 이름으로 검색"
-                    className="flex-1 rounded-lg border border-zinc-200 px-3 py-2 text-sm text-zinc-900 outline-none placeholder:text-zinc-400 focus:border-zinc-400 focus:ring-2 focus:ring-zinc-200"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => handleArtistSearch()}
-                    disabled={isSearchingArtists}
-                    className="rounded-lg border border-zinc-200 bg-zinc-900 px-4 py-2 text-xs font-semibold text-white transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    {isSearchingArtists ? "검색 중..." : "검색"}
-                  </button>
-                </div>
-
-                {!selectedArtist && artists.length > 0 && (
-                  <div className="mt-3 max-h-40 overflow-auto rounded-lg border border-zinc-200">
-                    {artists.map((artist) => (
-                      <button
-                        key={artist.artistId}
-                        type="button"
-                        onClick={() => handleArtistSelect(artist)}
-                        className="flex w-full items-center justify-between gap-2 px-4 py-3 text-left transition hover:bg-zinc-50"
-                      >
-                        <span className="truncate text-xs font-semibold text-zinc-900">
-                          {artist.artistName}
-                        </span>
-                        {artist.primaryGenreName && (
-                          <span className="shrink-0 text-[11px] text-zinc-500">
-                            {artist.primaryGenreName}
-                          </span>
-                        )}
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="shrink-0 text-zinc-400">
-                          <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                      </button>
-                    ))}
-                  </div>
-                )}
-
-                {selectedArtist && (
-                  <div className="mt-3">
-                    <div className="mb-2 flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={handleBackToArtists}
-                        className="flex items-center gap-1 rounded-lg border border-zinc-200 bg-white px-2 py-1.5 text-[11px] font-medium text-zinc-600 transition hover:bg-zinc-50"
-                      >
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                          <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                        아티스트 목록으로
-                      </button>
-                      <span className="text-xs font-semibold text-zinc-700">
-                        {selectedArtist.artistName}의 앨범
-                      </span>
-                    </div>
-                    {isLoadingAlbums ? (
-                      <div className="rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-6 text-center text-xs text-zinc-500">
-                        앨범 목록을 불러오는 중...
-                      </div>
-                    ) : artistAlbums.length > 0 ? (
-                      <div className="max-h-48 overflow-auto rounded-lg border border-zinc-200">
-                        {artistAlbums.map((album) => (
-                          <button
-                            key={album.collectionId}
-                            type="button"
-                            onClick={() => selectAlbum(album)}
-                            className="flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-zinc-50"
-                          >
-                            <div className="h-10 w-10 shrink-0 overflow-hidden rounded bg-zinc-100">
-                              {album.imageUrl600 ? (
-                                <Image
-                                  src={album.imageUrl600}
-                                  alt={album.collectionName ?? "앨범 커버"}
-                                  width={40}
-                                  height={40}
-                                  unoptimized
-                                  className="h-full w-full object-cover"
-                                />
-                              ) : null}
-                            </div>
-                            <div className="min-w-0 flex-1">
-                              <p className="truncate text-xs font-semibold text-zinc-900">
-                                {album.collectionName}
-                              </p>
-                              <p className="truncate text-[11px] text-zinc-500">
-                                {album.artistName}
-                              </p>
-                            </div>
-                          </button>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-6 text-center text-xs text-zinc-500">
-                        등록된 앨범이 없습니다.
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {!isSearchingArtists && !selectedArtist && artists.length === 0 && searchQuery && (
-                  <p className="mt-2 text-xs text-zinc-500">검색 결과가 없습니다.</p>
-                )}
-              </div>
+              <ItunesAlbumSearchPanel
+                picker={albumPicker}
+                onAlbumSelect={selectAlbum}
+                variant="embedded"
+              />
               <div>
                 <label className="mb-1 block text-xs font-semibold text-zinc-600">
                   노출 날짜

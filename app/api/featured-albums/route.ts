@@ -5,7 +5,7 @@ import { initializeDatabase } from "@/src/lib/db";
 import { FeaturedSlideAlbum } from "@/src/lib/db/entities/FeaturedSlideAlbum";
 import { UserSlideAlbum } from "@/src/lib/db/entities/UserSlideAlbum";
 import { Review } from "@/src/lib/db/entities/Review";
-import { noStoreJson } from "@/src/lib/http/cache";
+import { apiError, apiOk } from "@/src/lib/http/response";
 
 const MIN_FOR_USER_SLIDE = 15;
 
@@ -70,16 +70,12 @@ export async function GET(request: Request) {
       averageRating: ratingsByAlbumId[row.collectionId] ?? null,
     }));
 
-    return noStoreJson({ ok: true, albums, hasUserSlide });
+    return apiOk({ albums, hasUserSlide });
   } catch (error) {
-    return noStoreJson(
-      {
-        ok: false,
-        error:
-          error instanceof Error
-            ? error.message
-            : "명반 목록 조회 중 오류가 발생했습니다.",
-      },
+    return apiError(
+      error instanceof Error
+        ? error.message
+        : "명반 목록 조회 중 오류가 발생했습니다.",
       { status: 500 }
     );
   }
