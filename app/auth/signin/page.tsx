@@ -146,7 +146,7 @@ export default function SigninPage() {
           </button>
 
           <div className="mt-5 grid w-full grid-cols-[1fr_auto_1fr] items-center gap-2">
-            <label className="inline-flex items-center gap-2 text-sm text-[var(--color-text-secondary)] justify-self-start">
+            <label className="inline-flex items-center gap-2 text-[12px] text-[var(--color-text-secondary)] justify-self-start sm:text-sm">
               <input
                 type="checkbox"
                 checked={isRememberId}
@@ -155,7 +155,7 @@ export default function SigninPage() {
               />
               Save Id
             </label>
-            <div className="flex items-center gap-1 text-sm text-[var(--color-text-secondary)] justify-self-center">
+            <div className="flex items-center gap-1 text-[12px] text-[var(--color-text-secondary)] justify-self-center sm:text-sm">
               <button
                 type="button"
                 onClick={() => setModal("find-id")}
@@ -174,7 +174,7 @@ export default function SigninPage() {
             </div>
             <Link
               href="/auth/signup"
-              className="justify-self-end text-sm text-[var(--color-text-secondary)] transition hover:text-[var(--color-accent)]"
+              className="justify-self-end text-[12px] text-[var(--color-text-secondary)] transition hover:text-[var(--color-accent)] sm:text-sm"
             >
               Create Account
             </Link>

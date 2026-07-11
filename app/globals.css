@@ -87,12 +87,12 @@
   --featured-track-animation-duration: 72s;
 
   --hero-title-subtitle-gap: 22px;
-  --hero-subtitle-masterpiece-gap: 101px;
+  --hero-subtitle-masterpiece-gap: 72px;
   --masterpiece-slider-gap: 45px;
   --masterpiece-slider-pad-y: 16px;
-  --featured-slider-today-album-gap: 101px;
+  --featured-slider-today-album-gap: 72px;
   --today-album-title-content-gap: 45px;
-  --today-album-chart-gap: 101px;
+  --today-album-chart-gap: 72px;
   --chart-title-content-gap: 45px;
   --chart-region-track-shadow:
     inset 2px 2px 5px rgba(0, 0, 0, 0.1),
@@ -120,7 +120,7 @@
   --today-album-description-max-height: calc(var(--today-album-card-height) - 174px);
   --text-today-album-empty: 14px;
 
-  --hero-search-copy-gap: 65px;
+  --hero-search-copy-gap: 48px;
   --hero-copy-margin-top-mobile: 24px;
   --hero-copy-margin-top-desktop: 48px;
   --text-hero-title-mobile: 22px;
@@ -156,6 +156,10 @@
     --logo-width: 141px;
     --logo-height: 72.9px;
     --featured-track-margin-top: 48px;
+    --hero-search-copy-gap: 65px;
+    --hero-subtitle-masterpiece-gap: 101px;
+    --featured-slider-today-album-gap: 101px;
+    --today-album-chart-gap: 101px;
   }
 }
 

@@ -53,24 +53,26 @@ export default function MusicChart() {
               className="group flex flex-col"
               aria-label={`${album.rank}위 ${album.artist} - ${album.title} 리뷰 페이지로 이동`}
             >
-              <div className="relative aspect-square w-full overflow-hidden rounded-[var(--featured-card-radius)] border border-[var(--color-border)] bg-zinc-100 shadow-md transition-transform duration-300 group-hover:scale-105">
-                {album.imageUrl ? (
-                  <Image
-                    src={album.imageUrl}
-                    alt={`${album.title} cover`}
-                    fill
-                    unoptimized
-                    sizes="(max-width: 640px) 50vw, 20vw"
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center text-[length:var(--text-featured-meta)] text-[var(--color-text-muted)]">
-                    {ALBUM_COVER_PLACEHOLDER}
-                  </div>
-                )}
-                <span className="absolute left-0 top-0 flex h-7 w-7 items-center justify-center rounded-br-[var(--featured-card-radius)] bg-[var(--color-accent)] text-sm font-bold text-white">
-                  {album.rank}
-                </span>
+              <div className="overflow-hidden rounded-[var(--featured-card-radius)] border border-[var(--color-border)] bg-zinc-100 shadow-md transition-transform duration-300 group-hover:scale-105">
+                <div className="relative aspect-square w-full">
+                  {album.imageUrl ? (
+                    <Image
+                      src={album.imageUrl}
+                      alt={`${album.title} cover`}
+                      fill
+                      unoptimized
+                      sizes="(max-width: 640px) 50vw, 20vw"
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center text-[length:var(--text-featured-meta)] text-[var(--color-text-muted)]">
+                      {ALBUM_COVER_PLACEHOLDER}
+                    </div>
+                  )}
+                  <span className="absolute left-0 top-0 flex h-7 w-7 items-center justify-center rounded-br-[var(--featured-card-radius)] bg-[var(--color-accent)] text-sm font-bold text-white">
+                    {album.rank}
+                  </span>
+                </div>
               </div>
 
               <h3 className="mt-[var(--featured-card-title-artist-gap)] truncate text-left text-[length:var(--text-featured-title)] font-bold text-[var(--color-text-primary)]">

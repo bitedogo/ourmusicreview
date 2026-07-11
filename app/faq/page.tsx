@@ -85,12 +85,12 @@ export default function FaqPage() {
               <button
                 type="button"
                 onClick={() => setExpandedId(isExpanded ? null : faq.id)}
-                className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left transition hover:bg-zinc-50"
+                className="group flex w-full items-center justify-between gap-4 px-5 py-4 text-left"
               >
-                <span className="flex-1 text-base font-medium text-zinc-900">
+                <span className="flex-1 text-base font-medium text-zinc-900 transition-colors group-hover:text-[#43A7B2]">
                   {faq.question}
                 </span>
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-[var(--color-brand-primary)] text-white">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-[#43A7B2] text-white transition-colors group-hover:bg-[#3796A0]">
                   {isExpanded ? "−" : "+"}
                 </span>
               </button>
@@ -111,7 +111,7 @@ export default function FaqPage() {
           <button
             type="button"
             onClick={loadMore}
-            className="rounded-full bg-[var(--color-brand-primary)] px-8 py-3 text-sm font-medium text-white transition hover:bg-[var(--color-brand-primary-hover)]"
+            className="rounded-full bg-[#43A7B2] px-8 py-3 text-sm font-medium text-white transition-colors hover:bg-[#3796A0]"
           >
             더 보기
           </button>
