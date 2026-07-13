@@ -365,7 +365,7 @@ export default function SignupPage() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="inline-flex w-full items-center justify-center rounded-full bg-[#43A7B2] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#3796A0] disabled:cursor-not-allowed disabled:bg-zinc-400"
+          className="inline-flex w-full items-center justify-center rounded-full bg-[var(--color-brand-primary)] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[var(--color-brand-primary-hover)] disabled:cursor-not-allowed disabled:bg-zinc-400"
         >
           {isSubmitting ? "처리 중..." : "회원가입"}
         </button>

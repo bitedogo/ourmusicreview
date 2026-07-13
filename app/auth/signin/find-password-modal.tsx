@@ -85,7 +85,7 @@ export function FindPasswordModal({ onClose }: FindPasswordModalProps) {
               <button
                 type="button"
                 onClick={onClose}
-                className="h-[32.12px] w-[64.14px] rounded-[7px] bg-[#43A7B2] text-[13px] font-medium text-white transition hover:bg-[#3796A0]"
+                className="h-[32.12px] w-[64.14px] rounded-[7px] bg-[var(--color-brand-primary)] text-[13px] font-medium text-white transition hover:bg-[var(--color-brand-primary-hover)]"
               >
                 확인
               </button>
@@ -124,7 +124,7 @@ export function FindPasswordModal({ onClose }: FindPasswordModalProps) {
               <button
                 type="submit"
                 disabled={submitting}
-                className="h-[32.12px] w-[64.14px] rounded-[7px] bg-[#43A7B2] text-[13px] font-medium text-white transition hover:bg-[#3796A0] disabled:cursor-not-allowed disabled:bg-zinc-400"
+                className="h-[32.12px] w-[64.14px] rounded-[7px] bg-[var(--color-brand-primary)] text-[13px] font-medium text-white transition hover:bg-[var(--color-brand-primary-hover)] disabled:cursor-not-allowed disabled:bg-zinc-400"
               >
                 {submitting ? "처리 중..." : "다음"}
               </button>

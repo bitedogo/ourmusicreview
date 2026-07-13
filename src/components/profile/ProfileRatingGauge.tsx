@@ -51,8 +51,8 @@ export function ProfileRatingGauge({
         <svg viewBox="0 0 128 88" className="h-full w-full" aria-hidden>
           <defs>
             <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#5c6ba3" />
-              <stop offset="100%" stopColor="#1E264D" />
+              <stop offset="0%" stopColor="#7BC4CC" />
+              <stop offset="100%" stopColor="#43A7B2" />
             </linearGradient>
             <path id={pathId} d="M 8 56 A 56 56 0 0 1 120 56" fill="none" />
           </defs>
@@ -74,11 +74,11 @@ export function ProfileRatingGauge({
             strokeLinejoin="round"
             style={{ transition: "stroke-dashoffset 0.6s ease-out" }}
           />
-          <circle cx={dotX} cy={dotY} r="5" fill="white" stroke="#1E264D" strokeWidth="2" />
+          <circle cx={dotX} cy={dotY} r="5" fill="white" stroke="#43A7B2" strokeWidth="2" />
           <text
             fontSize="5"
             fontWeight={reviewerType === "harsh" ? 600 : 500}
-            fill={reviewerType === "harsh" ? "#1E264D" : "#71717a"}
+            fill={reviewerType === "harsh" ? "#43A7B2" : "#71717a"}
           >
             <textPath href={`#${pathId}`} startOffset="12%" textAnchor="middle">
               Harsh Reviewer
@@ -87,7 +87,7 @@ export function ProfileRatingGauge({
           <text
             fontSize="5"
             fontWeight={reviewerType === "critical" ? 600 : 500}
-            fill={reviewerType === "critical" ? "#1E264D" : "#71717a"}
+            fill={reviewerType === "critical" ? "#43A7B2" : "#71717a"}
           >
             <textPath href={`#${pathId}`} startOffset="50%" textAnchor="middle">
               Critical Reviewer
@@ -96,7 +96,7 @@ export function ProfileRatingGauge({
           <text
             fontSize="5"
             fontWeight={reviewerType === "light" ? 600 : 500}
-            fill={reviewerType === "light" ? "#1E264D" : "#71717a"}
+            fill={reviewerType === "light" ? "#43A7B2" : "#71717a"}
           >
             <textPath href={`#${pathId}`} startOffset="88%" textAnchor="middle">
               Light Reviewer
@@ -104,7 +104,7 @@ export function ProfileRatingGauge({
           </text>
         </svg>
         <div className="absolute -bottom-1 left-1/2 -translate-x-1/2">
-          <span className="text-3xl font-bold text-[#1E264D] sm:text-4xl md:text-5xl">
+          <span className="text-3xl font-bold text-[var(--color-brand-primary)] sm:text-4xl md:text-5xl">
             {displayRating.toFixed(1)}
           </span>
         </div>
@@ -112,7 +112,7 @@ export function ProfileRatingGauge({
       <p className="text-center text-xs font-medium text-zinc-600">
         평론가 <span className="font-semibold text-zinc-900">{nickname}</span> 님의 평균평점
       </p>
-      <p className="text-center text-base font-bold text-[#1E264D]">{ratingComment}</p>
+      <p className="text-center text-base font-bold text-[var(--color-brand-primary)]">{ratingComment}</p>
     </div>
   );
 }

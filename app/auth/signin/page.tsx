@@ -140,7 +140,7 @@ export default function SigninPage() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="mt-3 inline-flex h-[var(--auth-button-height)] w-full items-center justify-center rounded-[var(--auth-field-radius)] bg-[#43A7B2] text-sm font-bold uppercase tracking-wide text-white transition hover:bg-[#3796A0] disabled:cursor-not-allowed disabled:bg-zinc-400"
+            className="mt-3 inline-flex h-[var(--auth-button-height)] w-full items-center justify-center rounded-[var(--auth-field-radius)] bg-[var(--color-brand-primary)] text-sm font-bold uppercase tracking-wide text-white transition hover:bg-[var(--color-brand-primary-hover)] disabled:cursor-not-allowed disabled:bg-zinc-400"
           >
             {isSubmitting ? "Logging in..." : "Login"}
           </button>
@@ -188,7 +188,7 @@ export default function SigninPage() {
           className="group mt-10 inline-flex items-center justify-center gap-2 rounded-full px-3 py-1.5"
         >
           <Image src="/social/google.svg" alt="" width={30} height={30} unoptimized />
-          <span className="text-sm font-semibold text-[#43A7B2] transition-colors group-hover:text-[#3796A0]">Google Login</span>
+          <span className="text-sm font-semibold text-[var(--color-brand-primary)] transition-colors group-hover:text-[var(--color-brand-primary-hover)]">Google Login</span>
         </button>
       </div>
 

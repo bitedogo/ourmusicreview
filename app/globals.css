@@ -5,10 +5,10 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  --color-brand-primary: #1E264D;
-  --color-brand-primary-hover: #151B38;
+  --color-brand-primary: #43A7B2;
+  --color-brand-primary-hover: #3796A0;
   --color-accent: #43A7B2;
-  --color-accent-hover: #3a96a0;
+  --color-accent-hover: #3796A0;
   --color-subtitle: #C3DADD;
   --color-rating-label: #11747C;
   --color-rating-score-high: #F82512;
