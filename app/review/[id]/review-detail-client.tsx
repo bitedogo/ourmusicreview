@@ -53,7 +53,9 @@ interface AlbumRatingResponse {
 export function ReviewDetailClient({ reviewId }: { reviewId: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const fromReviews = searchParams.get("from") === "reviews";
+  const from = searchParams.get("from");
+  const fromReviews = from === "reviews";
+  const fromMyReviews = from === "my-reviews";
   const backSort = searchParams.get("sort") || "latest";
   const backPage = searchParams.get("page") || "1";
   const { data: session } = useSession();
@@ -64,13 +66,31 @@ export function ReviewDetailClient({ reviewId }: { reviewId: string }) {
 
   const isOwner = session?.user?.id === review?.userId || (session?.user as { role?: string })?.role === "ADMIN";
 
+  function getBackHref() {
+    if (fromReviews) {
+      return `/reviews?sort=${encodeURIComponent(backSort)}&page=${encodeURIComponent(backPage)}`;
+    }
+    if (fromMyReviews) {
+      return "/profile/reviews";
+    }
+    return null;
+  }
+
+  function handleGoBack() {
+    const href = getBackHref();
+    if (href) {
+      router.push(href);
+      return;
+    }
+    router.back();
+  }
+
   const handleDelete = async () => {
     if (!confirm("정말로 이 리뷰를 삭제하시겠습니까?")) return;
     if (!review) return;
 
-    const redirectPath = fromReviews
-      ? `/reviews?sort=${encodeURIComponent(backSort)}&page=${encodeURIComponent(backPage)}`
-      : `/review/album/${encodeURIComponent(review.albumId)}`;
+    const redirectPath =
+      getBackHref() ?? `/review/album/${encodeURIComponent(review.albumId)}`;
 
     try {
       await fetchJson<{ ok: boolean }>(`/api/reviews/${reviewId}`, {
@@ -127,7 +147,7 @@ export function ReviewDetailClient({ reviewId }: { reviewId: string }) {
           {error ?? "리뷰를 찾을 수 없습니다."}
         </div>
         <button
-          onClick={() => router.back()}
+          onClick={handleGoBack}
           className="rounded-full border border-zinc-200 bg-white px-4 py-2 text-xs font-semibold text-zinc-700 hover:bg-zinc-50"
         >
           뒤로 가기
@@ -141,12 +161,9 @@ export function ReviewDetailClient({ reviewId }: { reviewId: string }) {
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-3xl flex-col gap-6 px-6 py-10 sm:px-16">
       <section className="space-y-2">
-        <Link
-          href={
-            fromReviews
-              ? `/reviews?sort=${encodeURIComponent(backSort)}&page=${encodeURIComponent(backPage)}`
-              : `/review/album/${encodeURIComponent(review.albumId)}`
-          }
+        <button
+          type="button"
+          onClick={handleGoBack}
           className="mb-4 flex w-fit items-center gap-2 text-sm text-zinc-600 hover:text-[var(--color-brand-primary)]"
         >
           <svg
@@ -164,8 +181,8 @@ export function ReviewDetailClient({ reviewId }: { reviewId: string }) {
               strokeLinejoin="round"
             />
           </svg>
-          {fromReviews ? "앨범 리뷰로" : "뒤로가기"}
-        </Link>
+          {fromReviews ? "리뷰 목록으로" : fromMyReviews ? "나의 리뷰로" : "뒤로가기"}
+        </button>
         <h1 className="text-xl font-semibold tracking-tight">리뷰 상세</h1>
       </section>
 

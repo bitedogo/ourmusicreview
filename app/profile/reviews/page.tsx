@@ -52,7 +52,7 @@ export default function MyReviewsPage() {
         {reviews.map((review) => (
           <Link
             key={review.id}
-            href={`/review/${encodeURIComponent(review.id)}`}
+            href={`/review/${encodeURIComponent(review.id)}?from=my-reviews`}
             className="block rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm transition hover:border-zinc-300 hover:shadow-md"
           >
             <div className="flex items-start gap-4">
