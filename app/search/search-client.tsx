@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { AlbumDetailModal } from "@/src/components/album/album-detail-modal";
 import { ArtistSearchBar } from "@/src/components/app/artist-search-bar";
 import { DuplicateReviewModal } from "@/src/components/common/duplicate-review-modal";
 import { EmptyState } from "@/src/components/common/empty-state";
@@ -9,6 +10,7 @@ import { useArtistAutocomplete } from "@/src/hooks/use-artist-autocomplete";
 import { useBatchAlbumRatings } from "@/src/hooks/use-batch-album-ratings";
 import { useBatchStreamingLinks } from "@/src/hooks/use-streaming-links";
 import { useFavoriteAlbumIds } from "@/src/hooks/use-favorite-album-ids";
+import type { AlbumDetail, AlbumDetailResponse } from "@/src/lib/album/detail-types";
 import { ApiClientError, fetchJson, getApiErrorMessage } from "@/src/lib/http/client";
 import type { ItunesArtistResult } from "@/src/lib/itunes/types";
 import { buildArtistSearchPath } from "@/src/lib/itunes/search";
@@ -50,6 +52,11 @@ export function SearchClient() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isDuplicateModalOpen, setIsDuplicateModalOpen] = useState(false);
   const [checkingReviewAlbumId, setCheckingReviewAlbumId] = useState<string | null>(null);
+  const [detailAlbum, setDetailAlbum] = useState<AlbumDetail | null>(null);
+  const [detailAlbumId, setDetailAlbumId] = useState<string | null>(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [isDetailLoading, setIsDetailLoading] = useState(false);
+  const [detailError, setDetailError] = useState<string | null>(null);
 
   const albumIdsKey = useMemo(
     () => albums.map((album) => album.collectionId.toString()).join(","),
@@ -115,6 +122,28 @@ export function SearchClient() {
       setAlbums([]);
     } finally {
       setIsLoadingAlbums(false);
+    }
+  }, []);
+
+  const handleAlbumCoverClick = useCallback(async (album: SearchAlbumResult) => {
+    const albumId = album.collectionId.toString();
+    setIsDetailOpen(true);
+    setIsDetailLoading(true);
+    setDetailError(null);
+    setDetailAlbum(null);
+    setDetailAlbumId(albumId);
+
+    try {
+      const data = await fetchJson<AlbumDetailResponse>(
+        `/api/itunes/album-detail?collectionId=${encodeURIComponent(album.collectionId)}`
+      );
+      setDetailAlbum(data.data.album);
+    } catch (error) {
+      setDetailError(
+        getApiErrorMessage(error, "iTunes에서 앨범 정보를 불러오지 못했습니다.")
+      );
+    } finally {
+      setIsDetailLoading(false);
     }
   }, []);
 
@@ -225,6 +254,7 @@ export function SearchClient() {
                     isCheckingReview={checkingReviewAlbumId === albumId}
                     onToggleFavorite={toggleFavorite}
                     onRegister={handleRegister}
+                    onCoverClick={handleAlbumCoverClick}
                   />
                 );
               })}
@@ -242,6 +272,19 @@ export function SearchClient() {
       {isDuplicateModalOpen && (
         <DuplicateReviewModal onClose={() => setIsDuplicateModalOpen(false)} />
       )}
+
+      <AlbumDetailModal
+        isOpen={isDetailOpen}
+        onClose={() => {
+          setIsDetailOpen(false);
+          setDetailError(null);
+          setDetailAlbumId(null);
+        }}
+        album={detailAlbum}
+        streamingLinks={detailAlbumId ? streamingLinksByAlbumId[detailAlbumId] : null}
+        isLoading={isDetailLoading}
+        error={detailError}
+      />
     </ContentContainer>
   );
 }

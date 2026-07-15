@@ -16,6 +16,7 @@ export async function getSpotifyAccessToken(): Promise<string | null> {
     const credentials = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
     const response = await fetch(TOKEN_URL, {
       method: "POST",
+      cache: "no-store",
       headers: {
         Authorization: `Basic ${credentials}`,
         "Content-Type": "application/x-www-form-urlencoded",

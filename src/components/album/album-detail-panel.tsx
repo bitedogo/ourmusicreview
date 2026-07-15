@@ -1,0 +1,81 @@
+"use client";
+
+import type { AlbumDetail, AlbumDetailTrack } from "@/src/lib/album/detail-types";
+
+interface AlbumDetailPanelProps {
+  album: AlbumDetail;
+}
+
+function formatDuration(ms: number) {
+  const totalSec = Math.max(0, Math.floor(ms / 1000));
+  const min = Math.floor(totalSec / 60);
+  const sec = totalSec % 60;
+  return `${min}:${String(sec).padStart(2, "0")}`;
+}
+
+export function formatAlbumReleaseDate(date: string, precision: string) {
+  if (!date) return "-";
+  if (precision === "year") return date.slice(0, 4);
+  if (precision === "month") return date.slice(0, 7);
+  return date;
+}
+
+function groupTracksByDisc(tracks: AlbumDetailTrack[]) {
+  const byDisc = new Map<number, AlbumDetailTrack[]>();
+  for (const track of tracks) {
+    const disc = track.discNumber > 0 ? track.discNumber : 1;
+    const list = byDisc.get(disc) ?? [];
+    list.push(track);
+    byDisc.set(disc, list);
+  }
+  return Array.from(byDisc.entries()).sort(([a], [b]) => a - b);
+}
+
+export function AlbumDetailPanel({ album }: AlbumDetailPanelProps) {
+  const discGroups = album.tracks.length ? groupTracksByDisc(album.tracks) : [];
+  const showDiscHeaders = discGroups.length > 1;
+
+  return (
+    <div className="space-y-3">
+      {discGroups.length > 0 && (
+        <div>
+          <h4 className="text-sm font-semibold text-zinc-800">트랙리스트</h4>
+          <div className="mt-2 max-h-64 overflow-y-auto rounded-xl border border-zinc-200 bg-zinc-50">
+            {discGroups.map(([discNumber, tracks]) => (
+              <div key={discNumber}>
+                {showDiscHeaders && (
+                  <div className="sticky top-0 border-b border-zinc-200 bg-zinc-100 px-3 py-1.5 text-xs font-semibold text-zinc-600">
+                    Disc {discNumber}
+                  </div>
+                )}
+                <ul>
+                  {tracks.map((track) => (
+                    <li
+                      key={track.id}
+                      className="flex items-center justify-between gap-3 border-b border-zinc-200 px-3 py-2 text-sm text-zinc-700 last:border-b-0"
+                    >
+                      <span className="min-w-0 flex-1 truncate">
+                        <span className="mr-2 font-medium text-zinc-400">{track.trackNumber}.</span>
+                        {track.title}
+                        {track.explicit ? (
+                          <span className="ml-1 text-[10px] font-semibold text-zinc-400">E</span>
+                        ) : null}
+                      </span>
+                      <span className="shrink-0 text-xs text-zinc-500">
+                        {formatDuration(track.durationMs)}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {album.copyrights.length > 0 && (
+        <p className="text-[11px] leading-relaxed text-zinc-400">{album.copyrights.join(" · ")}</p>
+      )}
+    </div>
+  );
+}

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { StreamingLinkButtons } from "@/src/components/streaming/streaming-link-buttons";
+import { useArtistSearchNavigation } from "@/src/hooks/use-artist-search-navigation";
 import { useStreamingLinks } from "@/src/hooks/use-streaming-links";
 import type { TodayAlbumData } from "@/src/lib/today-album/types";
 
@@ -15,6 +16,7 @@ export function TodayAlbumDescription({ album, resetKey }: TodayAlbumDescription
   const [prevResetKey, setPrevResetKey] = useState(resetKey);
   const description = album.description?.trim() ?? "";
   const streamingLinks = useStreamingLinks(album.albumId);
+  const { isNavigating, navigateToArtistAlbums } = useArtistSearchNavigation();
 
   if (resetKey !== prevResetKey) {
     setPrevResetKey(resetKey);
@@ -31,12 +33,15 @@ export function TodayAlbumDescription({ album, resetKey }: TodayAlbumDescription
           >
             {album.title}
           </h3>
-          <p
-            className="truncate text-[length:var(--text-today-album-artist)] font-bold tracking-[var(--tracking-ui)] text-[var(--color-text-secondary)]"
+          <button
+            type="button"
+            onClick={() => void navigateToArtistAlbums(album.artist)}
+            disabled={isNavigating || !album.artist.trim()}
+            className="mt-0.5 max-w-full truncate text-left text-[length:var(--text-today-album-artist)] font-bold tracking-[var(--tracking-ui)] text-[var(--color-text-secondary)] transition hover:text-[var(--color-brand-primary)] hover:underline disabled:cursor-wait disabled:no-underline"
             title={album.artist}
           >
             {album.artist}
-          </p>
+          </button>
         </div>
         <StreamingLinkButtons links={streamingLinks} className="shrink-0" />
       </div>

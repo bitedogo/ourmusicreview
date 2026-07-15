@@ -116,7 +116,9 @@ async function fetchItunesAlbumLinks(numericId: number): Promise<AlbumStreamingL
 
   const [odesli, spotifySearch, deezer] = await Promise.all([
     fetchOdesliLinks(appleMusicUrl),
-    hasMeta ? searchSpotifyAlbumUrl(artist, title) : Promise.resolve(undefined),
+    hasMeta
+      ? searchSpotifyAlbumUrl(artist, title, { collectionId: String(numericId) })
+      : Promise.resolve(undefined),
     hasMeta ? searchDeezerAlbumUrl(artist, title) : Promise.resolve(undefined),
   ]);
 

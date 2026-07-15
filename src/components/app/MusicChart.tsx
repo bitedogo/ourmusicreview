@@ -3,14 +3,16 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import { useArtistSearchNavigation } from "@/src/hooks/use-artist-search-navigation";
 import { useMusicChart } from "@/src/hooks/use-chart";
-import { buildAlbumReviewPath } from "@/src/lib/utils/album";
 import { ALBUM_COVER_PLACEHOLDER } from "@/src/lib/site/copy";
 import { CHART_REGIONS, type ChartRegion } from "@/src/lib/chart/types";
+import { buildAlbumReviewPath } from "@/src/lib/utils/album";
 
 export default function MusicChart() {
   const [region, setRegion] = useState<ChartRegion>("kr");
   const { albums, isLoading } = useMusicChart(region);
+  const { navigateToArtistAlbums } = useArtistSearchNavigation();
 
   if (albums.length === 0 && isLoading) {
     return null;
@@ -47,7 +49,7 @@ export default function MusicChart() {
 
       <ul className="mt-[var(--featured-track-padding-y)] grid grid-cols-2 gap-x-[var(--featured-card-margin-x)] gap-y-[var(--today-album-layout-gap-mobile)] sm:grid-cols-5">
         {albums.map((album) => (
-          <li key={album.collectionId}>
+          <li key={album.collectionId} className="flex flex-col">
             <Link
               href={buildAlbumReviewPath(album.collectionId)}
               className="group flex flex-col"
@@ -78,10 +80,16 @@ export default function MusicChart() {
               <h3 className="mt-[var(--featured-card-title-artist-gap)] truncate text-left text-[length:var(--text-featured-title)] font-bold text-[var(--color-text-primary)]">
                 {album.title}
               </h3>
-              <p className="truncate text-left text-[length:var(--text-featured-artist)] text-[var(--color-text-secondary)]">
-                {album.artist}
-              </p>
             </Link>
+            <button
+              type="button"
+              onClick={() => void navigateToArtistAlbums(album.artist, album.artistId)}
+              disabled={!album.artist.trim()}
+              className="truncate text-left text-[length:var(--text-featured-artist)] text-[var(--color-text-secondary)] transition hover:text-[var(--color-brand-primary)] hover:underline disabled:cursor-default disabled:no-underline"
+              title={album.artist}
+            >
+              {album.artist}
+            </button>
           </li>
         ))}
       </ul>

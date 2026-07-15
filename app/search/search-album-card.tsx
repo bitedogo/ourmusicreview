@@ -18,6 +18,7 @@ interface SearchAlbumCardProps {
   isCheckingReview: boolean;
   onToggleFavorite: (album: SearchAlbumResult) => void;
   onRegister: (album: SearchAlbumResult) => void;
+  onCoverClick?: (album: SearchAlbumResult) => void;
 }
 
 export function SearchAlbumCard({
@@ -28,6 +29,7 @@ export function SearchAlbumCard({
   isCheckingReview,
   onToggleFavorite,
   onRegister,
+  onCoverClick,
 }: SearchAlbumCardProps) {
   const router = useRouter();
   const albumId = album.collectionId.toString();
@@ -40,20 +42,30 @@ export function SearchAlbumCard({
     <div className="flex flex-col rounded-[var(--featured-card-radius)] bg-white p-[var(--featured-card-padding)]">
       <div className="text-left">
         <div className="relative mb-[var(--featured-card-inner-gap)] aspect-square overflow-hidden rounded-[var(--featured-cover-radius)]">
-          {album.imageUrl600 ? (
-            <Image
-              src={album.imageUrl600}
-              alt={album.collectionName}
-              fill
-              unoptimized
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-              className="h-full w-full object-contain"
-            />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center bg-zinc-100 text-[length:var(--text-featured-meta)] text-[var(--color-text-muted)]">
-              {ALBUM_COVER_PLACEHOLDER}
-            </div>
-          )}
+          <button
+            type="button"
+            onClick={() => onCoverClick?.(album)}
+            className="group relative block h-full w-full text-left"
+            aria-label={`${album.collectionName} 상세 정보 보기`}
+          >
+            {album.imageUrl600 ? (
+              <Image
+                src={album.imageUrl600}
+                alt={album.collectionName}
+                fill
+                unoptimized
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                className="h-full w-full object-contain transition group-hover:scale-[1.02]"
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center bg-zinc-100 text-[length:var(--text-featured-meta)] text-[var(--color-text-muted)]">
+                {ALBUM_COVER_PLACEHOLDER}
+              </div>
+            )}
+            <span className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/55 to-transparent px-2 py-2 text-center text-[11px] font-medium text-white opacity-0 transition group-hover:opacity-100">
+              상세 보기
+            </span>
+          </button>
         </div>
 
         <div className="min-h-[80px] flex-1 space-y-1">

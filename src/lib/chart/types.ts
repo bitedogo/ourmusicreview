@@ -20,6 +20,7 @@ export interface ChartAlbum {
   collectionId: string;
   title: string;
   artist: string;
+  artistId: string | null;
   imageUrl: string | null;
   genre: string;
   releaseDate: string;

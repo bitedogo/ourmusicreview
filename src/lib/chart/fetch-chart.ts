@@ -10,6 +10,7 @@ interface AppleRssAlbum {
   id?: string;
   name?: string;
   artistName?: string;
+  artistId?: string;
   artworkUrl100?: string;
   releaseDate?: string;
   genres?: { name?: string }[];
@@ -33,6 +34,7 @@ function mapAlbum(album: AppleRssAlbum, index: number): ChartAlbum | null {
     collectionId: album.id,
     title: album.name ?? "",
     artist: album.artistName ?? "",
+    artistId: album.artistId?.trim() || null,
     imageUrl: getLargeImageUrl(album.artworkUrl100),
     genre: pickGenre(album.genres),
     releaseDate: album.releaseDate ?? "",
@@ -67,7 +69,7 @@ export async function getMusicChart(
 ): Promise<ChartAlbum[]> {
   return unstable_cache(
     async () => fetchAppleChart(storefront, limit),
-    [`music-chart-${storefront}-${limit}`],
+    [`music-chart-v2-${storefront}-${limit}`],
     { revalidate: 60 * 60 * 6 }
   )();
 }
