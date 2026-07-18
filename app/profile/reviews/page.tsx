@@ -1,4 +1,5 @@
 "use client";
+/** 내 리뷰 목록 페이지 */
 
 import Link from "next/link";
 import Image from "next/image";

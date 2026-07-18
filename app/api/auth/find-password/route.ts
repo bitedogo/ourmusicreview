@@ -1,3 +1,5 @@
+/** POST 비밀번호 찾기·재설정 */
+
 import bcrypt from "bcryptjs";
 import { initializeDatabase } from "@/src/lib/db";
 import { User } from "@/src/lib/db/entities/User";

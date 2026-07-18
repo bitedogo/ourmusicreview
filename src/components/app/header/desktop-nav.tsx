@@ -1,3 +1,5 @@
+/** 데스크톱 헤더 네비게이션 */
+
 import Link from "next/link";
 import { ADMIN_LINKS, NAV_LINKS } from "@/src/lib/navigation/nav-config";
 import { HeaderDropdownPanel } from "./header-dropdown-panel";

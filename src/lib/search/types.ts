@@ -1,3 +1,5 @@
+/** 검색 결과·쿼리 타입 */
+
 import type { ItunesArtistResult } from "@/src/lib/itunes/types";
 
 export interface SearchAlbumResult {

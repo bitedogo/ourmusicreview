@@ -1,3 +1,5 @@
+/** 오늘의 앨범 타입 */
+
 export interface TodayAlbumPayload {
   displayDate: string;
   albumId: string | null;

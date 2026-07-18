@@ -1,3 +1,5 @@
+/** Featured 앨범 슬라이드 타입 */
+
 export interface FeaturedAlbumCardData {
   collectionId: string;
   title: string;

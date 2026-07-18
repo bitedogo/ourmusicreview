@@ -1,3 +1,5 @@
+/** POST 콘텐츠 신고 */
+
 import { requireSessionApi } from "@/src/lib/auth/session";
 import { initializeDatabase } from "@/src/lib/db";
 import { Report } from "@/src/lib/db/entities/Report";

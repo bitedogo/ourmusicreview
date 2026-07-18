@@ -1,4 +1,5 @@
 "use client";
+/** 타인 유저 프로필 클라이언트 */
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";

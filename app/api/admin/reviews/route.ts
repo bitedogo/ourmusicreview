@@ -1,3 +1,5 @@
+/** GET 관리자 리뷰 승인 대기 목록 */
+
 import { IsNull } from "typeorm";
 import { requireAdminApi } from "@/src/lib/auth/session";
 import { initializeDatabase } from "@/src/lib/db";

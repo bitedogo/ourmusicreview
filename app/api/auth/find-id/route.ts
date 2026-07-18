@@ -1,3 +1,5 @@
+/** POST 아이디 찾기 */
+
 import { initializeDatabase } from "@/src/lib/db";
 import { User } from "@/src/lib/db/entities/User";
 import { apiError, apiOk } from "@/src/lib/http/response";

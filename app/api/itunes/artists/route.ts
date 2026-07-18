@@ -1,3 +1,5 @@
+/** GET iTunes 아티스트 검색 */
+
 import { searchArtists } from "@/src/lib/itunes";
 import { apiError, apiOk } from "@/src/lib/http/response";
 

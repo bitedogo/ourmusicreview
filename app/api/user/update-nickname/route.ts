@@ -1,3 +1,5 @@
+/** POST 닉네임 변경 */
+
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/src/lib/auth/config";
 import { initializeDatabase } from "@/src/lib/db";

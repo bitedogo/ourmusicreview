@@ -1,3 +1,5 @@
+/** GET/PATCH/DELETE 커뮤니티 게시글 상세·수정·삭제 */
+
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/src/lib/auth/config";
 import { initializeDatabase } from "@/src/lib/db";

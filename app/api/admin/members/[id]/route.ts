@@ -1,3 +1,5 @@
+/** GET/PATCH/DELETE 관리자 회원 상세·수정·삭제 */
+
 import { requireAdminApi } from "@/src/lib/auth/session";
 import { initializeDatabase } from "@/src/lib/db";
 import { User } from "@/src/lib/db/entities/User";

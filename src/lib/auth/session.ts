@@ -1,3 +1,5 @@
+/** 서버 세션·관리자 페이지 가드 */
+
 import { getServerSession, type Session } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/src/lib/auth/config";

@@ -1,4 +1,5 @@
 "use client";
+/** 검색 결과 클라이언트(앨범·아티스트) */
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";

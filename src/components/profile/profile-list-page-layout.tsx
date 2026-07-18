@@ -1,4 +1,5 @@
 "use client";
+/** 프로필 하위 목록 페이지 레이아웃 */
 
 import { useRouter } from "next/navigation";
 

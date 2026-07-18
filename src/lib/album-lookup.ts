@@ -1,3 +1,5 @@
+/** 앨범 ID·메타 룩업 헬퍼 */
+
 import type { AlbumDetail } from "@/src/lib/album/types";
 import { getAlbumByCollectionId } from "@/src/lib/itunes";
 

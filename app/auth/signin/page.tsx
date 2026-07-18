@@ -1,4 +1,5 @@
 "use client";
+/** 로그인 페이지 */
 
 import Link from "next/link";
 import Image from "next/image";

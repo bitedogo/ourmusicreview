@@ -1,118 +1,423 @@
 "use client";
 
+/** 프로필 평균 평점 게이지 */
+
 import { useId, useMemo } from "react";
-import { ProfileReviewItem, RATING_COMMENTS } from "./profile-types";
+import { ProfileReviewItem } from "./profile-types";
+
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
 
 interface ProfileRatingGaugeProps {
   reviews: ProfileReviewItem[];
-  nickname: string;
   averageRating?: number;
+  /** 바만 렌더 — 부모에서 점수/라벨 배치 (데스크톱 레이아웃) */
+  barOnly?: boolean;
+  /** mobileVertical: Frame 23 세로 게이지 */
+  variant?: "default" | "mobileVertical";
 }
+
+// ---------------------------------------------------------------------------
+// Desktop wedge geometry (design SVG)
+// ---------------------------------------------------------------------------
+
+const GAUGE_W = 565;
+const GAUGE_H = 182;
+const FADE_PX = 72;
+const TICK_FRACTIONS = [0.2, 0.4, 0.6, 0.8];
+
+const WEDGE_OUTER =
+  "M554.23 1.20215C559.236 0.067119 564 3.8717 564 9.00391V172.734C564 177.153 560.418 180.734 556 180.734H9C4.58172 180.734 1 177.153 1 172.734V133.049C1.00013 129.312 3.5866 126.074 7.23047 125.247L554.23 1.20215Z";
+
+const WEDGE_INNER =
+  "M550.23 5.20215C555.236 4.06712 560 7.8717 560 13.00391V168.734C560 173.153 556.418 176.734 552 176.734H13C8.58172 176.734 5 173.153 5 168.734V137.049C5.00013 133.312 7.5866 130.074 11.23047 129.247L550.23 5.20215Z";
+
+const INNER_LEFT_X = 13;
+const INNER_RIGHT_X = 552;
+const INNER_BOTTOM_Y = 176.734;
+const SLOPE_LEFT_X = 11.23047;
+const SLOPE_LEFT_Y = 129.247;
+const SLOPE_RIGHT_X = 550.23;
+const SLOPE_RIGHT_Y = 5.20215;
+
+function innerTopY(x: number) {
+  return (
+    SLOPE_LEFT_Y +
+    ((x - SLOPE_LEFT_X) / (SLOPE_RIGHT_X - SLOPE_LEFT_X)) *
+      (SLOPE_RIGHT_Y - SLOPE_LEFT_Y)
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Mobile vertical gauge (Figma Frame 23 SVG export paths)
+// ---------------------------------------------------------------------------
+
+/** 안쪽 채움 path */
+const MOBILE_FILL_PATH =
+  "M79.0742 562.326C75.2651 567.618 79.0471 575 85.5674 575L243 575C247.418 575 251 571.418 251 567L251 407C251 402.582 247.418 399 243 399L200.738 399C198.165 399 195.748 400.238 194.245 402.326L79.0742 562.326Z";
+
+/** 바깥 테두리 path (채움보다 약간 큼 → 안쪽 여백) */
+const MOBILE_OUTLINE_PATH =
+  "M77.8574 561.45C73.334 567.734 77.8245 576.5 85.5674 576.5L243 576.5C248.247 576.5 252.5 572.247 252.5 567L252.5 407C252.5 401.753 248.247 397.5 243 397.5L200.738 397.5C197.682 397.5 194.813 398.97 193.027 401.45L131.658 486.708L77.8574 561.45Z";
+
+const MOBILE_TICKS = [
+  "M251 486.842L174 486.842",
+  "M250 531.579L140 531.579",
+  "M250 439.901L205 439.901",
+] as const;
+
+const MOBILE_GAUGE_TOP = 399;
+const MOBILE_GAUGE_BOT = 575;
+const MOBILE_BOX = { w: 184, h: 178 } as const;
+/** stroke 잘림 방지용 viewBox 패딩 */
+const MOBILE_VB = { x: 63, y: 396, w: 192, h: 184 } as const;
+
+// ---------------------------------------------------------------------------
+// Shared helpers
+// ---------------------------------------------------------------------------
+
+export function getListenerLabel(rating: number): string {
+  if (rating < 3.5) return "Critical listener";
+  if (rating < 6.5) return "Balanced listener";
+  return "Positive listener";
+}
+
+function computeRating(reviews: ProfileReviewItem[], averageRating?: number) {
+  const computed =
+    averageRating ??
+    (reviews.length > 0
+      ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
+      : 0);
+  const clamped = Math.min(10, Math.max(0, computed));
+  return {
+    displayRating: clamped,
+    listenerLabel: getListenerLabel(clamped),
+    hasRatingData:
+      reviews.length > 0 || (averageRating !== undefined && averageRating > 0),
+  };
+}
+
+export function useAverageRating(
+  reviews: ProfileReviewItem[],
+  averageRating?: number
+) {
+  return useMemo(() => {
+    const base = computeRating(reviews, averageRating);
+    return {
+      ...base,
+      fillWidth: (base.displayRating / 10) * GAUGE_W,
+    };
+  }, [reviews, averageRating]);
+}
+
+// ---------------------------------------------------------------------------
+// Component
+// ---------------------------------------------------------------------------
 
 export function ProfileRatingGauge({
   reviews,
-  nickname,
   averageRating,
+  barOnly = false,
+  variant = "default",
 }: ProfileRatingGaugeProps) {
-  const computedAverage =
-    averageRating ??
-    (reviews.length > 0 ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length : 0);
-
-  const hasRatingData =
-    reviews.length > 0 || (averageRating !== undefined && averageRating > 0);
-
   const uid = useId().replace(/[^a-zA-Z0-9_-]/g, "");
-  const gradId = `pmg-${uid}`;
-  const pathId = `pml-${uid}`;
+  const ids = {
+    grad: `prg_grad_${uid}`,
+    fadeGrad: `prg_fade_grad_${uid}`,
+    fadeMask: `prg_fade_${uid}`,
+    inner: `prg_inner_${uid}`,
+    cap: `prg_cap_${uid}`,
+  };
 
-  const { arcLength, dashOffset, dotX, dotY, displayRating, ratingComment, reviewerType } =
-    useMemo(() => {
-      const clamped = Math.min(10, Math.max(0, computedAverage));
-      const pct = clamped / 10;
-      const arc = Math.PI * 48;
-      return {
-        arcLength: arc,
-        dashOffset: arc * (1 - pct),
-        dotX: 64 + 48 * Math.cos(Math.PI * (1 - pct)),
-        dotY: 56 - 48 * Math.sin(Math.PI * (1 - pct)),
-        displayRating: clamped,
-        ratingComment: RATING_COMMENTS[Math.round(clamped)] ?? RATING_COMMENTS[5],
-        reviewerType: clamped < 3.5 ? "harsh" : clamped < 6.5 ? "critical" : "light",
-      } as const;
-    }, [computedAverage]);
+  const data = useMemo(() => {
+    const base = computeRating(reviews, averageRating);
+    const fillWidth = (base.displayRating / 10) * GAUGE_W;
+    const fadeStart = Math.max(0, fillWidth - FADE_PX);
+    const fadeStartPct = fillWidth > 0 ? (fadeStart / fillWidth) * 100 : 0;
+    const ticks = TICK_FRACTIONS.map((t) => {
+      const x = INNER_LEFT_X + t * (INNER_RIGHT_X - INNER_LEFT_X);
+      return { x, y1: innerTopY(x) + 6, y2: INNER_BOTTOM_Y - 2 };
+    });
+    return { ...base, fillWidth, fadeStartPct, ticks };
+  }, [reviews, averageRating]);
 
-  if (!hasRatingData) {
-    return <p className="text-center text-sm text-zinc-400">리뷰를 작성하면 평균 평점이 표시됩니다.</p>;
+  if (!data.hasRatingData) {
+    return (
+      <p className="w-full py-10 text-center text-sm text-zinc-400">
+        리뷰를 작성하면 평균 평점이 표시됩니다.
+      </p>
+    );
   }
 
+  if (variant === "mobileVertical") {
+    return (
+      <MobileVerticalGauge
+        displayRating={data.displayRating}
+        ids={ids}
+      />
+    );
+  }
+
+  const bar = (
+    <DesktopWedgeBar
+      fillWidth={data.fillWidth}
+      fadeStartPct={data.fadeStartPct}
+      ticks={data.ticks}
+      ids={ids}
+    />
+  );
+
+  if (barOnly) return bar;
+
   return (
-    <div className="flex flex-col items-center gap-2">
-      <div className="relative h-40 w-48 sm:h-48 sm:w-60">
-        <svg viewBox="0 0 128 88" className="h-full w-full" aria-hidden>
-          <defs>
-            <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#7BC4CC" />
-              <stop offset="100%" stopColor="#43A7B2" />
-            </linearGradient>
-            <path id={pathId} d="M 8 56 A 56 56 0 0 1 120 56" fill="none" />
-          </defs>
-          <path
-            d="M 16 56 A 48 48 0 0 1 112 56"
-            fill="none"
-            stroke="rgb(228 228 231)"
-            strokeWidth="12"
-            strokeLinecap="round"
-          />
-          <path
-            d="M 16 56 A 48 48 0 0 1 112 56"
-            fill="none"
-            stroke={`url(#${gradId})`}
-            strokeWidth="12"
-            strokeLinecap="round"
-            strokeDasharray={arcLength}
-            strokeDashoffset={dashOffset}
-            strokeLinejoin="round"
-            style={{ transition: "stroke-dashoffset 0.6s ease-out" }}
-          />
-          <circle cx={dotX} cy={dotY} r="5" fill="white" stroke="#43A7B2" strokeWidth="2" />
-          <text
-            fontSize="5"
-            fontWeight={reviewerType === "harsh" ? 600 : 500}
-            fill={reviewerType === "harsh" ? "#43A7B2" : "#71717a"}
-          >
-            <textPath href={`#${pathId}`} startOffset="12%" textAnchor="middle">
-              Harsh Reviewer
-            </textPath>
-          </text>
-          <text
-            fontSize="5"
-            fontWeight={reviewerType === "critical" ? 600 : 500}
-            fill={reviewerType === "critical" ? "#43A7B2" : "#71717a"}
-          >
-            <textPath href={`#${pathId}`} startOffset="50%" textAnchor="middle">
-              Critical Reviewer
-            </textPath>
-          </text>
-          <text
-            fontSize="5"
-            fontWeight={reviewerType === "light" ? 600 : 500}
-            fill={reviewerType === "light" ? "#43A7B2" : "#71717a"}
-          >
-            <textPath href={`#${pathId}`} startOffset="88%" textAnchor="middle">
-              Light Reviewer
-            </textPath>
-          </text>
-        </svg>
-        <div className="absolute -bottom-1 left-1/2 -translate-x-1/2">
-          <span className="text-3xl font-bold text-[var(--color-brand-primary)] sm:text-4xl md:text-5xl">
-            {displayRating.toFixed(1)}
-          </span>
-        </div>
-      </div>
-      <p className="text-center text-xs font-medium text-zinc-600">
-        평론가 <span className="font-semibold text-zinc-900">{nickname}</span> 님의 평균평점
+    <div className="relative w-full max-w-[565px]">
+      <p className="text-[24px] font-extrabold leading-[29px] text-[#43A7B2]">
+        Average Rate
       </p>
-      <p className="text-center text-base font-bold text-[var(--color-brand-primary)]">{ratingComment}</p>
+      <p
+        className="font-extrabold text-[#FFA310]"
+        style={{ fontSize: 75, lineHeight: "90px" }}
+      >
+        {data.displayRating.toFixed(1)}
+      </p>
+      <div className="mt-1">{bar}</div>
+      <div className="mt-2 flex items-center justify-between">
+        <span className="text-[15px] font-extralight leading-[18px] text-[#8F8F8F]">
+          Born Hater
+        </span>
+        <span className="text-[15px] font-extralight leading-[18px] text-[#8F8F8F]">
+          Sound Lover
+        </span>
+      </div>
+      <p className="mt-6 text-center text-[32px] font-extrabold leading-[38px] text-[#43A7B2]">
+        {data.listenerLabel}
+      </p>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Desktop horizontal wedge
+// ---------------------------------------------------------------------------
+
+function DesktopWedgeBar({
+  fillWidth,
+  fadeStartPct,
+  ticks,
+  ids,
+}: {
+  fillWidth: number;
+  fadeStartPct: number;
+  ticks: { x: number; y1: number; y2: number }[];
+  ids: { grad: string; fadeGrad: string; fadeMask: string; inner: string; cap: string };
+}) {
+  return (
+    <div className="relative w-full max-w-[565px]">
+      <svg
+        viewBox={`0 0 ${GAUGE_W} ${GAUGE_H}`}
+        fill="none"
+        className="block h-auto w-full"
+        aria-hidden
+      >
+        <defs>
+          <linearGradient
+            id={ids.grad}
+            x1="0"
+            y1="89.7344"
+            x2="565"
+            y2="89.7345"
+            gradientUnits="userSpaceOnUse"
+          >
+            <stop stopColor="#63C4CB" />
+            <stop offset="0.3" stopColor="#F8CA12" />
+            <stop offset="0.6" stopColor="#FFA310" />
+            <stop offset="0.767357" stopColor="#F82512" />
+            <stop offset="1" stopColor="#F82512" />
+          </linearGradient>
+          <linearGradient
+            id={ids.fadeGrad}
+            gradientUnits="userSpaceOnUse"
+            x1="0"
+            y1="0"
+            x2={Math.max(1, fillWidth)}
+            y2="0"
+          >
+            <stop offset="0%" stopColor="white" stopOpacity="1" />
+            <stop offset={`${fadeStartPct}%`} stopColor="white" stopOpacity="1" />
+            <stop offset="100%" stopColor="white" stopOpacity="0" />
+          </linearGradient>
+          <mask
+            id={ids.fadeMask}
+            maskUnits="userSpaceOnUse"
+            x="0"
+            y="0"
+            width={GAUGE_W}
+            height={GAUGE_H}
+          >
+            <rect
+              x="0"
+              y="0"
+              width={fillWidth}
+              height={GAUGE_H}
+              fill={`url(#${ids.fadeGrad})`}
+            />
+          </mask>
+          <clipPath id={ids.inner}>
+            <path d={WEDGE_INNER} />
+          </clipPath>
+          <clipPath id={ids.cap}>
+            <rect x="0" y="0" width={fillWidth} height={GAUGE_H} />
+          </clipPath>
+        </defs>
+
+        <path d={WEDGE_OUTER} fill="none" stroke="#D9D9D9" strokeWidth={1} />
+
+        <g clipPath={`url(#${ids.inner})`}>
+          <g clipPath={`url(#${ids.cap})`}>
+            <g mask={`url(#${ids.fadeMask})`}>
+              <path d={WEDGE_INNER} fill={`url(#${ids.grad})`} />
+            </g>
+            {ticks.map((tick) => (
+              <line
+                key={tick.x}
+                x1={tick.x}
+                y1={tick.y1}
+                x2={tick.x}
+                y2={tick.y2}
+                stroke="white"
+                strokeWidth={2}
+                strokeLinecap="round"
+              />
+            ))}
+          </g>
+        </g>
+      </svg>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Mobile vertical trapezoid (Group 205: 184×178)
+// ---------------------------------------------------------------------------
+
+function MobileVerticalGauge({
+  displayRating,
+  ids,
+}: {
+  displayRating: number;
+  ids: { grad: string; inner: string; cap: string };
+}) {
+  const fillH =
+    (displayRating / 10) * (MOBILE_GAUGE_BOT - MOBILE_GAUGE_TOP);
+  const fillY = MOBILE_GAUGE_BOT - fillH;
+  const soundLoverOnFill = fillY <= MOBILE_GAUGE_TOP + 16;
+  const gradId = `${ids.grad}_m`;
+  const innerId = `${ids.inner}_m`;
+  const capId = `${ids.cap}_m`;
+
+  return (
+    <div
+      className="relative shrink-0 overflow-visible"
+      style={{ width: MOBILE_BOX.w, height: MOBILE_BOX.h }}
+    >
+      <svg
+        width={MOBILE_BOX.w}
+        height={MOBILE_BOX.h}
+        viewBox={`${MOBILE_VB.x} ${MOBILE_VB.y} ${MOBILE_VB.w} ${MOBILE_VB.h}`}
+        className="absolute inset-0 block overflow-visible"
+        fill="none"
+        aria-hidden
+      >
+        <defs>
+          {/* 위(빨강) → 아래(청록) */}
+          <linearGradient
+            id={gradId}
+            x1="160"
+            y1="398"
+            x2="160"
+            y2="576"
+            gradientUnits="userSpaceOnUse"
+          >
+            <stop stopColor="#F82512" />
+            <stop offset="0.3125" stopColor="#FFA310" />
+            <stop offset="0.644231" stopColor="#F8CA12" />
+            <stop offset="1" stopColor="#63C4CB" />
+          </linearGradient>
+          <clipPath id={innerId}>
+            <path d={MOBILE_FILL_PATH} />
+          </clipPath>
+          <clipPath id={capId}>
+            <rect
+              x={MOBILE_VB.x}
+              y={fillY}
+              width={MOBILE_VB.w}
+              height={Math.max(0, MOBILE_GAUGE_BOT - fillY + 2)}
+            />
+          </clipPath>
+        </defs>
+
+        {/* Vector 46 — 바깥 테두리 */}
+        <path
+          d={MOBILE_OUTLINE_PATH}
+          fill="#FFFFFF"
+          stroke="#D9D9D9"
+          strokeWidth={1}
+          strokeLinejoin="round"
+        />
+
+        {/* Vector 37 — 채움 + 흰 stroke(테두리 안 여백) + 눈금 */}
+        <g clipPath={`url(#${innerId})`}>
+          <g clipPath={`url(#${capId})`}>
+            <path
+              d={MOBILE_FILL_PATH}
+              fill={`url(#${gradId})`}
+              stroke="white"
+              strokeWidth={2}
+              strokeLinejoin="round"
+            />
+            {MOBILE_TICKS.map((d) => (
+              <path
+                key={d}
+                d={d}
+                stroke="white"
+                strokeWidth={2}
+                strokeLinecap="round"
+              />
+            ))}
+          </g>
+        </g>
+      </svg>
+
+      {/* 점수 (게이지 왼쪽 오버레이) */}
+      <p
+        className="pointer-events-none absolute left-0 top-0 z-10 w-[83px] font-extrabold text-[#43A7B2]"
+        style={{ fontSize: 13, lineHeight: "16px" }}
+      >
+        Average Rate
+      </p>
+      <p
+        className="pointer-events-none absolute left-0 top-[13px] z-10 w-[67px] font-extrabold text-[#FFA310]"
+        style={{ fontSize: 48, lineHeight: "57px" }}
+      >
+        {displayRating.toFixed(1)}
+      </p>
+
+      {/* 라벨 — font-weight 200, 한 줄 */}
+      <span
+        className={`pointer-events-none absolute right-[8.5px] top-[6px] z-10 whitespace-nowrap text-center ${
+          soundLoverOnFill ? "text-white" : "text-[#B0B0B0]"
+        }`}
+        style={{ fontSize: 8, lineHeight: "10px", fontWeight: 200 }}
+      >
+        Sound Lover
+      </span>
+      <span
+        className="pointer-events-none absolute bottom-[8px] right-[8.5px] z-10 whitespace-nowrap text-center text-white"
+        style={{ fontSize: 8, lineHeight: "10px", fontWeight: 200 }}
+      >
+        Born Hater
+      </span>
     </div>
   );
 }

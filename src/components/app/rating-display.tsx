@@ -1,3 +1,5 @@
+/** 평점 숫자·별 표시 */
+
 import { formatRating, getRatingScoreColor } from "@/src/lib/utils/rating";
 
 interface RatingDisplayProps {

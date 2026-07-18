@@ -1,3 +1,5 @@
+/** GET 프로필 게시글 목록 */
+
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/src/lib/auth/config";
 import { initializeDatabase } from "@/src/lib/db";

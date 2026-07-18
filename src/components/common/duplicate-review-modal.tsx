@@ -1,4 +1,5 @@
 "use client";
+/** 중복 리뷰 안내 모달 */
 
 interface DuplicateReviewModalProps {
   onClose: () => void;

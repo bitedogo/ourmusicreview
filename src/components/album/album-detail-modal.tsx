@@ -1,4 +1,5 @@
 "use client";
+/** 앨범 상세 모달 */
 
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";

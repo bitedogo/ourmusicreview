@@ -1,3 +1,5 @@
+/** 유저 즐겨찾기 앨범 엔티티 */
+
 import {
   Entity,
   PrimaryColumn,

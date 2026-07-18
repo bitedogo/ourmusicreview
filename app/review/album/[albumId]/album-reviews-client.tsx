@@ -1,4 +1,5 @@
 "use client";
+/** 앨범별 리뷰 목록 클라이언트 */
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -327,7 +328,7 @@ export function AlbumReviewsClient({ albumId }: { albumId: string }) {
                         alt=""
                         width={40}
                         height={40}
-                        unoptimized
+                        sizes="40px"
                         className="h-10 w-10 rounded-full object-cover"
                       />
                     ) : (

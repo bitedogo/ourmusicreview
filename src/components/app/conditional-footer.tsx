@@ -1,4 +1,5 @@
 "use client";
+/** 경로별 푸터 조건부 렌더 */
 
 import { usePathname } from "next/navigation";
 import { Footer } from "./Footer";

@@ -1,3 +1,5 @@
+/** POST 앨범 메타 등록·동기화 */
+
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/src/lib/auth/config";
 import { initializeDatabase } from "@/src/lib/db";

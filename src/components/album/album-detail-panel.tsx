@@ -1,4 +1,5 @@
 "use client";
+/** 앨범 상세 패널(커버·트랙·평점) */
 
 import type { AlbumDetail, AlbumDetailTrack } from "@/src/lib/album/detail-types";
 

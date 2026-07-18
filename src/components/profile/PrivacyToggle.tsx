@@ -1,4 +1,5 @@
 "use client";
+/** 프로필 공개/비공개 토글 */
 
 export function PrivacyToggle({
   isPublic,
@@ -10,15 +11,15 @@ export function PrivacyToggle({
   disabled?: boolean;
 }) {
   return (
-    <div className="inline-flex rounded-lg border border-zinc-200 bg-zinc-50 p-0.5">
+    <div className="inline-flex rounded-lg bg-zinc-100 p-0.5">
       <button
         type="button"
         disabled={disabled}
         onClick={() => onChange(true)}
-        className={`rounded-md px-2.5 py-1 text-[10px] font-semibold transition disabled:opacity-50 ${
+        className={`rounded-md px-3 py-1 text-[11px] font-semibold transition disabled:opacity-50 ${
           isPublic
             ? "bg-white text-[var(--color-brand-primary)] shadow-sm"
-            : "text-zinc-500 hover:text-zinc-700"
+            : "text-zinc-400 hover:text-zinc-600"
         }`}
       >
         공개
@@ -27,10 +28,10 @@ export function PrivacyToggle({
         type="button"
         disabled={disabled}
         onClick={() => onChange(false)}
-        className={`rounded-md px-2.5 py-1 text-[10px] font-semibold transition disabled:opacity-50 ${
+        className={`rounded-md px-3 py-1 text-[11px] font-semibold transition disabled:opacity-50 ${
           !isPublic
-            ? "bg-white text-zinc-900 shadow-sm"
-            : "text-zinc-500 hover:text-zinc-700"
+            ? "bg-white text-zinc-700 shadow-sm"
+            : "text-zinc-400 hover:text-zinc-600"
         }`}
       >
         비공개

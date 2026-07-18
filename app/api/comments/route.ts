@@ -1,3 +1,5 @@
+/** POST/GET 댓글 작성·목록 */
+
 import { requireSessionApi } from "@/src/lib/auth/session";
 import { initializeDatabase } from "@/src/lib/db";
 import { Comment } from "@/src/lib/db/entities/Comment";

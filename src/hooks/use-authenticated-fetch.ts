@@ -1,4 +1,5 @@
 "use client";
+/** 인증 포함 fetch 훅 */
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";

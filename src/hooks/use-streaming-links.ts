@@ -1,4 +1,5 @@
 "use client";
+/** 앨범 스트리밍 링크 조회 훅 */
 
 import { useEffect, useState } from "react";
 import { fetchJson } from "@/src/lib/http/client";

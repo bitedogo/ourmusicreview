@@ -1,3 +1,5 @@
+/** 앨범 ID·표시명 포맷 유틸 */
+
 export function getReleaseYear(releaseDate: string): string {
   if (!releaseDate) return "";
   try {

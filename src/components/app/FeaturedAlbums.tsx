@@ -1,4 +1,5 @@
 "use client";
+/** 홈 Featured 앨범 슬라이드 섹션 */
 
 import { useSession } from "next-auth/react";
 import { useFeaturedAlbums } from "@/src/hooks/use-featured-albums";

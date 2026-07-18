@@ -1,3 +1,5 @@
+/** 리뷰 상세 서버 페이지 */
+
 import { notFound } from "next/navigation";
 import { ReviewDetailClient } from "./review-detail-client";
 

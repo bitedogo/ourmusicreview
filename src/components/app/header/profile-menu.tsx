@@ -1,4 +1,5 @@
 "use client";
+/** 헤더 프로필·계정 메뉴 */
 
 import Link from "next/link";
 import Image from "next/image";
@@ -38,7 +39,7 @@ export function ProfileMenu() {
               alt={nickname}
               width={24}
               height={24}
-              unoptimized
+              sizes="24px"
               className="h-6 w-6 rounded-full border border-zinc-300 object-cover"
             />
           ) : (

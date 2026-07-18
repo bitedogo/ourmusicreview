@@ -1,4 +1,5 @@
 "use client";
+/** 아티스트 검색 결과 네비게이션 훅 */
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";

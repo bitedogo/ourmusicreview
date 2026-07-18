@@ -1,4 +1,5 @@
 "use client";
+/** 리뷰 작성 클라이언트 */
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useRef } from "react";

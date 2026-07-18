@@ -1,3 +1,5 @@
+/** GET 관리자 신고 목록 */
+
 import { requireAdminApi } from "@/src/lib/auth/session";
 import { initializeDatabase } from "@/src/lib/db";
 import { Report } from "@/src/lib/db/entities/Report";

@@ -1,3 +1,5 @@
+/** 마이페이지 서버 진입(세션 가드) */
+
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/src/lib/auth/config";

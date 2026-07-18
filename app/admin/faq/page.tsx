@@ -1,3 +1,5 @@
+/** 관리자 FAQ 관리 페이지 */
+
 import { FaqManagementClient } from "./faq-management-client";
 
 export default function AdminFaqPage() {

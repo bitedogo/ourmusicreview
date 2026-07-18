@@ -1,4 +1,5 @@
 "use client";
+/** 마이페이지 클라이언트(프로필·로그아웃) */
 
 import { signOut } from "next-auth/react";
 import { useEffect, useState } from "react";
@@ -43,6 +44,15 @@ interface PrivacyResponse {
   };
 }
 
+interface ActivityStatsResponse {
+  ok: boolean;
+  data: {
+    postCount: number;
+    commentCount: number;
+    likedPostCount: number;
+  };
+}
+
 export function ProfileClient({
   id,
   nickname,
@@ -60,9 +70,18 @@ export function ProfileClient({
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const [privacy, setPrivacy] = useState<ProfilePrivacySettings>(initialPrivacy);
   const [isSavingPrivacy, setIsSavingPrivacy] = useState(false);
+  const [activityStats, setActivityStats] = useState({
+    postCount: 0,
+    commentCount: 0,
+    likedPostCount: 0,
+  });
 
   async function handleDeleteAccount() {
-    if (!confirm("정말로 계정을 삭제하시겠습니까?\n\n삭제된 계정은 복구할 수 없으며, 작성한 리뷰·댓글 등 모든 데이터가 삭제됩니다.")) {
+    if (
+      !confirm(
+        "정말로 계정을 삭제하시겠습니까?\n\n삭제된 계정은 복구할 수 없으며, 작성한 리뷰·댓글 등 모든 데이터가 삭제됩니다."
+      )
+    ) {
       return;
     }
     if (!confirm("한 번 더 확인합니다. 계정을 삭제하시겠습니까?")) {
@@ -111,6 +130,19 @@ export function ProfileClient({
     }
   }
 
+  async function fetchActivityStats() {
+    try {
+      const data = await fetchJson<ActivityStatsResponse>("/api/profile/activity-stats");
+      setActivityStats({
+        postCount: data.data.postCount ?? 0,
+        commentCount: data.data.commentCount ?? 0,
+        likedPostCount: data.data.likedPostCount ?? 0,
+      });
+    } catch {
+      setActivityStats({ postCount: 0, commentCount: 0, likedPostCount: 0 });
+    }
+  }
+
   async function handlePrivacyChange(key: keyof ProfilePrivacySettings, value: boolean) {
     setIsSavingPrivacy(true);
     try {
@@ -130,6 +162,7 @@ export function ProfileClient({
   useEffect(() => {
     fetchMyReviews();
     fetchFavorites();
+    fetchActivityStats();
   }, []);
 
   useEffect(() => {
@@ -137,6 +170,7 @@ export function ProfileClient({
       if (document.visibilityState === "visible") {
         fetchMyReviews();
         fetchFavorites();
+        fetchActivityStats();
       }
     }
 
@@ -176,9 +210,17 @@ export function ProfileClient({
       isLoadingFavorites={isLoadingFavorites}
       masterpieces={[]}
       isLoadingMasterpieces={false}
-      masterpiecesSection={<MyPicksSection embedded />}
+      masterpiecesSection={
+        <MyPicksSection
+          embedded
+          isPublic={privacy.showMasterpiecesPublic}
+          isSavingPrivacy={isSavingPrivacy}
+          onPrivacyChange={(value) => handlePrivacyChange("showMasterpiecesPublic", value)}
+        />
+      }
       reviewsAllHref="/profile/reviews"
       favoritesAllHref="/profile/albums"
+      activityStats={activityStats}
     />
   );
 }

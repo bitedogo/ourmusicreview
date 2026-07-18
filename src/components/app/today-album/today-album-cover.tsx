@@ -1,3 +1,5 @@
+/** 오늘의 앨범 커버 */
+
 import Image from "next/image";
 import { ALBUM_COVER_PLACEHOLDER } from "@/src/lib/site/copy";
 import type { TodayAlbumData } from "@/src/lib/today-album/types";

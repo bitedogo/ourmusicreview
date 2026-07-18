@@ -1,4 +1,5 @@
 "use client";
+/** TOAST UI 에디터 래퍼 */
 
 import {
   useEffect,

@@ -1,3 +1,5 @@
+/** 타인 유저 프로필 서버 페이지 */
+
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/src/lib/auth/config";

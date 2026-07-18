@@ -1,3 +1,5 @@
+/** GET DB 연결 테스트 */
+
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/src/lib/auth/config";
 import { initializeDatabase } from "@/src/lib/db";

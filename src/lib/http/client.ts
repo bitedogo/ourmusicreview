@@ -1,3 +1,5 @@
+/** 프론트 HTTP 클라이언트 래퍼 */
+
 export interface ApiSuccessResponse<T> {
   ok: true;
   data: T;

@@ -1,3 +1,5 @@
+/** POST 게시글 조회수 증가 */
+
 import { NextRequest } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/src/lib/auth/config";

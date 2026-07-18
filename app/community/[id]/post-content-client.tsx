@@ -1,4 +1,5 @@
 "use client";
+/** 커뮤니티 게시글 상세 클라이언트 */
 
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";

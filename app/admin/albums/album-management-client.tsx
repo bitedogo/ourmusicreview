@@ -1,4 +1,5 @@
 "use client";
+/** 관리자 오늘의 앨범 관리 클라이언트 */
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";

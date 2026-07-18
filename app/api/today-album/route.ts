@@ -1,3 +1,5 @@
+/** GET 오늘의 앨범 */
+
 import { initializeDatabase } from "@/src/lib/db";
 import { TodayAlbum } from "@/src/lib/db/entities/TodayAlbum";
 import { noStoreJson, publicCachedJson } from "@/src/lib/http/cache";

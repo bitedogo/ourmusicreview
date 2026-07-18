@@ -1,3 +1,5 @@
+/** PATCH/DELETE 관리자 오늘의 앨범 수정·삭제 */
+
 import { requireAdminApi } from "@/src/lib/auth/session";
 import { initializeDatabase } from "@/src/lib/db";
 import { TodayAlbum } from "@/src/lib/db/entities/TodayAlbum";

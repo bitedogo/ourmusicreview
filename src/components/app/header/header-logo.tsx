@@ -1,3 +1,5 @@
+/** 헤더 로고 */
+
 import Link from "next/link";
 import Image from "next/image";
 import { LOGO } from "@/src/lib/layout";

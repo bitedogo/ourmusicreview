@@ -1,3 +1,5 @@
+/** 커뮤니티 게시글 상세 서버 페이지 */
+
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { initializeDatabase } from "@/src/lib/db";

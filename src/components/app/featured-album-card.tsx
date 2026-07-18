@@ -1,3 +1,5 @@
+/** Featured 앨범 카드 */
+
 import Link from "next/link";
 import type { FeaturedAlbumCardData } from "@/src/lib/featured-albums/types";
 import { buildAlbumReviewPath } from "@/src/lib/utils/album";

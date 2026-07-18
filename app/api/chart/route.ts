@@ -1,3 +1,5 @@
+/** GET 음원 차트 */
+
 import { getMusicChart } from "@/src/lib/chart/fetch-chart";
 import { getStorefront, isChartRegion } from "@/src/lib/chart/types";
 import { apiError, apiOk } from "@/src/lib/http/response";

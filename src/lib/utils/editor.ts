@@ -1,3 +1,5 @@
+/** 에디터 HTML·본문 유틸 */
+
 export function normalizeHtml(value: string): string {
   return value.replace(/<p><\/p>/g, "<p><br></p>");
 }

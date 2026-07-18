@@ -1,3 +1,5 @@
+/** iTunes 앨범 상세 조회 */
+
 import type { AlbumDetail, AlbumDetailTrack } from "@/src/lib/album/detail-types";
 import { createTtlCache } from "@/src/lib/utils/ttl-cache";
 import {

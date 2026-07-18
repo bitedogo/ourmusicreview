@@ -1,4 +1,5 @@
 "use client";
+/** 경로별 헤더 조건부 렌더 */
 
 import { usePathname } from "next/navigation";
 import { AppHeader } from "./app-header";

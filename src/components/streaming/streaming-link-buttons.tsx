@@ -1,3 +1,5 @@
+/** 스트리밍 플랫폼 링크 버튼 */
+
 import type { AlbumStreamingLinks } from "@/src/lib/streaming/types";
 import { getVisibleStreamingPlatforms } from "@/src/lib/streaming/platforms";
 

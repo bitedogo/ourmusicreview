@@ -1,3 +1,5 @@
+/** GET 앨범별 리뷰 목록 */
+
 import { initializeDatabase } from "@/src/lib/db";
 import { Review } from "@/src/lib/db/entities/Review";
 import { Album } from "@/src/lib/db/entities/Album";

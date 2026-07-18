@@ -1,3 +1,5 @@
+/** NextAuth 인증 핸들러 */
+
 import NextAuth from "next-auth";
 import { authOptions } from "@/src/lib/auth/config";
 

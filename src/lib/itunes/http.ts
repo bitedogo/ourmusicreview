@@ -1,3 +1,5 @@
+/** iTunes API HTTP 호출 */
+
 const ITUNES_BASE = "https://itunes.apple.com";
 
 const ITUNES_FETCH_OPTIONS = {

@@ -1,3 +1,5 @@
+/** 유저 마이페이지 슬라이드(명반) 엔티티 */
+
 import { Entity, PrimaryColumn, Column } from "typeorm";
 
 @Entity({ name: "user_slide_albums", schema: "public" })

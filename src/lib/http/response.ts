@@ -1,3 +1,5 @@
+/** API JSON 응답 헬퍼 */
+
 import { noStoreJson } from "@/src/lib/http/cache";
 
 interface ApiOkOptions {

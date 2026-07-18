@@ -1,4 +1,5 @@
 "use client";
+/** 음원 차트 데이터 훅 */
 
 import { useEffect, useRef, useState } from "react";
 import { fetchJson } from "@/src/lib/http/client";

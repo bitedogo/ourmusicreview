@@ -1,3 +1,5 @@
+/** POST 비밀번호 변경 */
+
 import bcrypt from "bcryptjs";
 import { isBcryptHash, sanitizeText, validatePassword } from "@/src/lib/auth/validation";
 import { initializeDatabase } from "@/src/lib/db";

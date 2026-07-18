@@ -1,3 +1,5 @@
+/** 앨범명으로 Spotify album ID 해석 */
+
 import { looseMatch, normalizeForMatch } from "@/src/lib/text/match";
 import { createTtlCache } from "@/src/lib/utils/ttl-cache";
 import { spotifyFetch } from "./client";

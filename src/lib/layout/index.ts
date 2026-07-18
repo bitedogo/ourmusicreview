@@ -1,3 +1,5 @@
+/** 레이아웃 토큰·상수 re-export */
+
 export {
   FEATURED_CARD,
   FEATURED_TRACK,

@@ -1,3 +1,5 @@
+/** 전체 리뷰 목록 페이지 */
+
 import { Suspense } from "react";
 import { AlbumReviewsClient } from "./AlbumReviewsClient";
 

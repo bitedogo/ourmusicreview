@@ -1,4 +1,5 @@
 "use client";
+/** 안전한 HTML 본문 렌더러 */
 
 import { useEffect, useRef } from "react";
 import DOMPurify from "dompurify";

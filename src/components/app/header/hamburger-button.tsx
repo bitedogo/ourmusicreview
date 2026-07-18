@@ -1,3 +1,5 @@
+/** 모바일 햄버거 메뉴 버튼 */
+
 interface HamburgerButtonProps {
   isOpen: boolean;
   onToggle: () => void;

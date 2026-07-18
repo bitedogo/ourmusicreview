@@ -1,3 +1,5 @@
+/** 스트리밍 링크 타입 */
+
 export interface AlbumStreamingLinks {
   appleMusic?: string;
   spotify?: string;

@@ -1,3 +1,5 @@
+/** TTL 메모리 캐시 */
+
 export interface TtlCache<T> {
   get(key: string): T | undefined;
   set(key: string, value: T): void;

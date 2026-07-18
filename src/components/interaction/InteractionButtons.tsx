@@ -1,4 +1,5 @@
 "use client";
+/** 좋아요·신고 인터랙션 버튼 */
 
 import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";

@@ -1,4 +1,5 @@
 "use client";
+/** 앱 전역 헤더 */
 
 import { useRef, useState } from "react";
 import { usePathname } from "next/navigation";

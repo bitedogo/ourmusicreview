@@ -1,3 +1,5 @@
+/** 차트 API 응답·항목 타입 */
+
 export type ChartRegion = "kr" | "us" | "gb" | "jp";
 
 export const CHART_REGIONS: { id: ChartRegion; label: string; storefront: string }[] = [

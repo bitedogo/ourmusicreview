@@ -1,4 +1,6 @@
 
+/** 레이아웃·간격 디자인 토큰 */
+
 export const LAYOUT = {
   contentMaxWidth: 1100,
   headerSearchGap: 24,

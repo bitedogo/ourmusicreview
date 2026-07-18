@@ -1,3 +1,5 @@
+/** 환경 변수 로드·검증 */
+
 interface ServerEnv {
   databaseUrl: string;
   nextAuthSecret: string;

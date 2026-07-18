@@ -1,3 +1,5 @@
+/** PATCH 관리자 리뷰 승인·반려 */
+
 import { requireAdminApi } from "@/src/lib/auth/session";
 import { initializeDatabase } from "@/src/lib/db";
 import { Review } from "@/src/lib/db/entities/Review";

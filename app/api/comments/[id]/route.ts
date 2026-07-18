@@ -1,3 +1,5 @@
+/** DELETE 댓글 삭제 */
+
 import { isAdmin, requireSessionApi } from "@/src/lib/auth/session";
 import { initializeDatabase } from "@/src/lib/db";
 import { Comment } from "@/src/lib/db/entities/Comment";

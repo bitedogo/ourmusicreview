@@ -1,4 +1,5 @@
 "use client";
+/** 내 즐겨찾기·명반 앨범 페이지 */
 
 import Link from "next/link";
 import Image from "next/image";

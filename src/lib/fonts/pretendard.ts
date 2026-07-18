@@ -1,3 +1,5 @@
+/** Pretendard 폰트 로더 */
+
 import localFont from "next/font/local";
 
 export const pretendard = localFont({

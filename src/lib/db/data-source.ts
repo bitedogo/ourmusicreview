@@ -1,3 +1,5 @@
+/** TypeORM DataSource 설정 */
+
 import "reflect-metadata";
 import { DataSource } from "typeorm";
 import { User } from "./entities/User";

@@ -1,3 +1,5 @@
+/** 텍스트 매칭·하이라이트 유틸 */
+
 export function normalizeForMatch(value: string): string {
   return value
     .toLowerCase()

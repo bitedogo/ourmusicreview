@@ -1,3 +1,5 @@
+/** 스트리밍 플랫폼 링크 수집 */
+
 import { unstable_cache } from "next/cache";
 import { fetchItunesResults, itunesLookupUrls } from "@/src/lib/itunes/http";
 import { searchSpotifyAlbumUrl } from "@/src/lib/spotify/album-search";

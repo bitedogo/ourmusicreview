@@ -1,4 +1,5 @@
 "use client";
+/** 오늘의 앨범 설명 문구 */
 
 import { useState } from "react";
 import { StreamingLinkButtons } from "@/src/components/streaming/streaming-link-buttons";

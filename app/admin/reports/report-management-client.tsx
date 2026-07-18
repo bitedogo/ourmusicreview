@@ -1,4 +1,5 @@
 "use client";
+/** 관리자 신고 관리 클라이언트 */
 
 import { useRouter } from "next/navigation";
 import Link from "next/link";

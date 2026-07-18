@@ -1,3 +1,5 @@
+/** 페이지 콘텐츠 컨테이너 레이아웃 */
+
 import type { CSSProperties, ReactNode } from "react";
 
 export const contentMaxWidthStyle: CSSProperties = {

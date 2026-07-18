@@ -1,4 +1,5 @@
 "use client";
+/** 홈·헤더 아티스트 검색바 */
 
 import type { RefObject } from "react";
 import type { ItunesArtistResult } from "@/src/lib/itunes/types";

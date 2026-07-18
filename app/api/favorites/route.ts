@@ -1,3 +1,5 @@
+/** POST/DELETE/GET 앨범 즐겨찾기 */
+
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/src/lib/auth/config";
 import { initializeDatabase } from "@/src/lib/db";

@@ -1,4 +1,5 @@
 "use client";
+/** 홈 음원 차트 섹션 */
 
 import Image from "next/image";
 import Link from "next/link";

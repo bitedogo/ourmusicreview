@@ -1,3 +1,5 @@
+/** 루트 레이아웃·메타데이터·프로바이더 */
+
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Providers } from "./providers";

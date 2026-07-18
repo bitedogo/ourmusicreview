@@ -1,4 +1,5 @@
 "use client";
+/** 오늘의 앨범 카드 */
 
 import Link from "next/link";
 import { useState } from "react";

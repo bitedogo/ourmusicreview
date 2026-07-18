@@ -1,3 +1,5 @@
+/** Spotify Client Credentials 토큰 */
+
 import { createTtlCache } from "@/src/lib/utils/ttl-cache";
 
 const TOKEN_URL = "https://accounts.spotify.com/api/token";

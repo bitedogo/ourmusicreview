@@ -1,3 +1,5 @@
+/** Featured 앨범 커버 이미지 */
+
 import Image from "next/image";
 import { ALBUM_COVER_PLACEHOLDER } from "@/src/lib/site/copy";
 

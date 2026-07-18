@@ -1,3 +1,5 @@
+/** GET iTunes 앨범 상세 */
+
 import { apiError, apiOk } from "@/src/lib/http/response";
 import { getItunesAlbumDetail } from "@/src/lib/itunes/album-detail";
 

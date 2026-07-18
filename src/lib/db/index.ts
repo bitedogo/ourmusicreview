@@ -1,3 +1,5 @@
+/** DB 연결·리포지토리 헬퍼 */
+
 import { AppDataSource } from "./data-source";
 import { getServerEnv } from "@/src/lib/env";
 

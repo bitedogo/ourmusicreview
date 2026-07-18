@@ -1,3 +1,5 @@
+/** 푸터 브랜드·카피 */
+
 import {
   FOOTER_COPYRIGHT,
   FOOTER_DESCRIPTION,

@@ -1,3 +1,5 @@
+/** iTunes 검색·상세 공개 API 래퍼 */
+
 import type { AlbumDetail } from "@/src/lib/album/types";
 import type { ItunesArtistResult } from "@/src/lib/itunes/types";
 import {

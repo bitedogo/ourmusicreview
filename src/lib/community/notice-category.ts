@@ -1,3 +1,5 @@
+/** 공지 카테고리 상수 */
+
 import type { NoticeCategory } from "@/src/lib/community/types";
 
 export const NOTICE_CATEGORY_VALUES: NoticeCategory[] = [

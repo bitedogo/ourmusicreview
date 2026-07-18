@@ -1,4 +1,7 @@
+/** Supabase 스토리지 클라이언트 */
+
 import { createClient } from "@supabase/supabase-js";
+import sharp from "sharp";
 import { getServerEnv, getClientEnv } from "@/src/lib/env";
 
 const { nextPublicSupabaseUrl, nextPublicSupabaseAnonKey } = getClientEnv();
@@ -14,20 +17,33 @@ export function getSupabaseAdmin() {
 }
 
 const BUCKET_PROFILES = "profiles";
+const PROFILE_MAX_SIZE = 400;
+const PROFILE_WEBP_QUALITY = 85;
+
+async function compressProfileImageBytes(bytes: ArrayBuffer): Promise<Buffer> {
+  return sharp(Buffer.from(bytes))
+    .rotate()
+    .resize(PROFILE_MAX_SIZE, PROFILE_MAX_SIZE, {
+      fit: "cover",
+      withoutEnlargement: true,
+    })
+    .webp({ quality: PROFILE_WEBP_QUALITY })
+    .toBuffer();
+}
 
 export async function uploadProfileImage(
   file: File,
   prefix: string
 ): Promise<string> {
   const supabase = getSupabaseAdmin();
-  const ext = file.name.split(".").pop() || "jpg";
-  const path = `${prefix}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+  const path = `${prefix}/${Date.now()}_${Math.random().toString(36).slice(2)}.webp`;
 
   const bytes = await file.arrayBuffer();
+  const compressed = await compressProfileImageBytes(bytes);
   const { error } = await supabase.storage
     .from(BUCKET_PROFILES)
-    .upload(path, bytes, {
-      contentType: file.type,
+    .upload(path, compressed, {
+      contentType: "image/webp",
       upsert: true,
     });
 

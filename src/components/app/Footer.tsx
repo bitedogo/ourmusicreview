@@ -1,3 +1,5 @@
+/** 앱 전역 푸터 */
+
 import { ContentContainer } from "@/src/lib/layout/content-container";
 import { PAGE_PADDING_X } from "@/src/lib/layout";
 import { FooterBrand } from "./footer/footer-brand";

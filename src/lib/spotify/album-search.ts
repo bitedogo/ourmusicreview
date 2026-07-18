@@ -1,3 +1,5 @@
+/** Spotify 앨범 검색 */
+
 import { createTtlCache } from "@/src/lib/utils/ttl-cache";
 import { resolveSpotifyAlbumId } from "./resolve-album-id";
 

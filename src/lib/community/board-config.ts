@@ -1,3 +1,5 @@
+/** 커뮤니티 게시판 슬러그·라벨 설정 */
+
 import type { PostCategory } from "@/src/lib/db/entities/Post";
 
 export const BOARD_CATEGORY_LABEL: Record<PostCategory, string> = {

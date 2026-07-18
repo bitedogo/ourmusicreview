@@ -1,3 +1,5 @@
+/** 공통 컴포넌트 barrel export */
+
 export * from "./common/empty-state";
 export * from "./common/HtmlRenderer";
 export * from "./common/duplicate-review-modal";

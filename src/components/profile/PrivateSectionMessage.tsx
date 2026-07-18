@@ -1,3 +1,5 @@
+/** 비공개 섹션 안내 메시지 */
+
 export function PrivateSectionMessage() {
   return (
     <p className="rounded-xl border border-dashed border-zinc-200 bg-zinc-50 px-4 py-8 text-center text-xs text-zinc-500">

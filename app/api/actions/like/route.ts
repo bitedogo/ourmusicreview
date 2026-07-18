@@ -1,3 +1,5 @@
+/** POST/GET 좋아요 토글·상태 */
+
 import { getAppSession, requireSessionApi } from "@/src/lib/auth/session";
 import { initializeDatabase } from "@/src/lib/db";
 import { Like } from "@/src/lib/db/entities/Like";

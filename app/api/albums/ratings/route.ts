@@ -1,3 +1,5 @@
+/** GET 앨범 평점 일괄 조회 */
+
 import { In } from "typeorm";
 import { initializeDatabase } from "@/src/lib/db";
 import { Review } from "@/src/lib/db/entities/Review";

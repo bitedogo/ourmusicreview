@@ -1,4 +1,5 @@
 "use client";
+/** 관리자 FAQ 관리 클라이언트 */
 
 import { useEffect, useState } from "react";
 import Link from "next/link";

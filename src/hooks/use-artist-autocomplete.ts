@@ -1,4 +1,5 @@
 "use client";
+/** 아티스트 자동완성 검색 훅 */
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ItunesArtistResult } from "@/src/lib/itunes/types";

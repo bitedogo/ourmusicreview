@@ -1,4 +1,5 @@
 "use client";
+/** 전체 리뷰 목록 클라이언트 */
 
 import { useEffect, useState, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";

@@ -1,3 +1,5 @@
+/** 리뷰 반려 사유 상수 */
+
 export const REVIEW_REJECTION_REASONS = [
   "ORU 커뮤니티 가이드라인 위반 - 비방",
   "ORU 커뮤니티 가이드라인 위반 - 도배",

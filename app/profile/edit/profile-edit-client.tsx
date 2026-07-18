@@ -1,4 +1,5 @@
 "use client";
+/** 프로필 수정 클라이언트(닉네임·이미지) */
 
 import { useCallback, useState } from "react";
 import { useSession } from "next-auth/react";

@@ -1,4 +1,5 @@
 "use client";
+/** 내 댓글 목록 페이지 */
 
 import Link from "next/link";
 import { getBoardCategoryLabel } from "@/src/lib/community/board-config";

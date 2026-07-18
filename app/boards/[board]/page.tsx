@@ -1,3 +1,5 @@
+/** 게시판별 글 목록 페이지 */
+
 import { notFound } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { In } from "typeorm";

@@ -1,3 +1,5 @@
+/** iTunes 앨범·아티스트 검색 */
+
 import type { ItunesArtistResult, ItunesSearchAutocompleteResponse } from "./types";
 
 export const ARTIST_SEARCH_DEBOUNCE_MS = 300;

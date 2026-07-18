@@ -1,4 +1,5 @@
 "use client";
+/** 홈 히어로 스티키 영역 */
 
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";

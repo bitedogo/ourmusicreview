@@ -1,4 +1,5 @@
 "use client";
+/** 즐겨찾기 앨범 ID 목록 훅 */
 
 import { useCallback, useEffect, useState } from "react";
 import { ApiClientError, fetchJson } from "@/src/lib/http/client";

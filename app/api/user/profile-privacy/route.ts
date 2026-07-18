@@ -1,3 +1,5 @@
+/** PATCH/GET 프로필 공개 설정 */
+
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/src/lib/auth/config";
 import { initializeDatabase } from "@/src/lib/db";

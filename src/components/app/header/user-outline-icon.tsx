@@ -1,3 +1,5 @@
+/** 유저 아웃라인 아이콘 */
+
 export function UserOutlineIcon() {
   return (
     <svg

@@ -1,3 +1,5 @@
+/** 헤더·푸터 네비게이션 메뉴 설정 */
+
 export interface NavLinkItem {
   href: string;
   label: string;

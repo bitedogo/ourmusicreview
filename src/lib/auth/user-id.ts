@@ -1,3 +1,5 @@
+/** 세션에서 유저 ID 추출 유틸 */
+
 export const USER_ID_MIN = 4;
 export const USER_ID_MAX = 50;
 

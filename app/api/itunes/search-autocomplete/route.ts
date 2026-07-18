@@ -1,3 +1,5 @@
+/** GET iTunes 검색 자동완성 */
+
 import { searchArtists } from "@/src/lib/itunes";
 import { apiError, apiOk } from "@/src/lib/http/response";
 

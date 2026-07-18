@@ -1,4 +1,5 @@
 "use client";
+/** 오늘의 앨범 목록 훅 */
 
 import { useCallback, useEffect, useState } from "react";
 import { fetchJson } from "@/src/lib/http/client";

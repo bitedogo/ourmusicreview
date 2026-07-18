@@ -1,4 +1,5 @@
 "use client";
+/** iTunes 앨범 선택 모달 */
 
 import { useEffect } from "react";
 import type { SearchAlbumResult } from "@/src/lib/search/types";

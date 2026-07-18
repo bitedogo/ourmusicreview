@@ -1,4 +1,5 @@
 "use client";
+/** 프로필·이미지 크롭 모달 */
 
 import { useCallback, useState } from "react";
 import ReactCrop, {
@@ -8,6 +9,9 @@ import ReactCrop, {
   type PixelCrop,
 } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
+
+const MAX_OUTPUT_SIZE = 400;
+const OUTPUT_QUALITY = 0.85;
 
 function cropImageToBlob(
   image: HTMLImageElement,
@@ -25,20 +29,36 @@ function cropImageToBlob(
     const scaleX = image.naturalWidth / image.width;
     const scaleY = image.naturalHeight / image.height;
 
-    canvas.width = crop.width * scaleX;
-    canvas.height = crop.height * scaleY;
+    const sourceWidth = crop.width * scaleX;
+    const sourceHeight = crop.height * scaleY;
+
+    const outputScale = Math.min(
+      1,
+      MAX_OUTPUT_SIZE / Math.max(sourceWidth, sourceHeight)
+    );
+    canvas.width = Math.round(sourceWidth * outputScale);
+    canvas.height = Math.round(sourceHeight * outputScale);
+
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
 
     ctx.drawImage(
       image,
       crop.x * scaleX,
       crop.y * scaleY,
-      crop.width * scaleX,
-      crop.height * scaleY,
+      sourceWidth,
+      sourceHeight,
       0,
       0,
       canvas.width,
       canvas.height
     );
+
+    const supportsWebp = canvas
+      .toDataURL("image/webp")
+      .startsWith("data:image/webp");
+    const mimeType = supportsWebp ? "image/webp" : "image/jpeg";
+    const ext = supportsWebp ? "webp" : "jpg";
 
     canvas.toBlob(
       (blob) => {
@@ -47,11 +67,11 @@ function cropImageToBlob(
           return;
         }
         const baseName = fileName.replace(/\.[^.]+$/, "") || "profile";
-        const file = new File([blob], `${baseName}.jpg`, { type: "image/jpeg" });
+        const file = new File([blob], `${baseName}.${ext}`, { type: mimeType });
         resolve(file);
       },
-      "image/jpeg",
-      0.92
+      mimeType,
+      OUTPUT_QUALITY
     );
   });
 }

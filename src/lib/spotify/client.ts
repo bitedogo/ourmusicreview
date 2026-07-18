@@ -1,3 +1,5 @@
+/** Spotify Web API 클라이언트 */
+
 import { getSpotifyAccessToken } from "./token";
 
 const API_BASE = "https://api.spotify.com/v1";

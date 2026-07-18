@@ -1,3 +1,5 @@
+/** 날짜 포맷·파싱 유틸 */
+
 export function formatDateYYYYMMDD(dateInput: string | Date): string {
   try {
     const d = new Date(dateInput);

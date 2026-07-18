@@ -1,3 +1,5 @@
+/** 홈 히어로 카피 문구 */
+
 import { HeroLineJoin } from "./responsive-line-join";
 
 interface HomeHeroCopyProps {

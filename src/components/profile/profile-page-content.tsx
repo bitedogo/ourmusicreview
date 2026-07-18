@@ -1,5 +1,7 @@
 "use client";
 
+/** 마이페이지 프로필 헤더·활동·명반 */
+
 import Link from "next/link";
 import Image from "next/image";
 import { ReactNode } from "react";
@@ -11,10 +13,11 @@ import {
   ProfileMasterpieceItem,
   GENDER_LABEL,
 } from "./profile-types";
-import { PrivacyToggle } from "./PrivacyToggle";
 import { PrivateSectionMessage } from "./PrivateSectionMessage";
-import { ProfileRatingGauge } from "./ProfileRatingGauge";
-import { ProfileReviewRow } from "./ProfileReviewRow";
+import {
+  ProfileRatingGauge,
+  useAverageRating,
+} from "./ProfileRatingGauge";
 
 export type {
   ProfilePrivacySettings,
@@ -22,6 +25,10 @@ export type {
   ProfileFavoriteItem,
   ProfileMasterpieceItem,
 } from "./profile-types";
+
+/** 섹션 카드 공통 스타일 */
+const SECTION_CARD =
+  "relative mx-auto box-border w-full max-w-[1100px] overflow-hidden rounded-[15px] border border-[#D9D9D9] bg-white shadow-[0px_2px_4px_rgba(0,0,0,0.25)]";
 
 export interface ProfilePageContentProps {
   mode: "owner" | "viewer";
@@ -52,6 +59,11 @@ export interface ProfilePageContentProps {
   masterpiecesSection?: ReactNode;
   reviewsAllHref?: string;
   favoritesAllHref?: string;
+  activityStats?: {
+    postCount: number;
+    commentCount: number;
+    likedPostCount: number;
+  };
 }
 
 export function ProfilePageContent(props: ProfilePageContentProps) {
@@ -63,7 +75,7 @@ export function ProfilePageContent(props: ProfilePageContentProps) {
     nickname,
     name,
     gender,
-    role,
+    role: _role,
     createdAtText,
     profileImage,
     privacy,
@@ -84,6 +96,7 @@ export function ProfilePageContent(props: ProfilePageContentProps) {
     masterpiecesSection,
     reviewsAllHref,
     favoritesAllHref,
+    activityStats,
   } = props;
 
   const isOwner = mode === "owner";
@@ -91,13 +104,27 @@ export function ProfilePageContent(props: ProfilePageContentProps) {
   const visibleReviews = isOwner || !reviewsHidden ? reviews : [];
   const visibleFavorites = isOwner || !favoritesHidden ? favoriteAlbums : [];
   const visibleMasterpieces = isOwner || !masterpiecesHidden ? masterpieces : [];
-  const reviewCount = totalReviewCount ?? reviews.length;
   const showReviewGauge = isOwner || !ratingHidden;
   const gaugeReviews = isOwner ? reviews : visibleReviews;
+  const reviewCount = totalReviewCount ?? reviews.length;
+  const favoriteCount = favoriteAlbums.length;
+  const { displayRating, listenerLabel, hasRatingData } = useAverageRating(
+    gaugeReviews,
+    !isOwner ? averageRating : undefined
+  );
+
+  const reviewCovers = visibleReviews
+    .map((r) => r.album?.imageUrl)
+    .filter((url): url is string => Boolean(url))
+    .slice(0, 3);
+  const favoriteCovers = visibleFavorites
+    .map((f) => f.album?.imageUrl)
+    .filter((url): url is string => Boolean(url))
+    .slice(0, 3);
 
   return (
     <div className="min-h-screen">
-      <div className="mx-auto max-w-5xl px-3 py-6 sm:px-6 sm:py-8 md:px-10">
+      <div className="mx-auto max-w-[1100px] px-3 py-6 sm:px-6 sm:py-8">
         <div className="mb-6 flex items-center justify-between gap-4">
           <h1 className="text-xl font-semibold tracking-tight text-zinc-900 md:text-2xl">
             {pageTitle}
@@ -105,303 +132,677 @@ export function ProfilePageContent(props: ProfilePageContentProps) {
           {headerAction}
         </div>
 
-        <div className="mb-6 overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm">
-          <div className="flex flex-col md:flex-row">
-            <div className="flex flex-1 flex-col items-center gap-4 border-b border-zinc-100 p-6 md:min-w-0 md:border-b-0 md:border-r md:border-zinc-100">
-              <ProfileAvatar
-                isOwner={isOwner}
-                profilePreviewHref={profilePreviewHref}
+        {/* ========== 1. 프로필 헤더 ========== */}
+        <div
+          className={`${SECTION_CARD} mb-6 max-lg:bg-[#FEFEFE] max-lg:shadow-[0px_3px_3px_rgba(0,0,0,0.25)]`}
+        >
+          {/* Desktop */}
+          <div className="hidden h-[484px] lg:grid lg:grid-cols-[minmax(0,420px)_1px_minmax(0,1fr)]">
+            {/* 좌: 아바타 · 기본 정보 */}
+            <div className="relative flex h-full flex-col items-center justify-center px-10">
+              <ProfileAvatarRing
+                size={180}
                 profileImage={profileImage}
                 nickname={nickname}
+                href={profilePreviewHref}
               />
-              
-              <div className="text-center">
-                <p className="text-base font-bold text-zinc-900 md:text-lg">{nickname}</p>
-                {isOwner && <p className="mt-0.5 truncate text-xs text-zinc-500">{userId}</p>}
-              </div>
 
-              <div className="grid w-full grid-cols-2 gap-3">
-                <ProfileStatCard
-                  label="리뷰"
-                  value={reviewsHidden && !isOwner ? "-" : reviewCount}
-                />
-                <ProfileStatCard
-                  label="좋아요"
-                  value={favoritesHidden && !isOwner ? "-" : visibleFavorites.length}
-                />
-              </div>
+              <p className="mt-4 text-[24px] font-normal leading-[29px] text-black">
+                {nickname}
+              </p>
+
+              <dl className="mt-8 w-full max-w-[280px] space-y-[26px] text-[14px] leading-[17px]">
+                {isOwner && (
+                  <div className="grid grid-cols-[55px_1fr] gap-x-[20px]">
+                    <dt className="text-[#7F7F7F]">이름</dt>
+                    <dd className="truncate text-black">{name ?? "-"}</dd>
+                  </div>
+                )}
+                <div className="grid grid-cols-[55px_1fr] gap-x-[20px]">
+                  <dt className="text-[#7F7F7F]">성별</dt>
+                  <dd className="text-black">
+                    {gender ? GENDER_LABEL[gender] ?? gender : "-"}
+                  </dd>
+                </div>
+                <div className="grid grid-cols-[55px_1fr] items-center gap-x-[20px]">
+                  <dt className="text-[#7F7F7F]">가입일</dt>
+                  <dd className="truncate text-black">{createdAtText}</dd>
+                </div>
+              </dl>
 
               {isOwner && (
                 <Link
                   href="/profile/edit"
-                  className="w-full rounded-lg bg-[var(--color-brand-primary)] px-4 py-2.5 text-center text-sm font-medium text-white transition hover:bg-[var(--color-brand-primary-hover)]"
+                  aria-label="내 정보 수정"
+                  className="absolute bottom-[62px] right-10 inline-flex h-[24px] w-[24px] items-center justify-center overflow-visible"
                 >
-                  내 정보 수정
+                  <EditPencilIcon />
                 </Link>
               )}
             </div>
 
-            <div className="flex min-w-0 flex-1 flex-col gap-6 border-b border-zinc-100 p-6 md:border-b-0 md:border-r md:border-zinc-100">
-              <div className="grid grid-cols-2 gap-x-10 gap-y-6 sm:grid-cols-4">
-                {isOwner && <ProfileInfoItem label="이름" value={name ?? "-"} />}
-                <ProfileInfoItem label="성별" value={gender ? GENDER_LABEL[gender] ?? gender : "-"} />
-                <ProfileInfoItem label="닉네임" value={nickname} />
-                {isOwner && role && <ProfileInfoItem label="권한" value={role} className="col-span-2 sm:col-span-4" />}
-                <ProfileInfoItem label="가입일" value={createdAtText} className="col-span-2 sm:col-span-4" valueClassName="text-zinc-600" />
-              </div>
+            <div className="my-7 w-px self-stretch bg-[#E3E3E3]" aria-hidden />
 
-              {isOwner && <ProfileActivityLinks />}
-            </div>
-
-            <div className="flex min-w-0 flex-1 flex-col items-center justify-center gap-3 border-zinc-100 py-6 md:border-l md:border-zinc-100 md:py-0">
+            {/* 우: Average Rate (가로 게이지) */}
+            <div className="relative flex h-full min-w-0 flex-col px-8 py-10 pr-10">
               {isOwner && onPrivacyChange && (
-                <div className="flex items-center gap-2">
-                  <PrivacyToggle
+                <div className="absolute right-8 top-7">
+                  <ActivityPrivacyToggle
                     isPublic={privacy.showRatingPublic}
                     disabled={isSavingPrivacy}
                     onChange={(value) => onPrivacyChange("showRatingPublic", value)}
                   />
                 </div>
               )}
-              {showReviewGauge ? (
-                <ProfileRatingGauge
-                  reviews={gaugeReviews}
-                  nickname={nickname}
-                  averageRating={!isOwner ? averageRating : undefined}
-                />
+
+              {showReviewGauge && hasRatingData ? (
+                <>
+                  <p className="text-[24px] font-extrabold leading-[29px] text-[#43A7B2]">
+                    Average Rate
+                  </p>
+                  <p
+                    className="font-extrabold text-[#FFA310]"
+                    style={{ fontSize: 75, lineHeight: "90px" }}
+                  >
+                    {displayRating.toFixed(1)}
+                  </p>
+                  <div className="mt-1 w-full max-w-[565px]">
+                    <ProfileRatingGauge
+                      reviews={gaugeReviews}
+                      averageRating={!isOwner ? averageRating : undefined}
+                      barOnly
+                    />
+                  </div>
+                  <div className="mt-2 flex w-full max-w-[565px] items-center justify-between">
+                    <span className="text-[15px] font-extralight leading-[18px] text-[#8F8F8F]">
+                      Born Hater
+                    </span>
+                    <span className="text-[15px] font-extralight leading-[18px] text-[#8F8F8F]">
+                      Sound Lover
+                    </span>
+                  </div>
+                  <p className="mt-auto pb-2 text-center text-[32px] font-extrabold leading-[38px] text-[#43A7B2]">
+                    {listenerLabel}
+                  </p>
+                </>
+              ) : showReviewGauge ? (
+                <div className="flex flex-1 items-center justify-center">
+                  <p className="text-center text-sm text-zinc-400">
+                    리뷰를 작성하면 평균 평점이 표시됩니다.
+                  </p>
+                </div>
               ) : (
-                <PrivateSectionMessage />
+                <div className="flex flex-1 items-center justify-center">
+                  <PrivateSectionMessage />
+                </div>
               )}
             </div>
           </div>
-        </div>
 
-        <div className="flex flex-col gap-6">
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <section className="overflow-hidden rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
-              <SectionHeader
-                title={isOwner ? "나의 리뷰" : "작성 리뷰"}
-                isOwner={isOwner}
-                isPublic={privacy.showReviewsPublic}
-                isSaving={isSavingPrivacy}
-                onPrivacyChange={(val: boolean) => onPrivacyChange?.("showReviewsPublic", val)}
-                allHref={reviewsAllHref}
-                hideAll={!isOwner && reviewsHidden}
-              />
+          {/* Mobile — Frame 23 세로 스택 */}
+          <div className="flex w-full flex-col items-center justify-center gap-5 py-[25px] lg:hidden">
+            <ProfileAvatarRing
+              size={100}
+              profileImage={profileImage}
+              nickname={nickname}
+              href={profilePreviewHref}
+            />
 
-              {reviewsHidden && !isOwner ? (
-                <PrivateSectionMessage />
-              ) : isLoadingReviews ? (
-                <p className="text-xs text-zinc-500">불러오는 중...</p>
-              ) : visibleReviews.length === 0 ? (
-                <p className="text-xs text-zinc-500">작성한 리뷰가 없습니다.</p>
-              ) : (
-                <div className="space-y-2">
-                  {visibleReviews.slice(0, 5).map((review) => (
-                    <ProfileReviewRow key={review.id} review={review} />
-                  ))}
+            <p className="text-[24px] font-normal leading-[29px] text-black">
+              {nickname}
+            </p>
+
+            <dl className="flex w-[165px] flex-col gap-[15px] pt-2.5 text-[11px] leading-[13px]">
+              {isOwner && (
+                <div className="flex gap-0">
+                  <dt className="w-[55px] shrink-0 text-[#7F7F7F]">이름</dt>
+                  <dd className="min-w-0 truncate text-black">{name ?? "-"}</dd>
                 </div>
               )}
-            </section>
+              <div className="flex">
+                <dt className="w-[55px] shrink-0 text-[#7F7F7F]">성별</dt>
+                <dd className="text-black">
+                  {gender ? GENDER_LABEL[gender] ?? gender : "-"}
+                </dd>
+              </div>
+              <div className="flex">
+                <dt className="w-[55px] shrink-0 text-[#7F7F7F]">가입일</dt>
+                <dd className="min-w-0 truncate text-black">{createdAtText}</dd>
+              </div>
+            </dl>
 
-            <section className="overflow-hidden rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
-              <SectionHeader
-                title="좋아하는 앨범"
-                isOwner={isOwner}
-                isPublic={privacy.showFavoritesPublic}
-                isSaving={isSavingPrivacy}
-                onPrivacyChange={(val: boolean) => onPrivacyChange?.("showFavoritesPublic", val)}
-                allHref={favoritesAllHref}
-                hideAll={!isOwner && favoritesHidden}
-              />
+            {isOwner && (
+              <div className="flex h-5 w-full items-center justify-end px-[27px]">
+                <Link
+                  href="/profile/edit"
+                  aria-label="내 정보 수정"
+                  className="inline-flex h-5 w-5 items-center justify-center"
+                >
+                  <EditPencilIcon size={20} />
+                </Link>
+              </div>
+            )}
 
-              {favoritesHidden && !isOwner ? (
-                <PrivateSectionMessage />
-              ) : isLoadingFavorites ? (
-                <p className="text-xs text-zinc-500">불러오는 중...</p>
-              ) : visibleFavorites.length === 0 ? (
-                <p className="text-xs text-zinc-500">좋아요한 앨범이 없습니다.</p>
-              ) : (
-                <div className="grid grid-cols-3 grid-rows-2 gap-3">
-                  {visibleFavorites.slice(0, 6).map((fav) => (
-                    <FavoriteAlbumCard key={fav.id} fav={fav} />
-                  ))}
-                </div>
-              )}
-            </section>
-          </div>
+            <div className="h-px w-[280px] max-w-[calc(100%-28px)] bg-[#E3E3E3]" aria-hidden />
 
-          <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm md:p-8">
-            <div className="mb-4 flex items-center justify-between gap-2">
-              <h2 className="text-sm font-semibold tracking-tight text-zinc-900 md:text-base">나만의 명반</h2>
-              {isOwner && onPrivacyChange && (
-                <PrivacyToggle
-                  isPublic={privacy.showMasterpiecesPublic}
+            {isOwner && onPrivacyChange && (
+              <div className="flex h-[25px] w-full items-center justify-center px-[27px]">
+                <ActivityPrivacyToggle
+                  size="sm"
+                  isPublic={privacy.showRatingPublic}
                   disabled={isSavingPrivacy}
-                  onChange={(value) => onPrivacyChange("showMasterpiecesPublic", value)}
+                  onChange={(value) => onPrivacyChange("showRatingPublic", value)}
                 />
-              )}
-            </div>
+              </div>
+            )}
 
-            {masterpiecesHidden && !isOwner ? (
-              <PrivateSectionMessage />
-            ) : isOwner && masterpiecesSection ? (
-              masterpiecesSection
-            ) : isLoadingMasterpieces ? (
-              <p className="text-sm text-zinc-500">불러오는 중...</p>
+            {showReviewGauge && hasRatingData ? (
+              <>
+                <div className="flex h-[178px] w-full items-center justify-center">
+                  <ProfileRatingGauge
+                    reviews={gaugeReviews}
+                    averageRating={!isOwner ? averageRating : undefined}
+                    variant="mobileVertical"
+                  />
+                </div>
+                <p className="w-[185px] text-center text-[24px] font-extrabold leading-[29px] text-[#43A7B2]">
+                  {listenerLabel}
+                </p>
+              </>
+            ) : showReviewGauge ? (
+              <p className="px-6 py-8 text-center text-sm text-zinc-400">
+                리뷰를 작성하면 평균 평점이 표시됩니다.
+              </p>
             ) : (
-              <MasterpiecesReadOnly albums={visibleMasterpieces} />
+              <div className="px-6 py-8">
+                <PrivateSectionMessage />
+              </div>
             )}
           </div>
         </div>
+
+        {/* ========== 2. 나의 활동 ========== */}
+        {isOwner && (
+          <section className={`${SECTION_CARD} mb-6 lg:h-[530px]`}>
+            {/* Header */}
+            <div className="flex items-center gap-[10px] px-[52px] pt-10 lg:absolute lg:left-[52px] lg:top-[40px] lg:z-10 lg:px-0 lg:pt-0">
+              <h2 className="text-[15px] font-normal leading-[18px] text-black">나의 활동</h2>
+              <span
+                className="inline-flex h-[22px] w-[22px] items-center justify-center rounded-full bg-[#D9D9D9] text-[11px] font-bold text-white"
+                title="리뷰·좋아요·게시글 활동 요약"
+              >
+                i
+              </span>
+            </div>
+            <div
+              className="mx-[52px] mt-4 h-px bg-[#E3E3E3] lg:absolute lg:left-[52px] lg:right-[52px] lg:top-[78px] lg:mx-0 lg:mt-0"
+              aria-hidden
+            />
+
+            {/* Frame 101 — collection cards */}
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-[46px] px-5 lg:absolute lg:left-1/2 lg:top-[117px] lg:mt-0 lg:w-[578px] lg:-translate-x-1/2 lg:flex-nowrap lg:p-[5px]">
+              <ActivityCollectionCard
+                title="My Reviews"
+                count={reviewCount}
+                covers={reviewCovers}
+                href={reviewsAllHref ?? "/profile/reviews"}
+                isLoading={isLoadingReviews}
+                isOwner={isOwner}
+                isPublic={privacy.showReviewsPublic}
+                isSavingPrivacy={isSavingPrivacy}
+                onPrivacyChange={
+                  onPrivacyChange
+                    ? (value) => onPrivacyChange("showReviewsPublic", value)
+                    : undefined
+                }
+              />
+              <ActivityCollectionCard
+                title="My Favorite"
+                count={favoriteCount}
+                covers={favoriteCovers}
+                href={favoritesAllHref ?? "/profile/albums"}
+                isLoading={isLoadingFavorites}
+                isOwner={isOwner}
+                isPublic={privacy.showFavoritesPublic}
+                isSavingPrivacy={isSavingPrivacy}
+                onPrivacyChange={
+                  onPrivacyChange
+                    ? (value) => onPrivacyChange("showFavoritesPublic", value)
+                    : undefined
+                }
+              />
+            </div>
+
+            {/* 활동 통계 버튼 — 가로 3열 */}
+            <div className="mt-8 flex w-full flex-row items-stretch justify-center gap-2 px-4 pb-8 sm:gap-[13px] sm:px-[52px] lg:absolute lg:bottom-[24px] lg:left-1/2 lg:mt-0 lg:w-[986px] lg:max-w-[calc(100%-104px)] lg:-translate-x-1/2 lg:gap-[13px] lg:px-0 lg:pb-0">
+              <ActivityStatBox
+                label="작성한 게시글"
+                count={activityStats?.postCount ?? 0}
+                href="/profile/posts"
+              />
+              <ActivityStatBox
+                label="작성한 댓글"
+                count={activityStats?.commentCount ?? 0}
+                href="/profile/comments"
+              />
+              <ActivityStatBox
+                label="추천한 글"
+                count={activityStats?.likedPostCount ?? 0}
+              />
+            </div>
+          </section>
+        )}
+
+        {!isOwner && (
+          <section className={`${SECTION_CARD} mb-6 px-6 py-10`}>
+            <div className="mb-8 flex items-center gap-[10px]">
+              <h2 className="text-[15px] font-normal leading-[18px] text-black">나의 활동</h2>
+              <span className="inline-flex h-[22px] w-[22px] items-center justify-center rounded-full bg-[#D9D9D9] text-[11px] font-bold text-white">
+                i
+              </span>
+            </div>
+            <div className="mb-8 h-px w-full bg-[#E3E3E3]" aria-hidden />
+            <div className="flex flex-wrap items-start justify-center gap-[46px]">
+              {reviewsHidden ? (
+                <div className="flex h-[282px] w-[266px] items-center justify-center rounded-[15px] border border-[#D9D9D9] bg-white p-5">
+                  <PrivateSectionMessage />
+                </div>
+              ) : (
+                <ActivityCollectionCard
+                  title="My Reviews"
+                  count={reviewCount}
+                  covers={reviewCovers}
+                  href={reviewsAllHref}
+                  isLoading={isLoadingReviews}
+                  isOwner={false}
+                  isPublic
+                />
+              )}
+              {favoritesHidden ? (
+                <div className="flex h-[282px] w-[266px] items-center justify-center rounded-[15px] border border-[#D9D9D9] bg-white p-5">
+                  <PrivateSectionMessage />
+                </div>
+              ) : (
+                <ActivityCollectionCard
+                  title="My Favorite"
+                  count={favoriteCount}
+                  covers={favoriteCovers}
+                  href={favoritesAllHref}
+                  isLoading={isLoadingFavorites}
+                  isOwner={false}
+                  isPublic
+                />
+              )}
+            </div>
+          </section>
+        )}
+
+        {/* ========== 3. 나의 Masterpiece ========== */}
+        {masterpiecesHidden && !isOwner ? (
+          <section className={`${SECTION_CARD} mt-6 px-[52px] py-10`}>
+            <h2 className="mb-6 text-[15px] font-normal leading-[18px] text-black">
+              나의 Masterpiece
+            </h2>
+            <div className="mb-8 h-px w-full bg-[#E3E3E3]" aria-hidden />
+            <PrivateSectionMessage />
+          </section>
+        ) : isOwner && masterpiecesSection ? (
+          <div className="mt-6">{masterpiecesSection}</div>
+        ) : (
+          <section className={`${SECTION_CARD} mt-6 px-[52px] pb-10 pt-10`}>
+            <h2 className="mb-6 text-[15px] font-normal leading-[18px] text-black">
+              나의 Masterpiece
+            </h2>
+            <div className="mb-8 h-px w-full bg-[#E3E3E3]" aria-hidden />
+            {isLoadingMasterpieces ? (
+              <p className="py-16 text-center text-sm text-zinc-500">불러오는 중...</p>
+            ) : (
+              <MasterpiecesReadOnly albums={visibleMasterpieces} />
+            )}
+          </section>
+        )}
       </div>
     </div>
   );
 }
 
-interface ProfileAvatarProps {
-  isOwner: boolean;
-  profilePreviewHref: string;
+/* -------------------------------------------------------------------------- */
+/* 프로필 아바타 (균일 border 링)                                               */
+/* -------------------------------------------------------------------------- */
+
+function ProfileAvatarRing({
+  size,
+  profileImage,
+  nickname,
+  href,
+}: {
+  size: 100 | 180;
   profileImage: string | null;
   nickname: string;
-}
-
-function ProfileAvatar({ isOwner, profilePreviewHref, profileImage, nickname }: ProfileAvatarProps) {
-  const node = (
-    <div className="h-24 w-24 shrink-0 overflow-hidden rounded-full border-2 border-zinc-100 bg-zinc-100 shadow-sm md:h-28 md:w-28">
+  href: string;
+}) {
+  const px = size === 180 ? 176 : 98;
+  return (
+    <div
+      className="relative shrink-0 overflow-hidden rounded-full border-2 border-[#43A7B2] bg-white shadow-[0px_2px_4px_rgba(0,0,0,0.25)] box-border"
+      style={{ width: size, height: size }}
+    >
       {profileImage ? (
-        <Image src={profileImage} alt={nickname} width={112} height={112} unoptimized className="h-full w-full object-cover" />
+        <Link href={href} className="block h-full w-full">
+          <Image
+            src={profileImage}
+            alt={nickname}
+            width={px}
+            height={px}
+            sizes={`${px}px`}
+            className="h-full w-full object-cover"
+          />
+        </Link>
       ) : (
-        <div className="flex h-full w-full items-center justify-center text-xs font-bold uppercase text-zinc-400">No Image</div>
+        <div
+          className={`flex h-full w-full items-center justify-center font-bold text-zinc-300 ${
+            size === 180 ? "text-sm" : "text-[10px]"
+          }`}
+        >
+          No Image
+        </div>
       )}
     </div>
   );
-
-  return isOwner ? (
-    <Link href={profilePreviewHref} className="shrink-0">
-      {node}
-    </Link>
-  ) : node;
 }
 
-function ProfileStatCard({ label, value }: { label: string; value: string | number }) {
+/* -------------------------------------------------------------------------- */
+/* 편집 연필 아이콘                                                            */
+/* -------------------------------------------------------------------------- */
+
+function EditPencilIcon({ size = 22 }: { size?: number }) {
   return (
-    <div className="rounded-lg bg-zinc-50 px-3 py-2 text-center">
-      <p className="text-lg font-bold text-zinc-900">{value}</p>
-      <p className="text-[10px] font-medium text-zinc-500">{label}</p>
-    </div>
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src="/icons/edit-pencil.png"
+      alt=""
+      width={size}
+      height={size}
+      className="block object-contain"
+      style={{ width: size, height: size }}
+      draggable={false}
+    />
   );
 }
 
-interface ProfileInfoItemProps {
-  label: string;
-  value: string;
-  className?: string;
-  valueClassName?: string;
-}
-
-function ProfileInfoItem({ label, value, className = "", valueClassName = "text-zinc-900" }: ProfileInfoItemProps) {
-  return (
-    <div className={className}>
-      <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">{label}</p>
-      <p className={`mt-1.5 truncate text-sm font-medium ${valueClassName}`}>{value}</p>
-    </div>
-  );
-}
-
-function ProfileActivityLinks() {
-  return (
-    <div className="border-t border-zinc-100 pt-5">
-      <p className="mb-3 text-[10px] font-semibold uppercase tracking-wider text-zinc-400">나의 활동</p>
-      <div className="flex flex-wrap gap-2">
-        <ActivityLink href="/profile/posts">내가 쓴 게시글</ActivityLink>
-        <ActivityLink href="/profile/comments">내가 쓴 댓글</ActivityLink>
-      </div>
-    </div>
-  );
-}
-
-function ActivityLink({ href, children }: { href: string; children: ReactNode }) {
-  return (
-    <Link
-      href={href}
-      className="whitespace-nowrap rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-2.5 text-sm font-medium text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-100 hover:text-[var(--color-brand-primary)]"
-    >
-      {children}
-    </Link>
-  );
-}
-
-interface SectionHeaderProps {
+interface ActivityCollectionCardProps {
   title: string;
+  count: number;
+  covers: string[];
+  href?: string;
+  isLoading: boolean;
   isOwner: boolean;
   isPublic: boolean;
-  isSaving: boolean;
-  onPrivacyChange: (val: boolean) => void;
-  allHref?: string;
-  hideAll: boolean;
+  isSavingPrivacy?: boolean;
+  onPrivacyChange?: (value: boolean) => void;
 }
 
-function SectionHeader({ title, isOwner, isPublic, isSaving, onPrivacyChange, allHref, hideAll }: SectionHeaderProps) {
-  return (
-    <div className="mb-4 flex items-center justify-between gap-2">
-      <h2 className="text-sm font-semibold tracking-tight text-zinc-900">{title}</h2>
-      <div className="flex items-center gap-2">
-        {isOwner && onPrivacyChange && (
-          <PrivacyToggle isPublic={isPublic} disabled={isSaving} onChange={onPrivacyChange} />
-        )}
-        {allHref && !hideAll && (
-          <Link href={allHref} className="text-xs font-medium text-zinc-500 hover:text-[var(--color-brand-primary)]">
-            전체보기
-          </Link>
-        )}
+/* -------------------------------------------------------------------------- */
+/* My Reviews / My Favorite 컬렉션 카드                                        */
+/* -------------------------------------------------------------------------- */
+
+function ActivityCollectionCard({
+  title,
+  count,
+  covers,
+  href,
+  isLoading,
+  isOwner,
+  isPublic,
+  isSavingPrivacy = false,
+  onPrivacyChange,
+}: ActivityCollectionCardProps) {
+  const slots = [covers[0] ?? null, covers[1] ?? null, covers[2] ?? null];
+  // Figma: back(top-right) → mid → front(bottom-left)
+  const coverLayers = [
+    { left: 73.88, top: 5, z: 1, url: slots[2] },
+    { left: 51.88, top: 19, z: 2, url: slots[1] },
+    { left: 30, top: 33, z: 3, url: slots[0] },
+  ];
+
+  const content = (
+    <div className="relative h-[282px] w-[266px] shrink-0 grow-0">
+      {/* Cover stack — Group 192 */}
+      {coverLayers.map((layer, index) => (
+        <div
+          key={index}
+          className="absolute overflow-hidden bg-zinc-200"
+          style={{
+            left: layer.left,
+            top: layer.top,
+            width: 166.68,
+            height: 166.68,
+            borderRadius: "14.125px 14.125px 0 0",
+            zIndex: layer.z,
+          }}
+        >
+          {layer.url ? (
+            <Image
+              src={layer.url}
+              alt=""
+              width={167}
+              height={167}
+              unoptimized
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <div className="h-full w-full bg-gradient-to-br from-zinc-100 to-zinc-300" />
+          )}
+        </div>
+      ))}
+
+      {/* White panel — Union (tab + body) */}
+      <div
+        className="absolute z-10"
+        style={{
+          left: 5,
+          top: 123,
+          width: 261,
+          height: 159,
+          filter: "drop-shadow(0px 2px 4px rgba(0,0,0,0.25))",
+        }}
+      >
+        <div
+          className="absolute bg-white"
+          style={{ left: 0, top: 38, width: 261, height: 121, borderRadius: 15 }}
+        />
+        <div
+          className="absolute bg-white"
+          style={{ left: 0, top: 0, width: 132, height: 63, borderRadius: 15 }}
+        />
       </div>
+
+      {/* Title + count */}
+      <p
+        className="absolute z-20 flex items-center text-[15px] font-normal leading-[145%] tracking-[-0.005em] text-black"
+        style={{ left: 26, top: 215, width: 120, height: 22 }}
+      >
+        {title}
+      </p>
+      <p
+        className="absolute z-20 flex items-center text-[22px] font-normal leading-[145%] tracking-[-0.005em] text-[#909090]"
+        style={{ left: 26, top: 238, width: 120, height: 32 }}
+      >
+        {isLoading ? "..." : `${count} Saved`}
+      </p>
+
+      {/* Privacy toggle — Group 195 */}
+      {isOwner && onPrivacyChange && (
+        <div
+          className="absolute z-20"
+          style={{ left: 17, top: 131, width: 111, height: 35 }}
+          onClick={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+          }}
+        >
+          <ActivityPrivacyToggle
+            isPublic={isPublic}
+            disabled={isSavingPrivacy}
+            onChange={onPrivacyChange}
+          />
+        </div>
+      )}
     </div>
   );
-}
 
-function FavoriteAlbumCard({ fav }: { fav: ProfileFavoriteItem }) {
+  if (!href) return content;
+
   return (
-    <Link
-      href={`/review/album/${encodeURIComponent(fav.albumId || (fav.album?.albumId ?? ""))}`}
-      className="flex min-w-0 flex-col gap-2 rounded-xl border border-zinc-100 bg-zinc-50 p-2 transition hover:border-zinc-200 hover:bg-zinc-100"
-    >
-      {fav.album?.imageUrl ? (
-        <Image src={fav.album.imageUrl} className="aspect-square w-full rounded-md object-cover" alt={fav.album?.title ?? "앨범 커버"} width={100} height={100} unoptimized />
-      ) : (
-        <div className="aspect-square w-full rounded-md bg-zinc-100" />
-      )}
-      <div className="min-h-[2rem] min-w-0 space-y-0.5 text-center">
-        <p className="line-clamp-2 w-full text-[10px] font-semibold leading-tight text-zinc-900">{fav.album?.title ?? ""}</p>
-        {fav.album?.artist && <p className="w-full truncate text-[9px] text-zinc-500">{fav.album.artist}</p>}
-      </div>
+    <Link href={href} className="relative block h-[282px] w-[266px] shrink-0 grow-0">
+      {content}
     </Link>
   );
 }
 
+/* -------------------------------------------------------------------------- */
+/* 공개 / 비공개 토글                                                          */
+/* -------------------------------------------------------------------------- */
+
+function ActivityPrivacyToggle({
+  isPublic,
+  onChange,
+  disabled,
+  size = "md",
+}: {
+  isPublic: boolean;
+  onChange: (value: boolean) => void;
+  disabled?: boolean;
+  size?: "sm" | "md";
+}) {
+  const isSm = size === "sm";
+  return (
+    <div
+      className={`box-border flex items-center border border-[#D9D9D9] bg-[#FAFAFA] ${
+        isSm
+          ? "h-[25px] w-[90px] rounded-[5px] px-[4px]"
+          : "h-[35px] w-[111px] rounded-[10px] px-[5px]"
+      }`}
+    >
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={() => onChange(true)}
+        className={`flex items-center justify-center transition disabled:opacity-50 ${
+          isSm
+            ? "h-[17px] w-[38px] rounded-[4px] text-[9px] leading-[11px]"
+            : "h-6 w-[47px] rounded-[6px] text-[13px] leading-4"
+        } ${
+          isPublic
+            ? "bg-white text-[#43A7B2] shadow-[0px_1px_4px_rgba(0,0,0,0.25)]"
+            : "bg-transparent text-[#D9D9D9]"
+        }`}
+      >
+        공개
+      </button>
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={() => onChange(false)}
+        className={`flex flex-1 items-center justify-center transition disabled:opacity-50 ${
+          isSm
+            ? "h-[17px] rounded-[4px] text-[9px] leading-[11px]"
+            : "h-6 rounded-[6px] text-[13px] leading-4"
+        } ${
+          !isPublic
+            ? "bg-white text-[#43A7B2] shadow-[0px_1px_4px_rgba(0,0,0,0.25)]"
+            : "bg-transparent text-[#D9D9D9]"
+        }`}
+      >
+        비공개
+      </button>
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/* 활동 통계 박스 (게시글 · 댓글 · 추천)                                       */
+/* -------------------------------------------------------------------------- */
+
+function ActivityStatBox({
+  label,
+  count,
+  href,
+}: {
+  label: string;
+  count: number;
+  href?: string;
+}) {
+  const body = (
+    <div className="box-border flex h-[52px] w-full flex-col items-center justify-center gap-0.5 rounded-[10px] border border-[#D9D9D9] bg-white px-1.5 text-center text-[11px] leading-[13px] text-black transition hover:border-[#43A7B2] sm:h-[60px] sm:flex-row sm:justify-between sm:gap-0 sm:px-4 sm:text-left sm:text-[13px] sm:leading-[16px] lg:w-[320px] lg:flex-none lg:px-[27px] lg:text-[14px] lg:leading-[17px]">
+      <span className="max-w-full truncate">{label}</span>
+      <span className="shrink-0 sm:text-right">{count}개</span>
+    </div>
+  );
+
+  if (!href) {
+    return <div className="min-w-0 flex-1 lg:w-[320px] lg:flex-none">{body}</div>;
+  }
+  return (
+    <Link href={href} className="block min-w-0 flex-1 lg:w-[320px] lg:flex-none">
+      {body}
+    </Link>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/* Masterpiece 읽기 전용 그리드 (모바일 3 / 데스크톱 6)                        */
+/* -------------------------------------------------------------------------- */
+
 function MasterpiecesReadOnly({ albums }: { albums: ProfileMasterpieceItem[] }) {
-  if (albums.length === 0) return <p className="text-xs text-zinc-500">등록된 앨범이 없습니다.</p>;
+  if (albums.length === 0) {
+    return <p className="py-16 text-center text-sm text-zinc-500">등록된 앨범이 없습니다.</p>;
+  }
 
   return (
-    <div className="grid grid-cols-2 gap-x-6 gap-y-1.5">
-      {[albums.slice(0, 15), albums.slice(15, 30)].map((column, colIdx) => (
-        <div key={colIdx} className="flex flex-col space-y-1.5">
-          {column.map((album) => (
+    <div className="grid grid-cols-3 justify-items-stretch gap-x-2 gap-y-6 lg:grid-cols-6 lg:gap-x-3">
+      {albums.map((album) => {
+        const year = album.releaseDate?.slice(0, 4) ?? "";
+        const genre = album.genre?.trim() || "—";
+        const yearText = /^\d{4}$/.test(year) ? year : "";
+        return (
+          <div key={album.id} className="relative w-full shrink-0">
             <Link
-              key={album.id}
               href={`/review/album/${encodeURIComponent(album.collectionId)}`}
-              className="flex items-center gap-2 rounded-lg border border-zinc-100 bg-white p-2 transition hover:bg-zinc-50"
+              className="flex w-full flex-col overflow-hidden rounded-[10px] bg-[#FEFEFE] shadow-[0px_2px_4px_rgba(0,0,0,0.25)]"
             >
-              {album.imageUrl ? (
-                <Image src={album.imageUrl} alt={album.title} width={32} height={32} unoptimized className="h-8 w-8 shrink-0 rounded object-cover" />
-              ) : (
-                <div className="h-8 w-8 shrink-0 rounded bg-zinc-200" />
-              )}
-              <span className="min-w-0 flex-1 truncate text-[11px] font-medium text-zinc-900">{album.title} · {album.artist}</span>
+              <div className="relative aspect-square w-full shrink-0 overflow-hidden rounded-t-[10px] bg-[#464646]">
+                {album.imageUrl ? (
+                  <Image
+                    src={album.imageUrl}
+                    alt={album.title}
+                    width={200}
+                    height={200}
+                    unoptimized
+                    className="h-full w-full object-cover"
+                  />
+                ) : null}
+              </div>
+              <div className="flex min-h-0 flex-col gap-0.5 px-2 pb-2 pt-1.5">
+                <p className="truncate text-[10px] font-bold leading-snug tracking-[-0.005em] text-[#464646] lg:text-[11px]">
+                  {album.title}
+                </p>
+                <p className="truncate text-[8px] font-bold leading-snug tracking-[-0.005em] text-[#939393] lg:text-[9px]">
+                  {album.artist}
+                </p>
+                <div className="flex items-start justify-between gap-1 text-[7px] font-bold leading-snug tracking-[-0.005em] text-[#939393] lg:text-[8px]">
+                  <span className="min-w-0 break-words">{genre}</span>
+                  <span className="shrink-0">{yearText}</span>
+                </div>
+                <div className="mt-0.5 w-full border-t border-[#464646]" aria-hidden />
+                <p className="pt-0.5 text-center text-[9px] font-bold leading-snug tracking-[-0.005em] text-[#43A7B2] lg:text-[10px]">
+                  Rating : -
+                </p>
+              </div>
             </Link>
-          ))}
-        </div>
-      ))}
+          </div>
+        );
+      })}
     </div>
   );
 }

@@ -1,3 +1,5 @@
+/** 슬라이드 소스(유저/피처드) 판별 */
+
 export const SLIDE_SOURCE_KEY = "slide-source";
 
 export type SlideSource = "user" | "admin";

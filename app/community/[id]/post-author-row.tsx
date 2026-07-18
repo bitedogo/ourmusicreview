@@ -34,7 +34,7 @@ export function PostAuthorRow({
             alt=""
             width={24}
             height={24}
-            unoptimized
+            sizes="24px"
             className="h-full w-full object-cover"
           />
         ) : (

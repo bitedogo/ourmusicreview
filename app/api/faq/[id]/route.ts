@@ -1,3 +1,5 @@
+/** PATCH/DELETE FAQ 수정·삭제 */
+
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/src/lib/auth/config";
 import { initializeDatabase } from "@/src/lib/db";

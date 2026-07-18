@@ -1,3 +1,5 @@
+/** GET/POST/PATCH/DELETE 관리자 Featured 슬라이드 */
+
 import { requireAdminApi } from "@/src/lib/auth/session";
 import { initializeDatabase } from "@/src/lib/db";
 import { FeaturedSlideAlbum } from "@/src/lib/db/entities/FeaturedSlideAlbum";

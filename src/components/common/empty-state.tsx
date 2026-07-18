@@ -1,3 +1,5 @@
+/** 빈 목록 Empty State */
+
 import type { ReactNode } from "react";
 
 interface EmptyStateProps {

@@ -1,3 +1,5 @@
+/** GET/POST/DELETE/PATCH 유저 슬라이드 앨범(명반) */
+
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/src/lib/auth/config";
 import { initializeDatabase } from "@/src/lib/db";

@@ -1,4 +1,5 @@
 "use client";
+/** iTunes 앨범 검색 패널 */
 
 import Image from "next/image";
 import type { SearchAlbumResult } from "@/src/lib/search/types";

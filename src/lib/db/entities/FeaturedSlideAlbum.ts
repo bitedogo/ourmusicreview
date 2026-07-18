@@ -1,3 +1,5 @@
+/** 홈 Featured 슬라이드 앨범 엔티티 */
+
 import { Entity, PrimaryColumn, Column } from "typeorm";
 
 @Entity({ name: "featured_slide_albums", schema: "public" })

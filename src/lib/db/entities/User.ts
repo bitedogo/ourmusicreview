@@ -1,3 +1,5 @@
+/** User 엔티티 */
+
 import { Entity, PrimaryColumn, Column } from "typeorm";
 
 @Entity({ name: "users", schema: "public" })

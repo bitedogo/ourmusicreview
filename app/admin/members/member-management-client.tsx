@@ -1,4 +1,5 @@
 "use client";
+/** 관리자 회원 관리 클라이언트 */
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -380,7 +381,7 @@ export function MemberManagementClient() {
                               alt={member.nickname}
                               width={32}
                               height={32}
-                              unoptimized
+                              sizes="32px"
                               className="h-8 w-8 shrink-0 rounded-full object-cover"
                             />
                           ) : (
@@ -523,7 +524,7 @@ export function MemberManagementClient() {
                         src={detail.profileImage}
                         alt={detail.nickname}
                         fill
-                        unoptimized
+                        sizes="96px"
                         className="object-cover"
                       />
                     ) : (

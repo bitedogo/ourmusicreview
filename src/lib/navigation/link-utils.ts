@@ -1,3 +1,5 @@
+/** 네비게이션 링크 활성·경로 유틸 */
+
 export function isExternalLink(href: string): boolean {
   return href.startsWith("http") || href.startsWith("mailto:");
 }

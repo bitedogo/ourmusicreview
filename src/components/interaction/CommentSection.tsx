@@ -1,4 +1,5 @@
 "use client";
+/** 댓글 목록·작성 섹션 */
 
 import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
@@ -115,7 +116,7 @@ export function CommentSection({ postId, reviewId }: CommentSectionProps) {
                     alt=""
                     width={32}
                     height={32}
-                    unoptimized
+                    sizes="32px"
                     className="h-full w-full object-cover"
                   />
                 ) : (

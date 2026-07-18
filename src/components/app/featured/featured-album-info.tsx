@@ -1,3 +1,5 @@
+/** Featured 앨범 제목·아티스트 정보 */
+
 import type { FeaturedAlbumCardData } from "@/src/lib/featured-albums/types";
 import { getReleaseYear } from "@/src/lib/utils/album";
 import { RatingDisplay } from "../rating-display";

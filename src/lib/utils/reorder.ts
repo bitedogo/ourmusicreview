@@ -1,3 +1,5 @@
+/** 목록 순서 변경(드래그) 유틸 */
+
 export function reorderById<T extends { id: string }>(
   items: T[],
   sourceId: string,

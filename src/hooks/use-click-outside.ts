@@ -1,3 +1,5 @@
+/** 외부 클릭 감지 훅 */
+
 import { type RefObject, useEffect } from "react";
 
 export function useClickOutside<T extends HTMLElement>(

@@ -1,4 +1,5 @@
 "use client";
+/** FAQ 공개 페이지 */
 
 import { useEffect, useState } from "react";
 

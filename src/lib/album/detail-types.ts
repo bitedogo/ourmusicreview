@@ -1,3 +1,5 @@
+/** 앨범 상세 페이지·모달용 타입 */
+
 export interface AlbumDetailTrack {
   id: string;
   trackNumber: number;

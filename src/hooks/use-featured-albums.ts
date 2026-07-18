@@ -1,4 +1,5 @@
 "use client";
+/** Featured 앨범 슬라이드 훅 */
 
 import { useEffect, useState } from "react";
 import { fetchJson } from "@/src/lib/http/client";

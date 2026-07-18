@@ -1,3 +1,5 @@
+/** 헤더 드롭다운 패널 */
+
 import type { ReactNode } from "react";
 
 interface HeaderDropdownPanelProps {

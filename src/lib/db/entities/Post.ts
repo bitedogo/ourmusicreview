@@ -1,3 +1,5 @@
+/** 커뮤니티 Post 엔티티 */
+
 import {
   Entity,
   PrimaryColumn,

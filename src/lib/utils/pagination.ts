@@ -1,3 +1,5 @@
+/** 페이지네이션 계산 유틸 */
+
 export function getPaginationItems(
   currentPage: number,
   totalPages: number,

@@ -1,3 +1,5 @@
+/** 평점 표시·집계 유틸 */
+
 export const RATING_COLORS = {
   label: "var(--color-rating-label)",
   high: "var(--color-rating-score-high)",

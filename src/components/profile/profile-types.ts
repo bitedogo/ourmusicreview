@@ -1,3 +1,5 @@
+/** 프로필 페이지 공유 타입 */
+
 export interface ProfilePrivacySettings {
   showReviewsPublic: boolean;
   showFavoritesPublic: boolean;

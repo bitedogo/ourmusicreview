@@ -1,3 +1,5 @@
+/** GET 앨범 스트리밍 링크 */
+
 import { getBatchAlbumStreamingLinks } from "@/src/lib/streaming/fetch-links";
 import { hasAnyStreamingLink } from "@/src/lib/streaming/types";
 import { apiError, apiOk } from "@/src/lib/http/response";

@@ -1,3 +1,5 @@
+/** 푸터 링크 컬럼 UI */
+
 import Link from "next/link";
 import { externalLinkProps, isExternalLink } from "@/src/lib/navigation/link-utils";
 import type { FooterLinkItem } from "./footer-config";

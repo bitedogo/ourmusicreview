@@ -1,3 +1,5 @@
+/** 신고 Report 엔티티 */
+
 import {
   Entity,
   PrimaryColumn,

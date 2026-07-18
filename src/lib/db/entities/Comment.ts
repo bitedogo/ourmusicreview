@@ -1,3 +1,5 @@
+/** Comment 엔티티 */
+
 import {
   Entity,
   PrimaryColumn,

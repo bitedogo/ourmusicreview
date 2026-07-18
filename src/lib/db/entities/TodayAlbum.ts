@@ -1,3 +1,5 @@
+/** 오늘의 앨범 TodayAlbum 엔티티 */
+
 import { Entity, PrimaryColumn, Column } from "typeorm";
 
 @Entity({ name: "today_albums", schema: "public" })

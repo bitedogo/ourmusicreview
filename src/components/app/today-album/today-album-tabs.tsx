@@ -1,3 +1,5 @@
+/** 오늘의 앨범 탭 전환 */
+
 import type { TodayAlbumTab } from "@/src/lib/today-album/types";
 import { TODAY_ALBUM_TABS } from "@/src/lib/today-album/types";
 

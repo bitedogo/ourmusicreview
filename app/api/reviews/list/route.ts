@@ -1,3 +1,5 @@
+/** GET 리뷰 목록(필터·페이지) */
+
 import { NextRequest } from "next/server";
 import { initializeDatabase } from "@/src/lib/db";
 import { Review } from "@/src/lib/db/entities/Review";

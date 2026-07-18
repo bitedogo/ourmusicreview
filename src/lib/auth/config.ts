@@ -1,3 +1,5 @@
+/** NextAuth 인증 옵션·프로바이더 설정 */
+
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
@@ -9,6 +11,20 @@ import { getSupabaseClient } from "@/src/lib/supabase";
 
 function isBcryptHash(value: string) {
   return /^\$2[aby]\$\d{2}\$/.test(value);
+}
+
+async function resolveProfileImageFromDb(
+  userId: string,
+  fallback?: string | null
+): Promise<string | null> {
+  try {
+    const dataSource = await initializeDatabase();
+    const userRepository = dataSource.getRepository(User);
+    const dbUser = await userRepository.findOne({ where: { id: userId } });
+    return dbUser?.profileImage ?? fallback ?? null;
+  } catch {
+    return fallback ?? null;
+  }
 }
 
 const env = getServerEnv();
@@ -59,12 +75,15 @@ export const authOptions: NextAuthOptions = {
           }
         }
 
+        const profileImage = user.profileImage || null;
+
         return {
           id: user.id,
           name: user.nickname,
           email: user.email || null,
           role: user.role,
-          profileImage: user.profileImage || null,
+          profileImage,
+          image: profileImage,
         };
       },
     }),
@@ -111,12 +130,15 @@ export const authOptions: NextAuthOptions = {
           dbUser.id = user.id;
         }
 
+        const profileImage = dbUser.profileImage || null;
+
         return {
           id: dbUser.id,
           name: dbUser.nickname,
           email: dbUser.email || null,
           role: dbUser.role,
-          profileImage: dbUser.profileImage || null,
+          profileImage,
+          image: profileImage,
         };
       },
     }),
@@ -178,7 +200,11 @@ export const authOptions: NextAuthOptions = {
           image?: string | null;
           role?: "USER" | "ADMIN";
         };
-        const profileImage = userWithProfile.profileImage ?? userWithProfile.image ?? null;
+        const fallbackProfileImage =
+          userWithProfile.profileImage ?? userWithProfile.image ?? null;
+        const profileImage = user.id
+          ? await resolveProfileImageFromDb(user.id, fallbackProfileImage)
+          : fallbackProfileImage;
 
         token.id = user.id;
         token.name = user.name;

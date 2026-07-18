@@ -1,4 +1,5 @@
 "use client";
+/** 회원가입 페이지 */
 
 import Link from "next/link";
 import dynamic from "next/dynamic";

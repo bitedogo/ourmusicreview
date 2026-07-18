@@ -1,3 +1,5 @@
+/** 이용약관 본문 콘텐츠 */
+
 export function TermsContent() {
   return (
     <article

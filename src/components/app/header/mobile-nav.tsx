@@ -1,3 +1,5 @@
+/** 모바일 헤더 네비게이션 */
+
 import Link from "next/link";
 import { contentMaxWidthStyle } from "@/src/lib/layout";
 import { ADMIN_LINKS, NAV_LINKS } from "@/src/lib/navigation/nav-config";

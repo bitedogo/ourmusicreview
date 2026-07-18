@@ -1,4 +1,5 @@
 "use client";
+/** 타인 유저 프로필 뷰 */
 
 import { useCallback, useLayoutEffect, useState } from "react";
 import Link from "next/link";
@@ -227,7 +228,6 @@ export function UserProfilePanel({
             {!ratingHidden ? (
               <ProfileRatingGauge
                 reviews={userReviews}
-                nickname={userProfile.nickname}
                 averageRating={userProfile.averageRating}
               />
             ) : (

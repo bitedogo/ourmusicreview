@@ -1,3 +1,5 @@
+/** GET Featured 앨범 슬라이드 */
+
 import { In } from "typeorm";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/src/lib/auth/config";

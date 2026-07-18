@@ -1,3 +1,5 @@
+/** 음원 차트 데이터 fetch */
+
 import { unstable_cache } from "next/cache";
 import { getLargeImageUrl } from "@/src/lib/itunes/http";
 import type { ChartAlbum } from "./types";

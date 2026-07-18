@@ -1,3 +1,5 @@
+/** 검색 결과 서버 페이지 */
+
 import { Suspense } from "react";
 import { ContentContainer } from "@/src/lib/layout/content-container";
 import { PAGE_PADDING_X } from "@/src/lib/layout";

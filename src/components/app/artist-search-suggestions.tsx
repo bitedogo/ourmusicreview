@@ -1,3 +1,5 @@
+/** 아티스트 검색 자동완성 제안 */
+
 import Image from "next/image";
 import type { ItunesArtistResult } from "@/src/lib/itunes/types";
 

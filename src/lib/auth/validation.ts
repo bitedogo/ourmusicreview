@@ -1,3 +1,5 @@
+/** 회원가입·비밀번호 등 인증 입력 검증 */
+
 export function sanitizeText(value: unknown): string {
   return typeof value === "string" ? value.trim() : "";
 }

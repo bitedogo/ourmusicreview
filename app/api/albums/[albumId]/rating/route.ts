@@ -1,3 +1,5 @@
+/** GET 앨범 평균 평점 */
+
 import { initializeDatabase } from "@/src/lib/db";
 import { Review } from "@/src/lib/db/entities/Review";
 import { apiError, apiOk } from "@/src/lib/http/response";

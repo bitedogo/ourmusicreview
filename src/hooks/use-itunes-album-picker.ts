@@ -1,4 +1,5 @@
 "use client";
+/** iTunes 앨범 선택 모달 상태 훅 */
 
 import { useCallback, useState } from "react";
 import { fetchJson, getApiErrorMessage } from "@/src/lib/http/client";

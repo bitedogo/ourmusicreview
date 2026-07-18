@@ -1,3 +1,5 @@
+/** 푸터 링크 컬럼 설정 */
+
 import { INSTAGRAM_URL, SUPPORT_EMAIL } from "@/src/lib/site/contact";
 
 export interface FooterLinkItem {

@@ -1,3 +1,5 @@
+/** GET 유저 프로필 정보 */
+
 import { NextRequest } from "next/server";
 import { requireSessionApi } from "@/src/lib/auth/session";
 import { initializeDatabase } from "@/src/lib/db";

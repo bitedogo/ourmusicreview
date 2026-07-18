@@ -1,4 +1,5 @@
 "use client";
+/** 마이페이지 슬라이드 소스 상태 훅 */
 
 import { useCallback, useSyncExternalStore } from "react";
 import {

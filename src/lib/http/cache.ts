@@ -1,3 +1,5 @@
+/** HTTP 응답 캐시 헤더 유틸 */
+
 import { NextResponse } from "next/server";
 
 interface JsonOptions {

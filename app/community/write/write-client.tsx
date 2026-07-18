@@ -1,4 +1,5 @@
 "use client";
+/** 커뮤니티 글쓰기 클라이언트 */
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useRef, useEffect, useCallback } from "react";

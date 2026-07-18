@@ -1,4 +1,5 @@
 "use client";
+/** 앨범 평점 일괄 조회 훅 */
 
 import { useEffect, useState } from "react";
 import { fetchJson } from "@/src/lib/http/client";

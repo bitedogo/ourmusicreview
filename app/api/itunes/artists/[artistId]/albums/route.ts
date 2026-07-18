@@ -1,3 +1,5 @@
+/** GET iTunes 아티스트 앨범 목록 */
+
 import { getArtistAlbums, getLargeImageUrl } from "@/src/lib/itunes";
 import { apiError, apiOk } from "@/src/lib/http/response";
 

@@ -1,3 +1,5 @@
+/** FAQ 엔티티 */
+
 import { Entity, PrimaryColumn, Column, CreateDateColumn } from "typeorm";
 
 @Entity({ name: "faqs", schema: "public" })

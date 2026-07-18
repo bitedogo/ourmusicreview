@@ -1,4 +1,5 @@
 "use client";
+/** 관리자 리뷰 승인 클라이언트 */
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";

@@ -1,3 +1,5 @@
+/** POST 회원가입 */
+
 import bcrypt from "bcryptjs";
 import { validateUserId } from "@/src/lib/auth/user-id";
 import {

@@ -1,3 +1,5 @@
+/** 오디오 업로드·재생 URL 유틸 */
+
 export const MAX_AUDIO_SIZE_BYTES = 20 * 1024 * 1024;
 
 const ALLOWED_EXTENSIONS = [".mp3", ".wav"];

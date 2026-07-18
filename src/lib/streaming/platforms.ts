@@ -1,3 +1,5 @@
+/** 스트리밍 플랫폼 메타·아이콘 설정 */
+
 import type { AlbumStreamingLinks, StreamingPlatform } from "./types";
 
 export const STREAMING_PLATFORMS: {

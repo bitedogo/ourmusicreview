@@ -1,3 +1,5 @@
+/** 앨범별 리뷰 목록 서버 페이지 */
+
 import { notFound } from "next/navigation";
 import { AlbumReviewsClient } from "./album-reviews-client";
 

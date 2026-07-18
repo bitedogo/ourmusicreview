@@ -1,3 +1,5 @@
+/** iTunes API 응답 타입 */
+
 export interface ItunesArtistResult {
   artistId: string;
   artistName: string;

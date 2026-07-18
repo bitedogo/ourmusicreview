@@ -1,4 +1,5 @@
 "use client";
+/** 리뷰 상세 클라이언트 */
 
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -241,7 +242,7 @@ export function ReviewDetailClient({ reviewId }: { reviewId: string }) {
                   alt=""
                   width={40}
                   height={40}
-                  unoptimized
+                  sizes="40px"
                   className="h-10 w-10 rounded-full object-cover"
                 />
               ) : (

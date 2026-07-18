@@ -1,3 +1,5 @@
+/** 프로필 수정 서버 진입 */
+
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/src/lib/auth/config";

@@ -1,4 +1,5 @@
 "use client";
+/** 관리자 Featured 슬라이드 클라이언트 */
 
 import { useEffect, useState } from "react";
 import { reorderById } from "@/src/lib/utils/reorder";

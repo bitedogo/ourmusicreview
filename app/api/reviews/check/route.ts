@@ -1,3 +1,5 @@
+/** GET 앨범 리뷰 작성 여부 확인 */
+
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/src/lib/auth/config";
 import { initializeDatabase } from "@/src/lib/db";
