@@ -30,6 +30,9 @@
   --layout-search-bar-max-width: 667px;
   --layout-header-search-gap: 24px;
   --layout-logo-menu-gap: 61px;
+  --profile-menu-title-gap: 61px;
+  --profile-title-section-gap: 30px;
+  --profile-section-gap: 18px;
   --nav-menu-font-size: 18px;
   --page-padding-x-mobile: 24px;
   --page-padding-x-desktop: 40px;
@@ -134,20 +137,26 @@
   --hero-sticky-nav-search-gap: 43px;
   --safe-area-top: env(safe-area-inset-top, 0px);
 
-  --footer-height: 274px;
-  --footer-padding-top: 48px;
+  --footer-height: auto;
+  --footer-padding-top: 22px;
+  --footer-padding-bottom: 10px;
   --footer-text-brand: #949494;
   --footer-text-menu: #949494;
   --footer-text-link: #c4c4c4;
-  --footer-text-size-primary: 16px;
-  --footer-text-size-secondary: 12px;
-  --footer-line-height-primary: 150%;
-  --footer-line-height-secondary: 150%;
+  --footer-text-size-primary: 11px;
+  --footer-text-size-secondary: 11px;
+  --footer-text-size-menu: 13px;
+  --footer-text-size-policy-link: 10px;
+  --footer-text-size-support-link: 11px;
+  --footer-line-height-primary: 145%;
+  --footer-line-height-secondary: 145%;
   --footer-brand-max-width: 42rem;
-  --footer-gap-one-line: calc(var(--footer-text-size-primary) * 1.5);
-  --footer-gap-two-lines: 32px;
+  --footer-gap-one-line: 13px;
+  --footer-gap-two-lines: 0px;
   --footer-gap-legal-lines: 8px;
   --footer-gap-link-items: 8px;
+  --footer-gap-sections: 12px;
+  --footer-gap-nav: 3px;
   --footer-column-gap: 40px;
 }
 
@@ -160,6 +169,20 @@
     --hero-subtitle-masterpiece-gap: 101px;
     --featured-slider-today-album-gap: 101px;
     --today-album-chart-gap: 101px;
+    --footer-height: 274px;
+    --footer-padding-top: 48px;
+    --footer-padding-bottom: 0px;
+    --footer-text-size-primary: 16px;
+    --footer-text-size-secondary: 12px;
+    --footer-text-size-menu: 16px;
+    --footer-text-size-policy-link: 16px;
+    --footer-text-size-support-link: 16px;
+    --footer-line-height-primary: 150%;
+    --footer-line-height-secondary: 150%;
+    --footer-gap-one-line: calc(16px * 1.5);
+    --footer-gap-two-lines: 32px;
+    --footer-gap-sections: 0px;
+    --footer-gap-nav: 0px;
   }
 }
 

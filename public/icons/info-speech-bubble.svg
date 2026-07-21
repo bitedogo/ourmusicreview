@@ -1,0 +1,20 @@
+<svg width="334" height="152" viewBox="0 0 334 152" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <g filter="url(#info_bubble_shadow)">
+    <path d="M4 28H320C325.523 28 330 32.4772 330 38V136C330 141.523 325.523 146 320 146H14C8.47716 146 4 141.523 4 136V28Z" fill="white"/>
+    <path d="M4 8.73752V23.5C4 26.2614 6.23858 28.5 9 28.5H34.1221C39.2173 28.5 41.0482 21.7706 36.6553 19.1892L11.5332 4.4267C8.19997 2.46803 4 4.87144 4 8.73752Z" fill="white"/>
+    <path d="M4 12V28.5H52.5L4 12Z" fill="white"/>
+    <path d="M21 10L4 28.5H52.5L21 10Z" fill="white"/>
+  </g>
+  <defs>
+    <filter id="info_bubble_shadow" x="0" y="1.72949" width="334" height="150.271" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+      <feOffset dy="2"/>
+      <feGaussianBlur stdDeviation="2"/>
+      <feComposite in2="hardAlpha" operator="out"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"/>
+      <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow" result="shape"/>
+    </filter>
+  </defs>
+</svg>

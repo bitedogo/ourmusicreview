@@ -13,6 +13,7 @@ import {
   ProfileReviewItem,
 } from "@/src/components/profile/profile-types";
 import { getUserProfilePath, getUserProfileReviewsPath } from "@/src/components/profile/user-profile-view";
+import { getOwnerProfileRedirectPath } from "@/src/components/profile/profile-routes";
 
 interface UserProfileClientProps {
   userId: string;
@@ -63,6 +64,10 @@ export function UserProfileClient({ userId, showAllReviews = false }: UserProfil
         );
         if (cancelled) return;
         if (response.ok && response.data) {
+          if (response.data.isOwner) {
+            router.replace(getOwnerProfileRedirectPath(showAllReviews));
+            return;
+          }
           setData(response.data);
         } else {
           setError("프로필 정보를 가져오는 데 실패했습니다.");
@@ -80,7 +85,7 @@ export function UserProfileClient({ userId, showAllReviews = false }: UserProfil
     return () => {
       cancelled = true;
     };
-  }, [userId, showAllReviews]);
+  }, [userId, showAllReviews, router]);
 
   if (isLoading) {
     return (

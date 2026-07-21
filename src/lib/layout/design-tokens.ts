@@ -77,6 +77,12 @@ export const HOME_SECTION = {
   chartTitleContentGap: 45,
 } as const;
 
+export const PROFILE_PAGE = {
+  menuTitleGap: 61,
+  titleSectionGap: 30,
+  sectionGap: 18,
+} as const;
+
 export const TODAY_ALBUM = {
   cardWidth: 1099,
   cardHeight: 529,

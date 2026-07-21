@@ -177,7 +177,7 @@ export function ItunesAlbumSearchPanel({
         <button
           type="submit"
           disabled={picker.isSearchingArtists}
-          className="rounded-lg bg-zinc-800 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 disabled:opacity-50"
+            className="rounded-lg bg-[var(--color-brand-primary)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--color-brand-primary-hover)] disabled:opacity-50"
         >
           {picker.isSearchingArtists ? "검색 중..." : "검색"}
         </button>

@@ -18,6 +18,14 @@ import {
   ProfileRatingGauge,
   useAverageRating,
 } from "./ProfileRatingGauge";
+import { ActivityInfoTip } from "./ProfileInfoTips";
+import { ProfilePrivacyToggle } from "./ProfilePrivacyToggle";
+import { ProfileSectionHeader } from "./ProfileSectionHeader";
+import {
+  PROFILE_SECTION_CARD,
+  PROFILE_SECTION_INSET,
+} from "./profile-section-styles";
+import { MasterpiecesReadOnlyGrid } from "./masterpiece/MasterpiecesReadOnlyGrid";
 
 export type {
   ProfilePrivacySettings,
@@ -26,9 +34,9 @@ export type {
   ProfileMasterpieceItem,
 } from "./profile-types";
 
-/** 섹션 카드 공통 스타일 */
-const SECTION_CARD =
-  "relative mx-auto box-border w-full max-w-[1100px] overflow-hidden rounded-[15px] border border-[#D9D9D9] bg-white shadow-[0px_2px_4px_rgba(0,0,0,0.25)]";
+/** 섹션 카드 공통 스타일 — profile-section-styles.ts 참고 */
+const SECTION_CARD = PROFILE_SECTION_CARD;
+const SECTION_INSET = PROFILE_SECTION_INSET;
 
 export interface ProfilePageContentProps {
   mode: "owner" | "viewer";
@@ -100,7 +108,7 @@ export function ProfilePageContent(props: ProfilePageContentProps) {
   } = props;
 
   const isOwner = mode === "owner";
-  const profilePreviewHref = getUserProfilePath(userId);
+  const profilePreviewHref = isOwner ? "/profile" : getUserProfilePath(userId);
   const visibleReviews = isOwner || !reviewsHidden ? reviews : [];
   const visibleFavorites = isOwner || !favoritesHidden ? favoriteAlbums : [];
   const visibleMasterpieces = isOwner || !masterpiecesHidden ? masterpieces : [];
@@ -124,17 +132,18 @@ export function ProfilePageContent(props: ProfilePageContentProps) {
 
   return (
     <div className="min-h-screen">
-      <div className="mx-auto max-w-[1100px] px-3 py-6 sm:px-6 sm:py-8">
-        <div className="mb-6 flex items-center justify-between gap-4">
+      <div className="mx-auto max-w-[1100px] px-3 pb-6 pt-[var(--profile-menu-title-gap)] sm:px-6 sm:pb-8">
+        <div className="mb-[var(--profile-title-section-gap)] flex items-center justify-between gap-4">
           <h1 className="text-xl font-semibold tracking-tight text-zinc-900 md:text-2xl">
             {pageTitle}
           </h1>
           {headerAction}
         </div>
 
-        {/* ========== 1. 프로필 헤더 ========== */}
+        <div className="flex flex-col gap-[var(--profile-section-gap)]">
+        {/* ========== 1. 프로필 헤더 (내정보) ========== */}
         <div
-          className={`${SECTION_CARD} mb-6 max-lg:bg-[#FEFEFE] max-lg:shadow-[0px_3px_3px_rgba(0,0,0,0.25)]`}
+          className={`${SECTION_CARD} max-lg:bg-[#FEFEFE] max-lg:shadow-[0px_3px_3px_rgba(0,0,0,0.25)]`}
         >
           {/* Desktop */}
           <div className="hidden h-[484px] lg:grid lg:grid-cols-[minmax(0,420px)_1px_minmax(0,1fr)]">
@@ -187,7 +196,7 @@ export function ProfilePageContent(props: ProfilePageContentProps) {
             <div className="relative flex h-full min-w-0 flex-col px-8 py-10 pr-10">
               {isOwner && onPrivacyChange && (
                 <div className="absolute right-8 top-7">
-                  <ActivityPrivacyToggle
+                  <ProfilePrivacyToggle
                     isPublic={privacy.showRatingPublic}
                     disabled={isSavingPrivacy}
                     onChange={(value) => onPrivacyChange("showRatingPublic", value)}
@@ -287,7 +296,7 @@ export function ProfilePageContent(props: ProfilePageContentProps) {
 
             {isOwner && onPrivacyChange && (
               <div className="flex h-[25px] w-full items-center justify-center px-[27px]">
-                <ActivityPrivacyToggle
+                <ProfilePrivacyToggle
                   size="sm"
                   isPublic={privacy.showRatingPublic}
                   disabled={isSavingPrivacy}
@@ -323,19 +332,19 @@ export function ProfilePageContent(props: ProfilePageContentProps) {
 
         {/* ========== 2. 나의 활동 ========== */}
         {isOwner && (
-          <section className={`${SECTION_CARD} mb-6 lg:h-[530px]`}>
+          <section className={`${SECTION_CARD} !overflow-visible lg:h-[530px]`}>
             {/* Header */}
-            <div className="flex items-center gap-[10px] px-[52px] pt-10 lg:absolute lg:left-[52px] lg:top-[40px] lg:z-10 lg:px-0 lg:pt-0">
-              <h2 className="text-[15px] font-normal leading-[18px] text-black">나의 활동</h2>
-              <span
-                className="inline-flex h-[22px] w-[22px] items-center justify-center rounded-full bg-[#D9D9D9] text-[11px] font-bold text-white"
-                title="리뷰·좋아요·게시글 활동 요약"
-              >
-                i
-              </span>
+            <div
+              className={`${SECTION_INSET} pt-10 lg:absolute lg:left-[52px] lg:top-[40px] lg:z-10 lg:px-0 lg:pt-0`}
+            >
+              <div className="flex items-center gap-[10px]">
+                <h2 className="text-[15px] font-normal leading-[18px] text-black">나의 활동</h2>
+                <ActivityInfoTip />
+              </div>
+              <div className="mb-8 mt-6 h-px w-full bg-[#E3E3E3] lg:hidden" aria-hidden />
             </div>
             <div
-              className="mx-[52px] mt-4 h-px bg-[#E3E3E3] lg:absolute lg:left-[52px] lg:right-[52px] lg:top-[78px] lg:mx-0 lg:mt-0"
+              className="hidden h-px bg-[#E3E3E3] lg:absolute lg:left-[52px] lg:right-[52px] lg:top-[78px] lg:block"
               aria-hidden
             />
 
@@ -394,14 +403,8 @@ export function ProfilePageContent(props: ProfilePageContentProps) {
         )}
 
         {!isOwner && (
-          <section className={`${SECTION_CARD} mb-6 px-6 py-10`}>
-            <div className="mb-8 flex items-center gap-[10px]">
-              <h2 className="text-[15px] font-normal leading-[18px] text-black">나의 활동</h2>
-              <span className="inline-flex h-[22px] w-[22px] items-center justify-center rounded-full bg-[#D9D9D9] text-[11px] font-bold text-white">
-                i
-              </span>
-            </div>
-            <div className="mb-8 h-px w-full bg-[#E3E3E3]" aria-hidden />
+          <section className={`${SECTION_CARD} py-10 ${SECTION_INSET}`}>
+            <ProfileSectionHeader title="나의 활동" />
             <div className="flex flex-wrap items-start justify-center gap-[46px]">
               {reviewsHidden ? (
                 <div className="flex h-[282px] w-[266px] items-center justify-center rounded-[15px] border border-[#D9D9D9] bg-white p-5">
@@ -439,28 +442,23 @@ export function ProfilePageContent(props: ProfilePageContentProps) {
 
         {/* ========== 3. 나의 Masterpiece ========== */}
         {masterpiecesHidden && !isOwner ? (
-          <section className={`${SECTION_CARD} mt-6 px-[52px] py-10`}>
-            <h2 className="mb-6 text-[15px] font-normal leading-[18px] text-black">
-              나의 Masterpiece
-            </h2>
-            <div className="mb-8 h-px w-full bg-[#E3E3E3]" aria-hidden />
+          <section className={`${SECTION_CARD} py-10 ${SECTION_INSET}`}>
+            <ProfileSectionHeader title="나의 Masterpiece" />
             <PrivateSectionMessage />
           </section>
         ) : isOwner && masterpiecesSection ? (
-          <div className="mt-6">{masterpiecesSection}</div>
+          <div>{masterpiecesSection}</div>
         ) : (
-          <section className={`${SECTION_CARD} mt-6 px-[52px] pb-10 pt-10`}>
-            <h2 className="mb-6 text-[15px] font-normal leading-[18px] text-black">
-              나의 Masterpiece
-            </h2>
-            <div className="mb-8 h-px w-full bg-[#E3E3E3]" aria-hidden />
+          <section className={`${SECTION_CARD} pb-10 pt-10 ${SECTION_INSET}`}>
+            <ProfileSectionHeader title="나의 Masterpiece" />
             {isLoadingMasterpieces ? (
               <p className="py-16 text-center text-sm text-zinc-500">불러오는 중...</p>
             ) : (
-              <MasterpiecesReadOnly albums={visibleMasterpieces} />
+              <MasterpiecesReadOnlyGrid albums={visibleMasterpieces} />
             )}
           </section>
         )}
+        </div>
       </div>
     </div>
   );
@@ -641,7 +639,7 @@ function ActivityCollectionCard({
             event.stopPropagation();
           }}
         >
-          <ActivityPrivacyToggle
+          <ProfilePrivacyToggle
             isPublic={isPublic}
             disabled={isSavingPrivacy}
             onChange={onPrivacyChange}
@@ -657,66 +655,6 @@ function ActivityCollectionCard({
     <Link href={href} className="relative block h-[282px] w-[266px] shrink-0 grow-0">
       {content}
     </Link>
-  );
-}
-
-/* -------------------------------------------------------------------------- */
-/* 공개 / 비공개 토글                                                          */
-/* -------------------------------------------------------------------------- */
-
-function ActivityPrivacyToggle({
-  isPublic,
-  onChange,
-  disabled,
-  size = "md",
-}: {
-  isPublic: boolean;
-  onChange: (value: boolean) => void;
-  disabled?: boolean;
-  size?: "sm" | "md";
-}) {
-  const isSm = size === "sm";
-  return (
-    <div
-      className={`box-border flex items-center border border-[#D9D9D9] bg-[#FAFAFA] ${
-        isSm
-          ? "h-[25px] w-[90px] rounded-[5px] px-[4px]"
-          : "h-[35px] w-[111px] rounded-[10px] px-[5px]"
-      }`}
-    >
-      <button
-        type="button"
-        disabled={disabled}
-        onClick={() => onChange(true)}
-        className={`flex items-center justify-center transition disabled:opacity-50 ${
-          isSm
-            ? "h-[17px] w-[38px] rounded-[4px] text-[9px] leading-[11px]"
-            : "h-6 w-[47px] rounded-[6px] text-[13px] leading-4"
-        } ${
-          isPublic
-            ? "bg-white text-[#43A7B2] shadow-[0px_1px_4px_rgba(0,0,0,0.25)]"
-            : "bg-transparent text-[#D9D9D9]"
-        }`}
-      >
-        공개
-      </button>
-      <button
-        type="button"
-        disabled={disabled}
-        onClick={() => onChange(false)}
-        className={`flex flex-1 items-center justify-center transition disabled:opacity-50 ${
-          isSm
-            ? "h-[17px] rounded-[4px] text-[9px] leading-[11px]"
-            : "h-6 rounded-[6px] text-[13px] leading-4"
-        } ${
-          !isPublic
-            ? "bg-white text-[#43A7B2] shadow-[0px_1px_4px_rgba(0,0,0,0.25)]"
-            : "bg-transparent text-[#D9D9D9]"
-        }`}
-      >
-        비공개
-      </button>
-    </div>
   );
 }
 
@@ -747,62 +685,5 @@ function ActivityStatBox({
     <Link href={href} className="block min-w-0 flex-1 lg:w-[320px] lg:flex-none">
       {body}
     </Link>
-  );
-}
-
-/* -------------------------------------------------------------------------- */
-/* Masterpiece 읽기 전용 그리드 (모바일 3 / 데스크톱 6)                        */
-/* -------------------------------------------------------------------------- */
-
-function MasterpiecesReadOnly({ albums }: { albums: ProfileMasterpieceItem[] }) {
-  if (albums.length === 0) {
-    return <p className="py-16 text-center text-sm text-zinc-500">등록된 앨범이 없습니다.</p>;
-  }
-
-  return (
-    <div className="grid grid-cols-3 justify-items-stretch gap-x-2 gap-y-6 lg:grid-cols-6 lg:gap-x-3">
-      {albums.map((album) => {
-        const year = album.releaseDate?.slice(0, 4) ?? "";
-        const genre = album.genre?.trim() || "—";
-        const yearText = /^\d{4}$/.test(year) ? year : "";
-        return (
-          <div key={album.id} className="relative w-full shrink-0">
-            <Link
-              href={`/review/album/${encodeURIComponent(album.collectionId)}`}
-              className="flex w-full flex-col overflow-hidden rounded-[10px] bg-[#FEFEFE] shadow-[0px_2px_4px_rgba(0,0,0,0.25)]"
-            >
-              <div className="relative aspect-square w-full shrink-0 overflow-hidden rounded-t-[10px] bg-[#464646]">
-                {album.imageUrl ? (
-                  <Image
-                    src={album.imageUrl}
-                    alt={album.title}
-                    width={200}
-                    height={200}
-                    unoptimized
-                    className="h-full w-full object-cover"
-                  />
-                ) : null}
-              </div>
-              <div className="flex min-h-0 flex-col gap-0.5 px-2 pb-2 pt-1.5">
-                <p className="truncate text-[10px] font-bold leading-snug tracking-[-0.005em] text-[#464646] lg:text-[11px]">
-                  {album.title}
-                </p>
-                <p className="truncate text-[8px] font-bold leading-snug tracking-[-0.005em] text-[#939393] lg:text-[9px]">
-                  {album.artist}
-                </p>
-                <div className="flex items-start justify-between gap-1 text-[7px] font-bold leading-snug tracking-[-0.005em] text-[#939393] lg:text-[8px]">
-                  <span className="min-w-0 break-words">{genre}</span>
-                  <span className="shrink-0">{yearText}</span>
-                </div>
-                <div className="mt-0.5 w-full border-t border-[#464646]" aria-hidden />
-                <p className="pt-0.5 text-center text-[9px] font-bold leading-snug tracking-[-0.005em] text-[#43A7B2] lg:text-[10px]">
-                  Rating : -
-                </p>
-              </div>
-            </Link>
-          </div>
-        );
-      })}
-    </div>
   );
 }

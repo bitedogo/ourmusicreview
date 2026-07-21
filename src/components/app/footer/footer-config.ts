@@ -6,6 +6,8 @@ export interface FooterLinkItem {
   href: string;
   label: string;
   iconSrc?: string;
+  /** 기본 true. 모바일에서 밑줄 없는 링크는 false */
+  underline?: boolean;
 }
 
 export interface FooterLinkColumnConfig {
@@ -32,7 +34,7 @@ export const FOOTER_LINK_COLUMNS: FooterLinkColumnConfig[] = [
   {
     title: "Contact",
     links: [
-      { href: `mailto:${SUPPORT_EMAIL}`, label: "Email" },
+      { href: `mailto:${SUPPORT_EMAIL}`, label: "E-mail", underline: false },
       { href: INSTAGRAM_URL, label: "Instagram", iconSrc: "/social/instagram.svg" },
     ],
   },
