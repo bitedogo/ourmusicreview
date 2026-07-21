@@ -9,13 +9,11 @@ import { useEffect, useState } from "react";
 import { reorderById } from "@/src/lib/utils/reorder";
 import { fetchJson, getApiErrorMessage } from "@/src/lib/http/client";
 import { ItunesAlbumPickerModal } from "@/src/components/itunes/itunes-album-picker-modal";
-import { MasterpieceInfoTip } from "@/src/components/profile/ProfileInfoTips";
-import { ProfilePrivacyToggle } from "@/src/components/profile/ProfilePrivacyToggle";
+import { MasterpieceSectionHeader } from "@/src/components/profile/masterpiece/MasterpieceSectionHeader";
 import {
   PROFILE_SECTION_CARD,
   PROFILE_SECTION_DIVIDER,
   PROFILE_SECTION_INSET,
-  PROFILE_SECTION_TITLE,
   MASTERPIECE_GRID,
   MASTERPIECE_GRID_COL_WIDTH,
 } from "@/src/components/profile/profile-section-styles";
@@ -227,34 +225,15 @@ export function MyPicksSection({
 
   return (
     <section
-      className={`${PROFILE_SECTION_CARD} overflow-visible pb-10 pt-10 ${PROFILE_SECTION_INSET}`}
+      className={`${PROFILE_SECTION_CARD} !overflow-visible pb-10 pt-10 ${PROFILE_SECTION_INSET}`}
     >
-      <div className="mb-6 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex shrink-0 items-center gap-2 whitespace-nowrap">
-          <h2 className={PROFILE_SECTION_TITLE}>나의 Masterpiece</h2>
-          <MasterpieceInfoTip />
-        </div>
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => setIsEditing((v) => !v)}
-            className={`box-border flex h-[35px] w-[55px] items-center justify-center rounded-[10px] border border-[#D9D9D9] text-[13px] leading-4 transition ${
-              isEditing
-                ? "bg-[#43A7B2] text-white"
-                : "bg-white text-[#43A7B2] hover:bg-[#FAFAFA]"
-            }`}
-          >
-            {isEditing ? "완료" : "편집"}
-          </button>
-          {onPrivacyChange && (
-            <ProfilePrivacyToggle
-              isPublic={isPublic}
-              disabled={isSavingPrivacy}
-              onChange={onPrivacyChange}
-            />
-          )}
-        </div>
-      </div>
+      <MasterpieceSectionHeader
+        isEditing={isEditing}
+        onToggleEditing={() => setIsEditing((v) => !v)}
+        isPublic={isPublic}
+        isSavingPrivacy={isSavingPrivacy}
+        onPrivacyChange={onPrivacyChange}
+      />
 
       <div className={PROFILE_SECTION_DIVIDER} aria-hidden />
 

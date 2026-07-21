@@ -18,3 +18,13 @@ export const MASTERPIECE_GRID_COL_WIDTH =
 
 export const MASTERPIECE_CARD_SHADOW =
   "rounded-[10px] bg-[#FEFEFE] shadow-[0px_2px_4px_rgba(0,0,0,0.25)]";
+
+export const MASTERPIECE_EDIT_BUTTON_CLASS =
+  "box-border flex h-[25px] w-[38px] items-center justify-center rounded-[5px] border border-[#D9D9D9] text-[9px] leading-[11px] transition lg:h-[35px] lg:w-[55px] lg:rounded-[10px] lg:text-[13px] lg:leading-4";
+
+export const PROFILE_HEADER_CARD_CLASS =
+  `${PROFILE_SECTION_CARD} max-lg:bg-[#FEFEFE] max-lg:shadow-[0px_3px_3px_rgba(0,0,0,0.25)]`;
+
+export const PROFILE_OWNER_ACTIVITY_SECTION_CLASS =
+  `${PROFILE_SECTION_CARD} !overflow-visible pt-10 ${PROFILE_SECTION_INSET} lg:relative lg:h-[530px] lg:pb-0`;
+
