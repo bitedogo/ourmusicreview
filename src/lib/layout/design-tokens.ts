@@ -81,6 +81,16 @@ export const PROFILE_PAGE = {
   menuTitleGap: 61,
   titleSectionGap: 30,
   sectionGap: 18,
+  /** Figma 섹션 카드 */
+  sectionCardWidth: 1100,
+  /** 구분선 · 섹션 콘텐츠 폭 (inset 27×2) */
+  sectionContentWidth: 1046,
+  sectionInsetDesktop: 27,
+  /** 활동 통계 · Masterpiece 앨범 묶음 */
+  clusterWidth: 986,
+  /** 활동 통계 버튼 */
+  activityStatWidth: 320,
+  activityStatGap: 13,
 } as const;
 
 export const TODAY_ALBUM = {

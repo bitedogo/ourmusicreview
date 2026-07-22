@@ -3,6 +3,7 @@
 /** 프로필 평균 평점 게이지 */
 
 import { useId, useMemo } from "react";
+import { ProfileRatingEmptyState } from "./ProfileRatingEmptyState";
 import { ProfileReviewItem } from "./profile-types";
 
 // ---------------------------------------------------------------------------
@@ -133,21 +134,18 @@ export function ProfileRatingGauge({
   const data = useMemo(() => {
     const base = computeRating(reviews, averageRating);
     const fillWidth = (base.displayRating / 10) * GAUGE_W;
+    const isMax = base.displayRating >= 10;
     const fadeStart = Math.max(0, fillWidth - FADE_PX);
     const fadeStartPct = fillWidth > 0 ? (fadeStart / fillWidth) * 100 : 0;
     const ticks = TICK_FRACTIONS.map((t) => {
       const x = INNER_LEFT_X + t * (INNER_RIGHT_X - INNER_LEFT_X);
       return { x, y1: innerTopY(x) + 6, y2: INNER_BOTTOM_Y - 2 };
     });
-    return { ...base, fillWidth, fadeStartPct, ticks };
+    return { ...base, fillWidth, fadeStartPct, ticks, isMax };
   }, [reviews, averageRating]);
 
   if (!data.hasRatingData) {
-    return (
-      <p className="w-full py-10 text-center text-sm text-zinc-400">
-        리뷰를 작성하면 평균 평점이 표시됩니다.
-      </p>
-    );
+    return <ProfileRatingEmptyState />;
   }
 
   if (variant === "mobileVertical") {
@@ -164,6 +162,7 @@ export function ProfileRatingGauge({
       fillWidth={data.fillWidth}
       fadeStartPct={data.fadeStartPct}
       ticks={data.ticks}
+      isMax={data.isMax}
       ids={ids}
     />
   );
@@ -173,7 +172,7 @@ export function ProfileRatingGauge({
   return (
     <div className="relative w-full max-w-[565px]">
       <p className="text-[24px] font-extrabold leading-[29px] text-[#43A7B2]">
-        Average Rate
+        Average Rating
       </p>
       <p
         className="font-extrabold text-[#FFA310]"
@@ -205,11 +204,13 @@ function DesktopWedgeBar({
   fillWidth,
   fadeStartPct,
   ticks,
+  isMax,
   ids,
 }: {
   fillWidth: number;
   fadeStartPct: number;
   ticks: { x: number; y1: number; y2: number }[];
+  isMax: boolean;
   ids: { grad: string; fadeGrad: string; fadeMask: string; inner: string; cap: string };
 }) {
   return (
@@ -235,34 +236,38 @@ function DesktopWedgeBar({
             <stop offset="0.767357" stopColor="#F82512" />
             <stop offset="1" stopColor="#F82512" />
           </linearGradient>
-          <linearGradient
-            id={ids.fadeGrad}
-            gradientUnits="userSpaceOnUse"
-            x1="0"
-            y1="0"
-            x2={Math.max(1, fillWidth)}
-            y2="0"
-          >
-            <stop offset="0%" stopColor="white" stopOpacity="1" />
-            <stop offset={`${fadeStartPct}%`} stopColor="white" stopOpacity="1" />
-            <stop offset="100%" stopColor="white" stopOpacity="0" />
-          </linearGradient>
-          <mask
-            id={ids.fadeMask}
-            maskUnits="userSpaceOnUse"
-            x="0"
-            y="0"
-            width={GAUGE_W}
-            height={GAUGE_H}
-          >
-            <rect
-              x="0"
-              y="0"
-              width={fillWidth}
-              height={GAUGE_H}
-              fill={`url(#${ids.fadeGrad})`}
-            />
-          </mask>
+          {!isMax && (
+            <>
+              <linearGradient
+                id={ids.fadeGrad}
+                gradientUnits="userSpaceOnUse"
+                x1="0"
+                y1="0"
+                x2={Math.max(1, fillWidth)}
+                y2="0"
+              >
+                <stop offset="0%" stopColor="white" stopOpacity="1" />
+                <stop offset={`${fadeStartPct}%`} stopColor="white" stopOpacity="1" />
+                <stop offset="100%" stopColor="white" stopOpacity="0" />
+              </linearGradient>
+              <mask
+                id={ids.fadeMask}
+                maskUnits="userSpaceOnUse"
+                x="0"
+                y="0"
+                width={GAUGE_W}
+                height={GAUGE_H}
+              >
+                <rect
+                  x="0"
+                  y="0"
+                  width={fillWidth}
+                  height={GAUGE_H}
+                  fill={`url(#${ids.fadeGrad})`}
+                />
+              </mask>
+            </>
+          )}
           <clipPath id={ids.inner}>
             <path d={WEDGE_INNER} />
           </clipPath>
@@ -275,9 +280,13 @@ function DesktopWedgeBar({
 
         <g clipPath={`url(#${ids.inner})`}>
           <g clipPath={`url(#${ids.cap})`}>
-            <g mask={`url(#${ids.fadeMask})`}>
+            {isMax ? (
               <path d={WEDGE_INNER} fill={`url(#${ids.grad})`} />
-            </g>
+            ) : (
+              <g mask={`url(#${ids.fadeMask})`}>
+                <path d={WEDGE_INNER} fill={`url(#${ids.grad})`} />
+              </g>
+            )}
             {ticks.map((tick) => (
               <line
                 key={tick.x}
@@ -330,7 +339,6 @@ function MobileVerticalGauge({
         aria-hidden
       >
         <defs>
-          {/* 위(빨강) → 아래(청록) */}
           <linearGradient
             id={gradId}
             x1="160"
@@ -357,7 +365,6 @@ function MobileVerticalGauge({
           </clipPath>
         </defs>
 
-        {/* Vector 46 — 바깥 테두리 */}
         <path
           d={MOBILE_OUTLINE_PATH}
           fill="#FFFFFF"
@@ -366,7 +373,6 @@ function MobileVerticalGauge({
           strokeLinejoin="round"
         />
 
-        {/* Vector 37 — 채움 + 흰 stroke(테두리 안 여백) + 눈금 */}
         <g clipPath={`url(#${innerId})`}>
           <g clipPath={`url(#${capId})`}>
             <path
@@ -394,7 +400,7 @@ function MobileVerticalGauge({
         className="pointer-events-none absolute left-0 top-0 z-10 w-[83px] font-extrabold text-[#43A7B2]"
         style={{ fontSize: 13, lineHeight: "16px" }}
       >
-        Average Rate
+        Average Rating
       </p>
       <p
         className="pointer-events-none absolute left-0 top-[13px] z-10 w-[67px] font-extrabold text-[#FFA310]"

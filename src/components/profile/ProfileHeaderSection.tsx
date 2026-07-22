@@ -5,6 +5,7 @@ import { EditPencilIcon } from "./EditPencilIcon";
 import { PrivateSectionMessage } from "./PrivateSectionMessage";
 import { ProfileAvatarRing } from "./ProfileAvatarRing";
 import { ProfilePrivacyToggle } from "./ProfilePrivacyToggle";
+import { ProfileRatingEmptyState } from "./ProfileRatingEmptyState";
 import { ProfileRatingGauge } from "./ProfileRatingGauge";
 import { GENDER_LABEL, type ProfileReviewItem } from "./profile-types";
 import {
@@ -304,21 +305,9 @@ function ProfileRatingPanel({
 
   if (!hasRatingData) {
     return (
-      <div
-        className={
-          variant === "desktop"
-            ? "flex flex-1 items-center justify-center"
-            : "px-6 py-8 text-center text-sm text-zinc-400"
-        }
-      >
-        {variant === "desktop" ? (
-          <p className="text-center text-sm text-zinc-400">
-            리뷰를 작성하면 평균 평점이 표시됩니다.
-          </p>
-        ) : (
-          "리뷰를 작성하면 평균 평점이 표시됩니다."
-        )}
-      </div>
+      <ProfileRatingEmptyState
+        className={variant === "mobile" ? "px-2 py-2" : "min-h-0"}
+      />
     );
   }
 
@@ -326,7 +315,7 @@ function ProfileRatingPanel({
     return (
       <>
         <p className="text-[24px] font-extrabold leading-[29px] text-[#43A7B2]">
-          Average Rate
+          Average Rating
         </p>
         <p
           className="font-extrabold text-[#FFA310]"

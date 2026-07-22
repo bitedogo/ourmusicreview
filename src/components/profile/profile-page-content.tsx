@@ -14,6 +14,7 @@ import { useAverageRating } from "./ProfileRatingGauge";
 import { ProfileActivitySection } from "./activity/ProfileActivitySection";
 import { ProfileHeaderSection } from "./ProfileHeaderSection";
 import { ProfileMasterpieceSection } from "./ProfileMasterpieceSection";
+import { PROFILE_PAGE_SHELL_CLASS } from "./profile-section-styles";
 
 export type {
   ProfilePrivacySettings,
@@ -116,7 +117,7 @@ export function ProfilePageContent(props: ProfilePageContentProps) {
 
   return (
     <div className="min-h-screen">
-      <div className="mx-auto max-w-[1100px] px-3 pb-6 pt-[var(--profile-menu-title-gap)] sm:px-6 sm:pb-8">
+      <div className={PROFILE_PAGE_SHELL_CLASS}>
         <div className="mb-[var(--profile-title-section-gap)] flex items-center justify-between gap-4">
           <h1 className="text-xl font-semibold tracking-tight text-zinc-900 md:text-2xl">
             {pageTitle}

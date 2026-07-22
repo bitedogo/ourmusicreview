@@ -5,7 +5,11 @@ import { PrivateSectionMessage } from "./PrivateSectionMessage";
 import { ProfileSectionHeader } from "./ProfileSectionHeader";
 import { MasterpiecesReadOnlyGrid } from "./masterpiece/MasterpiecesReadOnlyGrid";
 import type { ProfileMasterpieceItem } from "./profile-types";
-import { PROFILE_SECTION_CARD, PROFILE_SECTION_INSET } from "./profile-section-styles";
+import {
+  PROFILE_SECTION_CARD,
+  PROFILE_SECTION_INSET,
+  PROFILE_CLUSTER_BAND_CLASS,
+} from "./profile-section-styles";
 
 interface ProfileMasterpieceSectionProps {
   isOwner: boolean;
@@ -41,7 +45,9 @@ export function ProfileMasterpieceSection({
       {isLoadingMasterpieces ? (
         <p className="py-16 text-center text-sm text-zinc-500">불러오는 중...</p>
       ) : (
-        <MasterpiecesReadOnlyGrid albums={visibleMasterpieces} />
+        <div className={PROFILE_CLUSTER_BAND_CLASS}>
+          <MasterpiecesReadOnlyGrid albums={visibleMasterpieces} />
+        </div>
       )}
     </section>
   );
