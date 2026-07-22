@@ -20,35 +20,28 @@ interface ProfileRatingGaugeProps {
 }
 
 // ---------------------------------------------------------------------------
-// Desktop wedge geometry (design SVG)
+// Desktop wedge geometry (Figma SVG export)
 // ---------------------------------------------------------------------------
 
-const GAUGE_W = 565;
-const GAUGE_H = 182;
+const GAUGE_W = 567;
+const GAUGE_H = 185;
+/** 채움 끝(오른쪽) 페이드 폭 */
 const FADE_PX = 72;
-const TICK_FRACTIONS = [0.2, 0.4, 0.6, 0.8];
 
-const WEDGE_OUTER =
-  "M554.23 1.20215C559.236 0.067119 564 3.8717 564 9.00391V172.734C564 177.153 560.418 180.734 556 180.734H9C4.58172 180.734 1 177.153 1 172.734V133.049C1.00013 129.312 3.5866 126.074 7.23047 125.247L554.23 1.20215Z";
+const WEDGE_FILL =
+  "M555.23 3.46777C560.236 2.33274 565 6.13732 565 11.2695V175C565 179.418 561.418 183 557 183H10C5.58172 183 2 179.418 2 175V135.314C2.00013 131.578 4.5866 128.339 8.23047 127.513L555.23 3.46777Z";
 
-const WEDGE_INNER =
-  "M550.23 5.20215C555.236 4.06712 560 7.8717 560 13.00391V168.734C560 173.153 556.418 176.734 552 176.734H13C8.58172 176.734 5 173.153 5 168.734V137.049C5.00013 133.312 7.5866 130.074 11.23047 129.247L550.23 5.20215Z";
+const WEDGE_OUTLINE =
+  "M554.899 2.00488C560.843 0.657295 566.5 5.17516 566.5 11.2695V175C566.5 180.247 562.247 184.5 557 184.5H10C4.7533 184.5 0.5 180.247 0.5 175V135.314C0.500134 130.877 3.57216 127.031 7.89941 126.05L554.899 2.00488Z";
 
-const INNER_LEFT_X = 13;
-const INNER_RIGHT_X = 552;
-const INNER_BOTTOM_Y = 176.734;
-const SLOPE_LEFT_X = 11.23047;
-const SLOPE_LEFT_Y = 129.247;
-const SLOPE_RIGHT_X = 550.23;
-const SLOPE_RIGHT_Y = 5.20215;
-
-function innerTopY(x: number) {
-  return (
-    SLOPE_LEFT_Y +
-    ((x - SLOPE_LEFT_X) / (SLOPE_RIGHT_X - SLOPE_LEFT_X)) *
-      (SLOPE_RIGHT_Y - SLOPE_LEFT_Y)
-  );
-}
+const DESKTOP_TICKS = [
+  "M134 182V137",
+  "M208 182V121",
+  "M283 183V106",
+  "M354 182V90",
+  "M425 182V72",
+  "M496 182V52",
+] as const;
 
 // ---------------------------------------------------------------------------
 // Mobile vertical gauge (Figma Frame 23 SVG export paths)
@@ -73,7 +66,7 @@ const MOBILE_GAUGE_BOT = 575;
 const MOBILE_BOX = { w: 184, h: 178 } as const;
 /** stroke 잘림 방지용 viewBox 패딩 */
 const MOBILE_VB = { x: 63, y: 396, w: 192, h: 184 } as const;
-/** 세로 채움 끝(위쪽) 페이드 — 데스크톱 FADE_PX에 대응 */
+/** 세로 채움 끝(위쪽) 페이드 */
 const MOBILE_FADE_PX = 48;
 
 // ---------------------------------------------------------------------------
@@ -139,11 +132,7 @@ export function ProfileRatingGauge({
     const isMax = base.displayRating >= 10;
     const fadeStart = Math.max(0, fillWidth - FADE_PX);
     const fadeStartPct = fillWidth > 0 ? (fadeStart / fillWidth) * 100 : 0;
-    const ticks = TICK_FRACTIONS.map((t) => {
-      const x = INNER_LEFT_X + t * (INNER_RIGHT_X - INNER_LEFT_X);
-      return { x, y1: innerTopY(x) + 6, y2: INNER_BOTTOM_Y - 2 };
-    });
-    return { ...base, fillWidth, fadeStartPct, ticks, isMax };
+    return { ...base, fillWidth, fadeStartPct, isMax };
   }, [reviews, averageRating]);
 
   if (!data.hasRatingData) {
@@ -164,7 +153,6 @@ export function ProfileRatingGauge({
     <DesktopWedgeBar
       fillWidth={data.fillWidth}
       fadeStartPct={data.fadeStartPct}
-      ticks={data.ticks}
       isMax={data.isMax}
       ids={ids}
     />
@@ -173,7 +161,7 @@ export function ProfileRatingGauge({
   if (barOnly) return bar;
 
   return (
-    <div className="relative w-full max-w-[565px]">
+    <div className="relative w-full max-w-[567px]">
       <p className="text-[24px] font-extrabold leading-[29px] text-[#43A7B2]">
         Average Rating
       </p>
@@ -206,37 +194,43 @@ export function ProfileRatingGauge({
 function DesktopWedgeBar({
   fillWidth,
   fadeStartPct,
-  ticks,
   isMax,
   ids,
 }: {
   fillWidth: number;
   fadeStartPct: number;
-  ticks: { x: number; y1: number; y2: number }[];
   isMax: boolean;
-  ids: { grad: string; fadeGrad: string; fadeMask: string; inner: string; cap: string };
+  ids: {
+    grad: string;
+    fadeGrad: string;
+    fadeMask: string;
+    inner: string;
+    cap: string;
+  };
 }) {
   return (
-    <div className="relative w-full max-w-[565px]">
+    <div className="relative w-full max-w-[567px]">
       <svg
         viewBox={`0 0 ${GAUGE_W} ${GAUGE_H}`}
+        width={GAUGE_W}
+        height={GAUGE_H}
         fill="none"
         className="block h-auto w-full"
         aria-hidden
+        xmlns="http://www.w3.org/2000/svg"
       >
         <defs>
           <linearGradient
             id={ids.grad}
-            x1="0"
-            y1="89.7344"
-            x2="565"
-            y2="89.7345"
+            x1="1"
+            y1="92"
+            x2="566"
+            y2="92.0001"
             gradientUnits="userSpaceOnUse"
           >
             <stop stopColor="#63C4CB" />
-            <stop offset="0.3" stopColor="#F8CA12" />
-            <stop offset="0.6" stopColor="#FFA310" />
-            <stop offset="0.767357" stopColor="#F82512" />
+            <stop offset="0.35" stopColor="#F8CA12" />
+            <stop offset="0.75" stopColor="#FFA310" />
             <stop offset="1" stopColor="#F82512" />
           </linearGradient>
           {!isMax && (
@@ -250,7 +244,11 @@ function DesktopWedgeBar({
                 y2="0"
               >
                 <stop offset="0%" stopColor="white" stopOpacity="1" />
-                <stop offset={`${fadeStartPct}%`} stopColor="white" stopOpacity="1" />
+                <stop
+                  offset={`${fadeStartPct}%`}
+                  stopColor="white"
+                  stopOpacity="1"
+                />
                 <stop offset="100%" stopColor="white" stopOpacity="0" />
               </linearGradient>
               <mask
@@ -264,45 +262,43 @@ function DesktopWedgeBar({
                 <rect
                   x="0"
                   y="0"
-                  width={fillWidth}
+                  width={Math.max(0, fillWidth)}
                   height={GAUGE_H}
                   fill={`url(#${ids.fadeGrad})`}
                 />
               </mask>
             </>
           )}
-          <clipPath id={ids.inner}>
-            <path d={WEDGE_INNER} />
-          </clipPath>
           <clipPath id={ids.cap}>
-            <rect x="0" y="0" width={fillWidth} height={GAUGE_H} />
+            <rect x="0" y="0" width={Math.max(0, fillWidth)} height={GAUGE_H} />
           </clipPath>
         </defs>
 
-        <path d={WEDGE_OUTER} fill="none" stroke="#D9D9D9" strokeWidth={1} />
+        <path d={WEDGE_OUTLINE} stroke="#D9D9D9" fill="none" />
 
-        <g clipPath={`url(#${ids.inner})`}>
-          <g clipPath={`url(#${ids.cap})`}>
-            {isMax ? (
-              <path d={WEDGE_INNER} fill={`url(#${ids.grad})`} />
-            ) : (
-              <g mask={`url(#${ids.fadeMask})`}>
-                <path d={WEDGE_INNER} fill={`url(#${ids.grad})`} />
-              </g>
-            )}
-            {ticks.map((tick) => (
-              <line
-                key={tick.x}
-                x1={tick.x}
-                y1={tick.y1}
-                x2={tick.x}
-                y2={tick.y2}
-                stroke="white"
-                strokeWidth={2}
-                strokeLinecap="round"
-              />
-            ))}
-          </g>
+        <g clipPath={`url(#${ids.cap})`}>
+          {isMax ? (
+            <path d={WEDGE_FILL} fill={`url(#${ids.grad})`} />
+          ) : (
+            <g mask={`url(#${ids.fadeMask})`}>
+              <path d={WEDGE_FILL} fill={`url(#${ids.grad})`} />
+            </g>
+          )}
+          <path
+            d={WEDGE_FILL}
+            fill="none"
+            stroke="white"
+            strokeWidth={2}
+          />
+          {DESKTOP_TICKS.map((d) => (
+            <path
+              key={d}
+              d={d}
+              stroke="white"
+              strokeWidth={3}
+              strokeLinecap="round"
+            />
+          ))}
         </g>
       </svg>
     </div>

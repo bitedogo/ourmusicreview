@@ -323,14 +323,14 @@ function ProfileRatingPanel({
         >
           {displayRating!.toFixed(1)}
         </p>
-        <div className="mt-1 w-full max-w-[565px]">
+        <div className="mt-1 w-full max-w-[567px]">
           <ProfileRatingGauge
             reviews={gaugeReviews}
             averageRating={!isOwner ? averageRating : undefined}
             barOnly
           />
         </div>
-        <div className="mt-2 flex w-full max-w-[565px] items-center justify-between">
+        <div className="mt-2 flex w-full max-w-[567px] items-center justify-between">
           <span className="text-[15px] font-extralight leading-[18px] text-[#8F8F8F]">
             Born Hater
           </span>
