@@ -5,6 +5,8 @@ import { ProfilePrivacyToggle } from "../ProfilePrivacyToggle";
 import {
   MASTERPIECE_EDIT_BUTTON_CLASS,
   PROFILE_SECTION_TITLE,
+  PROFILE_SECTION_TITLE_INSET,
+  PROFILE_SECTION_TITLE_INSET_END,
 } from "../profile-section-styles";
 
 interface MasterpieceSectionHeaderProps {
@@ -24,12 +26,15 @@ export function MasterpieceSectionHeader({
 }: MasterpieceSectionHeaderProps) {
   return (
     <div className="mb-6 flex flex-row items-center justify-between gap-3">
-      <div className="flex shrink-0 items-center gap-[10px] whitespace-nowrap">
+      <div
+        className={`flex shrink-0 items-center gap-[10px] whitespace-nowrap ${PROFILE_SECTION_TITLE_INSET}`}
+      >
         <h2 className={PROFILE_SECTION_TITLE}>나의 Masterpiece</h2>
         <MasterpieceInfoTip />
       </div>
-      <div className="flex shrink-0 items-center justify-end gap-3">
-        <button
+      <div
+        className={`flex shrink-0 items-center justify-end gap-3 ${PROFILE_SECTION_TITLE_INSET_END}`}
+      >        <button
           type="button"
           onClick={onToggleEditing}
           className={`${MASTERPIECE_EDIT_BUTTON_CLASS} ${

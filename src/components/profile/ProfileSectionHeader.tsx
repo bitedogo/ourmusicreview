@@ -4,6 +4,7 @@ import { ReactNode } from "react";
 import {
   PROFILE_SECTION_DIVIDER,
   PROFILE_SECTION_TITLE,
+  PROFILE_SECTION_TITLE_INSET,
 } from "./profile-section-styles";
 
 interface ProfileSectionHeaderProps {
@@ -22,7 +23,9 @@ export function ProfileSectionHeader({
 }: ProfileSectionHeaderProps) {
   return (
     <>
-      <div className={`flex items-center gap-[10px] ${titleClassName}`}>
+      <div
+        className={`flex items-center gap-[10px] ${PROFILE_SECTION_TITLE_INSET} ${titleClassName}`}
+      >
         <h2 className={PROFILE_SECTION_TITLE}>{title}</h2>
         {tip}
       </div>

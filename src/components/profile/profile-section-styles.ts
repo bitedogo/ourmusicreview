@@ -11,6 +11,10 @@ export const PROFILE_SECTION_INSET = "px-4 sm:px-6 lg:px-[27px]";
 export const PROFILE_SECTION_TITLE =
   "text-[15px] font-normal leading-[18px] text-black";
 
+/** 제목·i — 구분선보다 안쪽으로 */
+export const PROFILE_SECTION_TITLE_INSET = "pl-3 lg:pl-4";
+export const PROFILE_SECTION_TITLE_INSET_END = "pr-3 lg:pr-4";
+
 export const PROFILE_SECTION_DIVIDER = "mb-8 h-px w-full bg-[#E3E3E3]";
 
 /** 구분선과 동일 폭 — absolute 요소용 */

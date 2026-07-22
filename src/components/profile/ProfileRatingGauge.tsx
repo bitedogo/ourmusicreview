@@ -73,6 +73,8 @@ const MOBILE_GAUGE_BOT = 575;
 const MOBILE_BOX = { w: 184, h: 178 } as const;
 /** stroke 잘림 방지용 viewBox 패딩 */
 const MOBILE_VB = { x: 63, y: 396, w: 192, h: 184 } as const;
+/** 세로 채움 끝(위쪽) 페이드 — 데스크톱 FADE_PX에 대응 */
+const MOBILE_FADE_PX = 48;
 
 // ---------------------------------------------------------------------------
 // Shared helpers
@@ -152,6 +154,7 @@ export function ProfileRatingGauge({
     return (
       <MobileVerticalGauge
         displayRating={data.displayRating}
+        isMax={data.isMax}
         ids={ids}
       />
     );
@@ -312,18 +315,42 @@ function DesktopWedgeBar({
 
 function MobileVerticalGauge({
   displayRating,
+  isMax,
   ids,
 }: {
   displayRating: number;
-  ids: { grad: string; inner: string; cap: string };
+  isMax: boolean;
+  ids: {
+    grad: string;
+    fadeGrad: string;
+    fadeMask: string;
+    inner: string;
+    cap: string;
+  };
 }) {
   const fillH =
     (displayRating / 10) * (MOBILE_GAUGE_BOT - MOBILE_GAUGE_TOP);
   const fillY = MOBILE_GAUGE_BOT - fillH;
   const soundLoverOnFill = fillY <= MOBILE_GAUGE_TOP + 16;
+  const fadeLen = Math.min(MOBILE_FADE_PX, fillH);
+  const fadeStartY = fillY + fadeLen;
+  const fadeStartPct =
+    fillH > 0 ? ((MOBILE_GAUGE_BOT - fadeStartY) / fillH) * 100 : 0;
   const gradId = `${ids.grad}_m`;
+  const fadeGradId = `${ids.fadeGrad}_m`;
+  const fadeMaskId = `${ids.fadeMask}_m`;
   const innerId = `${ids.inner}_m`;
   const capId = `${ids.cap}_m`;
+
+  const fillPath = (
+    <path
+      d={MOBILE_FILL_PATH}
+      fill={`url(#${gradId})`}
+      stroke="white"
+      strokeWidth={2}
+      strokeLinejoin="round"
+    />
+  );
 
   return (
     <div
@@ -352,6 +379,43 @@ function MobileVerticalGauge({
             <stop offset="0.644231" stopColor="#F8CA12" />
             <stop offset="1" stopColor="#63C4CB" />
           </linearGradient>
+          {!isMax && (
+            <>
+              {/* 아래(불투명) → 채움 끝 위쪽(투명) */}
+              <linearGradient
+                id={fadeGradId}
+                gradientUnits="userSpaceOnUse"
+                x1="0"
+                y1={MOBILE_GAUGE_BOT}
+                x2="0"
+                y2={Math.min(fillY, MOBILE_GAUGE_BOT - 1)}
+              >
+                <stop offset="0%" stopColor="white" stopOpacity="1" />
+                <stop
+                  offset={`${fadeStartPct}%`}
+                  stopColor="white"
+                  stopOpacity="1"
+                />
+                <stop offset="100%" stopColor="white" stopOpacity="0" />
+              </linearGradient>
+              <mask
+                id={fadeMaskId}
+                maskUnits="userSpaceOnUse"
+                x={MOBILE_VB.x}
+                y={MOBILE_VB.y}
+                width={MOBILE_VB.w}
+                height={MOBILE_VB.h}
+              >
+                <rect
+                  x={MOBILE_VB.x}
+                  y={fillY}
+                  width={MOBILE_VB.w}
+                  height={Math.max(0, MOBILE_GAUGE_BOT - fillY + 2)}
+                  fill={`url(#${fadeGradId})`}
+                />
+              </mask>
+            </>
+          )}
           <clipPath id={innerId}>
             <path d={MOBILE_FILL_PATH} />
           </clipPath>
@@ -375,13 +439,11 @@ function MobileVerticalGauge({
 
         <g clipPath={`url(#${innerId})`}>
           <g clipPath={`url(#${capId})`}>
-            <path
-              d={MOBILE_FILL_PATH}
-              fill={`url(#${gradId})`}
-              stroke="white"
-              strokeWidth={2}
-              strokeLinejoin="round"
-            />
+            {isMax ? (
+              fillPath
+            ) : (
+              <g mask={`url(#${fadeMaskId})`}>{fillPath}</g>
+            )}
             {MOBILE_TICKS.map((d) => (
               <path
                 key={d}
@@ -397,13 +459,13 @@ function MobileVerticalGauge({
 
       {/* 점수 (게이지 왼쪽 오버레이) */}
       <p
-        className="pointer-events-none absolute left-0 top-0 z-10 w-[83px] font-extrabold text-[#43A7B2]"
+        className="pointer-events-none absolute left-0 top-0 z-10 whitespace-nowrap font-extrabold text-[#43A7B2]"
         style={{ fontSize: 13, lineHeight: "16px" }}
       >
         Average Rating
       </p>
       <p
-        className="pointer-events-none absolute left-0 top-[13px] z-10 w-[67px] font-extrabold text-[#FFA310]"
+        className="pointer-events-none absolute left-0 top-[16px] z-10 w-[67px] font-extrabold text-[#FFA310]"
         style={{ fontSize: 48, lineHeight: "57px" }}
       >
         {displayRating.toFixed(1)}
