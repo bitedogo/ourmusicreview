@@ -10,7 +10,7 @@ import {
   ProfileFavoriteItem,
   ProfileMasterpieceItem,
 } from "./profile-types";
-import { useAverageRating } from "./ProfileRatingGauge";
+import { useAverageRating } from "./rating-utils";
 import { ProfileActivitySection } from "./activity/ProfileActivitySection";
 import { ProfileHeaderSection } from "./ProfileHeaderSection";
 import { ProfileMasterpieceSection } from "./ProfileMasterpieceSection";

@@ -5,10 +5,25 @@
 import { useId, useMemo } from "react";
 import { ProfileRatingEmptyState } from "./ProfileRatingEmptyState";
 import { ProfileReviewItem } from "./profile-types";
+import {
+  DESKTOP_TICKS,
+  FADE_PX,
+  GAUGE_H,
+  GAUGE_W,
+  MOBILE_BOX,
+  MOBILE_FADE_PX,
+  MOBILE_FILL_PATH,
+  MOBILE_GAUGE_BOT,
+  MOBILE_GAUGE_TOP,
+  MOBILE_OUTLINE_PATH,
+  MOBILE_TICKS,
+  MOBILE_VB,
+  WEDGE_FILL,
+  WEDGE_OUTLINE,
+} from "./rating-gauge-geometry";
+import { computeRating } from "./rating-utils";
 
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
+export { getListenerLabel, useAverageRating } from "./rating-utils";
 
 interface ProfileRatingGaugeProps {
   reviews: ProfileReviewItem[];
@@ -19,100 +34,13 @@ interface ProfileRatingGaugeProps {
   variant?: "default" | "mobileVertical";
 }
 
-// ---------------------------------------------------------------------------
-// Desktop wedge geometry (Figma SVG export)
-// ---------------------------------------------------------------------------
-
-const GAUGE_W = 567;
-const GAUGE_H = 185;
-/** 채움 끝(오른쪽) 페이드 폭 */
-const FADE_PX = 72;
-
-const WEDGE_FILL =
-  "M555.23 3.46777C560.236 2.33274 565 6.13732 565 11.2695V175C565 179.418 561.418 183 557 183H10C5.58172 183 2 179.418 2 175V135.314C2.00013 131.578 4.5866 128.339 8.23047 127.513L555.23 3.46777Z";
-
-const WEDGE_OUTLINE =
-  "M554.899 2.00488C560.843 0.657295 566.5 5.17516 566.5 11.2695V175C566.5 180.247 562.247 184.5 557 184.5H10C4.7533 184.5 0.5 180.247 0.5 175V135.314C0.500134 130.877 3.57216 127.031 7.89941 126.05L554.899 2.00488Z";
-
-const DESKTOP_TICKS = [
-  "M134 182V137",
-  "M208 182V121",
-  "M283 183V106",
-  "M354 182V90",
-  "M425 182V72",
-  "M496 182V52",
-] as const;
-
-// ---------------------------------------------------------------------------
-// Mobile vertical gauge (Figma Frame 23 SVG export paths)
-// ---------------------------------------------------------------------------
-
-/** 안쪽 채움 path */
-const MOBILE_FILL_PATH =
-  "M79.0742 562.326C75.2651 567.618 79.0471 575 85.5674 575L243 575C247.418 575 251 571.418 251 567L251 407C251 402.582 247.418 399 243 399L200.738 399C198.165 399 195.748 400.238 194.245 402.326L79.0742 562.326Z";
-
-/** 바깥 테두리 path (채움보다 약간 큼 → 안쪽 여백) */
-const MOBILE_OUTLINE_PATH =
-  "M77.8574 561.45C73.334 567.734 77.8245 576.5 85.5674 576.5L243 576.5C248.247 576.5 252.5 572.247 252.5 567L252.5 407C252.5 401.753 248.247 397.5 243 397.5L200.738 397.5C197.682 397.5 194.813 398.97 193.027 401.45L131.658 486.708L77.8574 561.45Z";
-
-const MOBILE_TICKS = [
-  "M251 486.842L174 486.842",
-  "M250 531.579L140 531.579",
-  "M250 439.901L205 439.901",
-] as const;
-
-const MOBILE_GAUGE_TOP = 399;
-const MOBILE_GAUGE_BOT = 575;
-const MOBILE_BOX = { w: 184, h: 178 } as const;
-/** stroke 잘림 방지용 viewBox 패딩 */
-const MOBILE_VB = { x: 63, y: 396, w: 192, h: 184 } as const;
-/** 세로 채움 끝(위쪽) 페이드 */
-const MOBILE_FADE_PX = 48;
-
-// ---------------------------------------------------------------------------
-// Shared helpers
-// ---------------------------------------------------------------------------
-
-export function getListenerLabel(rating: number): string {
-  if (rating < 3) return "Harsh listener";
-  if (rating < 5) return "Critical listener";
-  if (rating < 6.5) return "Balanced listener";
-  if (rating < 8) return "Supportive listener";
-  if (rating < 9) return "Positive listener";
-  return "Enthusiastic listener";
-}
-
-function computeRating(reviews: ProfileReviewItem[], averageRating?: number) {
-  const computed =
-    averageRating ??
-    (reviews.length > 0
-      ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
-      : 0);
-  const clamped = Math.min(10, Math.max(0, computed));
-  return {
-    displayRating: clamped,
-    listenerLabel: getListenerLabel(clamped),
-    hasRatingData:
-      reviews.length > 0 || (averageRating !== undefined && averageRating > 0),
-  };
-}
-
-export function useAverageRating(
-  reviews: ProfileReviewItem[],
-  averageRating?: number
-) {
-  return useMemo(() => {
-    const base = computeRating(reviews, averageRating);
-    return {
-      ...base,
-      fillWidth: (base.displayRating / 10) * GAUGE_W,
-    };
-  }, [reviews, averageRating]);
-}
-
-// ---------------------------------------------------------------------------
-// Component
-// ---------------------------------------------------------------------------
+type GaugeIds = {
+  grad: string;
+  fadeGrad: string;
+  fadeMask: string;
+  inner: string;
+  cap: string;
+};
 
 export function ProfileRatingGauge({
   reviews,
@@ -121,7 +49,7 @@ export function ProfileRatingGauge({
   variant = "default",
 }: ProfileRatingGaugeProps) {
   const uid = useId().replace(/[^a-zA-Z0-9_-]/g, "");
-  const ids = {
+  const ids: GaugeIds = {
     grad: `prg_grad_${uid}`,
     fadeGrad: `prg_fade_grad_${uid}`,
     fadeMask: `prg_fade_${uid}`,
@@ -190,10 +118,6 @@ export function ProfileRatingGauge({
   );
 }
 
-// ---------------------------------------------------------------------------
-// Desktop horizontal wedge
-// ---------------------------------------------------------------------------
-
 function DesktopWedgeBar({
   fillWidth,
   fadeStartPct,
@@ -203,13 +127,7 @@ function DesktopWedgeBar({
   fillWidth: number;
   fadeStartPct: number;
   isMax: boolean;
-  ids: {
-    grad: string;
-    fadeGrad: string;
-    fadeMask: string;
-    inner: string;
-    cap: string;
-  };
+  ids: GaugeIds;
 }) {
   return (
     <div className="relative w-full max-w-[567px]">
@@ -287,12 +205,7 @@ function DesktopWedgeBar({
               <path d={WEDGE_FILL} fill={`url(#${ids.grad})`} />
             </g>
           )}
-          <path
-            d={WEDGE_FILL}
-            fill="none"
-            stroke="white"
-            strokeWidth={2}
-          />
+          <path d={WEDGE_FILL} fill="none" stroke="white" strokeWidth={2} />
           {DESKTOP_TICKS.map((d) => (
             <path
               key={d}
@@ -308,10 +221,6 @@ function DesktopWedgeBar({
   );
 }
 
-// ---------------------------------------------------------------------------
-// Mobile vertical trapezoid (Group 205: 184×178)
-// ---------------------------------------------------------------------------
-
 function MobileVerticalGauge({
   displayRating,
   isMax,
@@ -319,13 +228,7 @@ function MobileVerticalGauge({
 }: {
   displayRating: number;
   isMax: boolean;
-  ids: {
-    grad: string;
-    fadeGrad: string;
-    fadeMask: string;
-    inner: string;
-    cap: string;
-  };
+  ids: GaugeIds;
 }) {
   const fillH =
     (displayRating / 10) * (MOBILE_GAUGE_BOT - MOBILE_GAUGE_TOP);
@@ -353,7 +256,6 @@ function MobileVerticalGauge({
 
   return (
     <div className="flex h-[178px] w-full max-w-[300px] items-start justify-center gap-0">
-      {/* 점수 — 숫자 기준으로 그래프에 가깝게, 라벨은 위로 살짝 오버행 */}
       <div className="relative z-10 flex w-[64px] shrink-0 flex-col pt-0.5">
         <p
           className="whitespace-nowrap font-extrabold text-[#43A7B2]"
@@ -397,7 +299,6 @@ function MobileVerticalGauge({
             </linearGradient>
             {!isMax && (
               <>
-                {/* 아래(불투명) → 채움 끝 위쪽(투명) */}
                 <linearGradient
                   id={fadeGradId}
                   gradientUnits="userSpaceOnUse"
