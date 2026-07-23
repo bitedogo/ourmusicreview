@@ -373,3 +373,31 @@ select {
     border-radius: 6px;
   }
 }
+
+/* 모바일: 입력 포커스 시 iOS/Android 자동 확대 방지 (16px 미만일 때 발생) */
+@media (max-width: 767px) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="image"]):not([type="file"]):not([type="color"]):not([type="hidden"]),
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
+
+/* Safari/Chrome autofill 노란 배경이 둥근 입력칸 밖으로 삐져나오는 현상 방지 */
+.auth-input {
+  border-radius: inherit;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.auth-input:-webkit-autofill,
+.auth-input:-webkit-autofill:hover,
+.auth-input:-webkit-autofill:focus,
+.auth-input:-webkit-autofill:active {
+  -webkit-text-fill-color: var(--color-text-primary);
+  caret-color: var(--color-text-primary);
+  box-shadow: 0 0 0 1000px #ffffff inset;
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset;
+  transition: background-color 99999s ease-out;
+  background-color: transparent !important;
+}

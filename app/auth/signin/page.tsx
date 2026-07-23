@@ -112,11 +112,11 @@ export default function SigninPage() {
 
         <form onSubmit={handleSubmit} className="flex w-full flex-col">
           <label className="block">
-            <div className="rounded-[var(--auth-field-radius)] border border-[var(--color-border)] bg-white shadow-[0_2px_4px_-2px_rgba(0,0,0,0.55)] transition-[border-color,box-shadow] focus-within:border-[var(--color-accent)]">
+            <div className="overflow-hidden rounded-[var(--auth-field-radius)] border border-[var(--color-border)] bg-white shadow-[0_2px_4px_-2px_rgba(0,0,0,0.55)] transition-[border-color,box-shadow] focus-within:border-[var(--color-accent)]">
               <input
                 value={id}
                 onChange={(e) => setId(e.target.value)}
-                className="h-[var(--auth-input-height)] w-full bg-transparent px-4 text-sm text-[var(--color-text-primary)] outline-none placeholder:text-[var(--color-text-muted)]"
+                className="auth-input h-[var(--auth-input-height)] w-full bg-transparent px-4 text-base text-[var(--color-text-primary)] outline-none placeholder:text-[var(--color-text-muted)] sm:text-sm"
                 placeholder="Id"
                 autoComplete="username"
               />
@@ -124,12 +124,12 @@ export default function SigninPage() {
           </label>
 
           <label className="mt-3 block">
-            <div className="rounded-[var(--auth-field-radius)] border border-[var(--color-border)] bg-white shadow-[0_2px_4px_-2px_rgba(0,0,0,0.55)] transition-[border-color,box-shadow] focus-within:border-[var(--color-accent)]">
+            <div className="overflow-hidden rounded-[var(--auth-field-radius)] border border-[var(--color-border)] bg-white shadow-[0_2px_4px_-2px_rgba(0,0,0,0.55)] transition-[border-color,box-shadow] focus-within:border-[var(--color-accent)]">
               <input
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 type="password"
-                className="h-[var(--auth-input-height)] w-full bg-transparent px-4 text-sm text-[var(--color-text-primary)] outline-none placeholder:text-[var(--color-text-muted)]"
+                className="auth-input h-[var(--auth-input-height)] w-full bg-transparent px-4 text-base text-[var(--color-text-primary)] outline-none placeholder:text-[var(--color-text-muted)] sm:text-sm"
                 placeholder="Password"
                 autoComplete="current-password"
               />
