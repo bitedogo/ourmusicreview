@@ -29,8 +29,12 @@ export const metadata: Metadata = {
     statusBarStyle: "default",
   },
   icons: {
-    icon: [{ url: "/icons/oru-app-icon-192.png", sizes: "192x192", type: "image/png" }],
-    apple: [{ url: "/icons/oru-app-icon-192.png", sizes: "192x192", type: "image/png" }],
+    icon: [
+      { url: "/icons/oru-favicon.png", sizes: "192x192", type: "image/png" },
+    ],
+    apple: [
+      { url: "/icons/oru-app-icon-192.png", sizes: "192x192", type: "image/png" },
+    ],
   },
   alternates: {
     canonical: "/",
