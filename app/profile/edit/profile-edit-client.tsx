@@ -1,7 +1,7 @@
 "use client";
 /** 프로필 수정 클라이언트(닉네임·이미지) */
 
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { ImageCropModal } from "@/src/components/app/ImageCropModal";
@@ -43,6 +43,7 @@ export function ProfileEditClient({
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [changePasswordError, setChangePasswordError] = useState<string | null>(null);
   const [changePasswordSuccess, setChangePasswordSuccess] = useState<string | null>(null);
+  const isChangingPasswordRef = useRef(false);
 
   const handleProfileImageConfirm = useCallback((file: File) => {
     if (cropModal?.src) URL.revokeObjectURL(cropModal.src);
@@ -150,42 +151,59 @@ export function ProfileEditClient({
     }
   }
 
-  async function handleChangePasswordSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setIsChangingPassword(true);
+  function clearPasswordMessages() {
     setChangePasswordError(null);
     setChangePasswordSuccess(null);
+  }
 
-    const trimmedCurrentPassword = currentPassword.trim();
-    const trimmedNewPassword = newPassword.trim();
-    const trimmedNewPasswordConfirm = newPasswordConfirm.trim();
+  async function handleChangePasswordSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (isChangingPasswordRef.current) return;
+    isChangingPasswordRef.current = true;
 
-    if (!trimmedCurrentPassword || !trimmedNewPassword || !trimmedNewPasswordConfirm) {
-      setChangePasswordError("모든 항목을 입력해주세요.");
-      setIsChangingPassword(false);
-      return;
-    }
+    // DOM 실제 값을 읽어 브라우저 자동완성·재입력 후에도 state 불일치를 막음
+    const formData = new FormData(event.currentTarget);
+    const trimmedCurrentPassword = String(
+      formData.get("currentPassword") ?? ""
+    ).trim();
+    const trimmedNewPassword = String(formData.get("newPassword") ?? "").trim();
+    const trimmedNewPasswordConfirm = String(
+      formData.get("newPasswordConfirm") ?? ""
+    ).trim();
 
-    const passwordError = validatePassword(trimmedNewPassword);
-    if (passwordError) {
-      setChangePasswordError(passwordError);
-      setIsChangingPassword(false);
-      return;
-    }
-
-    if (trimmedCurrentPassword === trimmedNewPassword) {
-      setChangePasswordError("새 비밀번호는 현재 비밀번호와 달라야 합니다.");
-      setIsChangingPassword(false);
-      return;
-    }
-
-    if (trimmedNewPassword !== trimmedNewPasswordConfirm) {
-      setChangePasswordError("새 비밀번호 확인이 일치하지 않습니다.");
-      setIsChangingPassword(false);
-      return;
-    }
+    setCurrentPassword(trimmedCurrentPassword);
+    setNewPassword(trimmedNewPassword);
+    setNewPasswordConfirm(trimmedNewPasswordConfirm);
+    setChangePasswordError(null);
+    setChangePasswordSuccess(null);
+    setIsChangingPassword(true);
 
     try {
+      if (
+        !trimmedCurrentPassword ||
+        !trimmedNewPassword ||
+        !trimmedNewPasswordConfirm
+      ) {
+        setChangePasswordError("모든 항목을 입력해주세요.");
+        return;
+      }
+
+      const passwordError = validatePassword(trimmedNewPassword);
+      if (passwordError) {
+        setChangePasswordError(passwordError);
+        return;
+      }
+
+      if (trimmedCurrentPassword === trimmedNewPassword) {
+        setChangePasswordError("새 비밀번호는 현재 비밀번호와 달라야 합니다.");
+        return;
+      }
+
+      if (trimmedNewPassword !== trimmedNewPasswordConfirm) {
+        setChangePasswordError("새 비밀번호 확인이 일치하지 않습니다.");
+        return;
+      }
+
       await fetchJson<{ ok: boolean }>("/api/auth/change-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -202,8 +220,11 @@ export function ProfileEditClient({
       setNewPassword("");
       setNewPasswordConfirm("");
     } catch (error) {
-      setChangePasswordError(getApiErrorMessage(error, "비밀번호 변경에 실패했습니다."));
+      setChangePasswordError(
+        getApiErrorMessage(error, "비밀번호 변경에 실패했습니다.")
+      );
     } finally {
+      isChangingPasswordRef.current = false;
       setIsChangingPassword(false);
     }
   }
@@ -219,7 +240,7 @@ export function ProfileEditClient({
         <button
           type="button"
           onClick={() => router.push("/profile")}
-          className="rounded bg-black px-4 py-2 text-xs font-medium text-white transition hover:bg-zinc-800"
+          className="rounded bg-[var(--color-brand-primary)] px-4 py-2 text-xs font-medium text-white transition hover:bg-[var(--color-brand-primary-hover)]"
         >
           마이페이지로
         </button>
@@ -287,7 +308,7 @@ export function ProfileEditClient({
                   type="button"
                   onClick={handleUpdateProfileImage}
                   disabled={isUpdatingImage}
-                  className="rounded bg-black px-3 py-2 text-xs font-medium text-white hover:bg-zinc-800 disabled:cursor-not-allowed disabled:bg-zinc-400"
+                  className="rounded bg-[var(--color-brand-primary)] px-3 py-2 text-xs font-medium text-white transition hover:bg-[var(--color-brand-primary-hover)] disabled:cursor-not-allowed disabled:bg-zinc-400"
                 >
                   {isUpdatingImage ? "저장 중..." : "이미지 저장"}
                 </button>
@@ -312,7 +333,7 @@ export function ProfileEditClient({
                 type="button"
                 onClick={handleUpdateNickname}
                 disabled={isUpdating}
-                className="shrink-0 rounded bg-black px-4 py-2 text-xs font-medium text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:bg-zinc-400"
+                className="shrink-0 rounded bg-[var(--color-brand-primary)] px-4 py-2 text-xs font-medium text-white transition hover:bg-[var(--color-brand-primary-hover)] disabled:cursor-not-allowed disabled:bg-zinc-400"
               >
                 {isUpdating ? "수정 중..." : "저장"}
               </button>
@@ -335,24 +356,36 @@ export function ProfileEditClient({
             <form onSubmit={handleChangePasswordSubmit} className="space-y-3">
               <div className="grid w-full max-w-2xl grid-cols-1 gap-2 md:grid-cols-3">
                 <input
+                  name="currentPassword"
                   value={currentPassword}
-                  onChange={(event) => setCurrentPassword(event.target.value)}
+                  onChange={(event) => {
+                    setCurrentPassword(event.target.value);
+                    clearPasswordMessages();
+                  }}
                   type="password"
                   className="rounded border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-400"
                   placeholder="현재 비밀번호"
                   autoComplete="current-password"
                 />
                 <input
+                  name="newPassword"
                   value={newPassword}
-                  onChange={(event) => setNewPassword(event.target.value)}
+                  onChange={(event) => {
+                    setNewPassword(event.target.value);
+                    clearPasswordMessages();
+                  }}
                   type="password"
                   className="rounded border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-400"
                   placeholder="새 비밀번호"
                   autoComplete="new-password"
                 />
                 <input
+                  name="newPasswordConfirm"
                   value={newPasswordConfirm}
-                  onChange={(event) => setNewPasswordConfirm(event.target.value)}
+                  onChange={(event) => {
+                    setNewPasswordConfirm(event.target.value);
+                    clearPasswordMessages();
+                  }}
                   type="password"
                   className="rounded border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-400"
                   placeholder="새 비밀번호 확인"
@@ -362,12 +395,16 @@ export function ProfileEditClient({
               <button
                 type="submit"
                 disabled={isChangingPassword}
-                className="rounded bg-black px-4 py-2 text-xs font-medium text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:bg-zinc-400"
+                className="rounded bg-[var(--color-brand-primary)] px-4 py-2 text-xs font-medium text-white transition hover:bg-[var(--color-brand-primary-hover)] disabled:cursor-not-allowed disabled:bg-zinc-400"
               >
                 {isChangingPassword ? "변경 중..." : "비밀번호 변경"}
               </button>
-              {changePasswordError && <p className="text-xs text-red-600">{changePasswordError}</p>}
-              {changePasswordSuccess && <p className="text-xs text-emerald-600">{changePasswordSuccess}</p>}
+              {changePasswordError && (
+                <p className="text-xs text-red-600">{changePasswordError}</p>
+              )}
+              {changePasswordSuccess && (
+                <p className="text-xs text-emerald-600">{changePasswordSuccess}</p>
+              )}
             </form>
           </div>
         </div>

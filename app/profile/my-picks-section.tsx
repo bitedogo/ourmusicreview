@@ -42,9 +42,9 @@ export function MyPicksSection({
       onOpenAdd={slide.openAddModal}
       onCloseModal={() => slide.setModalOpen(false)}
       onAlbumSelect={slide.handleAlbumSelect}
-      onDragStart={slide.setDraggingId}
+      onDragStart={slide.handleDragStart}
       onDrop={slide.handleDrop}
-      onDragEnd={() => slide.setDraggingId(null)}
+      onDragEnd={slide.handleDragEnd}
       onRemove={slide.removeAlbum}
     />
   );

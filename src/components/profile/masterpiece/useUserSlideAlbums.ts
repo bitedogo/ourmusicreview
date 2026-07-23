@@ -127,11 +127,20 @@ export function useUserSlideAlbums() {
     }
   }
 
+  function handleDragStart(id: string) {
+    if (isEditing || isSavingOrder) return;
+    setDraggingId(id);
+  }
+
   async function handleDrop(targetId: string) {
     if (!draggingId || draggingId === targetId || isEditing) return;
     const next = reorderById(albums, draggingId, targetId);
     if (next === albums) return;
     await saveOrder(next.map((a) => a.id));
+  }
+
+  function handleDragEnd() {
+    setDraggingId(null);
   }
 
   return {
@@ -144,7 +153,6 @@ export function useUserSlideAlbums() {
     addSubmitting,
     addError,
     draggingId,
-    setDraggingId,
     isSavingOrder,
     isEditing,
     setIsEditing,
@@ -153,6 +161,8 @@ export function useUserSlideAlbums() {
     openAddModal,
     handleAlbumSelect,
     removeAlbum,
+    handleDragStart,
     handleDrop,
+    handleDragEnd,
   };
 }

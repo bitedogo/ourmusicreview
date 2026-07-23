@@ -84,7 +84,10 @@ export function MasterpieceAlbumsGrid({
               draggable={!isSavingOrder && !isEditing}
               onDragStart={() => onDragStart(album.id)}
               onDragOver={(e) => e.preventDefault()}
-              onDrop={() => void onDrop(album.id)}
+              onDrop={(e) => {
+                e.preventDefault();
+                void onDrop(album.id);
+              }}
               onDragEnd={onDragEnd}
               onRemove={() => void onRemove(album.id)}
             />

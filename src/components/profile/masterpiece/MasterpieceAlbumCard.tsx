@@ -1,6 +1,6 @@
 /** Masterpiece 앨범 카드 (편집·드래그) */
 
-import { type DragEvent } from "react";
+import { type DragEvent, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { MasterpieceAlbumMeta } from "./MasterpieceAlbumMeta";
@@ -23,9 +23,9 @@ interface MasterpieceAlbumCardProps {
   isProcessing: boolean;
   isDragging: boolean;
   draggable: boolean;
-  onDragStart: () => void;
-  onDragOver: (e: DragEvent) => void;
-  onDrop: () => void;
+  onDragStart: (e: DragEvent<HTMLDivElement>) => void;
+  onDragOver: (e: DragEvent<HTMLDivElement>) => void;
+  onDrop: (e: DragEvent<HTMLDivElement>) => void;
   onDragEnd: () => void;
   onRemove: () => void;
 }
@@ -44,15 +44,59 @@ export function MasterpieceAlbumCard({
 }: MasterpieceAlbumCardProps) {
   const year = yearFromRelease(album.releaseDate);
   const genre = album.genre?.trim() || "—";
+  const dragGhostRef = useRef<HTMLElement | null>(null);
+
+  function handleDragStart(e: DragEvent<HTMLDivElement>) {
+    const target = e.currentTarget;
+    const rect = target.getBoundingClientRect();
+
+    const clone = target.cloneNode(true) as HTMLElement;
+    clone.style.width = `${rect.width}px`;
+    clone.style.height = `${rect.height}px`;
+    clone.style.opacity = "0.55";
+    clone.style.position = "fixed";
+    clone.style.top = "-9999px";
+    clone.style.left = "-9999px";
+    clone.style.pointerEvents = "none";
+    clone.style.zIndex = "9999";
+    clone.style.transform = "rotate(3deg) scale(1.02)";
+    clone.style.boxShadow = "0 12px 28px rgba(0,0,0,0.28)";
+    clone.querySelectorAll("a").forEach((a) => a.removeAttribute("href"));
+
+    document.body.appendChild(clone);
+    dragGhostRef.current = clone;
+
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", album.id);
+    e.dataTransfer.setDragImage(
+      clone,
+      Math.min(Math.max(e.clientX - rect.left, 12), rect.width - 12),
+      Math.min(Math.max(e.clientY - rect.top, 12), rect.height - 12)
+    );
+
+    onDragStart(e);
+  }
+
+  function handleDragEnd() {
+    dragGhostRef.current?.remove();
+    dragGhostRef.current = null;
+    onDragEnd();
+  }
 
   return (
     <div
-      className={`relative w-full shrink-0 ${isDragging ? "opacity-60" : ""}`}
+      className={`relative w-full shrink-0 transition-[opacity,transform] duration-150 ${
+        draggable ? "cursor-grab active:cursor-grabbing" : ""
+      } ${
+        isDragging
+          ? "z-10 scale-[0.98] opacity-35"
+          : "opacity-100"
+      }`}
       draggable={draggable}
-      onDragStart={onDragStart}
+      onDragStart={handleDragStart}
       onDragOver={onDragOver}
       onDrop={onDrop}
-      onDragEnd={onDragEnd}
+      onDragEnd={handleDragEnd}
     >
       {isEditing && (
         <button
@@ -70,8 +114,9 @@ export function MasterpieceAlbumCard({
         href={`/review/album/${encodeURIComponent(album.collectionId)}`}
         className="flex w-full flex-col overflow-hidden rounded-[10px] bg-[#FEFEFE] shadow-[0px_2px_4px_rgba(0,0,0,0.25)]"
         onClick={(e) => {
-          if (isEditing) e.preventDefault();
+          if (isEditing || isDragging) e.preventDefault();
         }}
+        draggable={false}
       >
         <div className="relative aspect-square w-full shrink-0 overflow-hidden rounded-t-[10px] bg-[#464646]">
           {album.imageUrl ? (
@@ -81,6 +126,7 @@ export function MasterpieceAlbumCard({
               width={200}
               height={200}
               unoptimized
+              draggable={false}
               className="h-full w-full object-cover"
             />
           ) : null}
