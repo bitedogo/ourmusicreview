@@ -74,9 +74,12 @@ const MOBILE_FADE_PX = 48;
 // ---------------------------------------------------------------------------
 
 export function getListenerLabel(rating: number): string {
-  if (rating < 3.5) return "Critical listener";
+  if (rating < 3) return "Harsh listener";
+  if (rating < 5) return "Critical listener";
   if (rating < 6.5) return "Balanced listener";
-  return "Positive listener";
+  if (rating < 8) return "Supportive listener";
+  if (rating < 9) return "Positive listener";
+  return "Enthusiastic listener";
 }
 
 function computeRating(reviews: ProfileReviewItem[], averageRating?: number) {
@@ -349,139 +352,142 @@ function MobileVerticalGauge({
   );
 
   return (
-    <div
-      className="relative shrink-0 overflow-visible"
-      style={{ width: MOBILE_BOX.w, height: MOBILE_BOX.h }}
-    >
-      <svg
-        width={MOBILE_BOX.w}
-        height={MOBILE_BOX.h}
-        viewBox={`${MOBILE_VB.x} ${MOBILE_VB.y} ${MOBILE_VB.w} ${MOBILE_VB.h}`}
-        className="absolute inset-0 block overflow-visible"
-        fill="none"
-        aria-hidden
+    <div className="flex h-[178px] w-full max-w-[300px] items-start justify-center gap-0">
+      {/* 점수 — 숫자 기준으로 그래프에 가깝게, 라벨은 위로 살짝 오버행 */}
+      <div className="relative z-10 flex w-[64px] shrink-0 flex-col pt-0.5">
+        <p
+          className="whitespace-nowrap font-extrabold text-[#43A7B2]"
+          style={{ fontSize: 13, lineHeight: "16px" }}
+        >
+          Average Rating
+        </p>
+        <p
+          className="font-extrabold text-[#FFA310]"
+          style={{ fontSize: 48, lineHeight: "57px" }}
+        >
+          {displayRating.toFixed(1)}
+        </p>
+      </div>
+
+      <div
+        className="relative shrink-0"
+        style={{ width: MOBILE_BOX.w, height: MOBILE_BOX.h }}
       >
-        <defs>
-          <linearGradient
-            id={gradId}
-            x1="160"
-            y1="398"
-            x2="160"
-            y2="576"
-            gradientUnits="userSpaceOnUse"
-          >
-            <stop stopColor="#F82512" />
-            <stop offset="0.3125" stopColor="#FFA310" />
-            <stop offset="0.644231" stopColor="#F8CA12" />
-            <stop offset="1" stopColor="#63C4CB" />
-          </linearGradient>
-          {!isMax && (
-            <>
-              {/* 아래(불투명) → 채움 끝 위쪽(투명) */}
-              <linearGradient
-                id={fadeGradId}
-                gradientUnits="userSpaceOnUse"
-                x1="0"
-                y1={MOBILE_GAUGE_BOT}
-                x2="0"
-                y2={Math.min(fillY, MOBILE_GAUGE_BOT - 1)}
-              >
-                <stop offset="0%" stopColor="white" stopOpacity="1" />
-                <stop
-                  offset={`${fadeStartPct}%`}
-                  stopColor="white"
-                  stopOpacity="1"
-                />
-                <stop offset="100%" stopColor="white" stopOpacity="0" />
-              </linearGradient>
-              <mask
-                id={fadeMaskId}
-                maskUnits="userSpaceOnUse"
-                x={MOBILE_VB.x}
-                y={MOBILE_VB.y}
-                width={MOBILE_VB.w}
-                height={MOBILE_VB.h}
-              >
-                <rect
+        <svg
+          width={MOBILE_BOX.w}
+          height={MOBILE_BOX.h}
+          viewBox={`${MOBILE_VB.x} ${MOBILE_VB.y} ${MOBILE_VB.w} ${MOBILE_VB.h}`}
+          className="block overflow-visible"
+          fill="none"
+          aria-hidden
+        >
+          <defs>
+            <linearGradient
+              id={gradId}
+              x1="160"
+              y1="398"
+              x2="160"
+              y2="576"
+              gradientUnits="userSpaceOnUse"
+            >
+              <stop stopColor="#F82512" />
+              <stop offset="0.3125" stopColor="#FFA310" />
+              <stop offset="0.644231" stopColor="#F8CA12" />
+              <stop offset="1" stopColor="#63C4CB" />
+            </linearGradient>
+            {!isMax && (
+              <>
+                {/* 아래(불투명) → 채움 끝 위쪽(투명) */}
+                <linearGradient
+                  id={fadeGradId}
+                  gradientUnits="userSpaceOnUse"
+                  x1="0"
+                  y1={MOBILE_GAUGE_BOT}
+                  x2="0"
+                  y2={Math.min(fillY, MOBILE_GAUGE_BOT - 1)}
+                >
+                  <stop offset="0%" stopColor="white" stopOpacity="1" />
+                  <stop
+                    offset={`${fadeStartPct}%`}
+                    stopColor="white"
+                    stopOpacity="1"
+                  />
+                  <stop offset="100%" stopColor="white" stopOpacity="0" />
+                </linearGradient>
+                <mask
+                  id={fadeMaskId}
+                  maskUnits="userSpaceOnUse"
                   x={MOBILE_VB.x}
-                  y={fillY}
+                  y={MOBILE_VB.y}
                   width={MOBILE_VB.w}
-                  height={Math.max(0, MOBILE_GAUGE_BOT - fillY + 2)}
-                  fill={`url(#${fadeGradId})`}
-                />
-              </mask>
-            </>
-          )}
-          <clipPath id={innerId}>
-            <path d={MOBILE_FILL_PATH} />
-          </clipPath>
-          <clipPath id={capId}>
-            <rect
-              x={MOBILE_VB.x}
-              y={fillY}
-              width={MOBILE_VB.w}
-              height={Math.max(0, MOBILE_GAUGE_BOT - fillY + 2)}
-            />
-          </clipPath>
-        </defs>
-
-        <path
-          d={MOBILE_OUTLINE_PATH}
-          fill="#FFFFFF"
-          stroke="#D9D9D9"
-          strokeWidth={1}
-          strokeLinejoin="round"
-        />
-
-        <g clipPath={`url(#${innerId})`}>
-          <g clipPath={`url(#${capId})`}>
-            {isMax ? (
-              fillPath
-            ) : (
-              <g mask={`url(#${fadeMaskId})`}>{fillPath}</g>
+                  height={MOBILE_VB.h}
+                >
+                  <rect
+                    x={MOBILE_VB.x}
+                    y={fillY}
+                    width={MOBILE_VB.w}
+                    height={Math.max(0, MOBILE_GAUGE_BOT - fillY + 2)}
+                    fill={`url(#${fadeGradId})`}
+                  />
+                </mask>
+              </>
             )}
-            {MOBILE_TICKS.map((d) => (
-              <path
-                key={d}
-                d={d}
-                stroke="white"
-                strokeWidth={2}
-                strokeLinecap="round"
+            <clipPath id={innerId}>
+              <path d={MOBILE_FILL_PATH} />
+            </clipPath>
+            <clipPath id={capId}>
+              <rect
+                x={MOBILE_VB.x}
+                y={fillY}
+                width={MOBILE_VB.w}
+                height={Math.max(0, MOBILE_GAUGE_BOT - fillY + 2)}
               />
-            ))}
+            </clipPath>
+          </defs>
+
+          <path
+            d={MOBILE_OUTLINE_PATH}
+            fill="#FFFFFF"
+            stroke="#D9D9D9"
+            strokeWidth={1}
+            strokeLinejoin="round"
+          />
+
+          <g clipPath={`url(#${innerId})`}>
+            <g clipPath={`url(#${capId})`}>
+              {isMax ? (
+                fillPath
+              ) : (
+                <g mask={`url(#${fadeMaskId})`}>{fillPath}</g>
+              )}
+              {MOBILE_TICKS.map((d) => (
+                <path
+                  key={d}
+                  d={d}
+                  stroke="white"
+                  strokeWidth={2}
+                  strokeLinecap="round"
+                />
+              ))}
+            </g>
           </g>
-        </g>
-      </svg>
+        </svg>
 
-      {/* 점수 (게이지 왼쪽 오버레이) */}
-      <p
-        className="pointer-events-none absolute left-0 top-0 z-10 whitespace-nowrap font-extrabold text-[#43A7B2]"
-        style={{ fontSize: 13, lineHeight: "16px" }}
-      >
-        Average Rating
-      </p>
-      <p
-        className="pointer-events-none absolute left-0 top-[16px] z-10 w-[67px] font-extrabold text-[#FFA310]"
-        style={{ fontSize: 48, lineHeight: "57px" }}
-      >
-        {displayRating.toFixed(1)}
-      </p>
-
-      {/* 라벨 — font-weight 200, 한 줄 */}
-      <span
-        className={`pointer-events-none absolute right-[8.5px] top-[6px] z-10 whitespace-nowrap text-center ${
-          soundLoverOnFill ? "text-white" : "text-[#B0B0B0]"
-        }`}
-        style={{ fontSize: 8, lineHeight: "10px", fontWeight: 200 }}
-      >
-        Sound Lover
-      </span>
-      <span
-        className="pointer-events-none absolute bottom-[8px] right-[8.5px] z-10 whitespace-nowrap text-center text-white"
-        style={{ fontSize: 8, lineHeight: "10px", fontWeight: 200 }}
-      >
-        Born Hater
-      </span>
+        <span
+          className={`pointer-events-none absolute right-[8.5px] top-[6px] z-10 whitespace-nowrap text-center ${
+            soundLoverOnFill ? "text-white" : "text-[#B0B0B0]"
+          }`}
+          style={{ fontSize: 8, lineHeight: "10px", fontWeight: 200 }}
+        >
+          Sound Lover
+        </span>
+        <span
+          className="pointer-events-none absolute bottom-[8px] right-[8.5px] z-10 whitespace-nowrap text-center text-white"
+          style={{ fontSize: 8, lineHeight: "10px", fontWeight: 200 }}
+        >
+          Born Hater
+        </span>
+      </div>
     </div>
   );
 }

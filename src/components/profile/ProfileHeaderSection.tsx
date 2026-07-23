@@ -347,14 +347,14 @@ function ProfileRatingPanel({
 
   return (
     <>
-      <div className="flex h-[178px] w-full items-center justify-center">
+      <div className="flex min-h-[178px] w-full items-center justify-center px-4">
         <ProfileRatingGauge
           reviews={gaugeReviews}
           averageRating={!isOwner ? averageRating : undefined}
           variant="mobileVertical"
         />
       </div>
-      <p className="w-[185px] text-center text-[24px] font-extrabold leading-[29px] text-[#43A7B2]">
+      <p className="text-center text-[24px] font-extrabold leading-[29px] text-[#43A7B2]">
         {listenerLabel}
       </p>
     </>

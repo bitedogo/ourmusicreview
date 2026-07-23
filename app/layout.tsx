@@ -25,7 +25,12 @@ export const metadata: Metadata = {
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
-    statusBarStyle: "black-translucent",
+    title: "ORU",
+    statusBarStyle: "default",
+  },
+  icons: {
+    icon: [{ url: "/icons/oru-app-icon-192.png", sizes: "192x192", type: "image/png" }],
+    apple: [{ url: "/icons/oru-app-icon-192.png", sizes: "192x192", type: "image/png" }],
   },
   alternates: {
     canonical: "/",
