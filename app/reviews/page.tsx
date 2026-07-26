@@ -2,16 +2,17 @@
 
 import { Suspense } from "react";
 import { AlbumReviewsClient } from "./AlbumReviewsClient";
+import { REVIEW_PAGE_TITLE_CLASS } from "@/src/components/reviews/review-page-styles";
 
 export default function ReviewsPage() {
   return (
     <Suspense
       fallback={
-        <div className="mx-auto flex min-h-screen w-full max-w-3xl flex-col gap-6 px-6 py-10 sm:px-16">
+        <div className="mx-auto flex min-h-screen w-full max-w-[860px] flex-col px-4 pb-10 pt-[61px] sm:px-6">
           <section>
-            <h1 className="text-xl font-semibold tracking-tight">앨범 리뷰</h1>
+            <h1 className={REVIEW_PAGE_TITLE_CLASS}>앨범 리뷰</h1>
           </section>
-          <div className="py-12 text-center text-sm text-zinc-500">
+          <div className="mt-5 py-12 text-center text-sm text-zinc-500">
             리뷰를 불러오는 중...
           </div>
         </div>

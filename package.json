@@ -9,7 +9,8 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "postinstall": "patch-package",
-    "compress:profiles": "node scripts/compress-profile-images.mjs"
+    "compress:profiles": "node scripts/compress-profile-images.mjs",
+    "icons:oru": "node scripts/generate-oru-app-icons.mjs"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.10",

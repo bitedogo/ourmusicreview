@@ -4,9 +4,9 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { getPaginationItems } from "@/src/lib/utils/pagination";
 import { useItunesAlbumPicker } from "@/src/hooks/use-itunes-album-picker";
 import { ItunesAlbumSearchPanel } from "@/src/components/itunes/itunes-album-search-panel";
+import { PaginationNav } from "@/src/components/common/PaginationNav";
 import { fetchJson, getApiErrorMessage } from "@/src/lib/http/client";
 import type { SearchAlbumResult } from "@/src/lib/search/types";
 
@@ -289,47 +289,12 @@ export function AlbumManagementClient() {
             </table>
           </div>
           {totalPages > 1 && (
-            <div className="flex flex-wrap items-center justify-center gap-1 border-t border-zinc-200 bg-zinc-50 px-4 py-3">
-              <button
-                type="button"
-                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                disabled={currentPage <= 1}
-                className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs font-medium text-zinc-700 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                이전
-              </button>
-              {getPaginationItems(currentPage, totalPages).map((item, idx) =>
-                item === "ellipsis" ? (
-                  <span
-                    key={`e-${idx}`}
-                    className="px-1 py-1.5 text-xs text-zinc-400"
-                    aria-hidden
-                  >
-                    …
-                  </span>
-                ) : (
-                  <button
-                    key={item}
-                    type="button"
-                    onClick={() => setCurrentPage(item)}
-                    className={`min-w-[2rem] rounded-lg px-2 py-1.5 text-xs font-medium ${
-                      item === currentPage
-                        ? "bg-zinc-900 text-white"
-                        : "border border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50"
-                    }`}
-                  >
-                    {item}
-                  </button>
-                )
-              )}
-              <button
-                type="button"
-                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                disabled={currentPage >= totalPages}
-                className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs font-medium text-zinc-700 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                다음
-              </button>
+            <div className="flex justify-center border-t border-zinc-200 bg-zinc-50 px-4 py-3">
+              <PaginationNav
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+              />
             </div>
           )}
         </div>

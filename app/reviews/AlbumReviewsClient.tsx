@@ -3,13 +3,17 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
-import Image from "next/image";
 import { getReviewPreviewText } from "@/src/lib/utils/editor";
-import { formatDateYYYYMMDD } from "@/src/lib/utils/date";
-import { getPaginationItems } from "@/src/lib/utils/pagination";
+import { AlbumReviewPreviewCard } from "@/src/components/reviews/AlbumReviewPreviewCard";
+import { ReviewSearchButton } from "@/src/components/reviews/ReviewSearchButton";
+import { REVIEW_PAGE_TITLE_CLASS } from "@/src/components/reviews/review-page-styles";
+import {
+  ReviewSortToggle,
+  type ReviewSortType,
+} from "@/src/components/reviews/ReviewSortToggle";
+import { PaginationNav } from "@/src/components/common/PaginationNav";
 
-type SortType = "latest" | "likes" | "comments";
+type SortType = ReviewSortType;
 type SearchField = "artist" | "album" | "author";
 
 interface AlbumReviewItem {
@@ -28,12 +32,6 @@ interface AlbumReviewItem {
   } | null;
   user: { id: string; nickname: string } | null;
 }
-
-const SORT_OPTIONS: { value: SortType; label: string }[] = [
-  { value: "latest", label: "최신순" },
-  { value: "likes", label: "좋아요 순" },
-  { value: "comments", label: "댓글 많은 순" },
-];
 
 const SEARCH_FIELD_OPTIONS: { value: SearchField; label: string }[] = [
   { value: "artist", label: "아티스트명" },
@@ -56,6 +54,7 @@ export function AlbumReviewsClient() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+  const [isSortExpanded, setIsSortExpanded] = useState(false);
   const [searchField, setSearchField] = useState<SearchField>(searchFieldFromUrl);
   const [searchQuery, setSearchQuery] = useState(searchQueryFromUrl);
 
@@ -146,31 +145,24 @@ export function AlbumReviewsClient() {
   }, [searchParams]);
 
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-3xl flex-col gap-6 px-6 py-10 sm:px-16">
-      <section>
-        <h1 className="text-xl font-semibold tracking-tight">앨범 리뷰</h1>
+    <div className="mx-auto flex min-h-screen w-full max-w-[860px] flex-col px-4 pb-10 pt-[61px] sm:px-6">
+      <section className="flex flex-col gap-[28px]">
+        <h1 className={REVIEW_PAGE_TITLE_CLASS}>앨범 리뷰</h1>
+        <div className="flex items-center justify-between gap-3">
+          <ReviewSortToggle
+            sort={sort}
+            expanded={isSortExpanded}
+            onExpandedChange={setIsSortExpanded}
+            buildHref={(nextSort) =>
+              buildReviewsHref(nextSort, 1, searchField, searchQuery)
+            }
+          />
+          <ReviewSearchButton onClick={() => setIsSearchModalOpen(true)} />
+        </div>
       </section>
 
-      <div className="border-b border-zinc-200 pb-2">
-        <div className="flex flex-wrap gap-2">
-          {SORT_OPTIONS.map((opt) => (
-            <Link
-              key={opt.value}
-              href={buildReviewsHref(opt.value, 1, searchField, searchQuery)}
-              className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
-                sort === opt.value
-                  ? "bg-[var(--color-brand-primary)] text-white"
-                  : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200"
-              }`}
-            >
-              {opt.label}
-            </Link>
-          ))}
-        </div>
-      </div>
-
       {!!searchQuery && (
-        <div className="flex items-center gap-2 text-xs text-zinc-600">
+        <div className="mt-4 flex items-center gap-2 text-xs text-zinc-600">
           <span className="rounded-full bg-zinc-100 px-2 py-1">
             {SEARCH_FIELD_OPTIONS.find((opt) => opt.value === searchField)?.label}: {searchQuery}
           </span>
@@ -185,127 +177,42 @@ export function AlbumReviewsClient() {
       )}
 
       {isLoading ? (
-        <div className="py-12 text-center text-sm text-zinc-500">리뷰를 불러오는 중...</div>
+        <div className="mt-5 py-12 text-center text-sm text-zinc-500">리뷰를 불러오는 중...</div>
       ) : error ? (
-        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900">
+        <div className="mt-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900">
           {error}
         </div>
       ) : reviews.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 px-4 py-12 text-center text-sm text-zinc-500">
+        <div className="mt-5 rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 px-4 py-12 text-center text-sm text-zinc-500">
           아직 승인된 앨범 리뷰가 없습니다.
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="mt-5 flex flex-col items-center gap-5">
           {reviews.map((review) => (
-            <Link
+            <AlbumReviewPreviewCard
               key={review.id}
               href={`/review/${encodeURIComponent(review.id)}?from=reviews&sort=${sort}&page=${page}&searchField=${searchField}&q=${encodeURIComponent(searchQuery)}`}
-              className="block rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm transition hover:border-zinc-300 hover:shadow-md"
-            >
-              <div className="flex items-start gap-4">
-                {review.album?.imageUrl && (
-                  <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-zinc-100">
-                    <Image
-                      src={review.album.imageUrl}
-                      alt={review.album.title}
-                      width={80}
-                      height={80}
-                      unoptimized
-                      className="h-full w-full object-contain"
-                    />
-                  </div>
-                )}
-                <div className="min-w-0 flex-1 space-y-1">
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                        {review.album?.artist}
-                      </p>
-                      <h3 className="truncate text-sm font-bold text-zinc-900">
-                        {review.album?.title}
-                      </h3>
-                    </div>
-                    <div className="shrink-0 text-right whitespace-nowrap">
-                      <span
-                        className={`text-sm font-bold ${Number(review.rating) >= 9 ? "text-red-600" : "text-zinc-900"}`}
-                      >
-                        {Number(review.rating).toFixed(1)}
-                      </span>
-                      <span className="ml-1 text-[10px] text-zinc-500">/ 10.0</span>
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-zinc-500">
-                    <span>{formatDateYYYYMMDD(review.createdAt)}</span>
-                    {review.user && (
-                      <span className="font-semibold text-zinc-600">{review.user.nickname}</span>
-                    )}
-                    <span>좋아요 {review.likeCount}</span>
-                    <span>댓글 {review.commentCount}</span>
-                  </div>
-                  <p className="mt-2 line-clamp-2 whitespace-pre-line text-sm text-zinc-700">
-                    {getReviewPreviewText(review.content ?? "") || "내용 없음"}
-                  </p>
-                </div>
-              </div>
-            </Link>
+              albumTitle={review.album?.title ?? "앨범"}
+              artist={review.album?.artist ?? "-"}
+              imageUrl={review.album?.imageUrl ?? null}
+              rating={Number(review.rating)}
+              previewText={getReviewPreviewText(review.content ?? "")}
+              authorNickname={review.user?.nickname ?? null}
+              createdAt={review.createdAt}
+              likeCount={review.likeCount}
+              commentCount={review.commentCount}
+            />
           ))}
         </div>
       )}
 
       {!isLoading && !error && (
-        <div className="pt-4">
-          <div className="mb-3 flex justify-start">
-            <button
-              type="button"
-              onClick={() => setIsSearchModalOpen(true)}
-              className="rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-100"
-            >
-              검색
-            </button>
-          </div>
-          {totalPages > 1 && (
-            <nav className="flex flex-wrap items-center justify-center gap-1">
-              {page > 1 && (
-                <Link
-                  href={buildReviewsHref(sort, page - 1, searchField, searchQuery)}
-                  className="rounded border border-zinc-300 px-3 py-1.5 text-sm text-zinc-700 hover:bg-zinc-100"
-                >
-                  이전
-                </Link>
-              )}
-              {getPaginationItems(page, totalPages).map((item, idx) =>
-                item === "ellipsis" ? (
-                  <span
-                    key={`e-${idx}`}
-                    className="px-1.5 py-1.5 text-sm text-zinc-400"
-                    aria-hidden
-                  >
-                    …
-                  </span>
-                ) : (
-                  <Link
-                    key={item}
-                    href={buildReviewsHref(sort, item, searchField, searchQuery)}
-                    className={`rounded px-3 py-1.5 text-sm ${
-                      item === page
-                        ? "bg-[var(--color-brand-primary)] font-medium text-white"
-                        : "border border-zinc-300 text-zinc-700 hover:bg-zinc-100"
-                    }`}
-                  >
-                    {item}
-                  </Link>
-                )
-              )}
-              {page < totalPages && (
-                <Link
-                  href={buildReviewsHref(sort, page + 1, searchField, searchQuery)}
-                  className="rounded border border-zinc-300 px-3 py-1.5 text-sm text-zinc-700 hover:bg-zinc-100"
-                >
-                  다음
-                </Link>
-              )}
-            </nav>
-          )}
+        <div className="flex justify-center pt-4">
+          <PaginationNav
+            currentPage={page}
+            totalPages={totalPages}
+            buildHref={(p) => buildReviewsHref(sort, p, searchField, searchQuery)}
+          />
         </div>
       )}
 

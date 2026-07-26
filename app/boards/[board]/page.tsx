@@ -13,8 +13,8 @@ import {
   NOTICE_CATEGORY_LABEL,
 } from "@/src/lib/community/notice-category";
 import Link from "next/link";
-import { getPaginationItems } from "@/src/lib/utils/pagination";
 import { BoardSearchControls } from "./board-search-controls";
+import { PaginationNav } from "@/src/components/common/PaginationNav";
 
 type BoardType = "domestic" | "overseas" | "market" | "workroom" | "notice";
 type BoardSearchField = "title" | "author";
@@ -354,47 +354,13 @@ export default async function BoardPage(props: {
                 </div>
               )}
               {totalPages > 1 && (
-                <nav className="flex flex-wrap items-center justify-center gap-1">
-                  {currentPage > 1 && (
-                    <Link
-                      href={buildBoardHref(currentPage - 1)}
-                      className="rounded border border-zinc-300 px-3 py-1.5 text-sm text-zinc-700 hover:bg-zinc-100"
-                    >
-                      이전
-                    </Link>
-                  )}
-                  {getPaginationItems(currentPage, totalPages).map((item, idx) =>
-                    item === "ellipsis" ? (
-                      <span
-                        key={`e-${idx}`}
-                        className="px-1.5 py-1.5 text-sm text-zinc-400"
-                        aria-hidden
-                      >
-                        …
-                      </span>
-                    ) : (
-                      <Link
-                        key={item}
-                        href={buildBoardHref(item)}
-                        className={`rounded px-3 py-1.5 text-sm ${
-                          item === currentPage
-                            ? "bg-[var(--color-brand-primary)] font-medium text-white"
-                            : "border border-zinc-300 text-zinc-700 hover:bg-zinc-100"
-                        }`}
-                      >
-                        {item}
-                      </Link>
-                    )
-                  )}
-                  {currentPage < totalPages && (
-                    <Link
-                      href={buildBoardHref(currentPage + 1)}
-                      className="rounded border border-zinc-300 px-3 py-1.5 text-sm text-zinc-700 hover:bg-zinc-100"
-                    >
-                      다음
-                    </Link>
-                  )}
-                </nav>
+                <div className="flex justify-center">
+                  <PaginationNav
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    buildHref={buildBoardHref}
+                  />
+                </div>
               )}
             </div>
           </>

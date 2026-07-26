@@ -8,8 +8,12 @@ export const RATING_COLORS = {
   low: "var(--color-rating-score-low)",
 } as const;
 
-export function formatRating(rating: number | null): string {
-  return rating != null ? rating.toFixed(1) : "-";
+/** 10.0 → "10", 그 외는 소수 한 자리 유지 (8.0 → "8.0") */
+export function formatRating(rating: number | null | undefined): string {
+  if (rating == null) return "-";
+  const value = Number(rating);
+  if (value === 10) return "10";
+  return value.toFixed(1);
 }
 
 export function getRatingScoreColor(rating: number | null): string {
@@ -46,7 +50,7 @@ export function getDisplayRating(
   reviewCount: number | null | undefined
 ): string {
   if (reviewCount && averageRating != null) {
-    return averageRating.toFixed(1);
+    return formatRating(averageRating);
   }
   return "-";
 }

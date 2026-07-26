@@ -32,6 +32,17 @@ export async function GET(
 
     const albumInfo = await getAlbumById(review.album.albumId);
 
+    // 전체 승인 리뷰 중 현재보다 오래된(다음) 리뷰 — 최오래된 리뷰면 null
+    const nextOlder = await reviewRepository
+      .createQueryBuilder("r")
+      .select(["r.id"])
+      .where("r.isApproved = :approved", { approved: "Y" })
+      .andWhere("r.id != :id", { id: review.id })
+      .andWhere("r.createdAt < :createdAt", { createdAt: review.createdAt })
+      .orderBy("r.createdAt", "DESC")
+      .addOrderBy("r.id", "DESC")
+      .getOne();
+
     return apiOk({
       review: {
         id: review.id,
@@ -54,8 +65,10 @@ export async function GET(
           artist: review.album.artist,
           imageUrl: review.album.imageUrl,
           genre: albumInfo?.genre?.trim() || null,
+          releaseDate: albumInfo?.releaseDate?.trim() || null,
         },
       },
+      nextReviewId: nextOlder?.id ?? null,
     });
   } catch (error) {
     return apiError(
