@@ -24,17 +24,11 @@ interface ReviewDetailBodyCardProps {
   onDelete: () => void;
 }
 
-function AuthorAvatar({
-  user,
-  sizeClass,
-}: {
-  user: ReviewDetailAuthor;
-  sizeClass: string;
-}) {
+function AuthorAvatar({ user }: { user: ReviewDetailAuthor }) {
   return (
     <Link
       href={getUserProfilePath(user.id)}
-      className={`${sizeClass} shrink-0 overflow-hidden rounded-full bg-[#D9D9D9]`}
+      className="h-8 w-8 shrink-0 overflow-hidden rounded-full bg-[#D9D9D9] sm:h-10 sm:w-10"
       aria-label={`${user.nickname} 프로필 보기`}
     >
       {user.profileImage ? (
@@ -70,47 +64,35 @@ export function ReviewDetailBodyCard({
 
   return (
     /* 앨범 카드 ↔ RATING 상단 30px: mt - |top| = 30 */
-    <div className="relative mt-[70px] w-full overflow-visible sm:mt-[50px]">
+    <div className="relative mt-[50px] w-full overflow-visible">
       <div className="relative w-full overflow-visible rounded-[15px] border border-[#D9D9D9] bg-white shadow-[0px_2px_4px_rgba(0,0,0,0.25)]">
-        <div className="absolute left-1/2 top-[-40px] z-10 flex h-[110px] w-[110px] -translate-x-1/2 flex-col items-center justify-center rounded-[15px] border border-[#D9D9D9] bg-white shadow-[0px_2px_4px_#43A7B2] sm:left-[-23px] sm:top-[-20px] sm:h-[131px] sm:w-[131px] sm:translate-x-0">
-          <span className="text-[18px] font-bold leading-[22px] tracking-[0.05em] text-[#43A7B2] sm:text-[24px] sm:leading-[29px]">
+        {/* RATING — 모바일/데스크톱 모두 좌상단 걸침 + 옆에 작성자 */}
+        <div className="absolute left-[-12px] top-[-20px] z-10 flex h-[96px] w-[96px] flex-col items-center justify-center rounded-[15px] border border-[#D9D9D9] bg-white shadow-[0px_2px_4px_#43A7B2] sm:left-[-23px] sm:h-[131px] sm:w-[131px]">
+          <span className="text-[14px] font-bold leading-[17px] tracking-[0.05em] text-[#43A7B2] sm:text-[24px] sm:leading-[29px]">
             RATING
           </span>
           <span
-            className="text-[48px] font-bold leading-none sm:text-[64px] sm:leading-[76px]"
+            className="text-[36px] font-bold leading-none sm:text-[64px] sm:leading-[76px]"
             style={{ color: ratingColor }}
           >
             {formatRating(ratingValue)}
           </span>
         </div>
 
-        <div className="absolute left-[131px] top-[23px] z-[1] hidden items-center gap-[14px] sm:flex">
-          <AuthorAvatar user={user} sizeClass="h-10 w-10" />
+        <div className="absolute left-[96px] right-3 top-[18px] z-[1] flex min-w-0 items-center gap-[10px] sm:left-[131px] sm:right-auto sm:top-[23px] sm:gap-[14px]">
+          <AuthorAvatar user={user} />
           <Link
             href={getUserProfilePath(user.id)}
-            className="truncate text-[24px] font-medium leading-[29px] text-black hover:underline"
+            className="min-w-0 truncate text-[16px] font-medium leading-[20px] text-black hover:underline sm:text-[24px] sm:leading-[29px]"
           >
             {user.nickname}
           </Link>
-          <span className="shrink-0 text-[14px] font-normal leading-[17px] text-black">
+          <span className="shrink-0 text-[12px] font-normal leading-[15px] text-black sm:text-[14px] sm:leading-[17px]">
             {formatDateYYYYMMDD(createdAt)}
           </span>
         </div>
 
-        <div className="flex flex-wrap items-center gap-x-[12px] gap-y-[4px] px-4 pt-[80px] sm:hidden">
-          <AuthorAvatar user={user} sizeClass="h-10 w-10" />
-          <Link
-            href={getUserProfilePath(user.id)}
-            className="truncate text-[20px] font-medium leading-[29px] text-black hover:underline"
-          >
-            {user.nickname}
-          </Link>
-          <span className="text-[14px] font-normal leading-[17px] text-black">
-            {formatDateYYYYMMDD(createdAt)}
-          </span>
-        </div>
-
-        <div className="px-4 pb-6 pt-10 text-[14px] font-normal leading-[200%] text-black sm:px-[50px] sm:pb-[40px] sm:pt-[157px]">
+        <div className="px-4 pb-6 pt-[110px] text-[14px] font-normal leading-[200%] text-black sm:px-[50px] sm:pb-[40px] sm:pt-[157px]">
           <HtmlRenderer html={content} />
         </div>
 
