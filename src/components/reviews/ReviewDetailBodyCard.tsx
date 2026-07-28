@@ -1,4 +1,4 @@
-/** 리뷰 상세 — RATING·작성자·본문 카드 */
+﻿/** 리뷰 상세 — RATING·작성자·본문 카드 */
 
 import Link from "next/link";
 import Image from "next/image";

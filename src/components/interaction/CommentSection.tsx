@@ -3,11 +3,15 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
+import {
+  deleteCommentApi,
+  editCommentApi,
+  fetchCommentsApi,
+} from "@/src/components/interaction/comment-api";
 import { CommentForm } from "@/src/components/interaction/CommentForm";
 import { CommentList } from "@/src/components/interaction/CommentList";
 import type { CommentItemData } from "@/src/components/interaction/comment-types";
-import { ReportModal } from "@/src/components/interaction/ReportModal";
-import { useReportModal } from "@/src/hooks/use-report-modal";
+import { useCommentCompose } from "@/src/hooks/use-comment-compose";
 
 interface CommentSectionProps {
   postId?: string;
@@ -23,19 +27,12 @@ export function CommentSection({
 }: CommentSectionProps) {
   const { data: session } = useSession();
   const [comments, setComments] = useState<CommentItemData[]>([]);
-  const [content, setContent] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [reportingCommentId, setReportingCommentId] = useState<string | null>(
-    null
-  );
 
   const fetchComments = useCallback(async () => {
     setIsLoading(true);
     try {
-      const query = postId ? `postId=${postId}` : `reviewId=${reviewId}`;
-      const response = await fetch(`/api/comments?${query}`);
-      const data = await response.json();
+      const data = await fetchCommentsApi(postId, reviewId);
       if (data.ok) {
         setComments(data.data?.comments ?? []);
       }
@@ -50,39 +47,17 @@ export function CommentSection({
     fetchComments();
   }, [fetchComments]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!content.trim() || isSubmitting) return;
-
-    setIsSubmitting(true);
-    try {
-      const response = await fetch("/api/comments", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content, postId, reviewId }),
-      });
-      const data = await response.json();
-      if (data.ok) {
-        setContent("");
-        fetchComments();
-      } else {
-        alert(data.error || "댓글 작성에 실패했습니다.");
-      }
-    } catch {
-      /* ignore */
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  const compose = useCommentCompose({
+    postId,
+    reviewId,
+    onCreated: fetchComments,
+  });
 
   const handleDelete = async (commentId: string) => {
     if (!confirm("댓글을 삭제하시겠습니까?")) return;
 
     try {
-      const response = await fetch(`/api/comments/${commentId}`, {
-        method: "DELETE",
-      });
-      const data = await response.json();
+      const data = await deleteCommentApi(commentId);
       if (data.ok) {
         fetchComments();
       } else {
@@ -93,74 +68,29 @@ export function CommentSection({
     }
   };
 
-  const handleReportSubmit = async (reason: string, detail: string) => {
-    if (!reportingCommentId) {
-      alert("신고 사유를 선택해주세요.");
-      return false;
-    }
-
-    const target = comments.find((c) => c.id === reportingCommentId);
-    const reasonText = [
-      `[댓글 신고]`,
-      `댓글 ID: ${reportingCommentId}`,
-      `작성자: ${target?.user.nickname ?? "알 수 없음"}`,
-      `내용: ${(target?.content ?? "").slice(0, 200)}`,
-      "",
-      `[사유]`,
-      reason,
-      detail ? `\n[상세 내용]\n${detail}` : "",
-    ].join("\n");
-
+  const handleEdit = async (commentId: string, nextContent: string) => {
     try {
-      const response = await fetch("/api/actions/report", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ reason: reasonText, postId, reviewId }),
-      });
-      const data = await response.json();
+      const data = await editCommentApi(commentId, nextContent);
       if (data.ok) {
-        alert(data.message || "신고가 접수되었습니다.");
-        setReportingCommentId(null);
+        setComments((prev) =>
+          prev.map((c) =>
+            c.id === commentId
+              ? { ...c, content: data.data?.content ?? nextContent }
+              : c
+          )
+        );
         return true;
       }
-      alert(data.error || "신고 처리에 실패했습니다.");
+      alert(data.error || "댓글 수정에 실패했습니다.");
       return false;
     } catch {
-      alert("신고 처리 중 오류가 발생했습니다.");
+      alert("댓글 수정 중 오류가 발생했습니다.");
       return false;
     }
   };
 
-  const reportModal = useReportModal({ onSubmit: handleReportSubmit });
-
-  const handleOpenReportModal = (commentId: string) => {
-    if (!session) {
-      alert("로그인이 필요합니다.");
-      return;
-    }
-    setReportingCommentId(commentId);
-    reportModal.open();
-  };
-
-  const handleCloseReportModal = () => {
-    reportModal.close();
-    setReportingCommentId(null);
-  };
-
-  const reportModalUi = reportModal.isOpen ? (
-    <ReportModal
-      title="댓글 신고하기"
-      reportReason={reportModal.reason}
-      reportDetail={reportModal.detail}
-      isSubmitting={reportModal.isSubmitting}
-      onReasonChange={reportModal.setReason}
-      onDetailChange={reportModal.setDetail}
-      onClose={handleCloseReportModal}
-      onSubmit={reportModal.submit}
-    />
-  ) : null;
-
-  const isAdmin = (session?.user as { role?: string } | undefined)?.role === "ADMIN";
+  const isAdmin =
+    (session?.user as { role?: string } | undefined)?.role === "ADMIN";
   const listProps = {
     comments,
     isLoading,
@@ -168,15 +98,15 @@ export function CommentSection({
     currentUserId: session?.user?.id,
     isAdmin,
     onDelete: handleDelete,
-    onReport: handleOpenReportModal,
+    onEdit: handleEdit,
   };
   const formProps = {
     variant: variant as "default" | "detail",
-    content,
-    isSubmitting,
+    content: compose.content,
+    isSubmitting: compose.isSubmitting,
     isLoggedIn: Boolean(session),
-    onContentChange: setContent,
-    onSubmit: handleSubmit,
+    onContentChange: compose.setContent,
+    onSubmit: compose.submit,
   };
 
   if (variant === "detail") {
@@ -201,7 +131,6 @@ export function CommentSection({
             <CommentForm {...formProps} />
           </div>
         </div>
-        {reportModalUi}
       </section>
     );
   }
@@ -215,7 +144,6 @@ export function CommentSection({
 
       <CommentList {...listProps} />
       <CommentForm {...formProps} />
-      {reportModalUi}
     </section>
   );
 }

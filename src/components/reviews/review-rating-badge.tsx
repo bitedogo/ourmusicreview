@@ -1,4 +1,4 @@
-/** 앨범 커버 좌하단 x.x /10 레이팅 배지 */
+/** 앨범 커버 좌하단 x.x / 10 레이팅 배지 */
 
 import Image from "next/image";
 
@@ -36,12 +36,11 @@ export function ReviewRatingBadge({
         <span
           className={
             size === "mobile"
-              ? "text-[10px] text-[#C0C0C0]"
-              : "text-[11px] text-[#C0C0C0]"
+              ? "text-[10px] tracking-normal text-[#C0C0C0]"
+              : "text-[11px] tracking-normal text-[#C0C0C0]"
           }
         >
-          {" "}
-          /10
+          {"\u00A0/\u00A0"}10
         </span>
       </span>
     </div>

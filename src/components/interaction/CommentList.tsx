@@ -11,7 +11,7 @@ interface CommentListProps {
   currentUserId?: string;
   isAdmin?: boolean;
   onDelete: (commentId: string) => void;
-  onReport: (commentId: string) => void;
+  onEdit: (commentId: string, content: string) => Promise<boolean>;
 }
 
 export function CommentList({
@@ -21,7 +21,7 @@ export function CommentList({
   currentUserId,
   isAdmin,
   onDelete,
-  onReport,
+  onEdit,
 }: CommentListProps) {
   const emptyClass =
     variant === "detail"
@@ -53,16 +53,17 @@ export function CommentList({
   return (
     <div className={listClass}>
       {comments.map((comment) => {
-        const canModerate =
-          currentUserId === comment.user.id || Boolean(isAdmin);
+        const isOwner = currentUserId === comment.user.id;
+        const canDelete = isOwner || Boolean(isAdmin);
         return (
           <CommentItem
             key={comment.id}
             comment={comment}
             variant={variant}
-            canModerate={canModerate}
+            isOwner={isOwner}
+            canDelete={canDelete}
             onDelete={onDelete}
-            onReport={onReport}
+            onEdit={onEdit}
           />
         );
       })}
