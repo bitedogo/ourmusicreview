@@ -8,6 +8,17 @@ import Link from "next/link";
 import { getUserProfilePath } from "@/src/components/profile/user-profile-view";
 import { formatDateYYYYMMDD } from "@/src/lib/utils/date";
 
+const REPORT_REASONS = [
+  "비방 및 인신공격",
+  "게시판 성격 부적합",
+  "도배 및 스팸",
+  "허위 사실 및 루머",
+  "장터 규정 위반",
+  "저작권 침해",
+  "개인정보 노출",
+  "기타",
+] as const;
+
 interface Comment {
   id: string;
   content: string;
@@ -36,6 +47,11 @@ export function CommentSection({
   const [content, setContent] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [reportReason, setReportReason] = useState("");
+  const [reportDetail, setReportDetail] = useState("");
+  const [reportingCommentId, setReportingCommentId] = useState<string | null>(null);
+  const [isReportSubmitting, setIsReportSubmitting] = useState(false);
 
   const fetchComments = useCallback(async () => {
     setIsLoading(true);
@@ -100,6 +116,126 @@ export function CommentSection({
     }
   };
 
+  const handleOpenReportModal = (commentId: string) => {
+    if (!session) {
+      alert("로그인이 필요합니다.");
+      return;
+    }
+    setReportingCommentId(commentId);
+    setReportReason("");
+    setReportDetail("");
+    setIsReportModalOpen(true);
+  };
+
+  const handleCloseReportModal = () => {
+    setIsReportModalOpen(false);
+    setReportReason("");
+    setReportDetail("");
+    setReportingCommentId(null);
+  };
+
+  const handleSubmitReport = async () => {
+    if (!reportReason.trim() || !reportingCommentId) {
+      alert("신고 사유를 선택해주세요.");
+      return;
+    }
+
+    const target = comments.find((c) => c.id === reportingCommentId);
+    const detail = reportDetail.trim();
+    const reasonText = [
+      `[댓글 신고]`,
+      `댓글 ID: ${reportingCommentId}`,
+      `작성자: ${target?.user.nickname ?? "알 수 없음"}`,
+      `내용: ${(target?.content ?? "").slice(0, 200)}`,
+      "",
+      `[사유]`,
+      reportReason,
+      detail ? `\n[상세 내용]\n${detail}` : "",
+    ].join("\n");
+
+    setIsReportSubmitting(true);
+    try {
+      const response = await fetch("/api/actions/report", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason: reasonText, postId, reviewId }),
+      });
+      const data = await response.json();
+      if (data.ok) {
+        alert(data.message || "신고가 접수되었습니다.");
+        handleCloseReportModal();
+      } else {
+        alert(data.error || "신고 처리에 실패했습니다.");
+      }
+    } catch {
+      alert("신고 처리 중 오류가 발생했습니다.");
+    } finally {
+      setIsReportSubmitting(false);
+    }
+  };
+
+  const reportModal = isReportModalOpen ? (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      onClick={handleCloseReportModal}
+    >
+      <div
+        className="w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-6 shadow-xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h3 className="mb-4 text-lg font-semibold text-zinc-900">댓글 신고하기</h3>
+        <div className="space-y-4">
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-zinc-700">
+              신고 사유
+            </label>
+            <select
+              value={reportReason}
+              onChange={(e) => setReportReason(e.target.value)}
+              className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500"
+            >
+              <option value="">사유를 선택하세요</option>
+              {REPORT_REASONS.map((r) => (
+                <option key={r} value={r}>
+                  {r}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-zinc-700">
+              상세 내용 (선택)
+            </label>
+            <textarea
+              value={reportDetail}
+              onChange={(e) => setReportDetail(e.target.value)}
+              rows={4}
+              placeholder="추가로 설명할 내용이 있으면 입력해주세요."
+              className="w-full resize-none rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500"
+            />
+          </div>
+        </div>
+        <div className="mt-6 flex justify-end gap-2">
+          <button
+            type="button"
+            onClick={handleCloseReportModal}
+            className="rounded-full border border-zinc-200 px-4 py-2 text-xs font-semibold text-zinc-700 hover:bg-zinc-50"
+          >
+            취소
+          </button>
+          <button
+            type="button"
+            onClick={handleSubmitReport}
+            disabled={isReportSubmitting}
+            className="rounded-full bg-red-600 px-4 py-2 text-xs font-semibold text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {isReportSubmitting ? "처리 중..." : "신고하기"}
+          </button>
+        </div>
+      </div>
+    </div>
+  ) : null;
+
   if (variant === "detail") {
     /* SVG 808×699: 카드(4,2) 800×691 / COMMENT / 구분선 y=66 / 댓글 / 입력(48.5,531.5) 711×120 */
     return (
@@ -161,14 +297,24 @@ export function CommentSection({
                         </p>
                       </div>
                       {(session?.user?.id === comment.user.id ||
-                        (session?.user as { role?: string })?.role ===
-                          "ADMIN") && (
+                        (session?.user as { role?: string })?.role === "ADMIN") ? (
                         <button
                           type="button"
                           onClick={() => handleDelete(comment.id)}
                           className="shrink-0 text-[12px] text-zinc-400 hover:text-red-500"
                         >
                           삭제
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => handleOpenReportModal(comment.id)}
+                          className="shrink-0 transition hover:opacity-80"
+                          aria-label="신고"
+                        >
+                          <span className="block h-[16px] w-[17px]">
+                            <CommentReportIcon />
+                          </span>
                         </button>
                       )}
                     </div>
@@ -210,6 +356,7 @@ export function CommentSection({
             )}
           </div>
         </div>
+        {reportModal}
       </section>
     );
   }
@@ -265,12 +412,22 @@ export function CommentSection({
                     </span>
                   </div>
                   {(session?.user?.id === comment.user.id ||
-                    (session?.user as { role?: string })?.role === "ADMIN") && (
+                    (session?.user as { role?: string })?.role === "ADMIN") ? (
                     <button
                       onClick={() => handleDelete(comment.id)}
                       className="text-[10px] text-zinc-400 hover:text-red-500"
                     >
                       삭제
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => handleOpenReportModal(comment.id)}
+                      className="shrink-0 transition hover:opacity-80"
+                      aria-label="신고"
+                    >
+                      <span className="block h-[14px] w-[15px]">
+                        <CommentReportIcon />
+                      </span>
                     </button>
                   )}
                 </div>
@@ -306,6 +463,35 @@ export function CommentSection({
           <p className="text-xs text-zinc-500">로그인 후 댓글을 남길 수 있습니다.</p>
         </div>
       )}
+      {reportModal}
     </section>
+  );
+}
+
+function CommentReportIcon() {
+  return (
+    <svg
+      width="17"
+      height="16"
+      viewBox="0 0 17 16"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden
+      className="block"
+    >
+      <path
+        d="M8.08984 0C11.4793 2.46698e-05 14.227 2.74776 14.227 6.1372V13.9479H1.95264V6.1372C1.95264 2.74774 4.70038 0 8.08984 0Z"
+        fill="#F11414"
+      />
+      <rect x="0" y="12.2" width="16.18" height="3.8" rx="1.9" fill="#D9D9D9" />
+      <path
+        d="M14.4944 15.5644V15.9015H1.68539V15.5644H14.4944ZM15.8427 14.2161V13.6815C15.8427 12.9368 15.239 12.3332 14.4944 12.3332H1.68539C0.94074 12.3332 0.337079 12.9368 0.337079 13.6815V14.2161C0.337079 14.9607 0.94074 15.5644 1.68539 15.5644V15.9015C0.754577 15.9015 0 15.1469 0 14.2161V13.6815C0 12.7797 0.708238 12.0435 1.59882 11.9984L1.68539 11.9961H14.4944L14.581 11.9984C15.4715 12.0435 16.1798 12.7797 16.1798 13.6815V14.2161C16.1798 15.1469 15.4252 15.9015 14.4944 15.9015V15.5644C15.239 15.5644 15.8427 14.9607 15.8427 14.2161Z"
+        fill="#D9D9D9"
+      />
+      <path
+        d="M8.50493 4.02051L8.44502 8.471H7.7261L7.66619 4.02051H8.50493ZM8.08556 10.2683C7.78601 10.2683 7.52925 10.0201 7.53781 9.712C7.52925 9.41245 7.78601 9.16425 8.08556 9.16425C8.38511 9.16425 8.63331 9.41245 8.63331 9.712C8.63331 10.0201 8.38511 10.2683 8.08556 10.2683Z"
+        fill="white"
+      />
+    </svg>
   );
 }

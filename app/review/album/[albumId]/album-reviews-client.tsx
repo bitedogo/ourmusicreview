@@ -8,6 +8,7 @@ import Image from "next/image";
 import { getUserProfilePath } from "@/src/components/profile/user-profile-view";
 import { DuplicateReviewModal } from "@/src/components/common/duplicate-review-modal";
 import { StreamingLinkButtons } from "@/src/components/streaming/streaming-link-buttons";
+import { ReviewDetailAlbumCard } from "@/src/components/reviews/ReviewDetailAlbumCard";
 import { useStreamingLinks } from "@/src/hooks/use-streaming-links";
 import { getHtmlPlainText } from "@/src/lib/utils/editor";
 import { formatDateYYYYMMDD } from "@/src/lib/utils/date";
@@ -34,6 +35,7 @@ interface AlbumInfo {
   artist: string;
   imageUrl: string | null;
   genre: string | null;
+  releaseDate: string | null;
 }
 
 export function AlbumReviewsClient({ albumId }: { albumId: string }) {
@@ -144,12 +146,6 @@ export function AlbumReviewsClient({ albumId }: { albumId: string }) {
     ? `/review/write?albumId=${encodeURIComponent(albumInfo.albumId)}&title=${encodeURIComponent(albumInfo.title)}&artist=${encodeURIComponent(albumInfo.artist)}${albumInfo.imageUrl ? `&imageUrl=${encodeURIComponent(albumInfo.imageUrl)}` : ""}`
     : null;
 
-  const artistAlbumListUrl = albumInfo
-    ? albumInfo.artistId
-      ? `/search?artistId=${encodeURIComponent(albumInfo.artistId)}&artist=${encodeURIComponent(albumInfo.artist)}`
-      : `/search?artist=${encodeURIComponent(albumInfo.artist)}`
-    : null;
-
   async function handleReviewWriteClick() {
     if (!albumInfo || isCheckingDuplicate) return;
     setIsCheckingDuplicate(true);
@@ -230,49 +226,21 @@ export function AlbumReviewsClient({ albumId }: { albumId: string }) {
         )}
 
         {albumInfo && (
-          <div className="relative mb-4 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
-            <div className="flex gap-4">
-              {albumInfo.imageUrl && (
-                <div className="shrink-0">
-                  <Image
-                    src={albumInfo.imageUrl}
-                    alt={albumInfo.title}
-                    width={104}
-                    height={104}
-                    unoptimized
-                    className="h-[104px] w-[104px] rounded-xl object-contain"
-                  />
-                </div>
-              )}
-              <div className="flex min-h-[104px] min-w-0 flex-1 flex-col pr-20">
-                <div className="flex items-start justify-between gap-3">
-                  <h2 className="truncate text-base font-semibold text-zinc-900">
-                    {albumInfo.title}
-                  </h2>
-                  <p className="shrink-0 text-xs font-semibold text-zinc-600">
-                    Rating : {averageRating !== null ? averageRating.toFixed(1) : "-"}
-                  </p>
-                </div>
-                <div className="mt-1 min-w-0">
-                  <p className="text-[11px] font-medium text-zinc-500">
-                    {albumInfo.genre?.trim() || "장르 정보 없음"}
-                  </p>
-                  {artistAlbumListUrl ? (
-                    <Link
-                      href={artistAlbumListUrl}
-                      className="mt-0.5 block truncate text-sm text-zinc-600 hover:text-[var(--color-brand-primary)] hover:underline"
-                    >
-                      {albumInfo.artist}
-                    </Link>
-                  ) : (
-                    <p className="mt-0.5 truncate text-sm text-zinc-600">{albumInfo.artist}</p>
-                  )}
-                </div>
-              </div>
-            </div>
-            <StreamingLinkButtons
-              links={streamingLinks}
-              className="absolute bottom-4 right-4"
+          <div className="mb-4 w-full max-w-[800px]">
+            <ReviewDetailAlbumCard
+              album={{
+                albumId: albumInfo.albumId,
+                title: albumInfo.title,
+                artist: albumInfo.artist,
+                imageUrl: albumInfo.imageUrl,
+                genre: albumInfo.genre,
+                releaseDate: albumInfo.releaseDate,
+              }}
+              averageRating={averageRating}
+              showMoreReview={false}
+              footerAction={
+                <StreamingLinkButtons links={streamingLinks} />
+              }
             />
           </div>
         )}

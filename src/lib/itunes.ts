@@ -15,6 +15,10 @@ import {
   albumVariantPenalty,
   normalizeForMatch,
 } from "@/src/lib/text/match";
+import {
+  expandArtistSearchTermsForItunes,
+  shareArtistAliasGroup,
+} from "@/src/lib/search/artist-aliases";
 import { createTtlCache } from "@/src/lib/utils/ttl-cache";
 
 export { getLargeImageUrl };
@@ -249,81 +253,124 @@ function artistNameRelevance(query: string, artistName: string): number {
   const name = normalizeForMatch(artistName);
   if (!q || !name) return 0;
   if (name === q) return 100;
+  if (shareArtistAliasGroup(query, artistName)) return 95;
   if (name.startsWith(q)) return 70;
   if (name.includes(q)) return 40;
   return 0;
 }
 
+function toArtistResult(item: ItunesResult): ItunesArtistResult | null {
+  const id = asFiniteNumber(item.artistId);
+  const artistName = asString(item.artistName);
+  if (id == null || !artistName?.trim()) return null;
+  return {
+    artistId: String(id),
+    artistName,
+    artistViewUrl: asString(item.artistLinkUrl),
+    primaryGenreName: asString(item.primaryGenreName),
+  };
+}
+
+async function collectArtistCandidates(
+  searchTerms: string[],
+  candidateLimit: number,
+): Promise<ItunesArtistResult[]> {
+  const byId = new Map<string, ItunesArtistResult>();
+
+  for (const searchTerm of searchTerms) {
+    for (const url of itunesArtistSearchUrls(searchTerm, candidateLimit)) {
+      const results = await fetchItunesResults(url);
+      for (const item of results) {
+        const artist = toArtistResult(item);
+        if (!artist || byId.has(artist.artistId)) continue;
+        byId.set(artist.artistId, artist);
+      }
+    }
+  }
+
+  return [...byId.values()];
+}
+
+function rankArtistsByQuery(
+  artists: ItunesArtistResult[],
+  query: string,
+): ItunesArtistResult[] {
+  return artists
+    .map((artist) => ({
+      artist,
+      score: artistNameRelevance(query, artist.artistName),
+    }))
+    .filter((entry) => entry.score > 0)
+    .sort(
+      (a, b) =>
+        b.score - a.score ||
+        a.artist.artistName.localeCompare(b.artist.artistName),
+    )
+    .map((entry) => entry.artist);
+}
+
+async function takeArtistsWithAlbums(
+  ranked: ItunesArtistResult[],
+  limit: number,
+): Promise<ItunesArtistResult[]> {
+  const visible: ItunesArtistResult[] = [];
+  const BATCH_SIZE = 8;
+
+  for (let i = 0; i < ranked.length && visible.length < limit; i += BATCH_SIZE) {
+    const batch = ranked.slice(i, i + BATCH_SIZE);
+    const checked = await Promise.all(
+      batch.map(async (artist) => ({
+        artist,
+        hasAlbums: await artistHasDisplayableAlbums(Number(artist.artistId)),
+      })),
+    );
+    for (const entry of checked) {
+      if (visible.length >= limit) break;
+      if (entry.hasAlbums) visible.push(entry.artist);
+    }
+  }
+
+  return visible;
+}
+
+async function withArtistArtwork(
+  artists: ItunesArtistResult[],
+): Promise<ItunesArtistResult[]> {
+  return Promise.all(
+    artists.map(async (artist) => {
+      const artworkUrl100 = await fetchArtistArtworkUrl(
+        Number(artist.artistId),
+        artist.artistName,
+      );
+      return artworkUrl100 ? { ...artist, artworkUrl100 } : artist;
+    }),
+  );
+}
+
 export async function searchArtists(
   term: string,
-  limit: number = 20
+  limit: number = 20,
 ): Promise<ItunesArtistResult[]> {
   const trimmed = term.trim();
   if (!trimmed) return [];
 
   const cappedLimit = Math.min(Math.max(limit, 1), ARTIST_SEARCH_MAX_LIMIT);
-  const cacheKey = `v3_${trimmed.toLowerCase()}_${cappedLimit}`;
+  const cacheKey = `v5_alias_${trimmed.toLowerCase()}_${cappedLimit}`;
   const cached = artistSearchCache.get(cacheKey);
   if (cached) return cached;
 
-  // KR 스토어에 없는 아티스트가 US에는 있는 경우가 있어 양쪽 결과를 합침
   const candidateLimit = Math.min(
     ARTIST_SEARCH_MAX_LIMIT,
-    Math.max(cappedLimit * 3, cappedLimit)
+    Math.max(cappedLimit * 3, cappedLimit),
   );
 
-  const byId = new Map<string, ItunesArtistResult>();
-  for (const url of itunesArtistSearchUrls(trimmed, candidateLimit)) {
-    const results = await fetchItunesResults(url);
-    for (const item of results) {
-      const id = asFiniteNumber(item.artistId);
-      const artistName = asString(item.artistName);
-      if (id == null || !artistName?.trim()) continue;
-      const artistId = String(id);
-      if (byId.has(artistId)) continue;
-      byId.set(artistId, {
-        artistId,
-        artistName,
-        artistViewUrl: asString(item.artistLinkUrl),
-        primaryGenreName: asString(item.primaryGenreName),
-      });
-    }
-  }
-
-  const ranked = Array.from(byId.values())
-    .map((artist) => ({
-      artist,
-      score: artistNameRelevance(trimmed, artist.artistName),
-    }))
-    .filter((entry) => entry.score > 0)
-    .sort((a, b) => b.score - a.score || a.artist.artistName.localeCompare(b.artist.artistName));
-
-  // 이름 관련도 높은 후보부터 앨범 존재 여부 확인 (배치로 병렬 조회)
-  const visibleArtists: ItunesArtistResult[] = [];
-  const BATCH_SIZE = 8;
-  for (let i = 0; i < ranked.length && visibleArtists.length < cappedLimit; i += BATCH_SIZE) {
-    const batch = ranked.slice(i, i + BATCH_SIZE);
-    const checked = await Promise.all(
-      batch.map(async (entry) => ({
-        artist: entry.artist,
-        hasAlbums: await artistHasDisplayableAlbums(Number(entry.artist.artistId)),
-      }))
-    );
-    for (const entry of checked) {
-      if (visibleArtists.length >= cappedLimit) break;
-      if (entry.hasAlbums) visibleArtists.push(entry.artist);
-    }
-  }
-
-  const results = await Promise.all(
-    visibleArtists.map(async (artist) => {
-      const artworkUrl100 = await fetchArtistArtworkUrl(
-        Number(artist.artistId),
-        artist.artistName
-      );
-      return artworkUrl100 ? { ...artist, artworkUrl100 } : artist;
-    })
+  const candidates = await collectArtistCandidates(
+    expandArtistSearchTermsForItunes(trimmed),
+    candidateLimit,
   );
+  const ranked = rankArtistsByQuery(candidates, trimmed);
+  const withAlbums = await takeArtistsWithAlbums(ranked, cappedLimit);
+  const results = await withArtistArtwork(withAlbums);
 
   if (results.length > 0) {
     artistSearchCache.set(cacheKey, results);

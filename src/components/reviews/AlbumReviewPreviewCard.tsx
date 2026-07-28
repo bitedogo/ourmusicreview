@@ -29,6 +29,48 @@ function formatCardDate(dateInput: string | Date): string {
   }
 }
 
+function LikeBadge({ count }: { count: number }) {
+  return (
+    <span className="inline-flex items-center gap-[7px]">
+      <LikeIcon />
+      <span className="text-[13px] font-normal leading-[17px] text-black sm:text-[14px]">
+        {count}
+      </span>
+    </span>
+  );
+}
+
+function RatingBadge({
+  ratingText,
+  ratingColor,
+  size = "desktop",
+  className = "",
+}: {
+  ratingText: string;
+  ratingColor: string;
+  size?: "mobile" | "desktop";
+  className?: string;
+}) {
+  const isMobile = size === "mobile";
+  return (
+    <div
+      className={`absolute bottom-0 left-0 flex items-center justify-center rounded-tr-[10px] bg-white ${
+        isMobile ? "h-[28px] w-[52px]" : "h-[42px] w-[70px]"
+      } ${className}`}
+    >
+      <span className="inline-flex items-baseline font-bold leading-none tracking-[-0.005em]">
+        <span
+          className="text-[20px]"
+          style={{ color: ratingColor }}
+        >
+          {ratingText}
+        </span>
+        <span className="text-[11px] text-[#C0C0C0]"> /10</span>
+      </span>
+    </div>
+  );
+}
+
 function LikeIcon() {
   return (
     <svg
@@ -41,8 +83,8 @@ function LikeIcon() {
       className="block"
     >
       <path
-        d="M21 5.80569C21 11.524 11.6667 18 10.5 18C9.33333 18 0 11.524 0 5.80569C0 0.0873581 7.7 -3.05304 10.5 4.54047C12.95 -3.1681 21 0.0873581 21 5.80569Z"
-        fill="#F21414"
+        d="M13.4395 1.10547C14.4137 0.494364 15.5099 0.370369 16.5508 0.624023C18.6536 1.13673 20.5 3.18567 20.5 5.80566C20.5 7.10358 19.9675 8.48679 19.1006 9.85645C18.2368 11.2211 17.0649 12.535 15.8447 13.6836C14.6259 14.831 13.3714 15.8018 12.3545 16.4834C11.8455 16.8246 11.4021 17.0888 11.0576 17.2656C10.8852 17.3541 10.7448 17.4175 10.6377 17.457C10.5174 17.5014 10.4808 17.5 10.5 17.5C10.5192 17.5 10.4826 17.5014 10.3623 17.457C10.2552 17.4175 10.1148 17.3541 9.94238 17.2656C9.59787 17.0888 9.15449 16.8246 8.64551 16.4834C7.62864 15.8018 6.37414 14.831 5.15527 13.6836C3.93515 12.535 2.76322 11.2211 1.89941 9.85645C1.03252 8.48679 0.5 7.10358 0.5 5.80566C0.500011 3.17454 2.26963 1.1628 4.31738 0.666992C5.33317 0.421104 6.42118 0.546614 7.41699 1.15723C8.41559 1.76968 9.36062 2.89515 10.0312 4.71387L10.5352 6.08105L10.9766 4.69238C11.5622 2.84988 12.4632 1.71791 13.4395 1.10547Z"
+        stroke="#C0C0C0"
       />
     </svg>
   );
@@ -97,7 +139,7 @@ export function AlbumReviewPreviewCard({
     >
       {/* 모바일 */}
       <article className="relative box-border flex min-h-[120px] w-full gap-3 rounded-[15px] border border-[#D9D9D9] bg-white p-3 shadow-[0px_2px_4px_rgba(0,0,0,0.25)] sm:hidden">
-        <div className="relative h-[96px] w-[96px] shrink-0 overflow-hidden rounded-[10px] bg-zinc-100">
+        <div className="relative h-[96px] w-[96px] shrink-0 overflow-hidden rounded-tl-[10px] rounded-tr-[10px] rounded-br-[10px] rounded-bl-none bg-zinc-100">
           {imageUrl ? (
             <Image
               src={imageUrl}
@@ -112,14 +154,11 @@ export function AlbumReviewPreviewCard({
               No Image
             </div>
           )}
-          <div className="absolute bottom-0 left-0 flex h-[28px] w-[32px] items-center justify-center rounded-tr-[10px] bg-white">
-            <span
-              className="text-[13px] font-bold leading-none tracking-[-0.005em]"
-              style={{ color: ratingColor }}
-            >
-              {ratingText}
-            </span>
-          </div>
+          <RatingBadge
+            ratingText={ratingText}
+            ratingColor={ratingColor}
+            size="mobile"
+          />
         </div>
         <div className="flex min-w-0 flex-1 flex-col">
           <div className="flex items-start justify-between gap-2">
@@ -132,10 +171,7 @@ export function AlbumReviewPreviewCard({
               </p>
             </div>
             <div className="flex shrink-0 items-center gap-2">
-              <span className="inline-flex items-center gap-1">
-                <LikeIcon />
-                <span className="text-[13px] text-black">{likeCount}</span>
-              </span>
+              <LikeBadge count={likeCount} />
               <span className="inline-flex items-center gap-1">
                 <CommentIcon />
                 <span className="text-[13px] text-black">{commentCount}</span>
@@ -157,7 +193,7 @@ export function AlbumReviewPreviewCard({
         album 19 / artist 47 / preview 86 / meta 120 / likes 29
       */}
       <article className="relative hidden h-[160px] w-full overflow-hidden rounded-[15px] border border-[#D9D9D9] bg-white shadow-[0px_2px_4px_rgba(0,0,0,0.25)] sm:block">
-        <div className="absolute left-[7px] top-[6px] h-[148px] w-[150px] overflow-hidden rounded-[10px] bg-zinc-100">
+        <div className="absolute left-[7px] top-[6px] h-[148px] w-[150px] overflow-hidden rounded-tl-[10px] rounded-tr-[10px] rounded-br-[10px] rounded-bl-none bg-zinc-100">
           {imageUrl ? (
             <Image
               src={imageUrl}
@@ -174,14 +210,21 @@ export function AlbumReviewPreviewCard({
           )}
         </div>
 
-        <div className="absolute left-[7px] top-[112px] flex h-[42px] w-[43px] items-center justify-center rounded-tr-[10px] bg-white">
-          <span
-            className="text-[16px] font-bold leading-[145%] tracking-[-0.005em]"
-            style={{ color: ratingColor }}
-          >
-            {ratingText}
-          </span>
-        </div>
+        {/* 커버 inset(7px)·하단 여백과 배지 사이 이음새(회색 경계) 가림 */}
+        <div
+          className="pointer-events-none absolute left-0 top-[112px] z-10 h-[48px] w-[8px] bg-white"
+          aria-hidden
+        />
+        <div
+          className="pointer-events-none absolute bottom-0 left-0 z-10 h-[7px] w-[76px] bg-white"
+          aria-hidden
+        />
+
+        <RatingBadge
+          ratingText={ratingText}
+          ratingColor={ratingColor}
+          className="left-[6px] top-[112px] bottom-auto z-20"
+        />
 
         <h3 className="absolute left-[173px] right-[120px] top-[19px] truncate text-[24px] font-medium leading-[29px] text-black">
           {albumTitle}
@@ -191,13 +234,8 @@ export function AlbumReviewPreviewCard({
           {artist}
         </p>
 
-        <div className="absolute right-[20px] top-[29px] flex items-center gap-[10px]">
-          <span className="inline-flex items-center gap-[7px]">
-            <LikeIcon />
-            <span className="text-[14px] font-normal leading-[17px] text-black">
-              {likeCount}
-            </span>
-          </span>
+        <div className="absolute right-[37px] top-[29px] flex items-center gap-[10px]">
+          <LikeBadge count={likeCount} />
           <span className="inline-flex items-center gap-[7px]">
             <CommentIcon />
             <span className="text-[14px] font-normal leading-[17px] text-black">

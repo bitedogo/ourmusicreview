@@ -34,6 +34,7 @@ export async function GET(
           artist: lookupAlbum.artist,
           imageUrl: lookupAlbum.imageUrl,
           genre: lookupAlbum.genre || null,
+          releaseDate: lookupAlbum.releaseDate?.trim() || null,
         }
       : null;
 
@@ -61,6 +62,7 @@ export async function GET(
         artist: album.artist,
         imageUrl: album.imageUrl,
         genre: albumForResponse?.genre ?? null,
+        releaseDate: albumForResponse?.releaseDate ?? null,
       },
       reviews: reviews.map((review) => ({
         id: review.id,
