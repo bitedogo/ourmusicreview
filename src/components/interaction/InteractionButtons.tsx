@@ -135,7 +135,7 @@ export function InteractionButtons({
           aria-label={likeInfo.liked ? "좋아요 취소" : "좋아요"}
           className="relative h-[55px] w-[55px] shrink-0 transition hover:opacity-90"
         >
-          <CircleLikeIcon />
+          <CircleLikeIcon liked={likeInfo.liked} />
           <span className="pointer-events-none absolute inset-x-0 bottom-[8px] text-center text-[11px] font-medium leading-none text-black">
             {likeInfo.count}
           </span>

@@ -75,8 +75,11 @@ export function ReviewDetailBodyCard({
       >
         {/* RATING — 모바일/데스크톱 모두 좌상단 걸침 + 옆에 작성자 */}
         <div
-          className="absolute left-[-12px] top-[-20px] z-10 flex h-[96px] w-[96px] flex-col items-center justify-center rounded-[15px] border border-[#D9D9D9] bg-white sm:left-[-23px] sm:h-[131px] sm:w-[131px]"
-          style={{ boxShadow: `0px 2px 4px ${REVIEW_BRAND_TEAL}` }}
+          className="absolute left-[-12px] top-[-20px] z-10 flex h-[96px] w-[96px] flex-col items-center justify-center rounded-[15px] border bg-white sm:left-[-23px] sm:h-[131px] sm:w-[131px]"
+          style={{
+            borderColor: `color-mix(in srgb, ${ratingColor} 45%, white)`,
+            boxShadow: `0px 2px 4px color-mix(in srgb, ${ratingColor} 35%, transparent)`,
+          }}
         >
           <span
             className="text-[14px] font-bold leading-[17px] tracking-[0.05em] sm:text-[24px] sm:leading-[29px]"

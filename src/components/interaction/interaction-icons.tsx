@@ -28,7 +28,7 @@ export function CommentReportIcon({ className = "block" }: { className?: string 
   );
 }
 
-export function CircleLikeIcon() {
+export function CircleLikeIcon({ liked = false }: { liked?: boolean }) {
   return (
     <svg
       width="55"
@@ -45,7 +45,10 @@ export function CircleLikeIcon() {
       />
       <path
         d="M38 19.8057C38 25.524 28.6667 32 27.5 32C26.3333 32 17 25.524 17 19.8057C17 14.0874 24.7 10.947 27.5 18.5405C29.95 10.8319 38 14.0874 38 19.8057Z"
-        fill="#F21414"
+        fill={liked ? "#F21414" : "none"}
+        stroke={liked ? "none" : "#D9D9D9"}
+        strokeWidth={liked ? 0 : 1.6}
+        strokeLinejoin="round"
       />
     </svg>
   );
