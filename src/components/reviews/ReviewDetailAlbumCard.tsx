@@ -1,10 +1,18 @@
-/** 리뷰 상세·앨범 리뷰 — 앨범 정보 카드 (Figma Rectangle 77 / 800×160) */
+/** 리뷰 상세·앨범 리뷰 — 앨범 정보 카드 */
 
 import type { ReactNode } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import {
+  REVIEW_BRAND_TEAL,
+  REVIEW_CARD_CLIP_CLASS,
+  REVIEW_CARD_SHELL_CLASS,
+} from "@/src/components/reviews/review-page-styles";
 import { formatAlbumReleaseDate } from "@/src/lib/utils/date";
 import { formatRating, getRatingScoreColor } from "@/src/lib/utils/rating";
+
+/** 상세 앨범 카드 커버 — 네 모서리 모두 R (레이팅 배지 없음) */
+const DETAIL_COVER_RADIUS_CLASS = "overflow-hidden rounded-[10px]";
 
 export interface ReviewDetailAlbum {
   albumId: string;
@@ -24,6 +32,94 @@ interface ReviewDetailAlbumCardProps {
   footerAction?: ReactNode;
 }
 
+function AverageRatingLabel({
+  averageRating,
+  size,
+}: {
+  averageRating: number | null;
+  size: "mobile" | "desktop";
+}) {
+  const color = getRatingScoreColor(averageRating);
+  const isMobile = size === "mobile";
+
+  return (
+    <div
+      className={`flex shrink-0 items-baseline ${
+        isMobile ? "gap-[3px] pt-[1px]" : "gap-[7px]"
+      }`}
+    >
+      <span
+        className={`font-medium ${
+          isMobile ? "text-[10px]" : "text-[16px] leading-[19px]"
+        }`}
+        style={{ color: REVIEW_BRAND_TEAL }}
+      >
+        Average Rating
+      </span>
+      <span
+        className={`font-bold ${
+          isMobile ? "text-[15px] leading-none" : "text-[24px] leading-[29px]"
+        }`}
+        style={{ color }}
+      >
+        {formatRating(averageRating)}
+      </span>
+    </div>
+  );
+}
+
+function MoreReviewButton({
+  href,
+  size,
+}: {
+  href: string;
+  size: "mobile" | "desktop";
+}) {
+  const isMobile = size === "mobile";
+  return (
+    <Link
+      href={href}
+      className={
+        isMobile
+          ? "absolute bottom-[8px] right-[8px] inline-flex h-[26px] items-center rounded-[10px] px-3 text-[11px] text-white"
+          : "absolute bottom-[12px] right-[11px] flex h-[30px] w-[100px] items-center justify-center rounded-[10px] text-[13px] font-normal leading-[16px] text-white transition hover:bg-[var(--color-brand-primary-hover)]"
+      }
+      style={{ backgroundColor: REVIEW_BRAND_TEAL }}
+    >
+      More Review
+    </Link>
+  );
+}
+
+function AlbumCoverImage({
+  imageUrl,
+  title,
+  size,
+  className,
+}: {
+  imageUrl: string | null;
+  title: string;
+  size: number;
+  className: string;
+}) {
+  return (
+    <div className={className}>
+      {imageUrl ? (
+        <Image
+          src={imageUrl}
+          alt={title}
+          width={size}
+          height={size}
+          unoptimized
+          className="h-full w-full object-cover"
+        />
+      ) : (
+        <div className="h-full w-full bg-[#D9D9D9]" />
+      )}
+    </div>
+  );
+}
+
 export function ReviewDetailAlbumCard({
   album,
   averageRating,
@@ -32,116 +128,89 @@ export function ReviewDetailAlbumCard({
 }: ReviewDetailAlbumCardProps) {
   const genreLabel = album.genre?.trim() || "장르 정보 없음";
   const releaseLabel = `발매일 ${formatAlbumReleaseDate(album.releaseDate)}`;
-  const averageColor = getRatingScoreColor(averageRating);
   const moreHref = `/review/album/${encodeURIComponent(album.albumId)}`;
+
+  const footer =
+    showMoreReview ? (
+      <MoreReviewButton href={moreHref} size="desktop" />
+    ) : footerAction ? (
+      <div className="absolute bottom-[12px] right-[11px]">{footerAction}</div>
+    ) : null;
+
+  const mobileFooter =
+    showMoreReview ? (
+      <MoreReviewButton href={moreHref} size="mobile" />
+    ) : footerAction ? (
+      <div className="absolute bottom-[8px] right-[8px]">{footerAction}</div>
+    ) : null;
 
   return (
     <>
-      {/* 데스크톱 — SVG 808×168 (카드 800×160) */}
-      <div className="relative hidden h-[160px] w-full overflow-hidden rounded-[15px] border border-[#D9D9D9] bg-white shadow-[0px_2px_4px_rgba(0,0,0,0.25)] sm:block">
-        {album.imageUrl ? (
-          <Image
-            src={album.imageUrl}
-            alt={album.title}
-            width={150}
-            height={148}
-            unoptimized
-            className="absolute left-[6.5px] top-[6px] h-[148px] w-[150px] rounded-[10px] object-cover"
+      {/* 데스크톱 */}
+      <div
+        className={`relative hidden h-[140px] w-full sm:block ${REVIEW_CARD_SHELL_CLASS}`}
+      >
+        <div className={`relative h-full ${REVIEW_CARD_CLIP_CLASS}`}>
+          <AlbumCoverImage
+            imageUrl={album.imageUrl}
+            title={album.title}
+            size={128}
+            className={`absolute left-[6px] top-[6px] h-[128px] w-[128px] ${DETAIL_COVER_RADIUS_CLASS}`}
           />
-        ) : (
-          <div className="absolute left-[6.5px] top-[6px] h-[148px] w-[150px] rounded-[10px] bg-[#D9D9D9]" />
-        )}
 
-        <h2 className="absolute left-[172.5px] right-[190px] top-[19px] truncate text-[24px] font-medium leading-[29px] text-black">
-          {album.title}
-        </h2>
-        <p className="absolute left-[172.5px] right-[190px] top-[47px] truncate text-[16px] font-normal leading-[19px] text-black">
-          {album.artist}
-        </p>
-        <p className="absolute left-[172.5px] top-[93px] text-[14px] font-normal leading-[17px] text-black">
-          {releaseLabel}
-        </p>
-        <p className="absolute left-[172.5px] top-[125px] text-[14px] font-normal leading-[17px] text-black">
-          {genreLabel}
-        </p>
+          <h2 className="absolute left-[150px] right-[190px] top-[16px] truncate text-[24px] font-medium leading-[29px] text-black">
+            {album.title}
+          </h2>
+          <p className="absolute left-[150px] right-[190px] top-[44px] truncate text-[16px] font-normal leading-[19px] text-black">
+            {album.artist}
+          </p>
+          <p className="absolute left-[150px] top-[90px] text-[14px] font-normal leading-[17px] text-black">
+            {releaseLabel}
+          </p>
+          <p className="absolute left-[150px] top-[116px] text-[14px] font-normal leading-[17px] text-black">
+            {genreLabel}
+          </p>
 
-        <div className="absolute right-[11px] top-[19px] flex items-baseline gap-[7px]">
-          <span className="text-[16px] font-medium leading-[19px] text-[#43A7B2]">
-            Average Rating
-          </span>
-          <span
-            className="text-[24px] font-bold leading-[29px]"
-            style={{ color: averageColor }}
-          >
-            {formatRating(averageRating)}
-          </span>
+          <div className="absolute right-[11px] top-[16px]">
+            <AverageRatingLabel averageRating={averageRating} size="desktop" />
+          </div>
+
+          {footer}
         </div>
-
-        {showMoreReview ? (
-          <Link
-            href={moreHref}
-            className="absolute left-[689px] top-[118px] flex h-[30px] w-[100px] items-center justify-center rounded-[10px] bg-[#43A7B2] text-[13px] font-normal leading-[16px] text-white transition hover:bg-[var(--color-brand-primary-hover)]"
-          >
-            More Review
-          </Link>
-        ) : footerAction ? (
-          <div className="absolute bottom-[12px] right-[11px]">{footerAction}</div>
-        ) : null}
       </div>
 
       {/* 모바일 */}
-      <div className="relative block w-full rounded-[15px] border border-[#D9D9D9] bg-white p-[10px] shadow-[0px_2px_4px_rgba(0,0,0,0.25)] sm:hidden">
-        <div className="flex gap-[12px]">
-          {album.imageUrl ? (
-            <Image
-              src={album.imageUrl}
-              alt={album.title}
-              width={100}
-              height={100}
-              unoptimized
-              className="h-[100px] w-[100px] shrink-0 rounded-[10px] object-cover"
-            />
-          ) : (
-            <div className="h-[100px] w-[100px] shrink-0 rounded-[10px] bg-[#D9D9D9]" />
-          )}
-          <div className="flex min-w-0 flex-1 flex-col">
+      <div
+        className={`relative block w-full p-[8px] sm:hidden ${REVIEW_CARD_SHELL_CLASS}`}
+      >
+        <div className="flex gap-[10px]">
+          <AlbumCoverImage
+            imageUrl={album.imageUrl}
+            title={album.title}
+            size={96}
+            className={`h-[96px] w-[96px] shrink-0 ${DETAIL_COVER_RADIUS_CLASS}`}
+          />
+          <div className="flex min-h-[96px] min-w-0 flex-1 flex-col pr-[2px]">
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0 flex-1">
-                <h2 className="truncate text-[18px] font-medium leading-[22px] text-black">
+                <h2 className="truncate text-[16px] font-medium leading-[20px] text-black">
                   {album.title}
                 </h2>
-                <p className="truncate text-[13px] font-normal text-black">
+                <p className="truncate text-[12px] font-normal leading-[15px] text-black">
                   {album.artist}
                 </p>
               </div>
-              <div className="flex shrink-0 items-baseline gap-[4px] pt-[2px]">
-                <span className="text-[11px] font-medium text-[#43A7B2]">
-                  Average Rating
-                </span>
-                <span
-                  className="text-[16px] font-bold leading-none"
-                  style={{ color: averageColor }}
-                >
-                  {formatRating(averageRating)}
-                </span>
-              </div>
+              <AverageRatingLabel averageRating={averageRating} size="mobile" />
             </div>
-            <p className="mt-[6px] text-[12px] text-black">{releaseLabel}</p>
-            <p className="text-[12px] text-black">{genreLabel}</p>
-            <div className="mt-auto flex justify-end pt-2">
-              {showMoreReview ? (
-                <Link
-                  href={moreHref}
-                  className="inline-flex h-[28px] items-center rounded-[10px] bg-[#43A7B2] px-3 text-[12px] text-white"
-                >
-                  More Review
-                </Link>
-              ) : (
-                footerAction
-              )}
+            <div className="mt-auto max-w-[calc(100%-88px)] pb-[2px]">
+              <p className="mb-[4px] text-[11px] leading-[14px] text-black">
+                {releaseLabel}
+              </p>
+              <p className="text-[11px] leading-[14px] text-black">{genreLabel}</p>
             </div>
           </div>
         </div>
+        {mobileFooter}
       </div>
     </>
   );

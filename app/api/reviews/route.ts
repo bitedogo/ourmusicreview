@@ -1,142 +1,30 @@
 /** POST/GET 리뷰 작성·목록 */
 
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/src/lib/auth/config";
+import { requireSessionApi } from "@/src/lib/auth/session";
 import { initializeDatabase } from "@/src/lib/db";
-import { Review } from "@/src/lib/db/entities/Review";
-import { Album } from "@/src/lib/db/entities/Album";
-import { randomUUID } from "crypto";
 import { apiError, apiOk } from "@/src/lib/http/response";
-
-interface CreateReviewBody {
-  albumId?: string;
-  content?: string;
-  rating?: number;
-  albumTitle?: string;
-  albumArtist?: string;
-  albumImageUrl?: string | null;
-  albumReleaseDate?: string;
-}
+import { ServiceError } from "@/src/lib/http/service-error";
+import {
+  createReview,
+  getUserReviews,
+  type CreateReviewInput,
+} from "@/src/lib/reviews/review-service";
 
 export async function POST(request: Request) {
   try {
-    const session = await getServerSession(authOptions);
+    const { session, response } = await requireSessionApi();
+    if (response) return response;
 
-    if (!session?.user?.id) {
-      return apiError("로그인이 필요합니다.", { status: 401 });
-    }
-
-    const body = (await request.json()) as CreateReviewBody;
-    const albumId =
-      typeof body.albumId === "string" ? body.albumId.trim() : undefined;
-    const content =
-      typeof body.content === "string" ? body.content.trim() : undefined;
-    let rating: number | undefined = undefined;
-    if (typeof body.rating === "number" && !isNaN(body.rating)) {
-      const rounded = Math.round(body.rating * 10) / 10;
-      if (rounded >= 0 && rounded <= 10) {
-        rating = rounded;
-      }
-    }
-
-    if (!albumId || !content) {
-      return apiError("앨범 ID와 리뷰 내용은 필수입니다.", { status: 400 });
-    }
-
-    if (rating === undefined) {
-      return apiError("평점(0.0-10.0)을 입력해주세요.", { status: 400 });
-    }
+    const body = (await request.json()) as CreateReviewInput;
 
     const dataSource = await initializeDatabase();
-    const albumRepository = dataSource.getRepository(Album);
-    const reviewRepository = dataSource.getRepository(Review);
+    const result = await createReview(dataSource, session.user.id, body);
 
-    const existingReview = await reviewRepository.findOne({
-      where: {
-        userId: session.user.id,
-        albumId,
-      },
-      select: ["id"],
-    });
-
-    if (existingReview) {
-      return apiError("동일한 앨범에는 리뷰를 1개만 작성할 수 있습니다.", {
-        status: 409,
-      });
-    }
-
-    let album = await albumRepository.findOne({
-      where: { albumId },
-    });
-
-    if (!album) {
-      const albumTitle =
-        typeof body.albumTitle === "string" ? body.albumTitle.trim() : undefined;
-      const albumArtist =
-        typeof body.albumArtist === "string" ? body.albumArtist.trim() : undefined;
-      const albumImageUrl =
-        typeof body.albumImageUrl === "string" && body.albumImageUrl.length > 0
-          ? body.albumImageUrl
-          : null;
-
-      if (!albumTitle || !albumArtist) {
-        return apiError(
-          "앨범 정보가 부족합니다. 앨범 제목과 아티스트는 필수입니다.",
-          { status: 400 }
-        );
-      }
-
-      let releaseDate: Date | undefined = undefined;
-      if (body.albumReleaseDate) {
-        const parsed = new Date(body.albumReleaseDate);
-        if (!isNaN(parsed.getTime())) {
-          releaseDate = parsed;
-        }
-      }
-
-      const newAlbum = albumRepository.create({
-        albumId,
-        title: albumTitle,
-        artist: albumArtist,
-        imageUrl: albumImageUrl || undefined,
-        releaseDate,
-        category: "I",
-      });
-
-      await albumRepository.save(newAlbum);
-      album = newAlbum;
-    }
-
-    const reviewId = randomUUID().replace(/-/g, "").slice(0, 255);
-
-    const review = reviewRepository.create({
-      id: reviewId,
-      albumId,
-      userId: session.user.id,
-      content,
-      rating,
-      isApproved: "Y",
-      rejectReason: null,
-    });
-
-    try {
-      await reviewRepository.save(review);
-    } catch (error) {
-      if (
-        typeof error === "object" &&
-        error !== null &&
-        "code" in error &&
-        (error as { code?: string }).code === "23505"
-      ) {
-        return apiError("동일한 앨범에는 리뷰를 1개만 작성할 수 있습니다.", {
-          status: 409,
-        });
-      }
-      throw error;
-    }
-
-    return apiOk({ id: review.id }, { status: 201 });
+    return apiOk(result, { status: 201 });
   } catch (error) {
+    if (error instanceof ServiceError) {
+      return apiError(error.message, { status: error.status });
+    }
     return apiError(
       error instanceof Error ? error.message : "리뷰 작성 중 오류가 발생했습니다.",
       { status: 500 }
@@ -146,41 +34,13 @@ export async function POST(request: Request) {
 
 export async function GET() {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session?.user?.id) {
-      return apiError("로그인이 필요합니다.", { status: 401 });
-    }
+    const { session, response } = await requireSessionApi();
+    if (response) return response;
 
     const dataSource = await initializeDatabase();
-    const reviewRepository = dataSource.getRepository(Review);
+    const reviews = await getUserReviews(dataSource, session.user.id);
 
-    const reviews = await reviewRepository.find({
-      where: { userId: session.user.id },
-      relations: ["album"],
-      order: { createdAt: "DESC" },
-    });
-
-    return apiOk({
-      reviews: reviews.map((review) => ({
-          id: review.id,
-          content: review.content,
-          rating: review.rating,
-          isApproved: review.isApproved,
-          rejectReason: review.rejectReason,
-          albumId: review.albumId,
-          createdAt: review.createdAt,
-          updatedAt: review.updatedAt,
-          album: review.album
-            ? {
-                albumId: review.album.albumId,
-                title: review.album.title,
-                artist: review.album.artist,
-                imageUrl: review.album.imageUrl,
-              }
-            : null,
-        })),
-    });
+    return apiOk({ reviews });
   } catch (error) {
     return apiError(
       error instanceof Error ? error.message : "리뷰 목록 조회 중 오류가 발생했습니다.",

@@ -1,101 +1,34 @@
 /** POST/DELETE/GET 앨범 즐겨찾기 */
 
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/src/lib/auth/config";
+import { requireSessionApi } from "@/src/lib/auth/session";
 import { initializeDatabase } from "@/src/lib/db";
-import { UserFavoriteAlbum } from "@/src/lib/db/entities/UserFavoriteAlbum";
-import { Album } from "@/src/lib/db/entities/Album";
-import { randomUUID } from "crypto";
 import { apiError, apiOk } from "@/src/lib/http/response";
-
-interface ToggleFavoriteBody {
-  albumId?: string;
-  albumTitle?: string;
-  albumArtist?: string;
-  albumImageUrl?: string | null;
-  albumReleaseDate?: string;
-}
+import { ServiceError } from "@/src/lib/http/service-error";
+import {
+  addFavoriteAlbum,
+  getUserFavoriteAlbums,
+  removeFavoriteAlbum,
+  type ToggleFavoriteInput,
+} from "@/src/lib/favorites/favorites-service";
 
 export async function POST(request: Request) {
   try {
-    const session = await getServerSession(authOptions);
+    const { session, response } = await requireSessionApi();
+    if (response) return response;
 
-    if (!session?.user?.id) {
-      return apiError("로그인이 필요합니다.", { status: 401 });
-    }
-
-    const body = (await request.json()) as ToggleFavoriteBody;
-    const albumId =
-      typeof body.albumId === "string" ? body.albumId.trim() : undefined;
-
-    if (!albumId) {
-      return apiError("앨범 ID는 필수입니다.", { status: 400 });
-    }
+    const body = (await request.json()) as ToggleFavoriteInput;
 
     const dataSource = await initializeDatabase();
-    const albumRepository = dataSource.getRepository(Album);
-    const favoriteRepository = dataSource.getRepository(UserFavoriteAlbum);
+    const result = await addFavoriteAlbum(dataSource, session.user.id, body);
 
-    let album = await albumRepository.findOne({ where: { albumId } });
-
-    if (!album) {
-      const albumTitle =
-        typeof body.albumTitle === "string" ? body.albumTitle.trim() : undefined;
-      const albumArtist =
-        typeof body.albumArtist === "string" ? body.albumArtist.trim() : undefined;
-      const albumImageUrl =
-        typeof body.albumImageUrl === "string" && body.albumImageUrl.length > 0
-          ? body.albumImageUrl
-          : null;
-
-      if (!albumTitle || !albumArtist) {
-        return apiError(
-          "앨범 정보가 부족합니다. 앨범 제목과 아티스트 정보가 필요합니다.",
-          { status: 400 }
-        );
-      }
-
-      let releaseDate: Date | undefined = undefined;
-      if (body.albumReleaseDate) {
-        const parsed = new Date(body.albumReleaseDate);
-        if (!isNaN(parsed.getTime())) {
-          releaseDate = parsed;
-        }
-      }
-
-      const newAlbum = albumRepository.create({
-        albumId,
-        title: albumTitle,
-        artist: albumArtist,
-        imageUrl: albumImageUrl || undefined,
-        releaseDate,
-        category: "I",
-      });
-
-      await albumRepository.save(newAlbum);
-      album = newAlbum;
-    }
-
-    const existing = await favoriteRepository.findOne({
-      where: { userId: session.user.id, albumId },
-    });
-
-    if (existing) {
-      return apiOk({ favoriteId: existing.id });
-    }
-
-    const favoriteId = randomUUID().replace(/-/g, "").slice(0, 255);
-
-    const favorite = favoriteRepository.create({
-      id: favoriteId,
-      userId: session.user.id,
-      albumId,
-    });
-
-    await favoriteRepository.save(favorite);
-
-    return apiOk({ favoriteId: favorite.id }, { status: 201 });
+    return apiOk(
+      { favoriteId: result.favoriteId },
+      { status: result.created ? 201 : 200 }
+    );
   } catch (error) {
+    if (error instanceof ServiceError) {
+      return apiError(error.message, { status: error.status });
+    }
     return apiError(
       error instanceof Error ? error.message : "좋아요 추가 중 오류가 발생했습니다.",
       { status: 500 }
@@ -105,35 +38,19 @@ export async function POST(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session?.user?.id) {
-      return apiError("로그인이 필요합니다.", { status: 401 });
-    }
+    const { session, response } = await requireSessionApi();
+    if (response) return response;
 
     const body = (await request.json()) as { albumId?: string };
-    const albumId =
-      typeof body.albumId === "string" ? body.albumId.trim() : undefined;
-
-    if (!albumId) {
-      return apiError("앨범 ID는 필수입니다.", { status: 400 });
-    }
 
     const dataSource = await initializeDatabase();
-    const favoriteRepository = dataSource.getRepository(UserFavoriteAlbum);
-
-    const existing = await favoriteRepository.findOne({
-      where: { userId: session.user.id, albumId },
-    });
-
-    if (!existing) {
-      return apiOk({});
-    }
-
-    await favoriteRepository.delete({ id: existing.id });
+    await removeFavoriteAlbum(dataSource, session.user.id, body.albumId);
 
     return apiOk({});
   } catch (error) {
+    if (error instanceof ServiceError) {
+      return apiError(error.message, { status: error.status });
+    }
     return apiError(
       error instanceof Error ? error.message : "좋아요 취소 중 오류가 발생했습니다.",
       { status: 500 }
@@ -143,37 +60,13 @@ export async function DELETE(request: Request) {
 
 export async function GET() {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session?.user?.id) {
-      return apiError("로그인이 필요합니다.", { status: 401 });
-    }
+    const { session, response } = await requireSessionApi();
+    if (response) return response;
 
     const dataSource = await initializeDatabase();
-    const favoriteRepository = dataSource.getRepository(UserFavoriteAlbum);
+    const favorites = await getUserFavoriteAlbums(dataSource, session.user.id);
 
-    const favorites = await favoriteRepository.find({
-      where: { userId: session.user.id },
-      relations: ["album"],
-      order: { createdAt: "DESC" },
-    });
-
-    return apiOk({
-      favorites: favorites.map((fav) => ({
-          id: fav.id,
-          albumId: fav.albumId,
-          createdAt: fav.createdAt,
-          album: fav.album
-            ? {
-                albumId: fav.album.albumId,
-                title: fav.album.title,
-                artist: fav.album.artist,
-                imageUrl: fav.album.imageUrl,
-                releaseDate: fav.album.releaseDate ?? null,
-              }
-            : null,
-        })),
-    });
+    return apiOk({ favorites });
   } catch (error) {
     return apiError(
       error instanceof Error
@@ -183,4 +76,3 @@ export async function GET() {
     );
   }
 }
-

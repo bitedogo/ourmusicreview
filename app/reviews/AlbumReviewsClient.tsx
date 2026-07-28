@@ -12,6 +12,7 @@ import {
   type ReviewSortType,
 } from "@/src/components/reviews/ReviewSortToggle";
 import { PaginationNav } from "@/src/components/common/PaginationNav";
+import { reviewDetail } from "@/src/lib/navigation/routes";
 
 type SortType = ReviewSortType;
 type SearchField = "artist" | "album" | "author";
@@ -191,7 +192,7 @@ export function AlbumReviewsClient() {
           {reviews.map((review) => (
             <AlbumReviewPreviewCard
               key={review.id}
-              href={`/review/${encodeURIComponent(review.id)}?from=reviews&sort=${sort}&page=${page}&searchField=${searchField}&q=${encodeURIComponent(searchQuery)}`}
+              href={`${reviewDetail(review.id)}?from=reviews&sort=${sort}&page=${page}&searchField=${searchField}&q=${encodeURIComponent(searchQuery)}`}
               albumTitle={review.album?.title ?? "앨범"}
               artist={review.album?.artist ?? "-"}
               imageUrl={review.album?.imageUrl ?? null}

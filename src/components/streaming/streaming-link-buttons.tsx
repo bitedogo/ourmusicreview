@@ -15,7 +15,7 @@ export function StreamingLinkButtons({ links, className = "" }: StreamingLinkBut
   }
 
   return (
-    <div className={`flex flex-wrap items-center gap-2 ${className}`.trim()}>
+    <div className={`flex flex-wrap items-center gap-1.5 sm:gap-2 ${className}`.trim()}>
       {platforms.map((platform) => (
         <a
           key={platform.key}
@@ -23,14 +23,14 @@ export function StreamingLinkButtons({ links, className = "" }: StreamingLinkBut
           target="_blank"
           rel="noopener noreferrer"
           aria-label={platform.label}
-          className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg transition hover:opacity-80"
+          className="inline-flex size-6 shrink-0 items-center justify-center rounded-md transition hover:opacity-80 sm:size-8 sm:rounded-lg"
         >
           <img
             src={platform.iconSrc}
             alt=""
             width={32}
             height={32}
-            className="size-8 object-contain"
+            className="size-6 object-contain sm:size-8"
             loading="lazy"
             decoding="async"
           />

@@ -8,6 +8,7 @@ import { HtmlRenderer } from "@/src/components/common/HtmlRenderer";
 import { InteractionButtons } from "@/src/components/interaction/InteractionButtons";
 import { CommentSection } from "@/src/components/interaction/CommentSection";
 import { PostAuthorRow } from "./post-author-row";
+import { boardPath, communityEdit, type BoardSlug } from "@/src/lib/navigation/routes";
 
 interface PostContentClientProps {
   content: string;
@@ -87,28 +88,28 @@ export function PostContentClient({
 
       if (data.ok) {
         alert("게시글이 삭제되었습니다.");
-        const categoryPath = {
+        const categoryPath: BoardSlug = ({
           K: "domestic",
           I: "overseas",
           M: "market",
           W: "workroom",
           N: "notice",
-        }[category as "K" | "I" | "M" | "W" | "N"] || "domestic";
+        } satisfies Record<string, BoardSlug>)[category as "K" | "I" | "M" | "W" | "N"] || "domestic";
 
-        router.push(`/boards/${categoryPath}`);
+        router.push(boardPath(categoryPath));
         router.refresh();
       } else {
         alert(data.error || "삭제에 실패했습니다.");
       }
     } catch {
-      const categoryPath = {
+      const categoryPath: BoardSlug = ({
         K: "domestic",
         I: "overseas",
         M: "market",
         W: "workroom",
         N: "notice",
-      }[category as "K" | "I" | "M" | "W" | "N"] || "domestic";
-      router.push(`/boards/${categoryPath}`);
+      } satisfies Record<string, BoardSlug>)[category as "K" | "I" | "M" | "W" | "N"] || "domestic";
+      router.push(boardPath(categoryPath));
     }
   };
 
@@ -130,7 +131,7 @@ export function PostContentClient({
       {isOwner && (
         <div className="flex justify-end gap-3 pt-4 border-t border-zinc-50">
           <button
-            onClick={() => router.push(`/community/write?edit=${postId}`)}
+            onClick={() => router.push(communityEdit(postId))}
             className="text-xs font-medium text-zinc-400 hover:text-[var(--color-brand-primary)] transition-colors"
           >
             수정

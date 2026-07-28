@@ -9,6 +9,7 @@ import { TuiEditor, TuiEditorRef } from "@/src/components/common/TuiEditor";
 import { isEditorContentEmpty } from "@/src/lib/utils/editor";
 import Image from "next/image";
 import { fetchJson, getApiErrorMessage } from "@/src/lib/http/client";
+import { formatRating, getRatingScoreColor } from "@/src/lib/utils/rating";
 
 interface ReviewData {
   id: string;
@@ -214,9 +215,10 @@ export function ReviewEditClient({ reviewId }: { reviewId: string }) {
               className="flex-1"
             />
             <span
-              className={`text-sm font-semibold w-12 text-center ${rating >= 9 ? "text-red-600" : "text-zinc-900"}`}
+              className="w-12 text-center text-sm font-semibold"
+              style={{ color: getRatingScoreColor(rating) }}
             >
-              {rating.toFixed(1)}
+              {formatRating(rating)}
             </span>
           </div>
         </div>

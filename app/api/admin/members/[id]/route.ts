@@ -5,10 +5,8 @@ import { initializeDatabase } from "@/src/lib/db";
 import { User } from "@/src/lib/db/entities/User";
 import { UserFavoriteAlbum } from "@/src/lib/db/entities/UserFavoriteAlbum";
 import { UserSlideAlbum } from "@/src/lib/db/entities/UserSlideAlbum";
-import { Like } from "@/src/lib/db/entities/Like";
-import { Report } from "@/src/lib/db/entities/Report";
-import { Comment } from "@/src/lib/db/entities/Comment";
 import { Review } from "@/src/lib/db/entities/Review";
+import { deleteUserAccount } from "@/src/lib/users/user-deletion";
 import { apiError, apiOk } from "@/src/lib/http/response";
 
 export async function GET(
@@ -149,29 +147,11 @@ export async function DELETE(
     }
 
     const dataSource = await initializeDatabase();
-    const userRepo = dataSource.getRepository(User);
-    const user = await userRepo.findOne({ where: { id } });
+    const deleted = await deleteUserAccount(dataSource, id);
 
-    if (!user) {
+    if (!deleted) {
       return apiError("멤버를 찾을 수 없습니다.", { status: 404 });
     }
-
-    const favoriteRepo = dataSource.getRepository(UserFavoriteAlbum);
-    await favoriteRepo.delete({ userId: id });
-
-    const likeRepo = dataSource.getRepository(Like);
-    await likeRepo.delete({ userId: id });
-
-    const reportRepo = dataSource.getRepository(Report);
-    await reportRepo.delete({ userId: id });
-
-    const commentRepo = dataSource.getRepository(Comment);
-    await commentRepo.delete({ userId: id });
-
-    const reviewRepo = dataSource.getRepository(Review);
-    await reviewRepo.delete({ userId: id });
-
-    await userRepo.remove(user);
 
     return apiOk({}, { message: "계정이 삭제되었습니다." });
   } catch (error) {

@@ -8,17 +8,10 @@ import {
   itunesLookupUrls,
   type ItunesResult,
 } from "./http";
+import { asNumber, asString } from "./parse";
 
 const detailCache = createTtlCache<AlbumDetail>(6 * 60 * 60 * 1000);
 const TRACK_LOOKUP_LIMIT = 200;
-
-function asString(value: unknown): string | undefined {
-  return typeof value === "string" ? value : undefined;
-}
-
-function asNumber(value: unknown): number | undefined {
-  return typeof value === "number" && Number.isFinite(value) ? value : undefined;
-}
 
 function mapTrack(item: ItunesResult): AlbumDetailTrack | null {
   const trackId = asNumber(item.trackId);

@@ -1,8 +1,7 @@
 /** GET Featured 앨범 슬라이드 */
 
 import { In } from "typeorm";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/src/lib/auth/config";
+import { getAppSession } from "@/src/lib/auth/session";
 import { initializeDatabase } from "@/src/lib/db";
 import { FeaturedSlideAlbum } from "@/src/lib/db/entities/FeaturedSlideAlbum";
 import { UserSlideAlbum } from "@/src/lib/db/entities/UserSlideAlbum";
@@ -16,7 +15,7 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const forceAdmin = searchParams.get("source") === "admin";
 
-    const session = await getServerSession(authOptions);
+    const session = await getAppSession();
     const userId = session?.user?.id;
 
     const dataSource = await initializeDatabase();

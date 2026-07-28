@@ -1,18 +1,14 @@
 /** GET 프로필 댓글 목록 */
 
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/src/lib/auth/config";
+import { requireSessionApi } from "@/src/lib/auth/session";
 import { initializeDatabase } from "@/src/lib/db";
 import { Comment } from "@/src/lib/db/entities/Comment";
 import { apiError, apiOk } from "@/src/lib/http/response";
 
 export async function GET() {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session?.user?.id) {
-      return apiError("로그인이 필요합니다.", { status: 401 });
-    }
+    const { session, response } = await requireSessionApi();
+    if (response) return response;
 
     const dataSource = await initializeDatabase();
     const commentRepository = dataSource.getRepository(Comment);

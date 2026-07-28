@@ -1,7 +1,6 @@
 /** GET 프로필 활동 통계 */
 
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/src/lib/auth/config";
+import { requireSessionApi } from "@/src/lib/auth/session";
 import { initializeDatabase } from "@/src/lib/db";
 import { Comment } from "@/src/lib/db/entities/Comment";
 import { Like } from "@/src/lib/db/entities/Like";
@@ -11,10 +10,8 @@ import { IsNull, Not } from "typeorm";
 
 export async function GET() {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
-      return apiError("로그인이 필요합니다.", { status: 401 });
-    }
+    const { session, response } = await requireSessionApi();
+    if (response) return response;
 
     const userId = session.user.id;
     const dataSource = await initializeDatabase();

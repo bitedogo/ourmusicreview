@@ -9,8 +9,10 @@ import type { NoticeCategory } from "@/src/lib/community/types";
 import { NOTICE_CATEGORY_OPTIONS } from "@/src/lib/community/notice-category";
 import { isEditorContentEmpty } from "@/src/lib/utils/editor";
 import { isAllowedAudioFile, MAX_AUDIO_SIZE_BYTES } from "@/src/lib/audio";
+import { CategorySelector, type WriteCategory } from "./CategorySelector";
+import { AdminPostToggles } from "./AdminPostToggles";
 
-type Category = "K" | "I" | "M" | "W" | "N";
+type Category = WriteCategory;
 
 const VALID_CATEGORIES: Category[] = ["K", "I", "M", "W", "N"];
 
@@ -237,98 +239,13 @@ export function CommunityWriteClient() {
         className="space-y-4 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm"
       >
         <div className="space-y-1">
-          {isCategoryLocked ? (
-            <div
-              className={
-                category === "N"
-                  ? "flex flex-wrap items-center justify-between gap-3"
-                  : ""
-              }
-            >
-              <p className="text-lg font-semibold text-zinc-900">
-                {category === "K" && "국내게시판"}
-                {category === "I" && "해외게시판"}
-                {category === "M" && "장터게시판"}
-                {category === "W" && "워크룸"}
-                {category === "N" && "공지사항"}
-              </p>
-              {category === "N" && (
-                <div className="inline-flex flex-wrap justify-end gap-1 text-xs text-zinc-600">
-                  {NOTICE_CATEGORY_OPTIONS.map(({ value, label }) => (
-                    <button
-                      key={value}
-                      type="button"
-                      onClick={() => setNoticeCategory(value)}
-                      className={[
-                        "rounded-full px-3 py-1.5 font-semibold border",
-                        noticeCategory === value
-                          ? "bg-[var(--color-brand-primary)] text-white border-[var(--color-brand-primary)]"
-                          : "border-zinc-200 text-zinc-500 hover:text-[var(--color-brand-primary)]",
-                      ].join(" ")}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          ) : (
-            <>
-              <label className="text-xs font-medium text-zinc-600">
-                카테고리
-              </label>
-              <div className="inline-flex flex-wrap gap-1 text-xs text-zinc-600">
-                <button
-                  type="button"
-                  onClick={() => setCategory("K")}
-                  className={[
-                    "rounded-full px-3 py-1.5 font-semibold border",
-                    category === "K"
-                      ? "bg-blue-600 text-white border-blue-600"
-                      : "border-zinc-200 text-zinc-500 hover:text-[var(--color-brand-primary)]",
-                  ].join(" ")}
-                >
-                  국내게시판
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setCategory("I")}
-                  className={[
-                    "rounded-full px-3 py-1.5 font-semibold border",
-                    category === "I"
-                      ? "bg-purple-600 text-white border-purple-600"
-                      : "border-zinc-200 text-zinc-500 hover:text-[var(--color-brand-primary)]",
-                  ].join(" ")}
-                >
-                  해외게시판
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setCategory("M")}
-                  className={[
-                    "rounded-full px-3 py-1.5 font-semibold border",
-                    category === "M"
-                      ? "bg-emerald-600 text-white border-emerald-600"
-                      : "border-zinc-200 text-zinc-500 hover:text-[var(--color-brand-primary)]",
-                  ].join(" ")}
-                >
-                  장터게시판
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setCategory("W")}
-                  className={[
-                    "rounded-full px-3 py-1.5 font-semibold border",
-                    category === "W"
-                      ? "bg-orange-600 text-white border-orange-600"
-                      : "border-zinc-200 text-zinc-500 hover:text-[var(--color-brand-primary)]",
-                  ].join(" ")}
-                >
-                  워크룸
-                </button>
-              </div>
-            </>
-          )}
+          <CategorySelector
+            category={category}
+            isCategoryLocked={isCategoryLocked}
+            noticeCategory={noticeCategory}
+            onCategoryChange={setCategory}
+            onNoticeCategoryChange={setNoticeCategory}
+          />
         </div>
 
         <div className="space-y-1">
@@ -343,40 +260,13 @@ export function CommunityWriteClient() {
               placeholder="제목을 입력해주세요"
             />
             {isAdmin && category !== "N" && (
-              <div className="flex shrink-0 items-center gap-3">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={isGlobal}
-                    onChange={(e) => {
-                      const isChecked = e.target.checked;
-                      setIsGlobal(isChecked);
-                      if (isChecked) {
-                        setIsRelease(false);
-                      }
-                    }}
-                    className="h-4 w-4 rounded border-zinc-300 text-black focus:ring-black"
-                  />
-                  <span className="text-xs font-bold text-red-600">전체 공지</span>
-                </label>
-                {(category === "K" || category === "I") && (
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={isRelease}
-                      onChange={(e) => {
-                        const isChecked = e.target.checked;
-                        setIsRelease(isChecked);
-                        if (isChecked) {
-                          setIsGlobal(false);
-                        }
-                      }}
-                      className="h-4 w-4 rounded border-zinc-300 text-emerald-600 focus:ring-emerald-600"
-                    />
-                    <span className="text-xs font-bold text-emerald-600">릴리즈</span>
-                  </label>
-                )}
-              </div>
+              <AdminPostToggles
+                category={category}
+                isGlobal={isGlobal}
+                isRelease={isRelease}
+                onIsGlobalChange={setIsGlobal}
+                onIsReleaseChange={setIsRelease}
+              />
             )}
           </div>
         </div>

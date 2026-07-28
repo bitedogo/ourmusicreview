@@ -1,7 +1,6 @@
 /** POST 커뮤니티 게시글 작성 */
 
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/src/lib/auth/config";
+import { isAdmin, requireSessionApi } from "@/src/lib/auth/session";
 import { initializeDatabase } from "@/src/lib/db";
 import { Post, PostCategory } from "@/src/lib/db/entities/Post";
 import type { NoticeCategory } from "@/src/lib/community/types";
@@ -20,9 +19,10 @@ interface CreatePostBody {
 
 export async function POST(request: Request) {
   try {
-    const session = await getServerSession(authOptions);
+    const { session, response } = await requireSessionApi();
+    if (response) return response;
 
-    if (!session?.user?.id || !session.user.name) {
+    if (!session.user.name) {
       return apiError("로그인이 필요합니다.", { status: 401 });
     }
 
@@ -34,15 +34,15 @@ export async function POST(request: Request) {
 
     const userId = session.user.id;
     const nickname = session.user.name;
-    const isAdmin = (session.user as { role?: string }).role === "ADMIN";
-    const isReleaseRequested = isAdmin && body.isRelease === true;
-    const isGlobal = isAdmin && body.isGlobal === true ? "Y" : "N";
+    const isPostAdmin = isAdmin(session);
+    const isReleaseRequested = isPostAdmin && body.isRelease === true;
+    const isGlobal = isPostAdmin && body.isGlobal === true ? "Y" : "N";
 
     const allowedCategories: PostCategory[] = ["K", "I", "M", "W"];
     const requestedCategory = body.category as PostCategory;
     let category: PostCategory = "K";
     if (requestedCategory === "N") {
-      if (!isAdmin) {
+      if (!isPostAdmin) {
         return apiError("공지사항 작성 권한이 없습니다.", { status: 403 });
       }
       category = "N";

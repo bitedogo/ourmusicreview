@@ -3,26 +3,21 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import { useItunesAlbumPicker } from "@/src/hooks/use-itunes-album-picker";
-import { ItunesAlbumSearchPanel } from "@/src/components/itunes/itunes-album-search-panel";
-import { PaginationNav } from "@/src/components/common/PaginationNav";
 import { fetchJson, getApiErrorMessage } from "@/src/lib/http/client";
 import type { SearchAlbumResult } from "@/src/lib/search/types";
+import { AlbumTable } from "./AlbumTable";
+import { AlbumFormModal } from "./AlbumFormModal";
+import type { AlbumsListResponse, TodayAlbumFormState, TodayAlbumItem } from "./types";
 
-interface TodayAlbumItem {
-  displayDate: string;
-  albumId: string | null;
-  title: string;
-  artist: string;
-  imageUrl: string | null;
-  description: string | null;
-}
-
-interface AlbumsListResponse {
-  ok: true;
-  data: { albums: TodayAlbumItem[] };
-}
+const EMPTY_FORM: TodayAlbumFormState = {
+  displayDate: "",
+  albumId: "",
+  title: "",
+  artist: "",
+  imageUrl: "",
+  description: "",
+};
 
 export function AlbumManagementClient() {
   const router = useRouter();
@@ -32,14 +27,7 @@ export function AlbumManagementClient() {
   const [processingIds, setProcessingIds] = useState<Set<string>>(new Set());
   const [modalOpen, setModalOpen] = useState(false);
   const [editingDate, setEditingDate] = useState<string | null>(null);
-  const [form, setForm] = useState({
-    displayDate: "",
-    albumId: "",
-    title: "",
-    artist: "",
-    imageUrl: "",
-    description: "",
-  });
+  const [form, setForm] = useState<TodayAlbumFormState>(EMPTY_FORM);
   const albumPicker = useItunesAlbumPicker();
   const [currentPage, setCurrentPage] = useState(1);
   const PAGE_SIZE = 20;
@@ -236,191 +224,30 @@ export function AlbumManagementClient() {
           등록된 오늘의 앨범이 없습니다.
         </div>
       ) : (
-        <div className="overflow-hidden bg-white">
-          <div className="overflow-x-auto">
-            <table className="min-w-full border-collapse text-xs">
-              <thead>
-                <tr className="bg-zinc-50 text-[11px] font-semibold text-zinc-500">
-                  <th className="px-3 py-2 text-left">날짜</th>
-                  <th className="px-3 py-2 text-left">제목</th>
-                  <th className="px-3 py-2 text-left">아티스트</th>
-                  <th className="px-3 py-2 text-left">처리</th>
-                </tr>
-              </thead>
-              <tbody>
-                {paginatedAlbums.map((item) => (
-                  <tr key={item.displayDate} className="hover:bg-zinc-50">
-                    <td className="px-3 py-2 align-middle">
-                      <span className="text-xs font-medium text-zinc-900">
-                        {item.displayDate}
-                      </span>
-                    </td>
-                    <td className="max-w-[220px] px-3 py-2 align-middle">
-                      <span className="truncate text-xs font-semibold text-zinc-900">
-                        {item.title}
-                      </span>
-                    </td>
-                    <td className="px-3 py-2 align-middle">
-                      <span className="text-xs text-zinc-700">{item.artist}</span>
-                    </td>
-                    <td className="px-3 py-2 text-left align-middle">
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => openEditModal(item)}
-                          disabled={processingIds.has(item.displayDate) || isPastDate(item.displayDate)}
-                          className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-[11px] font-medium text-zinc-700 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50"
-                        >
-                          수정
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleDelete(item.displayDate)}
-                          disabled={processingIds.has(item.displayDate) || isPastDate(item.displayDate)}
-                          className="rounded-lg border border-red-200 bg-white px-3 py-1.5 text-[11px] font-medium text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
-                        >
-                          삭제
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          {totalPages > 1 && (
-            <div className="flex justify-center border-t border-zinc-200 bg-zinc-50 px-4 py-3">
-              <PaginationNav
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={setCurrentPage}
-              />
-            </div>
-          )}
-        </div>
+        <AlbumTable
+          albums={paginatedAlbums}
+          processingIds={processingIds}
+          isPastDate={isPastDate}
+          onEdit={openEditModal}
+          onDelete={handleDelete}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
       )}
 
       {modalOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-          onClick={() => setModalOpen(false)}
-        >
-          <div
-            className="w-full max-w-lg rounded-2xl border border-zinc-200 bg-white p-6 shadow-xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
-              {editingDate ? "오늘의 앨범 수정" : "오늘의 앨범 등록"}
-            </h2>
-            <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-              <ItunesAlbumSearchPanel
-                picker={albumPicker}
-                onAlbumSelect={selectAlbum}
-                variant="embedded"
-              />
-              <div>
-                <label className="mb-1 block text-xs font-semibold text-zinc-600">
-                  노출 날짜
-                </label>
-                <input
-                  type="date"
-                  value={form.displayDate}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, displayDate: e.target.value }))
-                  }
-                  required
-                  disabled={!!editingDate}
-                  className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm text-zinc-900 disabled:bg-zinc-100 disabled:text-zinc-500"
-                />
-                {!editingDate && takenDates.includes(form.displayDate) && (
-                  <p className="mt-1 text-xs text-amber-600">
-                    이 날짜에 이미 등록된 앨범이 있습니다. 저장 시 덮어쓰기됩니다.
-                  </p>
-                )}
-              </div>
-              <div>
-                <label className="mb-1 block text-xs font-semibold text-zinc-600">
-                  제목
-                </label>
-                <input
-                  type="text"
-                  value={form.title}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, title: e.target.value }))
-                  }
-                  required
-                  placeholder="앨범 제목"
-                  className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm text-zinc-900 outline-none placeholder:text-zinc-400 focus:border-zinc-400 focus:ring-2 focus:ring-zinc-200"
-                />
-              </div>
-              <div>
-                <label className="mb-1 block text-xs font-semibold text-zinc-600">
-                  아티스트
-                </label>
-                <input
-                  type="text"
-                  value={form.artist}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, artist: e.target.value }))
-                  }
-                  required
-                  placeholder="아티스트명"
-                  className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm text-zinc-900 outline-none placeholder:text-zinc-400 focus:border-zinc-400 focus:ring-2 focus:ring-zinc-200"
-                />
-              </div>
-              {form.imageUrl && (
-                <div>
-                  <label className="mb-1 block text-xs font-semibold text-zinc-600">
-                    앨범 커버
-                  </label>
-                  <div className="flex items-center gap-3 rounded-lg border border-zinc-200 bg-zinc-50 p-3">
-                    <Image
-                      src={form.imageUrl}
-                      alt={form.title || "앨범 커버"}
-                      width={64}
-                      height={64}
-                      unoptimized
-                      className="h-16 w-16 shrink-0 rounded object-cover"
-                    />
-                    <p className="text-xs text-zinc-600">
-                      선택된 앨범의 커버 이미지입니다.
-                    </p>
-                  </div>
-                </div>
-              )}
-              <div>
-                <label className="mb-1 block text-xs font-semibold text-zinc-600">
-                  추천평
-                </label>
-                <textarea
-                  value={form.description}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, description: e.target.value }))
-                  }
-                  rows={4}
-                  placeholder="관리자 추천 한마디"
-                  className="w-full resize-none rounded-lg border border-zinc-200 px-3 py-2 text-sm text-zinc-900 outline-none placeholder:text-zinc-400 focus:border-zinc-400 focus:ring-2 focus:ring-zinc-200"
-                />
-              </div>
-              <div className="flex justify-end gap-2 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setModalOpen(false)}
-                  className="rounded-lg border border-zinc-200 bg-white px-4 py-2 text-xs font-semibold text-zinc-700 hover:bg-zinc-50"
-                >
-                  취소
-                </button>
-                <button
-                  type="submit"
-                  disabled={processingIds.has("submit")}
-                  className="rounded-lg border border-zinc-900 bg-zinc-900 px-4 py-2 text-xs font-semibold text-white hover:bg-black disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {processingIds.has("submit") ? "처리 중..." : "저장"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+        <AlbumFormModal
+          form={form}
+          onFormChange={setForm}
+          editingDate={editingDate}
+          takenDates={takenDates}
+          albumPicker={albumPicker}
+          onAlbumSelect={selectAlbum}
+          isSubmitting={processingIds.has("submit")}
+          onClose={() => setModalOpen(false)}
+          onSubmit={handleSubmit}
+        />
       )}
     </div>
   );

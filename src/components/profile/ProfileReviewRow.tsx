@@ -4,6 +4,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { ProfileReviewItem } from "./profile-types";
+import { reviewDetail } from "@/src/lib/navigation/routes";
 
 interface ProfileReviewRowProps {
   review: ProfileReviewItem;
@@ -14,7 +15,7 @@ export function ProfileReviewRow({ review, onNavigate }: ProfileReviewRowProps) 
   return (
     <div>
       <Link
-        href={`/review/${encodeURIComponent(review.id)}`}
+        href={reviewDetail(review.id)}
         onClick={onNavigate}
         className="flex items-center space-x-3 rounded-lg py-1 transition hover:bg-zinc-50"
       >

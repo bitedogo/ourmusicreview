@@ -1,8 +1,7 @@
 /** POST 게시글 조회수 증가 */
 
 import { NextRequest } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/src/lib/auth/config";
+import { getAppSession } from "@/src/lib/auth/session";
 import { initializeDatabase } from "@/src/lib/db";
 import { Post } from "@/src/lib/db/entities/Post";
 import { apiError, apiOk } from "@/src/lib/http/response";
@@ -18,7 +17,7 @@ export async function POST(req: NextRequest, context: { params: Promise<Params> 
     return apiError("Post ID is required", { status: 400 });
   }
 
-  const session = await getServerSession(authOptions);
+  const session = await getAppSession();
 
   try {
     const dataSource = await initializeDatabase();

@@ -12,6 +12,19 @@ export function formatDateYYYYMMDD(dateInput: string | Date): string {
   }
 }
 
+/** 리뷰 카드용 — YYYY. MM. DD */
+export function formatDateDottedSpaced(dateInput: string | Date): string {
+  try {
+    const d = new Date(dateInput);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${y}. ${m}. ${day}`;
+  } catch {
+    return String(dateInput);
+  }
+}
+
 /** 앨범 발매일 — YYYY-MM-DD면 그대로 점 표기, 그 외는 Date 파싱 */
 export function formatAlbumReleaseDate(
   dateInput: string | null | undefined,

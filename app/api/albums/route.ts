@@ -1,7 +1,6 @@
 /** POST 앨범 메타 등록·동기화 */
 
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/src/lib/auth/config";
+import { requireSessionApi } from "@/src/lib/auth/session";
 import { initializeDatabase } from "@/src/lib/db";
 import { Album } from "@/src/lib/db/entities/Album";
 import { apiError, apiOk } from "@/src/lib/http/response";
@@ -16,11 +15,8 @@ interface CreateAlbumBody {
 
 export async function POST(request: Request) {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session?.user?.id) {
-      return apiError("로그인이 필요합니다.", { status: 401 });
-    }
+    const { response } = await requireSessionApi();
+    if (response) return response;
 
     const body = (await request.json()) as CreateAlbumBody;
     const albumId =

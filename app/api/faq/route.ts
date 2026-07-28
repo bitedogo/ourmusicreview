@@ -1,7 +1,6 @@
 /** GET/POST/PATCH FAQ 목록·등록 */
 
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/src/lib/auth/config";
+import { requireAdminApi } from "@/src/lib/auth/session";
 import { initializeDatabase } from "@/src/lib/db";
 import { Faq } from "@/src/lib/db/entities/Faq";
 import { randomUUID } from "crypto";
@@ -40,12 +39,8 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const session = await getServerSession(authOptions);
-    const isAdmin = (session?.user as { role?: string })?.role === "ADMIN";
-
-    if (!session?.user?.id || !isAdmin) {
-      return apiError("관리자 권한이 필요합니다.", { status: 403 });
-    }
+    const { response } = await requireAdminApi();
+    if (response) return response;
 
     const body = await request.json();
     const question = typeof body?.question === "string" ? body.question.trim() : "";
@@ -78,12 +73,8 @@ export async function POST(request: Request) {
 
 export async function PATCH(request: Request) {
   try {
-    const session = await getServerSession(authOptions);
-    const isAdmin = (session?.user as { role?: string })?.role === "ADMIN";
-
-    if (!session?.user?.id || !isAdmin) {
-      return apiError("관리자 권한이 필요합니다.", { status: 403 });
-    }
+    const { response } = await requireAdminApi();
+    if (response) return response;
 
     const body = await request.json();
     const order = body?.order;

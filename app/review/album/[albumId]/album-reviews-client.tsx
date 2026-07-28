@@ -12,6 +12,7 @@ import { ReviewDetailAlbumCard } from "@/src/components/reviews/ReviewDetailAlbu
 import { useStreamingLinks } from "@/src/hooks/use-streaming-links";
 import { getHtmlPlainText } from "@/src/lib/utils/editor";
 import { formatDateYYYYMMDD } from "@/src/lib/utils/date";
+import { formatRating, getRatingScoreColor } from "@/src/lib/utils/rating";
 
 interface Review {
   id: string;
@@ -320,9 +321,10 @@ export function AlbumReviewsClient({ albumId }: { albumId: string }) {
                 </div>
                 <div className="flex items-center gap-2">
                   <span
-                    className={`text-lg font-bold ${review.rating >= 9 ? "text-red-600" : "text-zinc-900"}`}
+                    className="text-lg font-bold"
+                    style={{ color: getRatingScoreColor(review.rating) }}
                   >
-                    {review.rating.toFixed(1)}
+                    {formatRating(review.rating)}
                   </span>
                   <span className="text-sm text-zinc-500">/ 10.0</span>
                 </div>

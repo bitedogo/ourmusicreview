@@ -1,7 +1,6 @@
 /** GET DB 연결 테스트 */
 
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/src/lib/auth/config";
+import { requireAdminApi } from "@/src/lib/auth/session";
 import { initializeDatabase } from "@/src/lib/db";
 import { getServerEnv } from "@/src/lib/env";
 import { apiError, apiOk } from "@/src/lib/http/response";
@@ -13,11 +12,8 @@ export async function GET() {
       return apiError("지원하지 않는 요청입니다.", { status: 404 });
     }
 
-    const session = await getServerSession(authOptions);
-    const role = (session?.user as { role?: string } | undefined)?.role;
-    if (!session?.user?.id || role !== "ADMIN") {
-      return apiError("권한이 없습니다.", { status: 403 });
-    }
+    const { response } = await requireAdminApi();
+    if (response) return response;
 
     const dataSource = await initializeDatabase();
 

@@ -1,7 +1,6 @@
 /** POST 오디오 파일 업로드 */
 
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/src/lib/auth/config";
+import { requireSessionApi } from "@/src/lib/auth/session";
 import { uploadAudioFile } from "@/src/lib/supabase";
 import { apiError, apiOk } from "@/src/lib/http/response";
 
@@ -12,10 +11,8 @@ export const maxDuration = 60;
 
 export async function POST(request: Request) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
-      return apiError("로그인이 필요합니다.", { status: 401 });
-    }
+    const { session, response } = await requireSessionApi();
+    if (response) return response;
 
     const contentLength = parseInt(request.headers.get("content-length") || "0");
     if (contentLength > SERVER_LIMIT_BYTES) {

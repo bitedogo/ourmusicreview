@@ -3,7 +3,12 @@
 import Link from "next/link";
 import Image from "next/image";
 import { HtmlRenderer } from "@/src/components/common/HtmlRenderer";
+import {
+  REVIEW_BRAND_TEAL,
+  REVIEW_CARD_SHELL_CLASS,
+} from "@/src/components/reviews/review-page-styles";
 import { getUserProfilePath } from "@/src/components/profile/user-profile-view";
+import { reviewEdit } from "@/src/lib/navigation/routes";
 import { formatDateYYYYMMDD } from "@/src/lib/utils/date";
 import { formatRating, getRatingScoreColor } from "@/src/lib/utils/rating";
 
@@ -65,10 +70,18 @@ export function ReviewDetailBodyCard({
   return (
     /* 앨범 카드 ↔ RATING 상단 30px: mt - |top| = 30 */
     <div className="relative mt-[50px] w-full overflow-visible">
-      <div className="relative w-full overflow-visible rounded-[15px] border border-[#D9D9D9] bg-white shadow-[0px_2px_4px_rgba(0,0,0,0.25)]">
+      <div
+        className={`relative w-full overflow-visible ${REVIEW_CARD_SHELL_CLASS}`}
+      >
         {/* RATING — 모바일/데스크톱 모두 좌상단 걸침 + 옆에 작성자 */}
-        <div className="absolute left-[-12px] top-[-20px] z-10 flex h-[96px] w-[96px] flex-col items-center justify-center rounded-[15px] border border-[#D9D9D9] bg-white shadow-[0px_2px_4px_#43A7B2] sm:left-[-23px] sm:h-[131px] sm:w-[131px]">
-          <span className="text-[14px] font-bold leading-[17px] tracking-[0.05em] text-[#43A7B2] sm:text-[24px] sm:leading-[29px]">
+        <div
+          className="absolute left-[-12px] top-[-20px] z-10 flex h-[96px] w-[96px] flex-col items-center justify-center rounded-[15px] border border-[#D9D9D9] bg-white sm:left-[-23px] sm:h-[131px] sm:w-[131px]"
+          style={{ boxShadow: `0px 2px 4px ${REVIEW_BRAND_TEAL}` }}
+        >
+          <span
+            className="text-[14px] font-bold leading-[17px] tracking-[0.05em] sm:text-[24px] sm:leading-[29px]"
+            style={{ color: REVIEW_BRAND_TEAL }}
+          >
             RATING
           </span>
           <span
@@ -99,7 +112,7 @@ export function ReviewDetailBodyCard({
         {isOwner ? (
           <div className="flex justify-end gap-3 px-4 pb-6 sm:px-[50px] sm:pb-[40px] sm:pt-0">
             <Link
-              href={`/review/${encodeURIComponent(reviewId)}/edit`}
+              href={reviewEdit(reviewId)}
               className="text-xs font-medium text-zinc-400 transition-colors hover:text-[var(--color-brand-primary)]"
             >
               수정

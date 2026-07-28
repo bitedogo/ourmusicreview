@@ -1,7 +1,6 @@
 /** GET/PATCH/DELETE 커뮤니티 게시글 상세·수정·삭제 */
 
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/src/lib/auth/config";
+import { isAdmin, requireSessionApi } from "@/src/lib/auth/session";
 import { initializeDatabase } from "@/src/lib/db";
 import { Post } from "@/src/lib/db/entities/Post";
 import { isNoticeCategory } from "@/src/lib/community/notice-category";
@@ -14,10 +13,8 @@ export async function PATCH(
 ) {
   try {
     const { id } = await params;
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
-      return apiError("로그인이 필요합니다.", { status: 401 });
-    }
+    const { session, response } = await requireSessionApi();
+    if (response) return response;
 
     const { title, content, category, isGlobal, noticeCategory, isRelease } = await request.json();
 
@@ -29,9 +26,9 @@ export async function PATCH(
       return apiError("게시글을 찾을 수 없습니다.", { status: 404 });
     }
 
-    const isAdmin = session.user.role === "ADMIN";
+    const isPostAdmin = isAdmin(session);
 
-    if (post.userId !== session.user.id && !isAdmin) {
+    if (post.userId !== session.user.id && !isPostAdmin) {
       return apiError("수정 권한이 없습니다.", { status: 403 });
     }
 
@@ -43,14 +40,14 @@ export async function PATCH(
     if (title) post.title = title;
     if (content) post.content = content;
     if (category) post.category = category;
-    if (isAdmin && typeof isGlobal === "boolean") {
+    if (isPostAdmin && typeof isGlobal === "boolean") {
       post.isGlobal = isGlobal ? "Y" : "N";
     }
     if (post.category === "N") {
       if (isNoticeCategory(noticeCategory)) {
         post.noticeCategory = noticeCategory;
       }
-    } else if (isAdmin && typeof isRelease === "boolean") {
+    } else if (isPostAdmin && typeof isRelease === "boolean") {
       if (isRelease) {
         post.noticeCategory = "RELEASE_NOTE";
         post.isGlobal = "N";
@@ -64,7 +61,7 @@ export async function PATCH(
       await txPostRepository.save(post);
 
       const isBoardPost = post.category === "K" || post.category === "I";
-      if (!isAdmin || typeof isRelease !== "boolean" || !isBoardPost) {
+      if (!isPostAdmin || typeof isRelease !== "boolean" || !isBoardPost) {
         return;
       }
 
@@ -132,11 +129,8 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    const session = await getServerSession(authOptions);
-
-    if (!session?.user?.id) {
-      return apiError("로그인이 필요합니다.", { status: 401 });
-    }
+    const { session, response } = await requireSessionApi();
+    if (response) return response;
 
     const dataSource = await initializeDatabase();
     const postRepository = dataSource.getRepository(Post);
@@ -147,7 +141,7 @@ export async function DELETE(
       return apiError("게시글을 찾을 수 없습니다.", { status: 404 });
     }
 
-    if (post.userId !== session.user.id && session.user.role !== "ADMIN") {
+    if (post.userId !== session.user.id && !isAdmin(session)) {
       return apiError("삭제 권한이 없습니다.", { status: 403 });
     }
 

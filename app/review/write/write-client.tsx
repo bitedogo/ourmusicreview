@@ -7,6 +7,7 @@ import { TuiEditor, TuiEditorRef } from "@/src/components/common/TuiEditor";
 import { isEditorContentEmpty } from "@/src/lib/utils/editor";
 import Image from "next/image";
 import { ApiClientError, fetchJson, getApiErrorMessage } from "@/src/lib/http/client";
+import { formatRating } from "@/src/lib/utils/rating";
 
 export function ReviewWriteClient() {
   const router = useRouter();
@@ -153,7 +154,7 @@ export function ReviewWriteClient() {
             <span
               className="w-12 text-center text-sm font-semibold text-[var(--color-brand-primary)]"
             >
-              {rating.toFixed(1)}
+              {formatRating(rating)}
             </span>
           </div>
         </div>

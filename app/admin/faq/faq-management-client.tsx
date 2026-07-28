@@ -5,18 +5,9 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { reorderById } from "@/src/lib/utils/reorder";
 import { fetchJson, getApiErrorMessage } from "@/src/lib/http/client";
-
-interface FaqItem {
-  id: string;
-  question: string;
-  answer: string;
-  sortOrder: number;
-}
-
-interface FaqListResponse {
-  ok: true;
-  data: { faqs: FaqItem[] };
-}
+import { FaqAddForm } from "./faq-form";
+import { FaqList } from "./faq-list";
+import type { FaqItem, FaqListResponse } from "./types";
 
 export function FaqManagementClient() {
   const [faqs, setFaqs] = useState<FaqItem[]>([]);
@@ -184,119 +175,36 @@ export function FaqManagementClient() {
       )}
 
       {showAddForm && (
-        <form
+        <FaqAddForm
+          value={newFaq}
+          onChange={setNewFaq}
           onSubmit={handleAdd}
-          className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm"
-        >
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-zinc-700">질문</label>
-              <input
-                value={newFaq.question}
-                onChange={(e) => setNewFaq((p) => ({ ...p, question: e.target.value }))}
-                className="mt-1 w-full rounded-xl border border-zinc-200 px-3 py-2 text-sm outline-none focus:border-zinc-400"
-                placeholder="질문을 입력하세요"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-zinc-700">답변</label>
-              <textarea
-                value={newFaq.answer}
-                onChange={(e) => setNewFaq((p) => ({ ...p, answer: e.target.value }))}
-                rows={4}
-                className="mt-1 w-full rounded-xl border border-zinc-200 px-3 py-2 text-sm outline-none focus:border-zinc-400"
-                placeholder="답변을 입력하세요"
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="rounded-full bg-black px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 disabled:opacity-50"
-            >
-              {isSubmitting ? "등록 중..." : "등록"}
-            </button>
-          </div>
-        </form>
+          isSubmitting={isSubmitting}
+        />
       )}
 
-      <div className="space-y-3">
-        {faqs.map((faq) => (
-          <div
-            key={faq.id}
-            draggable={editingId !== faq.id && !isReordering}
-            onDragStart={() => setDraggingId(faq.id)}
-            onDragOver={(e) => e.preventDefault()}
-            onDrop={() => handleDrop(faq.id)}
-            onDragEnd={() => setDraggingId(null)}
-            className={`rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm ${
-              editingId !== faq.id ? "cursor-grab active:cursor-grabbing" : ""
-            } ${draggingId === faq.id ? "opacity-60" : ""}`}
-          >
-            {editingId === faq.id ? (
-              <form onSubmit={handleUpdate} className="space-y-4">
-                <input
-                  value={editForm.question}
-                  onChange={(e) => setEditForm((p) => ({ ...p, question: e.target.value }))}
-                  className="w-full rounded-xl border border-zinc-200 px-3 py-2 text-sm outline-none focus:border-zinc-400"
-                  placeholder="질문"
-                />
-                <textarea
-                  value={editForm.answer}
-                  onChange={(e) => setEditForm((p) => ({ ...p, answer: e.target.value }))}
-                  rows={4}
-                  className="w-full rounded-xl border border-zinc-200 px-3 py-2 text-sm outline-none focus:border-zinc-400"
-                  placeholder="답변"
-                />
-                <div className="flex gap-2">
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="rounded-full bg-black px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 disabled:opacity-50"
-                  >
-                    저장
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setEditingId(null);
-                      setEditForm({ question: "", answer: "" });
-                    }}
-                    className="rounded-full border border-zinc-200 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
-                  >
-                    취소
-                  </button>
-                </div>
-              </form>
-            ) : (
-              <>
-                <p className="font-semibold text-zinc-900">{faq.question}</p>
-                <p className="mt-1 text-sm text-zinc-600 whitespace-pre-wrap">
-                  {faq.answer}
-                </p>
-                <div className="mt-3 flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setEditingId(faq.id);
-                      setEditForm({ question: faq.question, answer: faq.answer });
-                    }}
-                    className="text-xs font-medium text-zinc-500 hover:text-[var(--color-brand-primary)]"
-                  >
-                    수정
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDelete(faq.id)}
-                    className="text-xs font-medium text-red-500 hover:text-[var(--color-brand-primary)]"
-                  >
-                    삭제
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        ))}
-      </div>
+      <FaqList
+        faqs={faqs}
+        editingId={editingId}
+        editForm={editForm}
+        draggingId={draggingId}
+        isReordering={isReordering}
+        isSubmitting={isSubmitting}
+        onEditFormChange={setEditForm}
+        onStartEdit={(faq) => {
+          setEditingId(faq.id);
+          setEditForm({ question: faq.question, answer: faq.answer });
+        }}
+        onCancelEdit={() => {
+          setEditingId(null);
+          setEditForm({ question: "", answer: "" });
+        }}
+        onSubmitEdit={handleUpdate}
+        onDelete={handleDelete}
+        onDragStart={setDraggingId}
+        onDrop={handleDrop}
+        onDragEnd={() => setDraggingId(null)}
+      />
 
       {faqs.length === 0 && !showAddForm && (
         <div className="rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 px-4 py-12 text-center text-sm text-zinc-500">

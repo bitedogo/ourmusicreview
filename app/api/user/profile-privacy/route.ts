@@ -1,7 +1,6 @@
 /** PATCH/GET 프로필 공개 설정 */
 
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/src/lib/auth/config";
+import { requireSessionApi } from "@/src/lib/auth/session";
 import { initializeDatabase } from "@/src/lib/db";
 import { User } from "@/src/lib/db/entities/User";
 import { apiError, apiOk } from "@/src/lib/http/response";
@@ -35,11 +34,8 @@ function toPrivacyResponse(user: User) {
 
 export async function PATCH(request: Request) {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session?.user?.id) {
-      return apiError("로그인이 필요합니다.", { status: 401 });
-    }
+    const { session, response } = await requireSessionApi();
+    if (response) return response;
 
     const body = (await request.json()) as PrivacyBody;
     const updates: Partial<Pick<User, PrivacyField>> = {};
@@ -82,11 +78,8 @@ export async function PATCH(request: Request) {
 
 export async function GET() {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session?.user?.id) {
-      return apiError("로그인이 필요합니다.", { status: 401 });
-    }
+    const { session, response } = await requireSessionApi();
+    if (response) return response;
 
     const dataSource = await initializeDatabase();
     const userRepository = dataSource.getRepository(User);

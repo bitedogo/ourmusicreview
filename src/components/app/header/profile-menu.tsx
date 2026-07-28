@@ -8,6 +8,7 @@ import { useRef, useState } from "react";
 import { useClickOutside } from "@/src/hooks/use-click-outside";
 import { HeaderDropdownPanel } from "./header-dropdown-panel";
 import { UserOutlineIcon } from "./user-outline-icon";
+import { profileSelf } from "@/src/lib/navigation/routes";
 
 export function ProfileMenu() {
   const { data: session, status } = useSession();
@@ -51,7 +52,7 @@ export function ProfileMenu() {
           <div className="absolute right-0 top-full z-50 mt-2 min-w-[9rem]">
             <HeaderDropdownPanel>
               <Link
-                href="/profile"
+                href={profileSelf()}
                 onClick={() => setProfileOpen(false)}
                 className="block w-full px-4 py-3 text-sm font-medium text-zinc-800 hover:bg-zinc-50"
               >

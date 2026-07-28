@@ -1,6 +1,6 @@
 /** GET iTunes 검색 자동완성 */
 
-import { searchArtists } from "@/src/lib/itunes";
+import { searchArtistsForApi } from "@/src/lib/itunes";
 import { apiError, apiOk } from "@/src/lib/http/response";
 
 export async function GET(request: Request) {
@@ -12,7 +12,7 @@ export async function GET(request: Request) {
       return apiOk({ results: [] });
     }
 
-    const results = await searchArtists(term, 5);
+    const results = await searchArtistsForApi(term, { limit: 5 });
 
     return apiOk({ results });
   } catch {
