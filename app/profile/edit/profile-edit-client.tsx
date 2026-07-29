@@ -4,9 +4,9 @@
 import { useCallback, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { ImageCropModal } from "@/src/components/app/ImageCropModal";
 import Image from "next/image";
 import { fetchJson, getApiErrorMessage } from "@/src/lib/http/client";
+import { useImageCropFlow } from "@/src/hooks/use-image-crop-flow";
 import {
   PROFILE_EDIT_INPUT,
   PROFILE_EDIT_PRIMARY_BTN,
@@ -41,25 +41,18 @@ export function ProfileEditClient({
   const [isUpdatingImage, setIsUpdatingImage] = useState(false);
   const [imageError, setImageError] = useState<string | null>(null);
   const [imageSuccess, setImageSuccess] = useState<string | null>(null);
-  const [cropModal, setCropModal] = useState<{
-    src: string;
-    fileName: string;
-  } | null>(null);
 
-  const handleProfileImageConfirm = useCallback(
-    (file: File) => {
-      if (cropModal?.src) URL.revokeObjectURL(cropModal.src);
-      setSelectedImage(file);
-      setPreviewUrl(URL.createObjectURL(file));
-      setCropModal(null);
-    },
-    [cropModal?.src]
-  );
+  const handleProfileImageConfirm = useCallback((file: File) => {
+    setPreviewUrl((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return URL.createObjectURL(file);
+    });
+    setSelectedImage(file);
+  }, []);
 
-  const handleProfileImageCancel = useCallback(() => {
-    if (cropModal?.src) URL.revokeObjectURL(cropModal.src);
-    setCropModal(null);
-  }, [cropModal?.src]);
+  const { openWithFile, cropModalNode } = useImageCropFlow({
+    onCropped: handleProfileImageConfirm,
+  });
 
   async function handleUpdateNickname() {
     setIsUpdating(true);
@@ -110,7 +103,7 @@ export function ProfileEditClient({
     setImageError(null);
     setImageSuccess(null);
     if (file) {
-      setCropModal({ src: URL.createObjectURL(file), fileName: file.name });
+      openWithFile(file);
     }
   }
 
@@ -169,14 +162,7 @@ export function ProfileEditClient({
         </button>
       </section>
 
-      {cropModal && (
-        <ImageCropModal
-          imageSrc={cropModal.src}
-          fileName={cropModal.fileName}
-          onConfirm={handleProfileImageConfirm}
-          onCancel={handleProfileImageCancel}
-        />
-      )}
+      {cropModalNode}
 
       <section className="overflow-hidden rounded-xl border border-zinc-200 bg-white">
         <ProfileEditFormRow label="아이디">

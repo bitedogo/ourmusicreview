@@ -70,7 +70,11 @@ export function useItunesAlbumPicker() {
       const data = await fetchJson<ArtistAlbumsResponse>(
         `/api/itunes/artists/${artist.artistId}/albums`
       );
-      setAlbums(data.data.albums ?? []);
+      setAlbums(
+        (data.data.albums ?? []).filter(
+          (album) => (album.releaseType ?? "album") === "album"
+        )
+      );
     } catch (err) {
       setError(getApiErrorMessage(err, "앨범 목록 로딩 중 오류가 발생했습니다."));
       setAlbums([]);

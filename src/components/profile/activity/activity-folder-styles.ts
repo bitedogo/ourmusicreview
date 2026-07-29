@@ -1,4 +1,4 @@
-/** My Reviews / My Favorite · 활동 통계 레이아웃 */
+/** My Reviews / My Favorite / My Playlist · 활동 통계 레이아웃 */
 
 import { PROFILE_CONTENT_BAND_CLASS } from "../profile-section-styles";
 

@@ -10,7 +10,7 @@ interface DesktopNavProps {
 }
 
 const DEFAULT_NAV_CLASS =
-  "mt-20 hidden items-center justify-center gap-14 pb-1 text-[length:var(--nav-menu-font-size)] leading-[18px] font-medium text-black md:flex";
+  "mt-20 hidden items-center justify-center gap-14 pb-1 text-[length:var(--nav-menu-font-size)] font-medium leading-[145%] tracking-[var(--tracking-nav-menu)] text-[var(--color-nav-menu)] md:flex";
 
 export function DesktopNav({ isAdmin, className }: DesktopNavProps) {
   return (

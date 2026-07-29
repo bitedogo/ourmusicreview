@@ -86,4 +86,12 @@ export class User {
     default: () => "'Y'",
   })
   showRatingPublic!: "Y" | "N";
+
+  @Column({
+    name: "show_playlists_public",
+    type: "varchar",
+    length: 1,
+    default: () => "'Y'",
+  })
+  showPlaylistsPublic!: "Y" | "N";
 }

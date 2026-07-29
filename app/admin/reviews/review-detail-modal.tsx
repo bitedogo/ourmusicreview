@@ -1,6 +1,7 @@
 "use client";
 /** 리뷰 원문 보기 모달 */
 
+import { ArtistNameLink } from "@/src/components/app/artist-name-link";
 import { HtmlRenderer } from "@/src/components/common/HtmlRenderer";
 import { formatReviewDate } from "./format";
 import type { Review } from "./types";
@@ -23,7 +24,11 @@ export function ReviewDetailModal({ review, onClose }: ReviewDetailModalProps) {
         <div className="flex items-center justify-between border-b border-zinc-200 px-5 py-4">
           <div className="flex flex-col gap-1">
             <h2 className="text-base font-semibold text-zinc-900">
-              {review.album.title} — {review.album.artist}
+              {review.album.title} —{" "}
+              <ArtistNameLink
+                name={review.album.artist}
+                className="inline text-left text-base font-semibold text-zinc-900 transition hover:text-[var(--color-brand-primary)] hover:underline disabled:cursor-wait disabled:no-underline"
+              />
             </h2>
             <p className="text-xs text-zinc-500">
               {review.user.nickname} ·{" "}

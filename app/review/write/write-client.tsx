@@ -3,6 +3,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useRef } from "react";
+import { ArtistNameLink } from "@/src/components/app/artist-name-link";
 import { TuiEditor, TuiEditorRef } from "@/src/components/common/TuiEditor";
 import { isEditorContentEmpty } from "@/src/lib/utils/editor";
 import Image from "next/image";
@@ -124,8 +125,11 @@ export function ReviewWriteClient() {
                 {albumTitle}
               </h3>
               {albumArtist && (
-                <p className="mt-1 text-xs text-zinc-600 truncate">
-                  {albumArtist}
+                <p className="mt-1 truncate text-xs text-zinc-600">
+                  <ArtistNameLink
+                    name={albumArtist}
+                    className="max-w-full truncate text-left text-xs text-zinc-600 transition hover:text-[var(--color-brand-primary)] hover:underline disabled:cursor-wait disabled:no-underline"
+                  />
                 </p>
               )}
             </div>

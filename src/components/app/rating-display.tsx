@@ -10,9 +10,9 @@ interface RatingDisplayProps {
 export function RatingDisplay({ rating, className = "" }: RatingDisplayProps) {
   return (
     <p
-      className={`text-center text-[length:var(--text-featured-rating)] font-bold leading-normal ${className}`.trim()}
+      className={`text-center text-[14px] font-bold leading-[145%] tracking-[-0.005em] ${className}`.trim()}
     >
-      <span className="text-[var(--color-rating-label)]">Rating : </span>
+      <span className="text-[#43A7B2]">Rating : </span>
       <span style={{ color: getRatingScoreColor(rating) }}>{formatRating(rating)}</span>
     </p>
   );

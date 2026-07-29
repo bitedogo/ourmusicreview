@@ -3,6 +3,7 @@
 
 import { formatReviewDate } from "./format";
 import type { Review } from "./types";
+import { ArtistNameLink } from "@/src/components/app/artist-name-link";
 
 interface ReviewTableProps {
   reviews: Review[];
@@ -38,7 +39,10 @@ export function ReviewTable({ reviews, processingIds, onView, onApprove, onRejec
                         {review.album.title}
                       </span>
                       <span className="truncate text-[11px] text-zinc-500">
-                        {review.album.artist}
+                        <ArtistNameLink
+                          name={review.album.artist}
+                          className="max-w-full truncate text-left text-[11px] text-zinc-500 transition hover:text-[var(--color-brand-primary)] hover:underline disabled:cursor-wait disabled:no-underline"
+                        />
                       </span>
                     </div>
                   </td>

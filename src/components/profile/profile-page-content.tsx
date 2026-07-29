@@ -9,6 +9,7 @@ import {
   ProfileReviewItem,
   ProfileFavoriteItem,
   ProfileMasterpieceItem,
+  ProfilePlaylistItem,
 } from "./profile-types";
 import { useAverageRating } from "./rating-utils";
 import { ProfileActivitySection } from "./activity/ProfileActivitySection";
@@ -21,6 +22,7 @@ export type {
   ProfileReviewItem,
   ProfileFavoriteItem,
   ProfileMasterpieceItem,
+  ProfilePlaylistItem,
 } from "./profile-types";
 
 export interface ProfilePageContentProps {
@@ -46,12 +48,16 @@ export interface ProfilePageContentProps {
   favoriteAlbums: ProfileFavoriteItem[];
   isLoadingFavorites: boolean;
   favoritesHidden?: boolean;
+  playlists: ProfilePlaylistItem[];
+  isLoadingPlaylists: boolean;
+  playlistsHidden?: boolean;
   masterpieces: ProfileMasterpieceItem[];
   isLoadingMasterpieces: boolean;
   masterpiecesHidden?: boolean;
   masterpiecesSection?: ReactNode;
   reviewsAllHref?: string;
   favoritesAllHref?: string;
+  playlistsAllHref?: string;
   activityStats?: {
     postCount: number;
     commentCount: number;
@@ -83,12 +89,16 @@ export function ProfilePageContent(props: ProfilePageContentProps) {
     favoriteAlbums,
     isLoadingFavorites,
     favoritesHidden = false,
+    playlists,
+    isLoadingPlaylists,
+    playlistsHidden = false,
     masterpieces,
     isLoadingMasterpieces,
     masterpiecesHidden = false,
     masterpiecesSection,
     reviewsAllHref,
     favoritesAllHref,
+    playlistsAllHref,
     activityStats,
   } = props;
 
@@ -109,11 +119,15 @@ export function ProfilePageContent(props: ProfilePageContentProps) {
   const reviewCovers = visibleReviews
     .map((r) => r.album?.imageUrl)
     .filter((url): url is string => Boolean(url))
-    .slice(0, 3);
+    .slice(0, 5);
   const favoriteCovers = visibleFavorites
     .map((f) => f.album?.imageUrl)
     .filter((url): url is string => Boolean(url))
-    .slice(0, 3);
+    .slice(0, 5);
+  const playlistCovers = playlists
+    .map((p) => p.coverImageUrl)
+    .filter((url): url is string => Boolean(url))
+    .slice(0, 5);
 
   return (
     <div className="min-h-screen">
@@ -153,14 +167,19 @@ export function ProfilePageContent(props: ProfilePageContentProps) {
             isOwner={isOwner}
             reviewCount={reviewCount}
             favoriteCount={favoriteCount}
+            playlistCount={playlists.length}
             reviewCovers={reviewCovers}
             favoriteCovers={favoriteCovers}
+            playlistCovers={playlistCovers}
             reviewsAllHref={reviewsAllHref}
             favoritesAllHref={favoritesAllHref}
+            playlistsAllHref={playlistsAllHref}
             isLoadingReviews={isLoadingReviews}
             isLoadingFavorites={isLoadingFavorites}
+            isLoadingPlaylists={isLoadingPlaylists}
             reviewsHidden={reviewsHidden}
             favoritesHidden={favoritesHidden}
+            playlistsHidden={playlistsHidden}
             privacy={privacy}
             isSavingPrivacy={isSavingPrivacy}
             onPrivacyChange={onPrivacyChange}

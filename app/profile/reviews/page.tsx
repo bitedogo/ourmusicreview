@@ -3,6 +3,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { ArtistNameLink } from "@/src/components/app/artist-name-link";
 import { ProfileListPageLayout } from "@/src/components/profile/profile-list-page-layout";
 import { useAuthenticatedFetch } from "@/src/hooks/use-authenticated-fetch";
 import { getHtmlPlainText } from "@/src/lib/utils/editor";
@@ -73,7 +74,12 @@ export default function MyReviewsPage() {
                 <div className="flex items-center justify-between gap-2">
                   <div className="min-w-0 flex-1">
                     <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                      {review.album?.artist}
+                      {review.album?.artist ? (
+                        <ArtistNameLink
+                          name={review.album.artist}
+                          className="max-w-full truncate text-left text-xs font-semibold uppercase tracking-wide text-zinc-500 transition hover:text-[var(--color-brand-primary)] hover:underline disabled:cursor-wait disabled:no-underline"
+                        />
+                      ) : null}
                     </p>
                     <h3 className="truncate text-sm font-bold text-zinc-900">
                       {review.album?.title}

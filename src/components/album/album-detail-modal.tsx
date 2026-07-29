@@ -8,6 +8,7 @@ import {
   AlbumDetailPanel,
   formatAlbumReleaseDate,
 } from "@/src/components/album/album-detail-panel";
+import { ArtistNamesLinks } from "@/src/components/app/artist-name-link";
 import { StreamingLinkButtons } from "@/src/components/streaming/streaming-link-buttons";
 import type { AlbumDetail } from "@/src/lib/album/detail-types";
 import type { AlbumStreamingLinks } from "@/src/lib/streaming/types";
@@ -97,7 +98,10 @@ export function AlbumDetailModal({
                           {album.name}
                         </p>
                         <p className="mt-1 text-sm text-zinc-600 sm:text-base">
-                          {album.artists.join(", ")}
+                          <ArtistNamesLinks
+                            artists={album.artists}
+                            linkClassName="truncate text-left text-sm text-zinc-600 transition hover:text-[var(--color-brand-primary)] hover:underline disabled:cursor-wait disabled:no-underline sm:text-base"
+                          />
                         </p>
                         <dl className="mt-4 grid grid-cols-1 gap-1.5 text-sm text-zinc-500">
                           <div>

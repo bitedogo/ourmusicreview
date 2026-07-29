@@ -1,6 +1,8 @@
+"use client";
 /** 앨범 리뷰 목록 미리보기 카드 */
 
 import Link from "next/link";
+import { ArtistNameLink } from "@/src/components/app/artist-name-link";
 import {
   ReviewCommentCount,
   ReviewLikeCount,
@@ -76,7 +78,10 @@ export function AlbumReviewPreviewCard({
                 {albumTitle}
               </h3>
               <p className="truncate text-[13px] font-normal leading-[16px] text-black">
-                {artist}
+                <ArtistNameLink
+                  name={artist}
+                  className="max-w-full truncate text-left text-[13px] font-normal leading-[16px] text-black transition hover:text-[var(--color-brand-primary)] hover:underline disabled:cursor-wait disabled:no-underline"
+                />
               </p>
             </div>
             <div className="flex shrink-0 items-center gap-2">
@@ -112,7 +117,10 @@ export function AlbumReviewPreviewCard({
             {albumTitle}
           </h3>
           <p className="absolute left-[173px] right-[120px] top-[47px] truncate text-[16px] font-normal leading-[19px] text-black">
-            {artist}
+            <ArtistNameLink
+              name={artist}
+              className="max-w-full truncate text-left text-[16px] font-normal leading-[19px] text-black transition hover:text-[var(--color-brand-primary)] hover:underline disabled:cursor-wait disabled:no-underline"
+            />
           </p>
 
           <div className="absolute right-[37px] top-[29px] flex items-center gap-[10px]">

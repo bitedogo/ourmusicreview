@@ -4,7 +4,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { useArtistSearchNavigation } from "@/src/hooks/use-artist-search-navigation";
+import { ArtistNameLink } from "@/src/components/app/artist-name-link";
 import { useMusicChart } from "@/src/hooks/use-chart";
 import { ALBUM_COVER_PLACEHOLDER } from "@/src/lib/site/copy";
 import { CHART_REGIONS, type ChartRegion } from "@/src/lib/chart/types";
@@ -13,7 +13,6 @@ import { buildAlbumReviewPath } from "@/src/lib/utils/album";
 export default function MusicChart() {
   const [region, setRegion] = useState<ChartRegion>("kr");
   const { albums, isLoading } = useMusicChart(region);
-  const { navigateToArtistAlbums } = useArtistSearchNavigation();
 
   if (albums.length === 0 && isLoading) {
     return null;
@@ -82,15 +81,11 @@ export default function MusicChart() {
                 {album.title}
               </h3>
             </Link>
-            <button
-              type="button"
-              onClick={() => void navigateToArtistAlbums(album.artist, album.artistId)}
-              disabled={!album.artist.trim()}
+            <ArtistNameLink
+              name={album.artist}
+              artistId={album.artistId}
               className="truncate text-left text-[length:var(--text-featured-artist)] text-[var(--color-text-secondary)] transition hover:text-[var(--color-brand-primary)] hover:underline disabled:cursor-default disabled:no-underline"
-              title={album.artist}
-            >
-              {album.artist}
-            </button>
+            />
           </li>
         ))}
       </ul>

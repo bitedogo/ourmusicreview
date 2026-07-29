@@ -32,6 +32,7 @@ export function MasterpieceAddCard({
             artist="placeholder"
             genre="—"
             year="—"
+            linkArtist={false}
             footer={
               <p className="text-center text-[9px] font-bold leading-snug tracking-[-0.005em] text-[#43A7B2] lg:text-[10px]">
                 Rating : -

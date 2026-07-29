@@ -21,6 +21,8 @@ function mapTrack(item: ItunesResult): AlbumDetailTrack | null {
   const explicitness = asString(item.trackExplicitness)?.toLowerCase() ?? "";
   const artistName = asString(item.artistName)?.trim();
 
+  const previewUrl = asString(item.previewUrl)?.trim() || null;
+
   return {
     id: String(trackId),
     trackNumber: asNumber(item.trackNumber) ?? 0,
@@ -29,6 +31,7 @@ function mapTrack(item: ItunesResult): AlbumDetailTrack | null {
     durationMs: asNumber(item.trackTimeMillis) ?? 0,
     artists: artistName ? [artistName] : [],
     explicit: explicitness === "explicit",
+    previewUrl,
   };
 }
 

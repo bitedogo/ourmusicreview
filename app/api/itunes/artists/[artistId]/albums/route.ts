@@ -16,7 +16,7 @@ export async function GET(
       return apiError("유효하지 않은 아티스트 ID입니다.", { status: 400 });
     }
 
-    const itunesResults = await getArtistAlbums(numericId, 50);
+    const itunesResults = await getArtistAlbums(numericId, 100);
     const albums = itunesResults.map((album) => ({
       collectionId: String(album.collectionId),
       collectionName: album.collectionName,
@@ -25,6 +25,7 @@ export async function GET(
       releaseDate: album.releaseDate,
       primaryGenreName: album.primaryGenreName,
       imageUrl600: getLargeImageUrl(album.artworkUrl100),
+      releaseType: album.releaseType ?? "album",
     }));
 
     return apiOk({ albums });

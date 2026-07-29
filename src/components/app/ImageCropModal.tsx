@@ -81,6 +81,10 @@ interface ImageCropModalProps {
   fileName: string;
   onConfirm: (file: File) => void;
   onCancel: () => void;
+  title?: string;
+  description?: string;
+  /** 기본 true(프로필). 플레이리스트 대표사진은 사각형 */
+  circularCrop?: boolean;
 }
 
 export function ImageCropModal({
@@ -88,6 +92,9 @@ export function ImageCropModal({
   fileName,
   onConfirm,
   onCancel,
+  title = "프로필 이미지 크롭",
+  description = "원형으로 표시될 영역을 선택해주세요.",
+  circularCrop = true,
 }: ImageCropModalProps) {
   const [crop, setCrop] = useState<Crop>();
   const [completedCrop, setCompletedCrop] = useState<PixelCrop | null>(null);
@@ -131,19 +138,15 @@ export function ImageCropModal({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="max-h-[70vh] overflow-auto p-4">
-          <h2 className="mb-4 text-lg font-semibold text-zinc-900">
-            프로필 이미지 크롭
-          </h2>
-          <p className="mb-4 text-sm text-zinc-600">
-            원형으로 표시될 영역을 선택해주세요.
-          </p>
+          <h2 className="mb-4 text-lg font-semibold text-zinc-900">{title}</h2>
+          <p className="mb-4 text-sm text-zinc-600">{description}</p>
           <div className="flex justify-center">
             <ReactCrop
               crop={crop}
               onChange={(_, percentCrop) => setCrop(percentCrop)}
               onComplete={(pixelCrop) => setCompletedCrop(pixelCrop)}
               aspect={1}
-              circularCrop
+              circularCrop={circularCrop}
               className="min-h-[200px] min-w-[200px] flex items-center justify-center"
             >
               <img

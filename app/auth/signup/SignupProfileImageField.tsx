@@ -1,37 +1,28 @@
 "use client";
 /** 회원가입 - 프로필 사진 선택 및 크롭 필드 */
 
-import dynamic from "next/dynamic";
-import { useCallback, useState } from "react";
-
-const ImageCropModal = dynamic(
-  () => import("@/src/components/app/ImageCropModal").then((module) => module.ImageCropModal),
-  {
-    ssr: false,
-  }
-);
+import { useCallback } from "react";
+import { useImageCropFlow } from "@/src/hooks/use-image-crop-flow";
 
 interface SignupProfileImageFieldProps {
   profileImage: File | null;
   onImageConfirm: (file: File) => void;
 }
 
-export function SignupProfileImageField({ profileImage, onImageConfirm }: SignupProfileImageFieldProps) {
-  const [cropModal, setCropModal] = useState<{ src: string; fileName: string } | null>(null);
-
+export function SignupProfileImageField({
+  profileImage,
+  onImageConfirm,
+}: SignupProfileImageFieldProps) {
   const handleConfirm = useCallback(
     (file: File) => {
-      if (cropModal?.src) URL.revokeObjectURL(cropModal.src);
       onImageConfirm(file);
-      setCropModal(null);
     },
-    [cropModal?.src, onImageConfirm]
+    [onImageConfirm]
   );
 
-  const handleCancel = useCallback(() => {
-    if (cropModal?.src) URL.revokeObjectURL(cropModal.src);
-    setCropModal(null);
-  }, [cropModal?.src]);
+  const { openWithFile, cropModalNode } = useImageCropFlow({
+    onCropped: handleConfirm,
+  });
 
   return (
     <div className="space-y-1">
@@ -47,7 +38,7 @@ export function SignupProfileImageField({ profileImage, onImageConfirm }: Signup
               const file = e.target.files?.[0] ?? null;
               e.target.value = "";
               if (file) {
-                setCropModal({ src: URL.createObjectURL(file), fileName: file.name });
+                openWithFile(file);
               }
             }}
           />
@@ -60,14 +51,7 @@ export function SignupProfileImageField({ profileImage, onImageConfirm }: Signup
         <p>파일 선택 후 크롭하여 프로필 이미지를 설정할 수 있습니다.</p>
       </div>
 
-      {cropModal && (
-        <ImageCropModal
-          imageSrc={cropModal.src}
-          fileName={cropModal.fileName}
-          onConfirm={handleConfirm}
-          onCancel={handleCancel}
-        />
-      )}
+      {cropModalNode}
     </div>
   );
 }

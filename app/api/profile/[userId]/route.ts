@@ -8,13 +8,10 @@ import { User } from "@/src/lib/db/entities/User";
 import { Review } from "@/src/lib/db/entities/Review";
 import { UserFavoriteAlbum } from "@/src/lib/db/entities/UserFavoriteAlbum";
 import { UserSlideAlbum } from "@/src/lib/db/entities/UserSlideAlbum";
+import { toPrivacySettings } from "@/src/lib/profile/privacy";
 
 interface Params {
   userId: string;
-}
-
-function isPublic(flag: "Y" | "N" | undefined) {
-  return flag !== "N";
 }
 
 export async function GET(
@@ -63,6 +60,7 @@ export async function GET(
         "showFavoritesPublic",
         "showMasterpiecesPublic",
         "showRatingPublic",
+        "showPlaylistsPublic",
       ],
     });
 
@@ -71,10 +69,12 @@ export async function GET(
     }
 
     const isOwner = session.user?.id === userId;
-    const showReviews = isPublic(userProfile.showReviewsPublic);
-    const showFavorites = isPublic(userProfile.showFavoritesPublic);
-    const showMasterpieces = isPublic(userProfile.showMasterpiecesPublic);
-    const showRating = isPublic(userProfile.showRatingPublic);
+    const privacy = toPrivacySettings(userProfile);
+    const showReviews = privacy.showReviewsPublic;
+    const showFavorites = privacy.showFavoritesPublic;
+    const showMasterpieces = privacy.showMasterpiecesPublic;
+    const showRating = privacy.showRatingPublic;
+    const showPlaylists = privacy.showPlaylistsPublic;
 
     const stats = await reviewRepository
       .createQueryBuilder("review")
@@ -130,12 +130,7 @@ export async function GET(
 
     return apiOk({
         isOwner,
-        privacy: {
-          showReviewsPublic: isPublic(userProfile.showReviewsPublic),
-          showFavoritesPublic: isPublic(userProfile.showFavoritesPublic),
-          showMasterpiecesPublic: isPublic(userProfile.showMasterpiecesPublic),
-          showRatingPublic: isPublic(userProfile.showRatingPublic),
-        },
+        privacy,
         profile: {
           id: userProfile.id,
           nickname: userProfile.nickname,
@@ -155,6 +150,7 @@ export async function GET(
         favoritesHidden: !showFavorites,
         masterpiecesHidden: !showMasterpieces,
         ratingHidden: !showRating,
+        playlistsHidden: !showPlaylists,
         reviews: userReviews.map((review) => ({
           id: review.id,
           content: review.content,

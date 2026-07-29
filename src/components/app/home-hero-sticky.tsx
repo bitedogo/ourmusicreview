@@ -64,7 +64,7 @@ export function HomeHeroSticky() {
           >
             <DesktopNav
               isAdmin={isAdmin}
-              className="hidden shrink-0 items-center justify-center gap-14 pb-0 text-[length:var(--nav-menu-font-size)] leading-[18px] font-medium text-black md:flex"
+              className="hidden shrink-0 items-center justify-center gap-14 pb-0 text-[length:var(--nav-menu-font-size-mobile)] font-medium leading-[145%] tracking-[var(--tracking-nav-menu)] text-[var(--color-nav-menu)] sm:text-[length:var(--nav-menu-font-size)] md:flex"
             />
             <div className="mt-0 shrink-0 md:mt-[var(--hero-sticky-nav-search-gap)]">
               <ArtistSearchBar

@@ -4,33 +4,14 @@ import { requireSessionApi } from "@/src/lib/auth/session";
 import { initializeDatabase } from "@/src/lib/db";
 import { User } from "@/src/lib/db/entities/User";
 import { apiError, apiOk } from "@/src/lib/http/response";
+import {
+  PRIVACY_KEYS,
+  privacyUpdatesFromBody,
+  toPrivacySettings,
+  type PrivacyKey,
+} from "@/src/lib/profile/privacy";
 
-type PrivacyField =
-  | "showReviewsPublic"
-  | "showFavoritesPublic"
-  | "showMasterpiecesPublic"
-  | "showRatingPublic";
-
-interface PrivacyBody {
-  showReviewsPublic?: boolean;
-  showFavoritesPublic?: boolean;
-  showMasterpiecesPublic?: boolean;
-  showRatingPublic?: boolean;
-}
-
-function toYn(value: boolean | undefined): "Y" | "N" | undefined {
-  if (value === undefined) return undefined;
-  return value ? "Y" : "N";
-}
-
-function toPrivacyResponse(user: User) {
-  return {
-    showReviewsPublic: user.showReviewsPublic !== "N",
-    showFavoritesPublic: user.showFavoritesPublic !== "N",
-    showMasterpiecesPublic: user.showMasterpiecesPublic !== "N",
-    showRatingPublic: user.showRatingPublic !== "N",
-  };
-}
+type PrivacyBody = Partial<Record<PrivacyKey, boolean>>;
 
 export async function PATCH(request: Request) {
   try {
@@ -38,17 +19,7 @@ export async function PATCH(request: Request) {
     if (response) return response;
 
     const body = (await request.json()) as PrivacyBody;
-    const updates: Partial<Pick<User, PrivacyField>> = {};
-
-    const reviews = toYn(body.showReviewsPublic);
-    const favorites = toYn(body.showFavoritesPublic);
-    const masterpieces = toYn(body.showMasterpiecesPublic);
-    const rating = toYn(body.showRatingPublic);
-
-    if (reviews !== undefined) updates.showReviewsPublic = reviews;
-    if (favorites !== undefined) updates.showFavoritesPublic = favorites;
-    if (masterpieces !== undefined) updates.showMasterpiecesPublic = masterpieces;
-    if (rating !== undefined) updates.showRatingPublic = rating;
+    const updates = privacyUpdatesFromBody(body);
 
     if (Object.keys(updates).length === 0) {
       return apiError("변경할 공개 설정이 없습니다.", { status: 400 });
@@ -66,7 +37,7 @@ export async function PATCH(request: Request) {
     await userRepository.save(user);
 
     return apiOk({
-      privacy: toPrivacyResponse(user),
+      privacy: toPrivacySettings(user),
     });
   } catch (error) {
     return apiError(
@@ -85,12 +56,7 @@ export async function GET() {
     const userRepository = dataSource.getRepository(User);
     const user = await userRepository.findOne({
       where: { id: session.user.id },
-      select: [
-        "showReviewsPublic",
-        "showFavoritesPublic",
-        "showMasterpiecesPublic",
-        "showRatingPublic",
-      ],
+      select: [...PRIVACY_KEYS],
     });
 
     if (!user) {
@@ -98,7 +64,7 @@ export async function GET() {
     }
 
     return apiOk({
-      privacy: toPrivacyResponse(user),
+      privacy: toPrivacySettings(user),
     });
   } catch (error) {
     return apiError(

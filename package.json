@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "postinstall": "patch-package",
     "compress:profiles": "node scripts/compress-profile-images.mjs",
-    "icons:oru": "node scripts/generate-oru-app-icons.mjs"
+    "icons:oru": "node scripts/generate-oru-app-icons.mjs",
+    "db:migrate:playlists": "node scripts/run-playlist-migration.mjs"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.10",

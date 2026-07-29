@@ -8,6 +8,7 @@ export interface AlbumDetailTrack {
   durationMs: number;
   artists: string[];
   explicit: boolean;
+  previewUrl: string | null;
 }
 
 export interface AlbumDetail {

@@ -30,8 +30,7 @@ export function ArtistSearchBar({
     <form onSubmit={onSubmit} className="flex justify-center">
       <div
         ref={containerRef}
-        className="relative w-full"
-        style={{ maxWidth: "var(--search-bar-max-width)" }}
+        className="relative w-full max-w-[var(--search-bar-max-width-mobile)] sm:max-w-[var(--search-bar-max-width)]"
       >
         <div className="flex w-full flex-col overflow-hidden rounded-[28px] border border-[var(--color-border)] bg-white shadow-[0_1px_4px_rgba(0,0,0,0.45)] transition-[border-radius,box-shadow]">
           <div
@@ -47,10 +46,36 @@ export function ArtistSearchBar({
             />
             <button
               type="submit"
-              className="mr-[var(--search-bar-track-inset)] flex h-[var(--search-bar-button-height)] w-[var(--search-bar-button-width-mobile)] shrink-0 items-center justify-center rounded-full bg-[var(--color-accent)] text-[20px] font-normal lowercase text-white transition hover:bg-[var(--color-accent-hover)] sm:w-[var(--search-bar-button-width)]"
+              className="mr-[var(--search-bar-track-inset)] flex h-[var(--search-bar-button-height-mobile)] w-[var(--search-bar-button-width-mobile)] shrink-0 items-center justify-center rounded-full bg-[var(--color-accent)] text-white transition hover:bg-[var(--color-accent-hover)] sm:h-[var(--search-bar-button-height)] sm:w-[var(--search-bar-button-width)]"
               aria-label="검색"
             >
-              search
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 18 18"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden
+                className="sm:hidden"
+              >
+                <circle
+                  cx="6.92593"
+                  cy="6.92593"
+                  r="5.92593"
+                  stroke="white"
+                  strokeWidth="2"
+                />
+                <path
+                  d="M11.6479 11.6484L16.9998 17.0003"
+                  stroke="white"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              <span className="hidden items-center justify-center text-center text-[22px] font-semibold lowercase leading-[145%] tracking-[-0.005em] text-white sm:inline-flex">
+                search
+              </span>
             </button>
           </div>
 

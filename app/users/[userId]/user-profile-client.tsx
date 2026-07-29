@@ -4,11 +4,13 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLayoutEffect, useState } from "react";
+import { ArtistNameLink } from "@/src/components/app/artist-name-link";
 import { fetchJson } from "@/src/lib/http/client";
 import { ProfilePageContent } from "@/src/components/profile/profile-page-content";
 import {
   ProfileFavoriteItem,
   ProfileMasterpieceItem,
+  ProfilePlaylistItem,
   ProfilePrivacySettings,
   ProfileReviewItem,
 } from "@/src/components/profile/profile-types";
@@ -40,15 +42,24 @@ interface PublicProfileApiData {
   favoritesHidden: boolean;
   masterpiecesHidden: boolean;
   ratingHidden: boolean;
+  playlistsHidden: boolean;
   reviews: ProfileReviewItem[];
   favorites: ProfileFavoriteItem[];
   masterpieces: ProfileMasterpieceItem[];
+}
+
+interface PublicPlaylistResponse {
+  ok: boolean;
+  data: {
+    playlists: ProfilePlaylistItem[];
+  };
 }
 
 export function UserProfileClient({ userId, showAllReviews = false }: UserProfileClientProps) {
   const router = useRouter();
   const [data, setData] = useState<PublicProfileApiData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [playlists, setPlaylists] = useState<ProfilePlaylistItem[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   useLayoutEffect(() => {
@@ -69,6 +80,22 @@ export function UserProfileClient({ userId, showAllReviews = false }: UserProfil
             return;
           }
           setData(response.data);
+          if (response.data.playlistsHidden) {
+            if (!cancelled) setPlaylists([]);
+          } else {
+            try {
+              const playlistResponse = await fetchJson<PublicPlaylistResponse>(
+                `/api/users/${encodeURIComponent(userId)}/playlists`,
+              );
+              if (!cancelled) {
+                setPlaylists(playlistResponse.data.playlists ?? []);
+              }
+            } catch {
+              if (!cancelled) {
+                setPlaylists([]);
+              }
+            }
+          }
         } else {
           setError("프로필 정보를 가져오는 데 실패했습니다.");
         }
@@ -146,7 +173,12 @@ export function UserProfileClient({ userId, showAllReviews = false }: UserProfil
                 <div className="flex items-center gap-3">
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-[10px] font-medium uppercase text-zinc-500">
-                      {review.album?.artist}
+                      {review.album?.artist ? (
+                        <ArtistNameLink
+                          name={review.album.artist}
+                          className="max-w-full truncate text-left text-[10px] font-medium uppercase text-zinc-500 transition hover:text-[var(--color-brand-primary)] hover:underline disabled:cursor-wait disabled:no-underline"
+                        />
+                      ) : null}
                     </p>
                     <p className="truncate text-sm font-semibold text-zinc-900">{review.album?.title}</p>
                   </div>
@@ -208,6 +240,14 @@ export function UserProfileClient({ userId, showAllReviews = false }: UserProfil
       masterpiecesHidden={data.masterpiecesHidden}
       reviewsAllHref={data.reviewsHidden ? undefined : getUserProfileReviewsPath(userId)}
       favoritesAllHref={undefined}
+      playlists={playlists}
+      isLoadingPlaylists={false}
+      playlistsHidden={data.playlistsHidden}
+      playlistsAllHref={
+        data.playlistsHidden
+          ? undefined
+          : `/users/${encodeURIComponent(userId)}/playlists`
+      }
     />
   );
 }

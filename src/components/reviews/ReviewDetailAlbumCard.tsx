@@ -1,8 +1,10 @@
+"use client";
 /** 리뷰 상세·앨범 리뷰 — 앨범 정보 카드 */
 
 import type { ReactNode } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { ArtistNameLink } from "@/src/components/app/artist-name-link";
 import {
   REVIEW_BRAND_TEAL,
   REVIEW_CARD_CLIP_CLASS,
@@ -162,7 +164,10 @@ export function ReviewDetailAlbumCard({
             {album.title}
           </h2>
           <p className="absolute left-[150px] right-[190px] top-[44px] truncate text-[16px] font-normal leading-[19px] text-black">
-            {album.artist}
+            <ArtistNameLink
+              name={album.artist}
+              className="max-w-full truncate text-left text-[16px] font-normal leading-[19px] text-black transition hover:text-[var(--color-brand-primary)] hover:underline disabled:cursor-wait disabled:no-underline"
+            />
           </p>
           <p className="absolute left-[150px] top-[90px] text-[14px] font-normal leading-[17px] text-black">
             {releaseLabel}
@@ -197,7 +202,10 @@ export function ReviewDetailAlbumCard({
                   {album.title}
                 </h2>
                 <p className="truncate text-[12px] font-normal leading-[15px] text-black">
-                  {album.artist}
+                  <ArtistNameLink
+                    name={album.artist}
+                    className="max-w-full truncate text-left text-[12px] font-normal leading-[15px] text-black transition hover:text-[var(--color-brand-primary)] hover:underline disabled:cursor-wait disabled:no-underline"
+                  />
                 </p>
               </div>
               <AverageRatingLabel averageRating={averageRating} size="mobile" />

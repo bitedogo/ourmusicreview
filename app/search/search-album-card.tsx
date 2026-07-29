@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { ArtistNameLink } from "@/src/components/app/artist-name-link";
 import type { AlbumRatingInfo } from "@/src/hooks/use-batch-album-ratings";
 import type { SearchAlbumResult } from "@/src/lib/search/types";
 import type { AlbumStreamingLinks } from "@/src/lib/streaming/types";
@@ -72,9 +73,10 @@ export function SearchAlbumCard({
           <h3 className="line-clamp-2 min-h-[2.5rem] text-[length:var(--text-featured-title)] font-semibold text-[var(--color-text-primary)]">
             {album.collectionName}
           </h3>
-          <p className="line-clamp-1 text-[length:var(--text-featured-artist)] text-[var(--color-text-secondary)]">
-            {album.artistName}
-          </p>
+          <ArtistNameLink
+            name={album.artistName}
+            className="line-clamp-1 max-w-full text-left text-[length:var(--text-featured-artist)] text-[var(--color-text-secondary)] transition hover:text-[var(--color-brand-primary)] hover:underline disabled:cursor-wait disabled:no-underline"
+          />
           {album.primaryGenreName && (
             <p className="text-[length:var(--text-featured-meta)] text-[var(--color-text-muted)]">
               {album.primaryGenreName}

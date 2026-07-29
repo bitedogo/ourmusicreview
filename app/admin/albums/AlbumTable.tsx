@@ -2,6 +2,7 @@
 /** 관리자 오늘의 앨범 관리 - 목록 테이블 */
 
 import { PaginationNav } from "@/src/components/common/PaginationNav";
+import { ArtistNameLink } from "@/src/components/app/artist-name-link";
 import type { TodayAlbumItem } from "./types";
 
 interface AlbumTableProps {
@@ -51,7 +52,10 @@ export function AlbumTable({
                   </span>
                 </td>
                 <td className="px-3 py-2 align-middle">
-                  <span className="text-xs text-zinc-700">{item.artist}</span>
+                  <ArtistNameLink
+                    name={item.artist}
+                    className="max-w-full truncate text-left text-xs text-zinc-700 transition hover:text-[var(--color-brand-primary)] hover:underline disabled:cursor-wait disabled:no-underline"
+                  />
                 </td>
                 <td className="px-3 py-2 text-left align-middle">
                   <div className="flex items-center gap-2">

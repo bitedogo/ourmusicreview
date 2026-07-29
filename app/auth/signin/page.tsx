@@ -12,6 +12,15 @@ import { FindPasswordModal } from "./find-password-modal";
 
 type ModalType = "find-id" | "find-password" | null;
 
+const fieldShellClass =
+  "w-full overflow-hidden rounded-[10px] border-[0.71px] border-[#E3E3E3] bg-white shadow-[0px_1.41573px_2.83146px_rgba(0,0,0,0.25)] transition-[border-color,box-shadow] focus-within:border-[#43A7B2] sm:rounded-[15px] sm:border sm:shadow-[0px_2px_4px_rgba(0,0,0,0.25)]";
+
+const fieldInputClass =
+  "auth-input h-[44px] w-full bg-transparent pl-[27px] pr-4 text-[15px] font-semibold leading-[145%] tracking-[-0.005em] text-black outline-none placeholder:font-semibold placeholder:text-[#B1B1B1] sm:h-[50px] sm:text-[18px]";
+
+const linkTextClass =
+  "whitespace-nowrap text-[11px] font-extralight leading-[145%] tracking-[-0.005em] text-black transition hover:text-[#43A7B2] sm:text-[16px]";
+
 export default function SigninPage() {
   const router = useRouter();
   const { status } = useSession();
@@ -87,16 +96,17 @@ export default function SigninPage() {
 
   return (
     <div className="flex w-full flex-col items-center px-4 pb-[var(--auth-logo-padding-bottom)]">
-      <div className="flex w-full max-w-[var(--auth-form-width)] flex-col items-center pt-[var(--auth-logo-padding-top)]">
+      <div className="flex w-full max-w-[var(--auth-form-width-mobile)] flex-col items-center pt-[var(--auth-logo-padding-top)] sm:max-w-[var(--auth-form-width)]">
         <div className="mb-4 hidden w-full sm:flex">
           <button
             type="button"
             onClick={handleGoBack}
-            className="relative inline-flex -translate-y-[50px] items-center text-sm text-[var(--color-text-secondary)] transition hover:text-[var(--color-accent)]"
+            className="relative inline-flex -translate-y-[50px] items-center text-[16px] font-normal leading-[145%] tracking-[-0.005em] text-[#B0B0B0] transition hover:text-[#43A7B2]"
           >
-            {'< back'}
+            {"< back"}
           </button>
         </div>
+
         <div className="mb-10 flex justify-center">
           <Link href="/" className="inline-flex shrink-0 items-center justify-center">
             <Image
@@ -112,11 +122,11 @@ export default function SigninPage() {
 
         <form onSubmit={handleSubmit} className="flex w-full flex-col">
           <label className="block">
-            <div className="overflow-hidden rounded-[var(--auth-field-radius)] border border-[var(--color-border)] bg-white shadow-[0_2px_4px_-2px_rgba(0,0,0,0.55)] transition-[border-color,box-shadow] focus-within:border-[var(--color-accent)]">
+            <div className={fieldShellClass}>
               <input
                 value={id}
                 onChange={(e) => setId(e.target.value)}
-                className="auth-input h-[var(--auth-input-height)] w-full bg-transparent px-4 text-base text-[var(--color-text-primary)] outline-none placeholder:text-[var(--color-text-muted)] sm:text-sm"
+                className={fieldInputClass}
                 placeholder="Id"
                 autoComplete="username"
               />
@@ -124,12 +134,12 @@ export default function SigninPage() {
           </label>
 
           <label className="mt-3 block">
-            <div className="overflow-hidden rounded-[var(--auth-field-radius)] border border-[var(--color-border)] bg-white shadow-[0_2px_4px_-2px_rgba(0,0,0,0.55)] transition-[border-color,box-shadow] focus-within:border-[var(--color-accent)]">
+            <div className={fieldShellClass}>
               <input
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 type="password"
-                className="auth-input h-[var(--auth-input-height)] w-full bg-transparent px-4 text-base text-[var(--color-text-primary)] outline-none placeholder:text-[var(--color-text-muted)] sm:text-sm"
+                className={fieldInputClass}
                 placeholder="Password"
                 autoComplete="current-password"
               />
@@ -141,42 +151,39 @@ export default function SigninPage() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="mt-3 inline-flex h-[var(--auth-button-height)] w-full items-center justify-center rounded-[var(--auth-field-radius)] bg-[var(--color-brand-primary)] text-sm font-bold uppercase tracking-wide text-white transition hover:bg-[var(--color-brand-primary-hover)] disabled:cursor-not-allowed disabled:bg-zinc-400"
+            className="mt-3 inline-flex h-[42px] w-full items-center justify-center rounded-[10px] bg-[#43A7B2] text-[16px] font-semibold leading-[145%] tracking-[-0.005em] text-white transition hover:bg-[#3796A0] disabled:cursor-not-allowed disabled:bg-zinc-400 sm:h-[47px] sm:rounded-[15px] sm:text-[20px]"
           >
-            {isSubmitting ? "Logging in..." : "Login"}
+            {isSubmitting ? "Logging in..." : "LOGIN"}
           </button>
 
           <div className="mt-5 grid w-full grid-cols-[1fr_auto_1fr] items-center gap-2">
-            <label className="inline-flex items-center gap-2 text-[12px] text-[var(--color-text-secondary)] justify-self-start sm:text-sm">
+            <label className="inline-flex items-center gap-2 justify-self-start whitespace-nowrap">
               <input
                 type="checkbox"
                 checked={isRememberId}
                 onChange={(e) => setIsRememberId(e.target.checked)}
-                className="h-4 w-4 rounded border-[var(--color-border)] accent-[var(--color-accent)]"
+                className="h-4 w-4 shrink-0 rounded border-[#E3E3E3] accent-[#43A7B2]"
               />
-              Save Id
+              <span className={linkTextClass}>Save Id</span>
             </label>
-            <div className="flex items-center gap-1 text-[12px] text-[var(--color-text-secondary)] justify-self-center sm:text-sm">
+            <div className="flex items-center justify-center gap-1 py-[5px] sm:gap-2">
               <button
                 type="button"
                 onClick={() => setModal("find-id")}
-                className="transition hover:text-[var(--color-accent)]"
+                className={linkTextClass}
               >
                 Find Id
               </button>
-              <span className="text-[var(--color-border)]">|</span>
+              <span aria-hidden className="h-[21px] w-0 border-l border-[#E3E3E3]" />
               <button
                 type="button"
                 onClick={() => setModal("find-password")}
-                className="transition hover:text-[var(--color-accent)]"
+                className={linkTextClass}
               >
                 Reset Password
               </button>
             </div>
-            <Link
-              href="/auth/signup"
-              className="justify-self-end text-[12px] text-[var(--color-text-secondary)] transition hover:text-[var(--color-accent)] sm:text-sm"
-            >
+            <Link href="/auth/signup" className={`justify-self-end ${linkTextClass}`}>
               Create Account
             </Link>
           </div>
@@ -189,7 +196,9 @@ export default function SigninPage() {
           className="group mt-10 inline-flex items-center justify-center gap-2 rounded-full px-3 py-1.5"
         >
           <Image src="/social/google.svg" alt="" width={30} height={30} unoptimized />
-          <span className="text-sm font-semibold text-[var(--color-brand-primary)] transition-colors group-hover:text-[var(--color-brand-primary-hover)]">Google Login</span>
+          <span className="text-sm font-semibold text-[#43A7B2] transition-colors group-hover:text-[#3796A0]">
+            Google Login
+          </span>
         </button>
       </div>
 

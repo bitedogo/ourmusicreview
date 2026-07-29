@@ -3,6 +3,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { ArtistNameLink } from "@/src/components/app/artist-name-link";
 import { ProfileReviewItem } from "./profile-types";
 import { reviewDetail } from "@/src/lib/navigation/routes";
 
@@ -12,6 +13,8 @@ interface ProfileReviewRowProps {
 }
 
 export function ProfileReviewRow({ review, onNavigate }: ProfileReviewRowProps) {
+  const artist = review.album?.artist?.trim();
+
   return (
     <div>
       <Link
@@ -31,7 +34,15 @@ export function ProfileReviewRow({ review, onNavigate }: ProfileReviewRowProps) 
         <div className="min-w-0 flex-1 text-left">
           <p className="text-sm font-medium text-gray-900">{review.album?.title ?? "앨범"}</p>
           <p className="text-xs text-gray-500">
-            {review.album?.artist ?? "-"} - 평점: {review.rating}
+            {artist ? (
+              <ArtistNameLink
+                name={artist}
+                className="truncate text-left text-xs text-gray-500 transition hover:text-[var(--color-brand-primary)] hover:underline disabled:cursor-wait disabled:no-underline"
+              />
+            ) : (
+              "-"
+            )}{" "}
+            - 평점: {review.rating}
           </p>
         </div>
       </Link>

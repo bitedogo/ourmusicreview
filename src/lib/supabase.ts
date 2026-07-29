@@ -57,6 +57,29 @@ export async function uploadProfileImage(
   return publicUrl;
 }
 
+export async function uploadPlaylistCoverImage(file: File): Promise<string> {
+  const supabase = getSupabaseAdmin();
+  const path = `playlists/${Date.now()}_${Math.random().toString(36).slice(2)}.webp`;
+
+  const bytes = await file.arrayBuffer();
+  const compressed = await compressProfileImageBytes(bytes);
+  const { error } = await supabase.storage
+    .from(BUCKET_PROFILES)
+    .upload(path, compressed, {
+      contentType: "image/webp",
+      upsert: true,
+    });
+
+  if (error) {
+    throw new Error(`플레이리스트 대표사진 업로드 실패: ${error.message}`);
+  }
+
+  const {
+    data: { publicUrl },
+  } = supabase.storage.from(BUCKET_PROFILES).getPublicUrl(path);
+  return publicUrl;
+}
+
 export async function uploadAudioFile(
   file: File,
   prefix: string

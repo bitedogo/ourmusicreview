@@ -8,6 +8,7 @@ import { MyPicksSection } from "./my-picks-section";
 import { ProfilePageContent } from "@/src/components/profile/profile-page-content";
 import {
   ProfileFavoriteItem,
+  ProfilePlaylistItem,
   ProfilePrivacySettings,
   ProfileReviewItem,
 } from "@/src/components/profile/profile-types";
@@ -34,6 +35,13 @@ interface FavoriteAlbumsResponse {
   ok: boolean;
   data: {
     favorites: ProfileFavoriteItem[];
+  };
+}
+
+interface PlaylistResponse {
+  ok: boolean;
+  data: {
+    playlists: ProfilePlaylistItem[];
   };
 }
 
@@ -67,6 +75,8 @@ export function ProfileClient({
   const [isLoadingReviews, setIsLoadingReviews] = useState(false);
   const [favoriteAlbums, setFavoriteAlbums] = useState<ProfileFavoriteItem[]>([]);
   const [isLoadingFavorites, setIsLoadingFavorites] = useState(false);
+  const [playlists, setPlaylists] = useState<ProfilePlaylistItem[]>([]);
+  const [isLoadingPlaylists, setIsLoadingPlaylists] = useState(false);
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const [privacy, setPrivacy] = useState<ProfilePrivacySettings>(initialPrivacy);
   const [isSavingPrivacy, setIsSavingPrivacy] = useState(false);
@@ -130,6 +140,18 @@ export function ProfileClient({
     }
   }
 
+  async function fetchPlaylists() {
+    try {
+      setIsLoadingPlaylists(true);
+      const data = await fetchJson<PlaylistResponse>("/api/playlists");
+      setPlaylists(data.data.playlists || []);
+    } catch {
+      setPlaylists([]);
+    } finally {
+      setIsLoadingPlaylists(false);
+    }
+  }
+
   async function fetchActivityStats() {
     try {
       const data = await fetchJson<ActivityStatsResponse>("/api/profile/activity-stats");
@@ -162,6 +184,7 @@ export function ProfileClient({
   useEffect(() => {
     fetchMyReviews();
     fetchFavorites();
+    fetchPlaylists();
     fetchActivityStats();
   }, []);
 
@@ -170,6 +193,7 @@ export function ProfileClient({
       if (document.visibilityState === "visible") {
         fetchMyReviews();
         fetchFavorites();
+        fetchPlaylists();
         fetchActivityStats();
       }
     }
@@ -208,6 +232,8 @@ export function ProfileClient({
       isLoadingReviews={isLoadingReviews}
       favoriteAlbums={favoriteAlbums}
       isLoadingFavorites={isLoadingFavorites}
+      playlists={playlists}
+      isLoadingPlaylists={isLoadingPlaylists}
       masterpieces={[]}
       isLoadingMasterpieces={false}
       masterpiecesSection={
@@ -220,6 +246,7 @@ export function ProfileClient({
       }
       reviewsAllHref="/profile/reviews"
       favoritesAllHref="/profile/albums"
+      playlistsAllHref="/profile/playlists"
       activityStats={activityStats}
     />
   );

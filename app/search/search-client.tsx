@@ -22,6 +22,7 @@ import type {
   ArtistSearchResponse,
   ReviewDuplicateCheckResponse,
   SearchAlbumResult,
+  SearchReleaseType,
 } from "@/src/lib/search/types";
 import { buildReviewWritePath } from "@/src/lib/utils/album";
 import { SearchAlbumCard } from "./search-album-card";
@@ -49,6 +50,7 @@ export function SearchClient() {
 
   const [selectedArtist, setSelectedArtist] = useState<ItunesArtistResult | null>(null);
   const [albums, setAlbums] = useState<SearchAlbumResult[]>([]);
+  const [releaseFilter, setReleaseFilter] = useState<SearchReleaseType>("album");
   const [isLoadingAlbums, setIsLoadingAlbums] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isDuplicateModalOpen, setIsDuplicateModalOpen] = useState(false);
@@ -109,6 +111,7 @@ export function SearchClient() {
 
   const handleArtistSelect = useCallback(async (artist: ItunesArtistResult) => {
     setSelectedArtist(artist);
+    setReleaseFilter("album");
     setIsLoadingAlbums(true);
     setAlbums([]);
     setErrorMessage(null);
@@ -125,6 +128,11 @@ export function SearchClient() {
       setIsLoadingAlbums(false);
     }
   }, []);
+
+  const filteredAlbums = useMemo(
+    () => albums.filter((album) => (album.releaseType ?? "album") === releaseFilter),
+    [albums, releaseFilter]
+  );
 
   const handleAlbumCoverClick = useCallback(async (album: SearchAlbumResult) => {
     const albumId = album.collectionId.toString();
@@ -231,19 +239,44 @@ export function SearchClient() {
 
       {selectedArtist && (
         <section className="mt-[var(--featured-card-gap)]">
-          <div className="mb-[var(--featured-card-padding)]">
+          <div className="mb-[var(--featured-card-padding)] flex flex-wrap items-center justify-between gap-3">
             <h2 className="text-[length:var(--text-today-album-title)] font-semibold tracking-tight text-[var(--color-text-primary)]">
-              {selectedArtist.artistName} 의 앨범
+              {selectedArtist.artistName} 의{" "}
+              {releaseFilter === "album" ? "앨범" : "싱글"}
             </h2>
+            <div className="box-border flex h-[35px] w-[111px] items-center rounded-[10px] border border-[#D9D9D9] bg-[#FAFAFA] px-[5px]">
+              <button
+                type="button"
+                onClick={() => setReleaseFilter("album")}
+                className={`flex h-6 w-[47px] items-center justify-center rounded-[6px] text-[13px] leading-4 transition ${
+                  releaseFilter === "album"
+                    ? "bg-white text-[#43A7B2] shadow-[0px_1px_4px_rgba(0,0,0,0.25)]"
+                    : "bg-transparent text-[#D9D9D9]"
+                }`}
+              >
+                앨범
+              </button>
+              <button
+                type="button"
+                onClick={() => setReleaseFilter("single")}
+                className={`flex h-6 flex-1 items-center justify-center rounded-[6px] text-[13px] leading-4 transition ${
+                  releaseFilter === "single"
+                    ? "bg-white text-[#43A7B2] shadow-[0px_1px_4px_rgba(0,0,0,0.25)]"
+                    : "bg-transparent text-[#D9D9D9]"
+                }`}
+              >
+                싱글
+              </button>
+            </div>
           </div>
 
           {isLoadingAlbums ? (
             <EmptyState className="py-[var(--featured-card-gap)]">
               앨범 목록을 불러오는 중...
             </EmptyState>
-          ) : albums.length > 0 ? (
+          ) : filteredAlbums.length > 0 ? (
             <div className="grid grid-cols-1 gap-[var(--featured-card-padding)] sm:grid-cols-2 lg:grid-cols-3">
-              {albums.map((album) => {
+              {filteredAlbums.map((album) => {
                 const albumId = album.collectionId.toString();
                 return (
                   <SearchAlbumCard
@@ -261,7 +294,11 @@ export function SearchClient() {
               })}
             </div>
           ) : (
-            <EmptyState>등록 가능한 앨범이 없습니다.</EmptyState>
+            <EmptyState>
+              {releaseFilter === "album"
+                ? "등록 가능한 앨범이 없습니다."
+                : "등록 가능한 싱글이 없습니다."}
+            </EmptyState>
           )}
         </section>
       )}

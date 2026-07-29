@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 
 interface ProfileListPageLayoutProps {
   title: string;
-  description: string;
+  description?: string;
   isLoading: boolean;
   error: string | null;
   emptyMessage: string;
@@ -52,7 +52,9 @@ export function ProfileListPageLayout({
           마이페이지로
         </button>
         <h1 className="text-xl font-semibold tracking-tight">{title}</h1>
-        <p className="text-xs text-zinc-500">{description}</p>
+        {description ? (
+          <p className="text-xs text-zinc-500">{description}</p>
+        ) : null}
       </section>
 
       {isLoading ? (

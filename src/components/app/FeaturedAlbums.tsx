@@ -34,7 +34,7 @@ export default function FeaturedAlbums() {
 
   return (
     <section className="relative left-1/2 mt-[var(--hero-subtitle-masterpiece-gap)] w-screen max-w-none -translate-x-1/2">
-      <h2 className="mb-[calc(var(--masterpiece-slider-gap)-var(--masterpiece-slider-pad-y))] text-center text-xl font-medium text-[var(--color-accent)]">
+      <h2 className="mb-[calc(var(--masterpiece-slider-gap)-var(--masterpiece-slider-pad-y))] text-center text-[20px] font-semibold leading-[145%] tracking-[-0.005em] text-[var(--color-accent)]">
         Masterpiece
       </h2>
       <div className="relative overflow-hidden py-[var(--masterpiece-slider-pad-y)]">

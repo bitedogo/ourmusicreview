@@ -44,7 +44,7 @@ export default function TodayAlbumCard() {
       className="relative left-1/2 mt-[calc(var(--featured-slider-today-album-gap)-var(--masterpiece-slider-pad-y))] w-full max-w-[calc(100vw-2rem)] -translate-x-1/2 px-0"
     >
       <div className="w-full">
-        <h2 className="mb-[var(--today-album-title-content-gap)] text-center text-xl font-medium text-[var(--color-accent)]">
+        <h2 className="mb-[var(--today-album-title-content-gap)] flex items-center justify-center text-center text-[20px] font-semibold leading-[145%] tracking-[-0.005em] text-[#43A7B2]">
           Today&apos;s Album
         </h2>
         <TodayAlbumTabs

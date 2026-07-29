@@ -5,6 +5,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/src/lib/auth/config";
 import { initializeDatabase } from "@/src/lib/db";
 import { User } from "@/src/lib/db/entities/User";
+import { toPrivacySettings } from "@/src/lib/profile/privacy";
 import { ProfileClient } from "./profile-client";
 
 export default async function ProfilePage() {
@@ -43,12 +44,7 @@ export default async function ProfilePage() {
       role={user.role}
       createdAtText={createdAtText}
       profileImage={user.profileImage ?? null}
-      initialPrivacy={{
-        showReviewsPublic: user.showReviewsPublic !== "N",
-        showFavoritesPublic: user.showFavoritesPublic !== "N",
-        showMasterpiecesPublic: user.showMasterpiecesPublic !== "N",
-        showRatingPublic: user.showRatingPublic !== "N",
-      }}
+      initialPrivacy={toPrivacySettings(user)}
     />
   );
 }

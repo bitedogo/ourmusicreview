@@ -5,6 +5,7 @@ export interface ProfilePrivacySettings {
   showFavoritesPublic: boolean;
   showMasterpiecesPublic: boolean;
   showRatingPublic: boolean;
+  showPlaylistsPublic: boolean;
 }
 
 export interface ProfileReviewItem {
@@ -46,6 +47,16 @@ export interface ProfileMasterpieceItem {
   imageUrl: string | null;
   releaseDate: string;
   genre: string;
+}
+
+export interface ProfilePlaylistItem {
+  id: string;
+  title: string;
+  description: string | null;
+  isPublic: boolean;
+  coverImageUrl: string | null;
+  trackCount: number;
+  updatedAt: string;
 }
 
 export const GENDER_LABEL: Record<string, string> = {

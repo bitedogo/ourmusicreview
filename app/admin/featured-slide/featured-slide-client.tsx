@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import { reorderById } from "@/src/lib/utils/reorder";
 import Image from "next/image";
+import { ArtistNameLink } from "@/src/components/app/artist-name-link";
 import { fetchJson, getApiErrorMessage } from "@/src/lib/http/client";
 import { ItunesAlbumPickerModal } from "@/src/components/itunes/itunes-album-picker-modal";
 import type { SearchAlbumResult } from "@/src/lib/search/types";
@@ -223,7 +224,10 @@ export function FeaturedSlideClient() {
               )}
               <div className="min-w-0 flex-1">
                 <p className="truncate font-medium text-zinc-900">{album.title}</p>
-                <p className="truncate text-sm text-zinc-600">{album.artist}</p>
+                <ArtistNameLink
+                  name={album.artist}
+                  className="truncate text-left text-sm text-zinc-600 transition hover:text-[var(--color-brand-primary)] hover:underline disabled:cursor-wait disabled:no-underline"
+                />
               </div>
               <button
                 type="button"

@@ -9,6 +9,9 @@
   --color-brand-primary-hover: #3796A0;
   --color-accent: #43A7B2;
   --color-accent-hover: #3796A0;
+  --color-hero-title: #35909A;
+  --color-hero-subtitle: rgba(67, 167, 178, 0.55);
+  --color-nav-menu: #272727;
   --color-subtitle: #C3DADD;
   --color-rating-label: #11747C;
   --color-rating-score-high: #F82512;
@@ -34,14 +37,19 @@
   --profile-title-section-gap: 30px;
   --profile-section-gap: 18px;
   --nav-menu-font-size: 18px;
+  --nav-menu-font-size-mobile: 8px;
   --page-padding-x-mobile: 24px;
   --page-padding-x-desktop: 40px;
   --site-padding-x-mobile: 16px;
 
   --auth-form-width: 445px;
+  --auth-form-width-mobile: 314px;
   --auth-input-height: 50px;
+  --auth-input-height-mobile: 44px;
   --auth-button-height: 47px;
+  --auth-button-height-mobile: 42px;
   --auth-field-radius: 15px;
+  --auth-field-radius-mobile: 10px;
   --auth-logo-padding-top: 190px;
   --auth-logo-padding-bottom: 190px;
 
@@ -50,11 +58,13 @@
   --header-logo-padding-top: 35px;
 
   --search-bar-max-width: 667px;
-  --search-bar-height-mobile: 57px;
+  --search-bar-max-width-mobile: 313px;
+  --search-bar-height-mobile: 39px;
   --search-bar-height-desktop: 57px;
   --search-bar-button-width: 117px;
-  --search-bar-button-width-mobile: 100px;
+  --search-bar-button-width-mobile: 46px;
   --search-bar-button-height: 41px;
+  --search-bar-button-height-mobile: 29px;
   --search-bar-track-inset: 8px;
   --search-bar-radius: 15px;
   --search-bar-radius-open-top: 15px;
@@ -78,10 +88,14 @@
   --featured-card-radius: 15px;
   --featured-slide-card-radius: 24px;
   --featured-cover-radius: 15px;
-  --text-featured-title: 15px;
-  --text-featured-artist: 13px;
+  --text-featured-title: 16px;
+  --text-featured-artist: 11px;
   --text-featured-meta: 10px;
   --text-featured-rating: 14px;
+  --color-featured-title: #464646;
+  --color-featured-meta: #939393;
+  --leading-featured: 145%;
+  --tracking-featured: -0.005em;
   --featured-rating-divider-padding-top: 8px;
   --featured-rating-divider-padding-bottom: 4px;
 
@@ -112,10 +126,11 @@
   --today-album-content-padding-y-desktop: 32px;
   --today-album-layout-gap-mobile: 20px;
   --today-album-layout-gap-desktop: 40px;
-  --text-today-album-title: 25px;
+  --text-today-album-title: 24px;
+  --text-today-album-title-mobile: 14px;
   --text-today-album-artist: 18px;
   --today-album-desc-offset-top: 16px;
-  --text-today-album-body-mobile: 14px;
+  --text-today-album-body-mobile: 11px;
   --text-today-album-body-desktop: 15px;
   --leading-today-album-title: 145%;
   --leading-today-album-body: 170%;
@@ -126,11 +141,15 @@
   --hero-search-copy-gap: 48px;
   --hero-copy-margin-top-mobile: 24px;
   --hero-copy-margin-top-desktop: 48px;
-  --text-hero-title-mobile: 22px;
-  --text-hero-title-desktop: 40px;
-  --text-hero-subtitle-mobile: 16px;
-  --text-hero-subtitle-desktop: 20px;
-  --leading-hero-subtitle: 1.75;
+  --text-hero-title-mobile: 20px;
+  --text-hero-title-desktop: 36px;
+  --text-hero-subtitle-mobile: 12px;
+  --text-hero-subtitle-desktop: 16px;
+  --leading-hero-title: 110%;
+  --leading-hero-subtitle: 145%;
+  --tracking-hero-title: -0.02em;
+  --tracking-hero-subtitle: -0.005em;
+  --tracking-nav-menu: -0.005em;
   --hero-sticky-height: 139px;
   --hero-sticky-padding-top: 16px;
   --hero-sticky-padding-bottom: 16px;
@@ -177,8 +196,8 @@
     --footer-text-size-menu: 16px;
     --footer-text-size-policy-link: 16px;
     --footer-text-size-support-link: 16px;
-    --footer-line-height-primary: 150%;
-    --footer-line-height-secondary: 150%;
+    --footer-line-height-primary: 145%;
+    --footer-line-height-secondary: 145%;
     --footer-gap-one-line: calc(16px * 1.5);
     --footer-gap-two-lines: 32px;
     --footer-gap-sections: 0px;
@@ -376,7 +395,7 @@ select {
 
 /* 모바일: 입력 포커스 시 iOS/Android 자동 확대 방지 (16px 미만일 때 발생) */
 @media (max-width: 767px) {
-  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="image"]):not([type="file"]):not([type="color"]):not([type="hidden"]),
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="image"]):not([type="file"]):not([type="color"]):not([type="hidden"]):not(.auth-input),
   textarea,
   select {
     font-size: 16px !important;

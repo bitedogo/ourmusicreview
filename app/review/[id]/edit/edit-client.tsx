@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useEffect, useState, useRef } from "react";
 import { useSession } from "next-auth/react";
+import { ArtistNameLink } from "@/src/components/app/artist-name-link";
 import { TuiEditor, TuiEditorRef } from "@/src/components/common/TuiEditor";
 import { isEditorContentEmpty } from "@/src/lib/utils/editor";
 import Image from "next/image";
@@ -189,8 +190,11 @@ export function ReviewEditClient({ reviewId }: { reviewId: string }) {
             <h3 className="text-base font-semibold text-zinc-900 truncate">
               {review.album.title}
             </h3>
-            <p className="mt-1 text-sm text-zinc-600 truncate">
-              {review.album.artist}
+            <p className="mt-1 truncate text-sm text-zinc-600">
+              <ArtistNameLink
+                name={review.album.artist}
+                className="max-w-full truncate text-left text-sm text-zinc-600 transition hover:text-[var(--color-brand-primary)] hover:underline disabled:cursor-wait disabled:no-underline"
+              />
             </p>
           </div>
         </div>

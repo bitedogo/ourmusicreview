@@ -3,6 +3,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { ArtistNameLink } from "@/src/components/app/artist-name-link";
 import { ProfileListPageLayout } from "@/src/components/profile/profile-list-page-layout";
 import { useAuthenticatedFetch } from "@/src/hooks/use-authenticated-fetch";
 
@@ -68,7 +69,12 @@ export default function FavoriteAlbumsPage() {
             </div>
             <div className="min-h-[60px] space-y-1">
               <p className="truncate text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
-                {fav.album?.artist}
+                {fav.album?.artist ? (
+                  <ArtistNameLink
+                    name={fav.album.artist}
+                    className="max-w-full truncate text-left text-[10px] font-semibold uppercase tracking-wide text-zinc-500 transition hover:text-[var(--color-brand-primary)] hover:underline disabled:cursor-wait disabled:no-underline"
+                  />
+                ) : null}
               </p>
               <h3 className="line-clamp-2 text-sm font-bold text-zinc-900">{fav.album?.title}</h3>
             </div>

@@ -10,13 +10,13 @@ interface FooterLinkColumnProps {
 }
 
 function linkTextClassName(title: string, underline: boolean) {
-  const sizeClass =
+  const sizeVar =
     title === "Policy"
-      ? "text-[length:var(--footer-text-size-policy-link)]"
-      : "text-[length:var(--footer-text-size-support-link)]";
+      ? "--footer-text-size-policy-link"
+      : "--footer-text-size-support-link";
 
   return [
-    sizeClass,
+    `text-[length:var(${sizeVar})]`,
     "font-medium leading-[var(--footer-line-height-primary)] tracking-[-0.005em] text-[var(--footer-text-link)] transition hover:text-[var(--footer-text-menu)]",
     underline
       ? "underline decoration-[var(--footer-text-link)] underline-offset-2 hover:decoration-[var(--footer-text-menu)]"

@@ -17,6 +17,7 @@ export * from "./app/conditional-app-header";
 export * from "./app/conditional-footer";
 export * from "./app/app-header";
 export * from "./app/artist-search-bar";
+export * from "./app/artist-name-link";
 export * from "./app/ImageCropModal";
 export * from "./app/TermsContent";
 export * from "./app/rating-display";

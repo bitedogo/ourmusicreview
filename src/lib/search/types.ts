@@ -2,6 +2,8 @@
 
 import type { ItunesArtistResult } from "@/src/lib/itunes/types";
 
+export type SearchReleaseType = "album" | "single";
+
 export interface SearchAlbumResult {
   collectionId: string;
   collectionName: string;
@@ -10,6 +12,7 @@ export interface SearchAlbumResult {
   releaseDate: string;
   primaryGenreName: string;
   imageUrl600: string | null;
+  releaseType: SearchReleaseType;
 }
 
 export interface ArtistSearchResponse {

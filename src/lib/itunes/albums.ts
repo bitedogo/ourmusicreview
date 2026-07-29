@@ -19,6 +19,8 @@ const ARTIST_CACHE_TTL_MS = 10 * 60 * 1000;
 
 const artistHasAlbumsCache = createTtlCache<boolean>(ARTIST_CACHE_TTL_MS);
 
+export type ItunesReleaseType = "album" | "single";
+
 export interface iTunesAlbum {
   collectionId: number;
   collectionName: string;
@@ -28,6 +30,7 @@ export interface iTunesAlbum {
   primaryGenreName: string;
   collectionType?: string;
   trackCount?: number;
+  releaseType?: ItunesReleaseType;
 }
 
 /** 팬메이드/비공식 등만 제외. remastered·live 등은 순수 제목 중복 제거로 처리 (디럭스는 별도 유지) */
@@ -41,9 +44,9 @@ const ALBUM_TITLE_FILTER_KEYWORDS = [
   "UNOFFICIAL",
   "FAN MADE",
   "FAN-MADE",
-  "- SINGLE",
-  " - SINGLE",
 ];
+
+const SINGLE_TITLE_KEYWORDS = ["- SINGLE", " - SINGLE"];
 
 function releaseTime(album: iTunesAlbum): number {
   if (!album.releaseDate) return Number.POSITIVE_INFINITY;
@@ -95,12 +98,22 @@ export async function getAlbumByCollectionId(
   return null;
 }
 
-function isDisplayableItunesAlbum(album: iTunesAlbum): boolean {
-  const trackCount = album.trackCount ?? 0;
+export function classifyItunesReleaseType(album: iTunesAlbum): ItunesReleaseType {
   const collectionType = (album.collectionType ?? "").toLowerCase();
-  if (trackCount <= 2) return false;
-  if (collectionType === "single" && trackCount < 5) return false;
+  if (collectionType === "single") return "single";
 
+  const title = (album.collectionName || "").toUpperCase();
+  if (SINGLE_TITLE_KEYWORDS.some((keyword) => title.includes(keyword))) {
+    return "single";
+  }
+
+  const trackCount = album.trackCount ?? 0;
+  if (trackCount > 0 && trackCount <= 2) return "single";
+
+  return "album";
+}
+
+function isDisplayableItunesRelease(album: iTunesAlbum): boolean {
   const title = (album.collectionName || "").toUpperCase();
   return !ALBUM_TITLE_FILTER_KEYWORDS.some((keyword) => title.includes(keyword));
 }
@@ -140,7 +153,7 @@ function toItunesAlbum(item: ItunesResult): iTunesAlbum | null {
 
 export async function getArtistAlbums(
   artistId: number,
-  limit: number = 50
+  limit: number = 100
 ): Promise<iTunesAlbum[]> {
   if (!Number.isFinite(artistId) || artistId <= 0) return [];
 
@@ -156,8 +169,11 @@ export async function getArtistAlbums(
     }
   }
 
-  const filtered = Array.from(byId.values()).filter(isDisplayableItunesAlbum);
-  const deduped = dedupeAlbumsByTitleArtist(filtered);
+  const filtered = Array.from(byId.values()).filter(isDisplayableItunesRelease);
+  const deduped = dedupeAlbumsByTitleArtist(filtered).map((album) => ({
+    ...album,
+    releaseType: classifyItunesReleaseType(album),
+  }));
 
   return deduped.sort((a, b) => {
     const timeA = a.releaseDate ? new Date(a.releaseDate).getTime() : 0;
@@ -166,7 +182,7 @@ export async function getArtistAlbums(
   });
 }
 
-/** 필터·중복 제거 후 표시 가능한 앨범이 하나라도 있는지 */
+/** 필터·중복 제거 후 표시 가능한 앨범/싱글이 하나라도 있는지 */
 export async function artistHasDisplayableAlbums(artistId: number): Promise<boolean> {
   if (!Number.isFinite(artistId) || artistId <= 0) return false;
 
@@ -174,12 +190,12 @@ export async function artistHasDisplayableAlbums(artistId: number): Promise<bool
   const cached = artistHasAlbumsCache.get(cacheKey);
   if (cached !== undefined) return cached;
 
-  for (const url of itunesLookupUrls(artistId, { limit: 50 })) {
+  for (const url of itunesLookupUrls(artistId, { limit: 100 })) {
     const results = await fetchItunesResults(url);
     for (const item of results) {
       if (item.wrapperType !== "collection") continue;
       const album = toItunesAlbum(item);
-      if (album && isDisplayableItunesAlbum(album)) {
+      if (album && isDisplayableItunesRelease(album)) {
         artistHasAlbumsCache.set(cacheKey, true);
         return true;
       }

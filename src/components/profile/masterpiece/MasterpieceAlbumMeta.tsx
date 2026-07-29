@@ -1,6 +1,8 @@
+"use client";
 /** Masterpiece 앨범 카드 메타 영역 (앨범·추가 카드 공용) */
 
 import { ReactNode } from "react";
+import { ArtistNameLink } from "@/src/components/app/artist-name-link";
 
 interface MasterpieceAlbumMetaProps {
   title: string;
@@ -8,6 +10,8 @@ interface MasterpieceAlbumMetaProps {
   genre: string;
   year: string;
   footer: ReactNode;
+  /** false면 아티스트를 링크로 만들지 않음 (레이아웃 플레이스홀더 등) */
+  linkArtist?: boolean;
 }
 
 export function MasterpieceAlbumMeta({
@@ -16,15 +20,23 @@ export function MasterpieceAlbumMeta({
   genre,
   year,
   footer,
+  linkArtist = true,
 }: MasterpieceAlbumMetaProps) {
   return (
     <div className="flex min-h-0 flex-col gap-0.5 px-2 pb-2 pt-1.5">
       <p className="truncate text-[10px] font-bold leading-snug tracking-[-0.005em] text-[#464646] lg:text-[11px]">
         {title}
       </p>
-      <p className="truncate text-[8px] font-bold leading-snug tracking-[-0.005em] text-[#939393] lg:text-[9px]">
-        {artist}
-      </p>
+      {linkArtist ? (
+        <ArtistNameLink
+          name={artist}
+          className="truncate text-left text-[8px] font-bold leading-snug tracking-[-0.005em] text-[#939393] transition hover:text-[#43A7B2] hover:underline disabled:cursor-wait disabled:no-underline lg:text-[9px]"
+        />
+      ) : (
+        <p className="truncate text-[8px] font-bold leading-snug tracking-[-0.005em] text-[#939393] lg:text-[9px]">
+          {artist}
+        </p>
+      )}
       <div className="flex items-start justify-between gap-1 text-[7px] font-bold leading-snug tracking-[-0.005em] text-[#939393] lg:text-[8px]">
         <span className="min-w-0 break-words">{genre}</span>
         <span className="shrink-0">{year}</span>
