@@ -20,6 +20,7 @@ export interface ReviewDetailAlbum {
   albumId: string;
   title: string;
   artist: string;
+  artistId?: string | null;
   imageUrl: string | null;
   genre: string | null;
   releaseDate: string | null;
@@ -166,6 +167,7 @@ export function ReviewDetailAlbumCard({
           <p className="absolute left-[150px] right-[190px] top-[44px] truncate text-[16px] font-normal leading-[19px] text-black">
             <ArtistNameLink
               name={album.artist}
+              artistId={album.artistId}
               className="max-w-full truncate text-left text-[16px] font-normal leading-[19px] text-black transition hover:text-[var(--color-brand-primary)] hover:underline disabled:cursor-wait disabled:no-underline"
             />
           </p>
@@ -204,6 +206,7 @@ export function ReviewDetailAlbumCard({
                 <p className="truncate text-[12px] font-normal leading-[15px] text-black">
                   <ArtistNameLink
                     name={album.artist}
+                    artistId={album.artistId}
                     className="max-w-full truncate text-left text-[12px] font-normal leading-[15px] text-black transition hover:text-[var(--color-brand-primary)] hover:underline disabled:cursor-wait disabled:no-underline"
                   />
                 </p>

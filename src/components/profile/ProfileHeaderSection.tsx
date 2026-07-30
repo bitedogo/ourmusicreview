@@ -92,6 +92,7 @@ function ProfileHeaderMobile(props: ProfileHeaderSectionProps) {
     hasRatingData,
     gaugeReviews,
     averageRating,
+    displayRating,
     listenerLabel,
     showRatingPublic,
     isSavingPrivacy = false,
@@ -106,26 +107,29 @@ function ProfileHeaderMobile(props: ProfileHeaderSectionProps) {
         <div className="h-px w-full bg-[#E3E3E3]" aria-hidden />
       </div>
 
-      {isOwner && onRatingPrivacyChange && (
-        <div className="flex h-[25px] w-full items-center justify-center px-[27px]">
-          <ProfilePrivacyToggle
-            size="sm"
-            isPublic={showRatingPublic}
-            disabled={isSavingPrivacy}
-            onChange={onRatingPrivacyChange}
-          />
-        </div>
-      )}
+      <div className={`relative flex w-full min-w-0 flex-col ${PROFILE_SECTION_INSET}`}>
+        {isOwner && onRatingPrivacyChange && (
+          <div className="mb-3 flex h-[25px] w-full items-center justify-center">
+            <ProfilePrivacyToggle
+              size="sm"
+              isPublic={showRatingPublic}
+              disabled={isSavingPrivacy}
+              onChange={onRatingPrivacyChange}
+            />
+          </div>
+        )}
 
-      <ProfileRatingPanel
-        isOwner={isOwner}
-        showReviewGauge={showReviewGauge}
-        hasRatingData={hasRatingData}
-        gaugeReviews={gaugeReviews}
-        averageRating={averageRating}
-        listenerLabel={listenerLabel}
-        variant="mobile"
-      />
+        <ProfileRatingPanel
+          isOwner={isOwner}
+          showReviewGauge={showReviewGauge}
+          hasRatingData={hasRatingData}
+          gaugeReviews={gaugeReviews}
+          averageRating={averageRating}
+          displayRating={displayRating}
+          listenerLabel={listenerLabel}
+          variant="mobile"
+        />
+      </div>
     </div>
   );
 }
@@ -161,13 +165,13 @@ function ProfileRatingPanel({
   listenerLabel: string;
   variant: "desktop" | "mobile";
 }) {
+  const isMobile = variant === "mobile";
+
   if (!showReviewGauge) {
     return (
       <div
         className={
-          variant === "desktop"
-            ? "flex flex-1 items-center justify-center"
-            : "px-6 py-8"
+          isMobile ? "px-6 py-8" : "flex flex-1 items-center justify-center"
         }
       >
         <PrivateSectionMessage />
@@ -178,55 +182,66 @@ function ProfileRatingPanel({
   if (!hasRatingData) {
     return (
       <ProfileRatingEmptyState
-        className={variant === "mobile" ? "px-2 py-2" : "min-h-0"}
+        className={isMobile ? "px-2 py-2" : "min-h-0"}
       />
-    );
-  }
-
-  if (variant === "desktop") {
-    return (
-      <>
-        <p className="text-[24px] font-extrabold leading-[29px] text-[#43A7B2]">
-          Average Rating
-        </p>
-        <p
-          className="font-extrabold text-[#FFA310]"
-          style={{ fontSize: 75, lineHeight: "90px" }}
-        >
-          {displayRating!.toFixed(1)}
-        </p>
-        <div className="mt-1 w-full max-w-[567px]">
-          <ProfileRatingGauge
-            reviews={gaugeReviews}
-            averageRating={!isOwner ? averageRating : undefined}
-            barOnly
-          />
-        </div>
-        <div className="mt-2 flex w-full max-w-[567px] items-center justify-between">
-          <span className="text-[15px] font-extralight leading-[18px] text-[#8F8F8F]">
-            Born Hater
-          </span>
-          <span className="text-[15px] font-extralight leading-[18px] text-[#8F8F8F]">
-            Sound Lover
-          </span>
-        </div>
-        <p className="mt-auto pb-2 text-center text-[32px] font-extrabold leading-[38px] text-[#43A7B2]">
-          {listenerLabel}
-        </p>
-      </>
     );
   }
 
   return (
     <>
-      <div className="flex min-h-[178px] w-full items-center justify-center px-4">
+      <p
+        className={
+          isMobile
+            ? "text-[18px] font-extrabold leading-[22px] text-[#43A7B2]"
+            : "text-[24px] font-extrabold leading-[29px] text-[#43A7B2]"
+        }
+      >
+        Average Rating
+      </p>
+      <p
+        className="font-extrabold text-[#FFA310]"
+        style={
+          isMobile
+            ? { fontSize: 56, lineHeight: "68px" }
+            : { fontSize: 75, lineHeight: "90px" }
+        }
+      >
+        {displayRating!.toFixed(1)}
+      </p>
+      <div className="mt-1 w-full max-w-[567px]">
         <ProfileRatingGauge
           reviews={gaugeReviews}
           averageRating={!isOwner ? averageRating : undefined}
-          variant="mobileVertical"
+          barOnly
         />
       </div>
-      <p className="text-center text-[24px] font-extrabold leading-[29px] text-[#43A7B2]">
+      <div className="mt-2 flex w-full max-w-[567px] items-center justify-between">
+        <span
+          className={
+            isMobile
+              ? "text-[12px] font-extralight leading-[15px] text-[#8F8F8F]"
+              : "text-[15px] font-extralight leading-[18px] text-[#8F8F8F]"
+          }
+        >
+          Born Hater
+        </span>
+        <span
+          className={
+            isMobile
+              ? "text-[12px] font-extralight leading-[15px] text-[#8F8F8F]"
+              : "text-[15px] font-extralight leading-[18px] text-[#8F8F8F]"
+          }
+        >
+          Sound Lover
+        </span>
+      </div>
+      <p
+        className={
+          isMobile
+            ? "mt-5 pb-1 text-center text-[24px] font-extrabold leading-[29px] text-[#43A7B2]"
+            : "mt-auto pb-2 text-center text-[32px] font-extrabold leading-[38px] text-[#43A7B2]"
+        }
+      >
         {listenerLabel}
       </p>
     </>

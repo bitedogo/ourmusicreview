@@ -168,6 +168,7 @@ export function ProfileActivitySection({
           <ActivityStatBox
             label="추천한 글"
             count={activityStats?.likedPostCount ?? 0}
+            href="/profile/liked-posts"
           />
         </div>
       </section>

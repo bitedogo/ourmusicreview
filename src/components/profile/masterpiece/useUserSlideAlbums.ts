@@ -132,9 +132,10 @@ export function useUserSlideAlbums() {
     setDraggingId(id);
   }
 
-  async function handleDrop(targetId: string) {
-    if (!draggingId || draggingId === targetId || isEditing) return;
-    const next = reorderById(albums, draggingId, targetId);
+  async function handleDrop(targetId: string, sourceId?: string) {
+    const fromId = sourceId ?? draggingId;
+    if (!fromId || fromId === targetId || isEditing) return;
+    const next = reorderById(albums, fromId, targetId);
     if (next === albums) return;
     await saveOrder(next.map((a) => a.id));
   }

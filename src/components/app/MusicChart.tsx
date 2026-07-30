@@ -20,7 +20,7 @@ export default function MusicChart() {
 
   return (
     <section className="mt-[var(--today-album-chart-gap)]">
-      <h2 className="mb-[var(--chart-title-content-gap)] text-center text-xl font-medium text-[var(--color-accent)]">
+      <h2 className="mb-[var(--chart-title-content-gap)] text-center text-[20px] font-semibold leading-[145%] tracking-[-0.005em] text-[var(--color-accent)]">
         Chart
       </h2>
 

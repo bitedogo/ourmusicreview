@@ -1,6 +1,6 @@
 /** Masterpiece 앨범 카드 (편집·드래그) */
 
-import { type DragEvent, useRef } from "react";
+import { type DragEvent, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { MasterpieceAlbumMeta } from "./MasterpieceAlbumMeta";
@@ -27,8 +27,13 @@ interface MasterpieceAlbumCardProps {
   onDragOver: (e: DragEvent<HTMLDivElement>) => void;
   onDrop: (e: DragEvent<HTMLDivElement>) => void;
   onDragEnd: () => void;
+  /** 터치 드래그 종료 시 드롭 대상 id */
+  onTouchDrop: (targetId: string) => void;
   onRemove: () => void;
 }
+
+const LONG_PRESS_MS = 280;
+const MOVE_CANCEL_PX = 10;
 
 export function MasterpieceAlbumCard({
   album,
@@ -40,13 +45,35 @@ export function MasterpieceAlbumCard({
   onDragOver,
   onDrop,
   onDragEnd,
+  onTouchDrop,
   onRemove,
 }: MasterpieceAlbumCardProps) {
   const year = yearFromRelease(album.releaseDate);
   const genre = album.genre?.trim() || "—";
+  const rootRef = useRef<HTMLDivElement | null>(null);
   const dragGhostRef = useRef<HTMLElement | null>(null);
+  const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+  const isTouchDraggingRef = useRef(false);
+
+  function clearLongPress() {
+    if (longPressTimerRef.current != null) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+  }
+
+  function cleanupGhost() {
+    dragGhostRef.current?.remove();
+    dragGhostRef.current = null;
+  }
 
   function handleDragStart(e: DragEvent<HTMLDivElement>) {
+    if (isTouchDraggingRef.current) {
+      e.preventDefault();
+      return;
+    }
+
     const target = e.currentTarget;
     const rect = target.getBoundingClientRect();
 
@@ -78,20 +105,100 @@ export function MasterpieceAlbumCard({
   }
 
   function handleDragEnd() {
-    dragGhostRef.current?.remove();
-    dragGhostRef.current = null;
+    cleanupGhost();
     onDragEnd();
   }
 
+  useEffect(() => {
+    const node = rootRef.current;
+    if (!node || !draggable) return;
+
+    function handleTouchStart(event: TouchEvent) {
+      if (!draggable || event.touches.length !== 1) return;
+      const touch = event.touches[0];
+      touchStartRef.current = { x: touch.clientX, y: touch.clientY };
+      isTouchDraggingRef.current = false;
+      clearLongPress();
+      longPressTimerRef.current = setTimeout(() => {
+        isTouchDraggingRef.current = true;
+        onDragStart({} as DragEvent<HTMLDivElement>);
+        if (typeof navigator !== "undefined" && "vibrate" in navigator) {
+          navigator.vibrate?.(15);
+        }
+      }, LONG_PRESS_MS);
+    }
+
+    function handleTouchMove(event: TouchEvent) {
+      const touch = event.touches[0];
+      const start = touchStartRef.current;
+      if (!touch || !start) return;
+
+      if (!isTouchDraggingRef.current) {
+        const dx = Math.abs(touch.clientX - start.x);
+        const dy = Math.abs(touch.clientY - start.y);
+        if (dx > MOVE_CANCEL_PX || dy > MOVE_CANCEL_PX) {
+          clearLongPress();
+        }
+        return;
+      }
+
+      event.preventDefault();
+    }
+
+    function handleTouchEnd(event: TouchEvent) {
+      clearLongPress();
+      const wasDragging = isTouchDraggingRef.current;
+      isTouchDraggingRef.current = false;
+      touchStartRef.current = null;
+
+      if (!wasDragging) return;
+
+      event.preventDefault();
+      const touch = event.changedTouches[0];
+      if (!touch) {
+        onDragEnd();
+        return;
+      }
+
+      const el = document.elementFromPoint(touch.clientX, touch.clientY);
+      const target = el?.closest("[data-masterpiece-id]") as HTMLElement | null;
+      const targetId = target?.dataset.masterpieceId;
+      if (targetId && targetId !== album.id) {
+        onTouchDrop(targetId);
+      }
+      onDragEnd();
+    }
+
+    function handleTouchCancel() {
+      clearLongPress();
+      if (isTouchDraggingRef.current) {
+        isTouchDraggingRef.current = false;
+        onDragEnd();
+      }
+      touchStartRef.current = null;
+    }
+
+    node.addEventListener("touchstart", handleTouchStart, { passive: true });
+    node.addEventListener("touchmove", handleTouchMove, { passive: false });
+    node.addEventListener("touchend", handleTouchEnd, { passive: false });
+    node.addEventListener("touchcancel", handleTouchCancel);
+
+    return () => {
+      clearLongPress();
+      node.removeEventListener("touchstart", handleTouchStart);
+      node.removeEventListener("touchmove", handleTouchMove);
+      node.removeEventListener("touchend", handleTouchEnd);
+      node.removeEventListener("touchcancel", handleTouchCancel);
+    };
+  }, [album.id, draggable, onDragEnd, onDragStart, onTouchDrop]);
+
   return (
     <div
-      className={`relative w-full shrink-0 transition-[opacity,transform] duration-150 ${
+      ref={rootRef}
+      data-masterpiece-id={album.id}
+      className={`relative w-full shrink-0 touch-manipulation transition-[opacity,transform] duration-150 ${
         draggable ? "cursor-grab active:cursor-grabbing" : ""
-      } ${
-        isDragging
-          ? "z-10 scale-[0.98] opacity-35"
-          : "opacity-100"
-      }`}
+      } ${isDragging ? "z-10 scale-[0.98] opacity-35" : "opacity-100"}`}
       draggable={draggable}
       onDragStart={handleDragStart}
       onDragOver={onDragOver}

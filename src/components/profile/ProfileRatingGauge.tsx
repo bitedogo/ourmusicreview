@@ -6,7 +6,6 @@ import { useId, useMemo } from "react";
 import { ProfileRatingEmptyState } from "./ProfileRatingEmptyState";
 import { ProfileReviewItem } from "./profile-types";
 import { DesktopWedgeBar } from "./DesktopWedgeBar";
-import { MobileVerticalGauge } from "./MobileVerticalGauge";
 import { FADE_PX, GAUGE_W } from "./rating-gauge-geometry";
 import type { GaugeIds } from "./rating-gauge-shared-types";
 import { computeRating } from "./rating-utils";
@@ -16,17 +15,14 @@ export { getListenerLabel, useAverageRating } from "./rating-utils";
 interface ProfileRatingGaugeProps {
   reviews: ProfileReviewItem[];
   averageRating?: number;
-  /** 바만 렌더 — 부모에서 점수/라벨 배치 (데스크톱 레이아웃) */
+  /** 바만 렌더 — 부모에서 점수/라벨 배치 */
   barOnly?: boolean;
-  /** mobileVertical: Frame 23 세로 게이지 */
-  variant?: "default" | "mobileVertical";
 }
 
 export function ProfileRatingGauge({
   reviews,
   averageRating,
   barOnly = false,
-  variant = "default",
 }: ProfileRatingGaugeProps) {
   const uid = useId().replace(/[^a-zA-Z0-9_-]/g, "");
   const ids: GaugeIds = {
@@ -48,16 +44,6 @@ export function ProfileRatingGauge({
 
   if (!data.hasRatingData) {
     return <ProfileRatingEmptyState />;
-  }
-
-  if (variant === "mobileVertical") {
-    return (
-      <MobileVerticalGauge
-        displayRating={data.displayRating}
-        isMax={data.isMax}
-        ids={ids}
-      />
-    );
   }
 
   const bar = (

@@ -16,7 +16,7 @@ const fieldShellClass =
   "w-full overflow-hidden rounded-[10px] border-[0.71px] border-[#E3E3E3] bg-white shadow-[0px_1.41573px_2.83146px_rgba(0,0,0,0.25)] transition-[border-color,box-shadow] focus-within:border-[#43A7B2] sm:rounded-[15px] sm:border sm:shadow-[0px_2px_4px_rgba(0,0,0,0.25)]";
 
 const fieldInputClass =
-  "auth-input h-[44px] w-full bg-transparent pl-[27px] pr-4 text-[15px] font-semibold leading-[145%] tracking-[-0.005em] text-black outline-none placeholder:font-semibold placeholder:text-[#B1B1B1] sm:h-[50px] sm:text-[18px]";
+  "auth-input h-[44px] w-full bg-transparent pl-[18px] pr-4 text-[15px] font-normal leading-[145%] tracking-[-0.005em] text-black outline-none placeholder:font-normal placeholder:text-[#B1B1B1] sm:h-[50px] sm:pl-[20px] sm:text-[18px]";
 
 const linkTextClass =
   "whitespace-nowrap text-[11px] font-extralight leading-[145%] tracking-[-0.005em] text-black transition hover:text-[#43A7B2] sm:text-[16px]";

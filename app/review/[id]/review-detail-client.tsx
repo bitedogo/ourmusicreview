@@ -35,6 +35,7 @@ interface ReviewDetail {
     albumId: string;
     title: string;
     artist: string;
+    artistId: string | null;
     imageUrl: string | null;
     genre: string | null;
     releaseDate: string | null;

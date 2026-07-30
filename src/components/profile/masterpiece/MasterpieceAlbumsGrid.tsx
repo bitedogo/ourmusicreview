@@ -30,7 +30,7 @@ interface MasterpieceAlbumsGridProps {
   onCloseModal: () => void;
   onAlbumSelect: (album: SearchAlbumResult) => void;
   onDragStart: (id: string) => void;
-  onDrop: (id: string) => void;
+  onDrop: (id: string, sourceId?: string) => void;
   onDragEnd: () => void;
   onRemove: (id: string) => void;
 }
@@ -89,6 +89,7 @@ export function MasterpieceAlbumsGrid({
                 void onDrop(album.id);
               }}
               onDragEnd={onDragEnd}
+              onTouchDrop={(targetId) => void onDrop(targetId, album.id)}
               onRemove={() => void onRemove(album.id)}
             />
           ))}

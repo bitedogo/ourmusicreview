@@ -26,7 +26,7 @@ export function TodayAlbumDescription({ album, resetKey }: TodayAlbumDescription
   return (
     <div className="w-full min-w-0 flex-1 sm:self-start sm:pt-[var(--today-album-desc-offset-top)]">
       <div className="flex flex-col gap-[var(--featured-card-inner-gap)] sm:flex-row sm:items-center sm:gap-[var(--featured-card-gap)]">
-        <div className="min-w-0 flex-1 text-center sm:text-left">
+        <div className="min-w-0 flex-1 text-left">
           <h3
             className="truncate text-[14px] font-bold leading-[145%] tracking-[0.03em] text-[#464646] sm:text-[24px]"
             title={album.title}
@@ -35,15 +35,15 @@ export function TodayAlbumDescription({ album, resetKey }: TodayAlbumDescription
           </h3>
           <ArtistNameLink
             name={album.artist}
-            className="mt-0.5 max-w-full truncate text-[length:var(--text-today-album-artist)] font-bold tracking-[0.03em] text-[#939393] transition hover:text-[#43A7B2] hover:underline disabled:cursor-wait disabled:no-underline"
+            className="mt-0.5 max-w-full truncate text-left text-[length:var(--text-today-album-artist)] font-bold tracking-[0.03em] text-[#939393] transition hover:text-[#43A7B2] hover:underline disabled:cursor-wait disabled:no-underline"
           />
         </div>
-        <StreamingLinkButtons links={streamingLinks} className="shrink-0 justify-center sm:justify-start" />
+        <StreamingLinkButtons links={streamingLinks} className="shrink-0 justify-start" />
       </div>
       {description ? (
         <>
           <p
-            className={`mt-6 max-h-[var(--today-album-description-max-height)] overflow-y-auto whitespace-pre-line break-words text-center text-[11px] font-normal leading-[170%] tracking-[0.03em] text-[#717171] sm:text-left sm:text-[15px] ${
+            className={`mt-6 max-h-[var(--today-album-description-max-height)] overflow-y-auto whitespace-pre-line break-words text-left text-[11px] font-normal leading-[170%] tracking-[0.03em] text-[#717171] sm:text-[15px] ${
               isExpanded ? "block" : "hidden sm:block"
             }`}
           >
@@ -60,7 +60,7 @@ export function TodayAlbumDescription({ album, resetKey }: TodayAlbumDescription
           </div>
         </>
       ) : (
-        <p className="mt-6 hidden text-center text-[15px] text-[#939393] sm:block sm:text-left">
+        <p className="mt-6 hidden text-left text-[15px] text-[#939393] sm:block">
           등록된 소개글이 없습니다.
         </p>
       )}

@@ -233,6 +233,7 @@ export function AlbumReviewsClient({ albumId }: { albumId: string }) {
                 albumId: albumInfo.albumId,
                 title: albumInfo.title,
                 artist: albumInfo.artist,
+                artistId: albumInfo.artistId,
                 imageUrl: albumInfo.imageUrl,
                 genre: albumInfo.genre,
                 releaseDate: albumInfo.releaseDate,
