@@ -49,6 +49,10 @@ type PrivacyToggleKey = Extract<
   "showReviewsPublic" | "showFavoritesPublic" | "showPlaylistsPublic"
 >;
 
+type ActivityStatKey = keyof NonNullable<
+  ProfileActivitySectionProps["activityStats"]
+>;
+
 interface ActivityCollectionConfig {
   key: string;
   title: string;
@@ -58,7 +62,25 @@ interface ActivityCollectionConfig {
   isLoading: boolean;
   hidden: boolean;
   privacyKey?: PrivacyToggleKey;
-  ownerFallbackHref?: string;
+}
+
+const OWNER_STATS: { label: string; href: string; countKey: ActivityStatKey }[] =
+  [
+    { label: "작성한 게시글", href: "/profile/posts", countKey: "postCount" },
+    { label: "작성한 댓글", href: "/profile/comments", countKey: "commentCount" },
+    {
+      label: "추천한 글",
+      href: "/profile/liked-posts",
+      countKey: "likedPostCount",
+    },
+  ];
+
+function resolveCollectionHref(
+  isOwner: boolean,
+  href: string | undefined,
+  ownerFallback: string,
+) {
+  return isOwner ? (href ?? ownerFallback) : href;
 }
 
 export function ProfileActivitySection({
@@ -89,7 +111,7 @@ export function ProfileActivitySection({
       title: "My Reviews",
       count: reviewCount,
       covers: reviewCovers,
-      href: isOwner ? (reviewsAllHref ?? "/profile/reviews") : reviewsAllHref,
+      href: resolveCollectionHref(isOwner, reviewsAllHref, "/profile/reviews"),
       isLoading: isLoadingReviews,
       hidden: reviewsHidden,
       privacyKey: "showReviewsPublic",
@@ -99,7 +121,7 @@ export function ProfileActivitySection({
       title: "My Favorite",
       count: favoriteCount,
       covers: favoriteCovers,
-      href: isOwner ? (favoritesAllHref ?? "/profile/albums") : favoritesAllHref,
+      href: resolveCollectionHref(isOwner, favoritesAllHref, "/profile/albums"),
       isLoading: isLoadingFavorites,
       hidden: favoritesHidden,
       privacyKey: "showFavoritesPublic",
@@ -109,9 +131,11 @@ export function ProfileActivitySection({
       title: "My Playlist",
       count: playlistCount,
       covers: playlistCovers,
-      href: isOwner
-        ? (playlistsAllHref ?? "/profile/playlists")
-        : playlistsAllHref,
+      href: resolveCollectionHref(
+        isOwner,
+        playlistsAllHref,
+        "/profile/playlists",
+      ),
       isLoading: isLoadingPlaylists,
       hidden: playlistsHidden,
       privacyKey: "showPlaylistsPublic",
@@ -123,6 +147,8 @@ export function ProfileActivitySection({
       return <ActivityPrivatePlaceholder key={item.key} />;
     }
 
+    const { privacyKey } = item;
+
     return (
       <ActivityCollectionCard
         key={item.key}
@@ -133,17 +159,19 @@ export function ProfileActivitySection({
         isLoading={item.isLoading}
         isOwner={isOwner}
         isPublic={
-          isOwner && item.privacyKey ? privacy[item.privacyKey] : true
+          isOwner && privacyKey ? privacy[privacyKey] : true
         }
-        isSavingPrivacy={isOwner ? isSavingPrivacy : false}
+        isSavingPrivacy={isOwner && isSavingPrivacy}
         onPrivacyChange={
-          isOwner && item.privacyKey && onPrivacyChange
-            ? (value) => onPrivacyChange(item.privacyKey!, value)
+          isOwner && privacyKey && onPrivacyChange
+            ? (value) => onPrivacyChange(privacyKey, value)
             : undefined
         }
       />
     );
   }
+
+  const collectionGrid = collections.map(renderCollection);
 
   if (isOwner) {
     return (
@@ -151,25 +179,18 @@ export function ProfileActivitySection({
         <ProfileSectionHeader title="나의 활동" tip={<ActivityInfoTip />} />
 
         <div className={ACTIVITY_OWNER_COLLECTION_GRID_CLASS}>
-          {collections.map(renderCollection)}
+          {collectionGrid}
         </div>
 
         <div className={ACTIVITY_STATS_GRID_CLASS}>
-          <ActivityStatBox
-            label="작성한 게시글"
-            count={activityStats?.postCount ?? 0}
-            href="/profile/posts"
-          />
-          <ActivityStatBox
-            label="작성한 댓글"
-            count={activityStats?.commentCount ?? 0}
-            href="/profile/comments"
-          />
-          <ActivityStatBox
-            label="추천한 글"
-            count={activityStats?.likedPostCount ?? 0}
-            href="/profile/liked-posts"
-          />
+          {OWNER_STATS.map((stat) => (
+            <ActivityStatBox
+              key={stat.href}
+              label={stat.label}
+              count={activityStats?.[stat.countKey] ?? 0}
+              href={stat.href}
+            />
+          ))}
         </div>
       </section>
     );
@@ -178,9 +199,7 @@ export function ProfileActivitySection({
   return (
     <section className={`${PROFILE_SECTION_CARD} py-10 ${PROFILE_SECTION_INSET}`}>
       <ProfileSectionHeader title="나의 활동" />
-      <div className={ACTIVITY_COLLECTION_GRID_CLASS}>
-        {collections.map(renderCollection)}
-      </div>
+      <div className={ACTIVITY_COLLECTION_GRID_CLASS}>{collectionGrid}</div>
     </section>
   );
 }

@@ -10,7 +10,7 @@ import {
   ACTIVITY_FOLDER_WIDTH,
 } from "./activity-folder-styles";
 
-export interface ActivityCollectionCardProps {
+interface ActivityCollectionCardProps {
   title: string;
   count: number;
   covers: string[];

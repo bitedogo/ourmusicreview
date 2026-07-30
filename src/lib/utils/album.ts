@@ -9,12 +9,6 @@ export function getReleaseYear(releaseDate: string): string {
   }
 }
 
-export function formatGenreYear(genre: string, releaseDate: string): string {
-  const year = getReleaseYear(releaseDate);
-  if (genre && year) return `${genre} ${year}`;
-  return genre || year;
-}
-
 export function buildAlbumReviewPath(albumId: string | number): string {
   return `/review/album/${encodeURIComponent(String(albumId))}`;
 }

@@ -2,7 +2,6 @@
 
 import { useMemo } from "react";
 import type { ProfileReviewItem } from "./profile-types";
-import { GAUGE_W } from "./rating-gauge-geometry";
 
 export function getListenerLabel(rating: number): string {
   if (rating < 3) return "Harsh listener";
@@ -35,11 +34,8 @@ export function useAverageRating(
   reviews: ProfileReviewItem[],
   averageRating?: number
 ) {
-  return useMemo(() => {
-    const base = computeRating(reviews, averageRating);
-    return {
-      ...base,
-      fillWidth: (base.displayRating / 10) * GAUGE_W,
-    };
-  }, [reviews, averageRating]);
+  return useMemo(
+    () => computeRating(reviews, averageRating),
+    [reviews, averageRating]
+  );
 }

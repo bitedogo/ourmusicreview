@@ -6,7 +6,6 @@ import {
   MASTERPIECE_EDIT_BUTTON_CLASS,
   PROFILE_SECTION_TITLE,
   PROFILE_SECTION_TITLE_INSET,
-  PROFILE_SECTION_TITLE_INSET_END,
 } from "../profile-section-styles";
 
 interface MasterpieceSectionHeaderProps {
@@ -32,9 +31,8 @@ export function MasterpieceSectionHeader({
         <h2 className={PROFILE_SECTION_TITLE}>나의 Masterpiece</h2>
         <MasterpieceInfoTip />
       </div>
-      <div
-        className={`flex shrink-0 items-center justify-end gap-3 ${PROFILE_SECTION_TITLE_INSET_END}`}
-      >        <button
+      <div className="flex shrink-0 items-center justify-end gap-3">
+        <button
           type="button"
           onClick={onToggleEditing}
           className={`${MASTERPIECE_EDIT_BUTTON_CLASS} ${

@@ -1,8 +1,6 @@
 /** 사이트 브랜드명·로고 상수 */
 
 export const LOGO_SRC = "/oru_logo.png";
-export const LOGO_WIDTH = 141;
-export const LOGO_HEIGHT = 72.9;
 export const LOGO_ALT = "ORU 로고";
 
 export const OG_IMAGE_SRC = LOGO_SRC;

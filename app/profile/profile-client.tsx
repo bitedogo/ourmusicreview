@@ -1,7 +1,6 @@
 "use client";
-/** 마이페이지 클라이언트(프로필·로그아웃) */
+/** 마이페이지 클라이언트(프로필·공개설정) */
 
-import { signOut } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { fetchJson } from "@/src/lib/http/client";
 import { MyPicksSection } from "./my-picks-section";
@@ -77,7 +76,6 @@ export function ProfileClient({
   const [isLoadingFavorites, setIsLoadingFavorites] = useState(false);
   const [playlists, setPlaylists] = useState<ProfilePlaylistItem[]>([]);
   const [isLoadingPlaylists, setIsLoadingPlaylists] = useState(false);
-  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const [privacy, setPrivacy] = useState<ProfilePrivacySettings>(initialPrivacy);
   const [isSavingPrivacy, setIsSavingPrivacy] = useState(false);
   const [activityStats, setActivityStats] = useState({
@@ -85,36 +83,6 @@ export function ProfileClient({
     commentCount: 0,
     likedPostCount: 0,
   });
-
-  async function handleDeleteAccount() {
-    if (
-      !confirm(
-        "정말로 계정을 삭제하시겠습니까?\n\n삭제된 계정은 복구할 수 없으며, 작성한 리뷰·댓글 등 모든 데이터가 삭제됩니다."
-      )
-    ) {
-      return;
-    }
-    if (!confirm("한 번 더 확인합니다. 계정을 삭제하시겠습니까?")) {
-      return;
-    }
-
-    setIsDeletingAccount(true);
-    try {
-      const response = await fetch("/api/user/account", { method: "DELETE" });
-      const data = await response.json().catch(() => null);
-
-      if (!response.ok || !data?.ok) {
-        alert(data?.error ?? "계정 삭제에 실패했습니다.");
-        return;
-      }
-
-      await signOut({ callbackUrl: "/" });
-    } catch {
-      alert("계정 삭제 중 오류가 발생했습니다.");
-    } finally {
-      setIsDeletingAccount(false);
-    }
-  }
 
   async function fetchMyReviews() {
     try {
@@ -206,18 +174,6 @@ export function ProfileClient({
     <ProfilePageContent
       mode="owner"
       pageTitle="마이페이지"
-      headerAction={
-        role !== "ADMIN" ? (
-          <button
-            type="button"
-            onClick={handleDeleteAccount}
-            disabled={isDeletingAccount}
-            className="text-xs font-medium text-red-600 hover:underline disabled:opacity-50"
-          >
-            {isDeletingAccount ? "처리 중..." : "계정삭제"}
-          </button>
-        ) : null
-      }
       userId={id}
       nickname={nickname}
       name={name}

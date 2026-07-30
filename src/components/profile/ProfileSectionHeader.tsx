@@ -10,26 +10,21 @@ import {
 interface ProfileSectionHeaderProps {
   title: string;
   tip?: ReactNode;
-  /** 구분선 표시 (기본 true) */
-  showDivider?: boolean;
-  titleClassName?: string;
 }
 
 export function ProfileSectionHeader({
   title,
   tip,
-  showDivider = true,
-  titleClassName = "mb-6",
 }: ProfileSectionHeaderProps) {
   return (
     <>
       <div
-        className={`flex items-center gap-[10px] ${PROFILE_SECTION_TITLE_INSET} ${titleClassName}`}
+        className={`mb-6 flex items-center gap-[10px] ${PROFILE_SECTION_TITLE_INSET}`}
       >
         <h2 className={PROFILE_SECTION_TITLE}>{title}</h2>
         {tip}
       </div>
-      {showDivider && <div className={PROFILE_SECTION_DIVIDER} aria-hidden />}
+      <div className={PROFILE_SECTION_DIVIDER} aria-hidden />
     </>
   );
 }

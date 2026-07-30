@@ -1,6 +1,6 @@
 "use client";
 
-/** 프로필 평균 평점 게이지 */
+/** 프로필 평균 평점 게이지 (바만) */
 
 import { useId, useMemo } from "react";
 import { ProfileRatingEmptyState } from "./ProfileRatingEmptyState";
@@ -10,19 +10,14 @@ import { FADE_PX, GAUGE_W } from "./rating-gauge-geometry";
 import type { GaugeIds } from "./rating-gauge-shared-types";
 import { computeRating } from "./rating-utils";
 
-export { getListenerLabel, useAverageRating } from "./rating-utils";
-
 interface ProfileRatingGaugeProps {
   reviews: ProfileReviewItem[];
   averageRating?: number;
-  /** 바만 렌더 — 부모에서 점수/라벨 배치 */
-  barOnly?: boolean;
 }
 
 export function ProfileRatingGauge({
   reviews,
   averageRating,
-  barOnly = false,
 }: ProfileRatingGaugeProps) {
   const uid = useId().replace(/[^a-zA-Z0-9_-]/g, "");
   const ids: GaugeIds = {
@@ -46,40 +41,12 @@ export function ProfileRatingGauge({
     return <ProfileRatingEmptyState />;
   }
 
-  const bar = (
+  return (
     <DesktopWedgeBar
       fillWidth={data.fillWidth}
       fadeStartPct={data.fadeStartPct}
       isMax={data.isMax}
       ids={ids}
     />
-  );
-
-  if (barOnly) return bar;
-
-  return (
-    <div className="relative w-full max-w-[567px]">
-      <p className="text-[24px] font-extrabold leading-[29px] text-[#43A7B2]">
-        Average Rating
-      </p>
-      <p
-        className="font-extrabold text-[#FFA310]"
-        style={{ fontSize: 75, lineHeight: "90px" }}
-      >
-        {data.displayRating.toFixed(1)}
-      </p>
-      <div className="mt-1">{bar}</div>
-      <div className="mt-2 flex items-center justify-between">
-        <span className="text-[15px] font-extralight leading-[18px] text-[#8F8F8F]">
-          Born Hater
-        </span>
-        <span className="text-[15px] font-extralight leading-[18px] text-[#8F8F8F]">
-          Sound Lover
-        </span>
-      </div>
-      <p className="mt-6 text-center text-[32px] font-extrabold leading-[38px] text-[#43A7B2]">
-        {data.listenerLabel}
-      </p>
-    </div>
   );
 }

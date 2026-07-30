@@ -16,7 +16,6 @@ interface ProfileInfoTipProps {
   label: string;
   tipId?: string;
   children: ReactNode;
-  className?: string;
   tall?: boolean;
 }
 
@@ -24,7 +23,6 @@ export function ProfileInfoTip({
   label,
   tipId,
   children,
-  className = "",
   tall = false,
 }: ProfileInfoTipProps) {
   const autoId = useId();
@@ -85,7 +83,7 @@ export function ProfileInfoTip({
         role="tooltip"
         className={`pointer-events-none absolute left-[-4px] top-[calc(100%+2px)] z-40 w-[min(334px,calc(100vw-2rem))] ${
           open ? "block" : "hidden"
-        } ${className}`}
+        }`}
         style={{ transform: `translateX(${shiftX}px)` }}
       >
         <span

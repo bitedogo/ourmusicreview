@@ -12,14 +12,10 @@
   --color-hero-title: #35909A;
   --color-hero-subtitle: rgba(67, 167, 178, 0.55);
   --color-nav-menu: #272727;
-  --color-subtitle: #C3DADD;
-  --color-rating-label: #11747C;
   --color-rating-score-high: #F82512;
   --color-rating-score-mid-high: #F35319;
   --color-rating-score-mid: #F8CA12;
   --color-rating-score-low: #11747C;
-  --color-today-album-title: #0D0D0D;
-  --color-today-album-body: #333333;
   --color-today-album-tab-today: #FBFBFB;
   --color-today-album-tab-yesterday: #F4F4F4;
   --color-today-album-tab-previous: #E3E3E3;
@@ -30,7 +26,6 @@
   --color-divider: #71717a;
 
   --layout-content-max-width: 1100px;
-  --layout-search-bar-max-width: 667px;
   --layout-header-search-gap: 24px;
   --layout-logo-menu-gap: 61px;
   --profile-menu-title-gap: 61px;
@@ -44,12 +39,6 @@
 
   --auth-form-width: 445px;
   --auth-form-width-mobile: 314px;
-  --auth-input-height: 50px;
-  --auth-input-height-mobile: 44px;
-  --auth-button-height: 47px;
-  --auth-button-height-mobile: 42px;
-  --auth-field-radius: 15px;
-  --auth-field-radius-mobile: 10px;
   --auth-logo-padding-top: 190px;
   --auth-logo-padding-bottom: 190px;
 
@@ -58,7 +47,7 @@
   --header-logo-padding-top: 35px;
 
   --search-bar-max-width: 667px;
-  --search-bar-max-width-mobile: 313px;
+  --search-bar-max-width-mobile: 330px;
   --search-bar-height-mobile: 39px;
   --search-bar-height-desktop: 57px;
   --search-bar-button-width: 117px;
@@ -66,8 +55,6 @@
   --search-bar-button-height: 41px;
   --search-bar-button-height-mobile: 29px;
   --search-bar-track-inset: 8px;
-  --search-bar-radius: 15px;
-  --search-bar-radius-open-top: 15px;
   --search-bar-input-padding-left-mobile: 8px;
   --search-bar-input-padding-left-desktop: 12px;
   --search-bar-track-padding-x-mobile: 8px;
@@ -79,7 +66,6 @@
   --featured-card-width-mobile: 224px;
   --featured-card-width-desktop: 224px;
   --featured-card-height: 326px;
-  --featured-card-cover-size: 224px;
   --featured-card-margin-x: 12px;
   --featured-card-padding: 16px;
   --featured-card-gap: 12px;
@@ -92,14 +78,7 @@
   --text-featured-artist: 11px;
   --text-featured-meta: 10px;
   --text-featured-rating: 14px;
-  --color-featured-title: #464646;
-  --color-featured-meta: #939393;
-  --leading-featured: 145%;
-  --tracking-featured: -0.005em;
-  --featured-rating-divider-padding-top: 8px;
-  --featured-rating-divider-padding-bottom: 4px;
 
-  --featured-track-margin-top: 24px;
   --featured-track-padding-y: 16px;
   --featured-track-animation-duration: 72s;
 
@@ -127,20 +106,13 @@
   --today-album-layout-gap-mobile: 20px;
   --today-album-layout-gap-desktop: 40px;
   --text-today-album-title: 24px;
-  --text-today-album-title-mobile: 14px;
   --text-today-album-artist: 18px;
   --today-album-desc-offset-top: 16px;
   --text-today-album-body-mobile: 11px;
-  --text-today-album-body-desktop: 15px;
-  --leading-today-album-title: 145%;
-  --leading-today-album-body: 170%;
-  --tracking-ui: 0.03em;
   --today-album-description-max-height: calc(var(--today-album-card-height) - 174px);
   --text-today-album-empty: 14px;
 
   --hero-search-copy-gap: 48px;
-  --hero-copy-margin-top-mobile: 24px;
-  --hero-copy-margin-top-desktop: 48px;
   --text-hero-title-mobile: 20px;
   --text-hero-title-desktop: 36px;
   --text-hero-subtitle-mobile: 12px;
@@ -150,7 +122,6 @@
   --tracking-hero-title: -0.02em;
   --tracking-hero-subtitle: -0.005em;
   --tracking-nav-menu: -0.005em;
-  --hero-sticky-height: 139px;
   --hero-sticky-padding-top: 16px;
   --hero-sticky-padding-bottom: 16px;
   --hero-sticky-nav-search-gap: 43px;
@@ -183,7 +154,6 @@
   :root {
     --logo-width: 141px;
     --logo-height: 72.9px;
-    --featured-track-margin-top: 48px;
     --hero-search-copy-gap: 65px;
     --hero-subtitle-masterpiece-gap: 101px;
     --featured-slider-today-album-gap: 101px;

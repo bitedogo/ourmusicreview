@@ -17,10 +17,3 @@ export async function initializeDatabase() {
 
   return AppDataSource;
 }
-
-export function getDataSource() {
-  if (!AppDataSource.isInitialized) {
-    throw new Error("Database not initialized. Call initializeDatabase() first.");
-  }
-  return AppDataSource;
-}

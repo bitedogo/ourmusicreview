@@ -17,15 +17,7 @@ import { ProfileHeaderSection } from "./ProfileHeaderSection";
 import { ProfileMasterpieceSection } from "./ProfileMasterpieceSection";
 import { PROFILE_PAGE_SHELL_CLASS } from "./profile-section-styles";
 
-export type {
-  ProfilePrivacySettings,
-  ProfileReviewItem,
-  ProfileFavoriteItem,
-  ProfileMasterpieceItem,
-  ProfilePlaylistItem,
-} from "./profile-types";
-
-export interface ProfilePageContentProps {
+interface ProfilePageContentProps {
   mode: "owner" | "viewer";
   pageTitle: string;
   headerAction?: ReactNode;

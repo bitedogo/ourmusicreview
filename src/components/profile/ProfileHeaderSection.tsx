@@ -8,6 +8,7 @@ import { ProfileRatingGauge } from "./ProfileRatingGauge";
 import type { ProfileReviewItem } from "./profile-types";
 import {
   PROFILE_HEADER_CARD_CLASS,
+  PROFILE_PRIVACY_TOGGLE_RIGHT_CLASS,
   PROFILE_SECTION_INSET,
 } from "./profile-section-styles";
 
@@ -31,10 +32,30 @@ interface ProfileHeaderSectionProps {
 }
 
 export function ProfileHeaderSection(props: ProfileHeaderSectionProps) {
+  const {
+    isOwner,
+    showRatingPublic,
+    isSavingPrivacy = false,
+    onRatingPrivacyChange,
+  } = props;
+
   return (
-    <div className={PROFILE_HEADER_CARD_CLASS}>
+    <div className={`${PROFILE_HEADER_CARD_CLASS} relative`}>
       <ProfileHeaderDesktop {...props} />
       <ProfileHeaderMobile {...props} />
+
+      {/* 데스크톱 토글 — 카드 기준 inset = Masterpiece 구분선 오른쪽 끝 */}
+      {isOwner && onRatingPrivacyChange && (
+        <div
+          className={`absolute top-7 z-10 hidden lg:block ${PROFILE_PRIVACY_TOGGLE_RIGHT_CLASS}`}
+        >
+          <ProfilePrivacyToggle
+            isPublic={showRatingPublic}
+            disabled={isSavingPrivacy}
+            onChange={onRatingPrivacyChange}
+          />
+        </div>
+      )}
     </div>
   );
 }
@@ -48,9 +69,6 @@ function ProfileHeaderDesktop(props: ProfileHeaderSectionProps) {
     averageRating,
     displayRating,
     listenerLabel,
-    showRatingPublic,
-    isSavingPrivacy = false,
-    onRatingPrivacyChange,
   } = props;
 
   return (
@@ -59,17 +77,7 @@ function ProfileHeaderDesktop(props: ProfileHeaderSectionProps) {
 
       <div className="my-7 w-px self-stretch bg-[#E3E3E3]" aria-hidden />
 
-      <div className="relative flex h-full min-w-0 flex-col px-8 py-10 pr-10">
-        {isOwner && onRatingPrivacyChange && (
-          <div className="absolute right-8 top-7">
-            <ProfilePrivacyToggle
-              isPublic={showRatingPublic}
-              disabled={isSavingPrivacy}
-              onChange={onRatingPrivacyChange}
-            />
-          </div>
-        )}
-
+      <div className="relative flex h-full min-w-0 flex-col px-8 py-10 pr-[27px]">
         <ProfileRatingPanel
           isOwner={isOwner}
           showReviewGauge={showReviewGauge}
@@ -109,7 +117,7 @@ function ProfileHeaderMobile(props: ProfileHeaderSectionProps) {
 
       <div className={`relative flex w-full min-w-0 flex-col ${PROFILE_SECTION_INSET}`}>
         {isOwner && onRatingPrivacyChange && (
-          <div className="mb-3 flex h-[25px] w-full items-center justify-center">
+          <div className="mb-3 flex h-[25px] w-full items-center justify-end">
             <ProfilePrivacyToggle
               size="sm"
               isPublic={showRatingPublic}
@@ -212,7 +220,6 @@ function ProfileRatingPanel({
         <ProfileRatingGauge
           reviews={gaugeReviews}
           averageRating={!isOwner ? averageRating : undefined}
-          barOnly
         />
       </div>
       <div className="mt-2 flex w-full max-w-[567px] items-center justify-between">

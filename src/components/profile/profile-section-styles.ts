@@ -13,18 +13,24 @@ export const PROFILE_SECTION_TITLE =
 
 /** 제목·i — 구분선보다 안쪽으로 */
 export const PROFILE_SECTION_TITLE_INSET = "pl-3 lg:pl-4";
-export const PROFILE_SECTION_TITLE_INSET_END = "pr-3 lg:pr-4";
+
+/**
+ * 공개/비공개 토글 우측 X = Masterpiece 구분선 오른쪽 끝
+ * (카드 기준 inset: 16 / 24 / 27)
+ */
+export const PROFILE_PRIVACY_TOGGLE_RIGHT_CLASS =
+  "right-4 sm:right-6 lg:right-[27px]";
 
 export const PROFILE_SECTION_DIVIDER = "mb-8 h-px w-full bg-[#E3E3E3]";
 
-/** 구분선과 동일 폭 — absolute 요소용 */
-export const PROFILE_CONTENT_BAND_CLASS =
-  "lg:left-1/2 lg:w-[1046px] lg:max-w-full lg:-translate-x-1/2";
+/** 986 — 활동 통계 · Masterpiece · 폴더 그리드 공통 폭 */
+const PROFILE_CLUSTER_WIDTH_CLASS = "lg:w-[986px] lg:max-w-full";
 
-/** 활동 통계 · Masterpiece 앨범 묶음 */
-export const PROFILE_CLUSTER_BAND_CLASS =
-  "w-full lg:mx-auto lg:w-[986px] lg:max-w-full";
+/** Masterpiece 앨범 묶음 (문서 흐름) */
+export const PROFILE_CLUSTER_BAND_CLASS = `w-full lg:mx-auto ${PROFILE_CLUSTER_WIDTH_CLASS}`;
 
+/** 활동 폴더·통계 (absolute · 섹션 중앙) */
+export const PROFILE_CLUSTER_ABSOLUTE_CLASS = `lg:absolute lg:left-1/2 lg:-translate-x-1/2 ${PROFILE_CLUSTER_WIDTH_CLASS}`;
 export const PROFILE_PAGE_SHELL_CLASS =
   "mx-auto w-full max-w-[1100px] px-3 pb-6 pt-[var(--profile-menu-title-gap)] sm:px-6 sm:pb-8 lg:px-0";
 
@@ -39,9 +45,6 @@ export const MASTERPIECE_GRID =
 
 export const MASTERPIECE_GRID_COL_WIDTH =
   "w-[calc((100%-1rem)/3)] lg:w-[calc((100%-3.75rem)/6)]";
-
-export const MASTERPIECE_CARD_SHADOW =
-  "rounded-[10px] bg-[#FEFEFE] shadow-[0px_2px_4px_rgba(0,0,0,0.25)]";
 
 export const MASTERPIECE_EDIT_BUTTON_CLASS =
   "box-border flex h-[25px] w-[38px] items-center justify-center rounded-[5px] border border-[#D9D9D9] text-[9px] leading-[11px] transition lg:h-[35px] lg:w-[55px] lg:rounded-[10px] lg:text-[13px] lg:leading-4";

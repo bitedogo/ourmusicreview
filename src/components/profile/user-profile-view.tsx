@@ -1,6 +1,6 @@
-"use client";
-/** 타인 유저 프로필 뷰 */
+/** 타인 유저 프로필 경로 헬퍼 */
 
-export * from "./profile-view-types";
-export * from "./useUserProfileData";
-export * from "./UserProfilePanel";
+export {
+  getUserProfilePath,
+  getUserProfileReviewsPath,
+} from "./profile-view-types";

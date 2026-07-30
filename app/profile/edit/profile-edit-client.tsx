@@ -1,8 +1,8 @@
 "use client";
-/** 프로필 수정 클라이언트(닉네임·이미지) */
+/** 프로필 수정 클라이언트(닉네임·이미지·계정삭제) */
 
 import { useCallback, useState } from "react";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { fetchJson, getApiErrorMessage } from "@/src/lib/http/client";
@@ -41,6 +41,7 @@ export function ProfileEditClient({
   const [isUpdatingImage, setIsUpdatingImage] = useState(false);
   const [imageError, setImageError] = useState<string | null>(null);
   const [imageSuccess, setImageSuccess] = useState<string | null>(null);
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
 
   const handleProfileImageConfirm = useCallback((file: File) => {
     setPreviewUrl((prev) => {
@@ -146,6 +147,38 @@ export function ProfileEditClient({
       );
     } finally {
       setIsUpdatingImage(false);
+    }
+  }
+
+  async function handleDeleteAccount() {
+    if (role === "ADMIN") return;
+
+    if (
+      !confirm(
+        "정말로 계정을 삭제하시겠습니까?\n\n삭제된 계정은 복구할 수 없으며, 작성한 리뷰·댓글 등 모든 데이터가 삭제됩니다."
+      )
+    ) {
+      return;
+    }
+    if (!confirm("한 번 더 확인합니다. 계정을 삭제하시겠습니까?")) {
+      return;
+    }
+
+    setIsDeletingAccount(true);
+    try {
+      const response = await fetch("/api/user/account", { method: "DELETE" });
+      const data = await response.json().catch(() => null);
+
+      if (!response.ok || !data?.ok) {
+        alert(data?.error ?? "계정 삭제에 실패했습니다.");
+        return;
+      }
+
+      await signOut({ callbackUrl: "/" });
+    } catch {
+      alert("계정 삭제 중 오류가 발생했습니다.");
+    } finally {
+      setIsDeletingAccount(false);
     }
   }
 
@@ -260,6 +293,28 @@ export function ProfileEditClient({
 
         <ProfileEditPasswordSection id={id} email={email} />
       </section>
+
+      {role !== "ADMIN" && (
+        <section className="rounded-xl border border-red-200 bg-red-50 px-5 py-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm font-semibold text-red-700">계정 삭제</p>
+              <p className="mt-1 text-xs text-red-600">
+                계정을 삭제하면 작성한 리뷰·댓글 등 모든 데이터가 삭제되며 복구할 수
+                없습니다.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={handleDeleteAccount}
+              disabled={isDeletingAccount}
+              className="shrink-0 rounded border border-red-300 bg-white px-4 py-2 text-xs font-medium text-red-600 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {isDeletingAccount ? "처리 중..." : "계정삭제"}
+            </button>
+          </div>
+        </section>
+      )}
     </div>
   );
 }
