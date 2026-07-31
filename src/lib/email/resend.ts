@@ -44,8 +44,19 @@ export async function sendTemplatedEmail(to: string, content: EmailContent) {
 
 export function getAppBaseUrl(): string {
   const env = getServerEnv();
-  if (env.nextAuthUrl) {
-    return env.nextAuthUrl.replace(/\/$/, "");
+  const nextAuthUrl = env.nextAuthUrl?.trim().replace(/\/$/, "");
+  if (nextAuthUrl && !/localhost|127\.0\.0\.1/i.test(nextAuthUrl)) {
+    return nextAuthUrl;
   }
-  return "http://localhost:3000";
+
+  const vercelUrl = process.env.VERCEL_URL?.trim().replace(/\/$/, "");
+  if (vercelUrl) {
+    return vercelUrl.startsWith("http") ? vercelUrl : `https://${vercelUrl}`;
+  }
+
+  return nextAuthUrl || "http://localhost:3000";
+}
+
+export function getEmailLogoUrl(): string {
+  return `${getAppBaseUrl()}/oru_logo.png`;
 }
