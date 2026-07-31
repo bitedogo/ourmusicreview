@@ -1,7 +1,5 @@
 /** 인증 관련 메일 HTML/텍스트 (카드형) */
 
-import { EMAIL_LOGO_CID } from "@/src/lib/email/resend";
-
 function escapeHtml(value: string): string {
   return value
     .replaceAll("&", "&amp;")
@@ -29,12 +27,7 @@ function layout(params: {
       <td align="center">
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#FFFFFF;border-top:3px solid #2B2B2B;border-radius:0 0 4px 4px;">
           <tr>
-            <td style="padding:36px 40px 24px;text-align:center;">
-              <img src="cid:${EMAIL_LOGO_CID}" alt="ORU" width="160" height="83" style="display:inline-block;width:160px;height:auto;max-width:70%;border:0;outline:none;text-decoration:none;" />
-            </td>
-          </tr>
-          <tr>
-            <td style="padding:0 40px 8px;text-align:center;">
+            <td style="padding:40px 40px 8px;text-align:center;">
               <h1 style="margin:0;font-size:22px;line-height:1.4;font-weight:700;color:#1A1A1A;">${escapeHtml(params.headline)}</h1>
             </td>
           </tr>
