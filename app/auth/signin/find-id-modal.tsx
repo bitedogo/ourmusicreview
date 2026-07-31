@@ -12,11 +12,14 @@ const inputClassName =
   "h-[34px] min-w-0 flex-1 rounded-lg border border-zinc-200 px-2.5 text-[13px] outline-none placeholder:text-[12px] focus:border-zinc-400 sm:h-[39px] sm:w-[324px] sm:flex-none sm:rounded-xl sm:px-3 sm:text-sm sm:placeholder:text-[14px]";
 
 export function FindIdModal({ onClose, onOpenFindPassword }: FindIdModalProps) {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
-  const modalSizeClass = sent ? "h-[240px] sm:h-[260px]" : "h-[200px] sm:h-[210px]";
+  const modalSizeClass = sent
+    ? "h-[240px] sm:h-[260px]"
+    : "h-[250px] sm:h-[268px]";
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -24,9 +27,10 @@ export function FindIdModal({ onClose, onOpenFindPassword }: FindIdModalProps) {
     setError(null);
     setSent(false);
 
-    const trimmed = email.trim();
-    if (!trimmed) {
-      setError("이메일을 입력해주세요.");
+    const trimmedName = name.trim();
+    const trimmedEmail = email.trim();
+    if (!trimmedName || !trimmedEmail) {
+      setError("이름과 이메일을 모두 입력해주세요.");
       setSubmitting(false);
       return;
     }
@@ -35,7 +39,7 @@ export function FindIdModal({ onClose, onOpenFindPassword }: FindIdModalProps) {
       await fetchJson("/api/auth/find-id", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: trimmed }),
+        body: JSON.stringify({ name: trimmedName, email: trimmedEmail }),
       });
       setSent(true);
     } catch (submitError) {
@@ -60,7 +64,7 @@ export function FindIdModal({ onClose, onOpenFindPassword }: FindIdModalProps) {
           <>
             <div className="absolute inset-x-5 top-[48%] -translate-y-1/2 sm:inset-x-8">
               <p className="text-[13px] leading-5 text-zinc-600 sm:text-sm sm:leading-6">
-                등록된 이메일이면 아이디 안내 메일을 보냈습니다.
+                등록된 이메일로 아이디 안내 메일을 보냈습니다.
                 <br />
                 메일함을 확인해 주세요.
               </p>
@@ -85,16 +89,32 @@ export function FindIdModal({ onClose, onOpenFindPassword }: FindIdModalProps) {
         ) : (
           <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
             <div className="absolute inset-x-5 top-[48%] -translate-y-1/2 sm:inset-x-8">
-              <label className="flex min-w-0 items-center gap-2 sm:gap-4">
-                <span className="w-10 shrink-0 text-[12px] text-[#000000] sm:text-[13px]">E-mail</span>
-                <input
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                  type="email"
-                  className={inputClassName}
-                  placeholder="가입 시 등록한 이메일을 입력해주세요."
-                />
-              </label>
+              <div className="space-y-3 sm:space-y-4">
+                <label className="flex min-w-0 items-center gap-2 sm:gap-4">
+                  <span className="w-10 shrink-0 text-[12px] text-[#000000] sm:text-[13px]">
+                    이름
+                  </span>
+                  <input
+                    value={name}
+                    onChange={(event) => setName(event.target.value)}
+                    className={inputClassName}
+                    placeholder="가입 시 등록한 이름을 입력해주세요."
+                    autoComplete="name"
+                  />
+                </label>
+                <label className="flex min-w-0 items-center gap-2 sm:gap-4">
+                  <span className="w-10 shrink-0 text-[12px] text-[#000000] sm:text-[13px]">
+                    E-mail
+                  </span>
+                  <input
+                    value={email}
+                    onChange={(event) => setEmail(event.target.value)}
+                    type="email"
+                    className={inputClassName}
+                    placeholder="가입 시 등록한 이메일을 입력해주세요."
+                  />
+                </label>
+              </div>
               {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
             </div>
             <div className="mt-auto flex shrink-0 items-center justify-between">

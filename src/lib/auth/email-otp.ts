@@ -30,9 +30,10 @@ export const EMAIL_AUTH_MESSAGES = {
   verificationMailFailed:
     "인증 메일 발송에 실패했습니다. 잠시 후 다시 시도해주세요.",
   findIdGeneric:
-    "등록된 이메일이면 아이디 안내 메일을 보냈습니다. 메일함을 확인해 주세요.",
+    "등록된 이메일로 아이디 안내 메일을 보냈습니다. 메일함을 확인해 주세요.",
   findPasswordGeneric:
     "입력한 정보와 일치하는 계정이 있으면 인증번호 메일을 보냈습니다.",
+  findIdMismatch: "이름과 이메일이 일치하지 않습니다.",
   resendVerificationGeneric:
     "해당 계정이 미인증 상태이면 인증번호를 다시 보냈습니다.",
   signupEmailNotVerified:
@@ -175,6 +176,28 @@ export async function sendPasswordResetOtp(user: User): Promise<void> {
       code: otp,
     })
   );
+}
+
+/** 인증번호만 확인 (토큰은 유지 — 이후 비밀번호 변경 시 소비) */
+export async function confirmPasswordResetOtp(
+  id: string,
+  email: string,
+  rawCode: string
+): Promise<void> {
+  const code = parseOtpCode(rawCode);
+  if (!code) {
+    throw new Error(EMAIL_AUTH_MESSAGES.otpRequired);
+  }
+
+  const repo = await getUserRepository();
+  const user = await repo.findOne({ where: { id, email } });
+
+  if (
+    !user ||
+    !matchesStoredOtp(user.passwordResetToken, user.passwordResetExpiresAt, code)
+  ) {
+    throw new Error(EMAIL_AUTH_MESSAGES.otpInvalid);
+  }
 }
 
 export async function sendFindIdEmail(user: User): Promise<void> {

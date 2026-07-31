@@ -21,10 +21,10 @@ export function ProfilePrivacyToggle({
     <div
       className={`box-border flex items-center border border-[#D9D9D9] bg-[#FAFAFA] ${
         isResponsive
-          ? "h-[25px] w-[90px] rounded-[5px] px-[4px] lg:h-[35px] lg:w-[111px] lg:rounded-[10px] lg:px-[5px]"
+          ? "h-[25px] w-[90px] rounded-[5px] px-[4px] lg:h-[35px] lg:w-[110px] lg:rounded-[10px] lg:px-[5px]"
           : isSm
             ? "h-[25px] w-[90px] rounded-[5px] px-[4px]"
-            : "h-[35px] w-[111px] rounded-[10px] px-[5px]"
+            : "h-[35px] w-[110px] rounded-[10px] px-[5px]"
       }`}
     >
       <button

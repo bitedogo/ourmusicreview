@@ -1,29 +1,40 @@
-/** POST 아이디 찾기 — 이메일로 아이디 발송 */
+/** POST 아이디 찾기 — 이름·이메일 일치 검증 후 아이디 발송 */
 
 import {
   EMAIL_AUTH_MESSAGES,
   getUserRepository,
   sendFindIdEmail,
 } from "@/src/lib/auth/email-otp";
-import { sanitizeText, validateEmail } from "@/src/lib/auth/validation";
+import {
+  sanitizeText,
+  validateEmail,
+  validateName,
+} from "@/src/lib/auth/validation";
 import { apiError, apiOk } from "@/src/lib/http/response";
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
     const email = sanitizeText(body?.email).toLowerCase();
+    const name = sanitizeText(body?.name);
+
+    const nameError = validateName(name);
+    if (nameError) return apiError(nameError, { status: 400 });
+
     const emailError = validateEmail(email);
     if (emailError) return apiError(emailError, { status: 400 });
 
     const userRepository = await getUserRepository();
     const user = await userRepository.findOne({ where: { email } });
 
-    if (user) {
-      try {
-        await sendFindIdEmail(user);
-      } catch {
-        return apiError(EMAIL_AUTH_MESSAGES.mailFailed, { status: 502 });
-      }
+    if (!user || sanitizeText(user.name) !== name) {
+      return apiError(EMAIL_AUTH_MESSAGES.findIdMismatch, { status: 400 });
+    }
+
+    try {
+      await sendFindIdEmail(user);
+    } catch {
+      return apiError(EMAIL_AUTH_MESSAGES.mailFailed, { status: 502 });
     }
 
     return apiOk({}, { message: EMAIL_AUTH_MESSAGES.findIdGeneric });
