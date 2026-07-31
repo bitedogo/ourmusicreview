@@ -37,6 +37,15 @@ export function validateName(name: string): string | null {
   return null;
 }
 
+export function validateEmail(email: string): string | null {
+  if (!email) return "이메일을 입력해주세요.";
+  if (email.length > 255) return "이메일은 255자 이하로 입력해주세요.";
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return "올바른 이메일 형식이 아닙니다.";
+  }
+  return null;
+}
+
 export function isBcryptHash(value: string): boolean {
   return /^\$2[aby]\$\d{2}\$/.test(value);
 }

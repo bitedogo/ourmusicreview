@@ -35,9 +35,17 @@ export const authOptions: NextAuthOptions = {
               nickname: profile.name || profile.email!.split("@")[0],
               profileImage: picture,
               role: "USER",
+              emailVerifiedAt: new Date(),
             });
             await userRepository.save(dbUser);
           } else {
+            if (!dbUser.emailVerifiedAt) {
+              await userRepository.update(
+                { id: dbUser.id },
+                { emailVerifiedAt: new Date() }
+              );
+              dbUser.emailVerifiedAt = new Date();
+            }
             if (dbUser.id !== profile.sub) {
               await userRepository.update({ email: profile.email! }, { id: profile.sub });
               dbUser.id = profile.sub;

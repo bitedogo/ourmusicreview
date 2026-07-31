@@ -4,11 +4,9 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { initializeDatabase } from "../db";
 import { User } from "../db/entities/User";
+import { isBcryptHash } from "@/src/lib/auth/validation";
+import { verifyPassword } from "@/src/lib/auth/password";
 import { getSupabaseClient } from "@/src/lib/supabase";
-
-function isBcryptHash(value: string) {
-  return /^\$2[aby]\$\d{2}\$/.test(value);
-}
 
 export const credentialsProvider = CredentialsProvider({
   name: "Credentials",
@@ -37,20 +35,25 @@ export const credentialsProvider = CredentialsProvider({
     }
 
     const currentPasswordHash = user.password;
-    const isHashed = isBcryptHash(currentPasswordHash);
-    const isPasswordValid = isHashed
-      ? await bcrypt.compare(credentials.password, currentPasswordHash)
-      : credentials.password === currentPasswordHash;
+    const isPasswordValid = await verifyPassword(
+      credentials.password,
+      currentPasswordHash
+    );
 
     if (!isPasswordValid) {
       return null;
     }
 
-    if (!isHashed) {
+    if (!user.emailVerifiedAt) {
+      throw new Error("EMAIL_NOT_VERIFIED");
+    }
+
+    if (!isBcryptHash(currentPasswordHash)) {
       try {
         const upgradedHash = await bcrypt.hash(credentials.password, 10);
         await userRepository.update({ id: user.id }, { password: upgradedHash });
       } catch {
+        /* ignore upgrade failure */
       }
     }
 
@@ -103,6 +106,7 @@ export const supabaseCredentialsProvider = CredentialsProvider({
         nickname: user.user_metadata.full_name || user.email!.split('@')[0],
         profileImage: user.user_metadata.avatar_url || null,
         role: "USER",
+        emailVerifiedAt: new Date(),
       });
       await userRepository.save(dbUser);
     } else if (dbUser.id !== user.id) {

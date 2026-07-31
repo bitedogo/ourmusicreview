@@ -3,13 +3,6 @@
 import { useState } from "react";
 import { fetchJson, getApiErrorMessage } from "@/src/lib/http/client";
 
-interface FindIdResponse {
-  ok: boolean;
-  data: {
-    id: string;
-  };
-}
-
 interface FindIdModalProps {
   onClose: () => void;
   onOpenFindPassword: () => void;
@@ -22,14 +15,14 @@ export function FindIdModal({ onClose, onOpenFindPassword }: FindIdModalProps) {
   const [email, setEmail] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [foundId, setFoundId] = useState<string | null>(null);
-  const modalSizeClass = foundId ? "h-[220px] sm:h-[240px]" : "h-[200px] sm:h-[210px]";
+  const [sent, setSent] = useState(false);
+  const modalSizeClass = sent ? "h-[240px] sm:h-[260px]" : "h-[200px] sm:h-[210px]";
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setSubmitting(true);
     setError(null);
-    setFoundId(null);
+    setSent(false);
 
     const trimmed = email.trim();
     if (!trimmed) {
@@ -39,12 +32,12 @@ export function FindIdModal({ onClose, onOpenFindPassword }: FindIdModalProps) {
     }
 
     try {
-      const data = await fetchJson<FindIdResponse>("/api/auth/find-id", {
+      await fetchJson("/api/auth/find-id", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: trimmed }),
       });
-      setFoundId(data.data.id);
+      setSent(true);
     } catch (submitError) {
       setError(getApiErrorMessage(submitError, "아이디 찾기 중 오류가 발생했습니다."));
     } finally {
@@ -63,13 +56,14 @@ export function FindIdModal({ onClose, onOpenFindPassword }: FindIdModalProps) {
       >
         <h3 className="shrink-0 text-[16px] font-semibold text-zinc-900 sm:text-[18px]">아이디 찾기</h3>
 
-        {foundId ? (
+        {sent ? (
           <>
             <div className="absolute inset-x-5 top-[48%] -translate-y-1/2 sm:inset-x-8">
-              <p className="mb-2 text-sm text-zinc-500">회원님의 아이디</p>
-              <div className="flex h-10 w-full items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 text-[20px] font-medium leading-none text-zinc-900 sm:h-12 sm:text-[24px]">
-                {foundId}
-              </div>
+              <p className="text-[13px] leading-5 text-zinc-600 sm:text-sm sm:leading-6">
+                등록된 이메일이면 아이디 안내 메일을 보냈습니다.
+                <br />
+                메일함을 확인해 주세요.
+              </p>
             </div>
             <div className="mt-auto flex shrink-0 items-center justify-between">
               <button

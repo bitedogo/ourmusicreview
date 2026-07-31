@@ -123,7 +123,11 @@ export function SignupForm() {
       }
 
       setHasSuccess(true);
-      setTimeout(() => router.push("/auth/signin"), 1500);
+      setTimeout(() => {
+        router.push(
+          `/auth/verify-email?email=${encodeURIComponent(trimmedEmail)}`
+        );
+      }, 1200);
     } catch (error) {
       setErrorMessage(
         error instanceof Error
@@ -139,7 +143,7 @@ export function SignupForm() {
     <div className="mx-auto flex min-h-screen w-full max-w-2xl flex-col justify-center px-6 py-16">
       {hasSuccess && (
         <div className="fixed left-0 right-0 top-0 z-50 border-b border-emerald-200 bg-emerald-50 px-4 py-3 text-center text-sm font-medium text-emerald-900 shadow-sm">
-          회원가입에 성공했습니다. 로그인 페이지로 이동합니다...
+          인증번호를 이메일로 보냈습니다. 인증 화면으로 이동합니다...
         </div>
       )}
 

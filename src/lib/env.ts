@@ -9,6 +9,8 @@ interface ServerEnv {
   nodeEnv: "development" | "production" | "test";
   googleClientId: string;
   googleClientSecret: string;
+  resendApiKey: string;
+  resendFrom: string;
 }
 
 interface ClientEnv {
@@ -43,6 +45,9 @@ export function getServerEnv(): ServerEnv {
     ),
     googleClientId: requireEnv("GOOGLE_CLIENT_ID", process.env.GOOGLE_CLIENT_ID),
     googleClientSecret: requireEnv("GOOGLE_CLIENT_SECRET", process.env.GOOGLE_CLIENT_SECRET),
+    resendApiKey: requireEnv("RESEND_API_KEY", process.env.RESEND_API_KEY),
+    resendFrom:
+      process.env.RESEND_FROM?.trim() || "ORU <onboarding@resend.dev>",
     nodeEnv: getNodeEnv(),
   };
 }

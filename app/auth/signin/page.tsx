@@ -3,10 +3,11 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { signIn, useSession } from "next-auth/react";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { LOGO_ALT, LOGO_SRC } from "@/src/lib/site/branding";
+import { fetchJson, getApiErrorMessage } from "@/src/lib/http/client";
 import { FindIdModal } from "./find-id-modal";
 import { FindPasswordModal } from "./find-password-modal";
 
@@ -21,8 +22,9 @@ const fieldInputClass =
 const linkTextClass =
   "whitespace-nowrap text-[11px] font-extralight leading-[145%] tracking-[-0.005em] text-black transition hover:text-[#43A7B2] sm:text-[16px]";
 
-export default function SigninPage() {
+function SigninPageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { status } = useSession();
   const callbackUrl = "/";
   const loginCallbackUrl = "/auth/signin";
@@ -30,6 +32,9 @@ export default function SigninPage() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [infoMessage, setInfoMessage] = useState<string | null>(null);
+  const [needsVerification, setNeedsVerification] = useState(false);
+  const [resendStatus, setResendStatus] = useState<string | null>(null);
   const [id, setId] = useState(() => {
     if (typeof window === "undefined") return "";
     return window.localStorage.getItem(savedIdKey) ?? "";
@@ -47,10 +52,20 @@ export default function SigninPage() {
     }
   }, [status, router, callbackUrl]);
 
+  useEffect(() => {
+    if (searchParams.get("verified") === "1") {
+      setInfoMessage("이메일 인증이 완료되었습니다. 로그인해 주세요.");
+      setNeedsVerification(false);
+    }
+  }, [searchParams]);
+
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setIsSubmitting(true);
     setErrorMessage(null);
+    setInfoMessage(null);
+    setResendStatus(null);
+    setNeedsVerification(false);
     const trimmedId = id.trim();
 
     if (typeof window !== "undefined") {
@@ -59,6 +74,30 @@ export default function SigninPage() {
       } else {
         window.localStorage.removeItem(savedIdKey);
       }
+    }
+
+    const preflight = await fetchJson<{
+      ok: true;
+      data: { status: "invalid" | "unverified" | "ready" };
+    }>("/api/auth/preflight-login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: trimmedId, password }),
+    }).catch(() => null);
+
+    if (preflight?.data.status === "unverified") {
+      setNeedsVerification(true);
+      setErrorMessage(
+        "이메일 인증이 필요합니다. 메일로 받은 인증번호를 입력해 주세요."
+      );
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (preflight?.data.status === "invalid") {
+      setErrorMessage("아이디 또는 비밀번호가 올바르지 않습니다.");
+      setIsSubmitting(false);
+      return;
     }
 
     const result = await signIn("credentials", {
@@ -75,6 +114,28 @@ export default function SigninPage() {
     }
 
     router.push(result.url ?? callbackUrl);
+  }
+
+  async function handleResendVerification() {
+    const trimmedId = id.trim();
+    if (!trimmedId) {
+      setResendStatus("아이디를 입력한 뒤 다시 시도해 주세요.");
+      return;
+    }
+    setResendStatus(null);
+    try {
+      await fetchJson("/api/auth/resend-verification", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: trimmedId }),
+      });
+      setResendStatus("인증번호를 다시 보냈습니다. 인증 화면으로 이동합니다...");
+      setTimeout(() => router.push("/auth/verify-email"), 800);
+    } catch (error) {
+      setResendStatus(
+        getApiErrorMessage(error, "인증번호 재발송에 실패했습니다.")
+      );
+    }
   }
 
   async function handleGoogleLogin() {
@@ -146,7 +207,18 @@ export default function SigninPage() {
             </div>
           </label>
 
+          {infoMessage && <p className="mt-3 text-sm text-emerald-600">{infoMessage}</p>}
           {errorMessage && <p className="mt-3 text-sm text-red-500">{errorMessage}</p>}
+          {needsVerification && (
+            <button
+              type="button"
+              onClick={handleResendVerification}
+              className="mt-2 self-start text-sm font-medium text-[#43A7B2] underline"
+            >
+              인증번호 다시 받기
+            </button>
+          )}
+          {resendStatus && <p className="mt-2 text-sm text-zinc-600">{resendStatus}</p>}
 
           <button
             type="submit"
@@ -209,7 +281,23 @@ export default function SigninPage() {
         />
       )}
 
-      {modal === "find-password" && <FindPasswordModal onClose={() => setModal(null)} />}
+      {modal === "find-password" && (
+        <FindPasswordModal onClose={() => setModal(null)} />
+      )}
     </div>
+  );
+}
+
+export default function SigninPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-[50vh] items-center justify-center text-sm text-zinc-500">
+          불러오는 중...
+        </div>
+      }
+    >
+      <SigninPageContent />
+    </Suspense>
   );
 }

@@ -94,4 +94,41 @@ export class User {
     default: () => "'Y'",
   })
   showPlaylistsPublic!: "Y" | "N";
+
+  @Column({
+    name: "email_verified_at",
+    type: "timestamptz",
+    nullable: true,
+  })
+  emailVerifiedAt?: Date | null;
+
+  @Column({
+    name: "email_verification_token",
+    type: "varchar",
+    length: 128,
+    nullable: true,
+  })
+  emailVerificationToken?: string | null;
+
+  @Column({
+    name: "email_verification_expires_at",
+    type: "timestamptz",
+    nullable: true,
+  })
+  emailVerificationExpiresAt?: Date | null;
+
+  @Column({
+    name: "password_reset_token",
+    type: "varchar",
+    length: 128,
+    nullable: true,
+  })
+  passwordResetToken?: string | null;
+
+  @Column({
+    name: "password_reset_expires_at",
+    type: "timestamptz",
+    nullable: true,
+  })
+  passwordResetExpiresAt?: Date | null;
 }

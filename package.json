@@ -11,7 +11,8 @@
     "postinstall": "patch-package",
     "compress:profiles": "node scripts/compress-profile-images.mjs",
     "icons:oru": "node scripts/generate-oru-app-icons.mjs",
-    "db:migrate:playlists": "node scripts/run-playlist-migration.mjs"
+    "db:migrate:playlists": "node scripts/run-playlist-migration.mjs",
+    "db:migrate:email-auth": "node scripts/run-email-auth-migration.mjs"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.10",
@@ -29,6 +30,7 @@
     "react-dom": "19.2.3",
     "react-image-crop": "^11.0.10",
     "reflect-metadata": "^0.2.2",
+    "resend": "^6.18.1",
     "sharp": "^0.35.3",
     "typeorm": "^0.3.28"
   },
