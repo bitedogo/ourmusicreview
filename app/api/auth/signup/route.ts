@@ -1,10 +1,11 @@
-/** POST 회원가입 — 이메일 인증번호 발송 */
+/** POST 회원가입 — 사전 이메일 인증 필수 */
 
 import bcrypt from "bcryptjs";
 import {
   EMAIL_AUTH_MESSAGES,
+  assertSignupEmailVerified,
+  consumeSignupEmailChallenge,
   getUserRepository,
-  sendEmailVerificationOtp,
 } from "@/src/lib/auth/email-otp";
 import { validateUserId } from "@/src/lib/auth/user-id";
 import {
@@ -57,6 +58,17 @@ export async function POST(request: Request) {
     const nameError = validateName(name);
     if (nameError) return apiError(nameError, { status: 400 });
 
+    try {
+      await assertSignupEmailVerified(email);
+    } catch (error) {
+      return apiError(
+        error instanceof Error
+          ? error.message
+          : EMAIL_AUTH_MESSAGES.signupEmailNotVerified,
+        { status: 400 }
+      );
+    }
+
     let profileImagePath: string | null = null;
     if (profileImage && profileImage.size > 0) {
       if (profileImage.size > 5 * 1024 * 1024) {
@@ -107,7 +119,7 @@ export async function POST(request: Request) {
       profileImage: profileImagePath,
       role: "USER",
       gender,
-      emailVerifiedAt: null,
+      emailVerifiedAt: new Date(),
       emailVerificationToken: null,
       emailVerificationExpiresAt: null,
       passwordResetToken: null,
@@ -115,22 +127,13 @@ export async function POST(request: Request) {
     });
 
     await userRepository.save(newUser);
-
-    try {
-      await sendEmailVerificationOtp(newUser);
-    } catch {
-      await userRepository.delete({ id });
-      return apiError(EMAIL_AUTH_MESSAGES.verificationMailFailed, {
-        status: 502,
-      });
-    }
+    await consumeSignupEmailChallenge(email);
 
     return apiOk(
-      { email },
+      {},
       {
         status: 201,
-        message:
-          "가입이 완료되었습니다. 이메일로 받은 인증번호를 입력해 주세요.",
+        message: "회원가입이 완료되었습니다. 로그인해 주세요.",
       }
     );
   } catch (error) {

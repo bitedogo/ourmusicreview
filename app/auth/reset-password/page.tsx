@@ -4,7 +4,7 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
-import { normalizeOtpInput } from "@/src/lib/auth/otp-input";
+import { normalizeOtpInput, OTP_CODE_LENGTH } from "@/src/lib/auth/otp-input";
 import { validatePassword } from "@/src/lib/auth/validation";
 import { fetchJson, getApiErrorMessage } from "@/src/lib/http/client";
 
@@ -93,11 +93,12 @@ function ResetPasswordForm() {
             <input
               value={code}
               onChange={(event) => setCode(normalizeOtpInput(event.target.value))}
-              inputMode="numeric"
-              maxLength={6}
-              placeholder="6자리 숫자"
-              className="h-11 w-full rounded-xl border border-zinc-200 px-3 text-center text-lg tracking-[0.35em] outline-none focus:border-[#43A7B2]"
+              maxLength={OTP_CODE_LENGTH}
+              placeholder={`${OTP_CODE_LENGTH}자리 영문·숫자`}
+              className="h-11 w-full rounded-xl border border-zinc-200 px-3 text-center text-lg tracking-[0.2em] outline-none focus:border-[#43A7B2]"
               autoComplete="one-time-code"
+              autoCapitalize="characters"
+              spellCheck={false}
               required
             />
           </label>

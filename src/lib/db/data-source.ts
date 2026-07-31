@@ -16,6 +16,7 @@ import { UserSlideAlbum } from "./entities/UserSlideAlbum";
 import { Faq } from "./entities/Faq";
 import { Playlist } from "./entities/Playlist";
 import { PlaylistTrack } from "./entities/PlaylistTrack";
+import { EmailOtpChallenge } from "./entities/EmailOtpChallenge";
 import { getServerEnv } from "@/src/lib/env";
 
 const { databaseUrl, nodeEnv } = getServerEnv();
@@ -25,7 +26,7 @@ export const AppDataSource = new DataSource({
   url: databaseUrl,
   synchronize: false,
   logging: nodeEnv === "development",
-  entities: [User, Album, Review, Post, UserFavoriteAlbum, Comment, Like, Report, TodayAlbum, FeaturedSlideAlbum, UserSlideAlbum, Faq, Playlist, PlaylistTrack],
+  entities: [User, Album, Review, Post, UserFavoriteAlbum, Comment, Like, Report, TodayAlbum, FeaturedSlideAlbum, UserSlideAlbum, Faq, Playlist, PlaylistTrack, EmailOtpChallenge],
   ssl:
     databaseUrl.includes("localhost") || databaseUrl.includes("placeholder")
       ? false

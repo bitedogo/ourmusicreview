@@ -12,7 +12,8 @@
     "compress:profiles": "node scripts/compress-profile-images.mjs",
     "icons:oru": "node scripts/generate-oru-app-icons.mjs",
     "db:migrate:playlists": "node scripts/run-playlist-migration.mjs",
-    "db:migrate:email-auth": "node scripts/run-email-auth-migration.mjs"
+    "db:migrate:email-auth": "node scripts/run-email-auth-migration.mjs",
+    "db:migrate:email-otp": "node scripts/run-email-otp-challenges-migration.mjs"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.10",

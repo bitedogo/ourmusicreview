@@ -65,7 +65,7 @@ function layout(params: {
 function otpBlock(code: string): string {
   return `<div style="margin:24px 0;padding:20px 16px;background:#F7F7F7;border-radius:8px;text-align:center;">
     <p style="margin:0 0 8px;font-size:13px;color:#6B6B6B;">인증번호</p>
-    <p style="margin:0;font-size:32px;line-height:1.2;font-weight:700;letter-spacing:0.28em;color:#1A1A1A;">${escapeHtml(code)}</p>
+    <p style="margin:0;font-size:28px;line-height:1.2;font-weight:700;letter-spacing:0.2em;color:#1A1A1A;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;">${escapeHtml(code)}</p>
     <p style="margin:12px 0 0;font-size:12px;color:#9A9A9A;">10분 안에 입력해 주세요</p>
   </div>`;
 }
@@ -76,15 +76,15 @@ export function verificationEmailContent(params: {
 }) {
   const name = params.nickname?.trim() || "회원";
   const subject = "[ORU] 이메일 인증번호 안내";
-  const text = `${name}님, 안녕하세요.\n\nORU 회원가입을 위한 이메일 인증번호입니다.\n\n인증번호: ${params.code}\n\n사이트에서 위 인증번호를 입력해 주세요. 인증번호는 10분 동안 유효합니다.`;
+  const text = `${name}님, 안녕하세요.\n\nORU 회원가입을 위한 이메일 인증번호입니다.\n\n인증번호: ${params.code}\n\n회원가입 페이지의 인증번호 입력란에 위 코드를 입력해 주세요. 인증번호는 10분 동안 유효합니다.`;
   const html = layout({
     title: subject,
     headline: "이메일 인증번호 안내",
-    subline: "회원가입을 완료하려면 인증이 필요합니다",
+    subline: "회원가입을 완료하려면 이메일 인증이 필요합니다",
     bodyHtml: `<p style="margin:0 0 12px;">${escapeHtml(name)}님, 안녕하세요.</p>
-      <p style="margin:0;">ORU 회원가입을 위한 이메일 인증번호입니다. 아래 번호를 회원가입 인증 화면에 입력해 주세요.</p>
+      <p style="margin:0;">ORU 회원가입을 위한 이메일 인증번호입니다. 아래 영문·숫자 코드를 회원가입 페이지의 인증번호 입력란에 입력해 주세요.</p>
       ${otpBlock(params.code)}
-      <p style="margin:0;">인증이 완료되면 바로 로그인하실 수 있습니다.</p>`,
+      <p style="margin:0;">인증이 완료된 뒤 회원가입을 이어서 진행할 수 있습니다.</p>`,
   });
   return { subject, html, text };
 }
