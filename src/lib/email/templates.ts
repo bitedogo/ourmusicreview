@@ -1,7 +1,5 @@
 /** 인증 관련 메일 HTML/텍스트 (카드형) */
 
-import { getAppBaseUrl } from "@/src/lib/email/resend";
-
 function escapeHtml(value: string): string {
   return value
     .replaceAll("&", "&amp;")
@@ -16,7 +14,6 @@ function layout(params: {
   subline?: string;
   bodyHtml: string;
 }) {
-  const logoUrl = `${getAppBaseUrl()}/oru_logo.png`;
   return `<!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -31,7 +28,7 @@ function layout(params: {
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#FFFFFF;border-top:3px solid #2B2B2B;border-radius:0 0 4px 4px;">
           <tr>
             <td style="padding:40px 40px 28px;text-align:center;">
-              <img src="${escapeHtml(logoUrl)}" alt="ORU" width="120" height="62" style="display:inline-block;width:120px;height:auto;border:0;" />
+              <p style="margin:0;font-size:28px;line-height:1;font-weight:700;letter-spacing:0.12em;color:#43A7B2;">ORU</p>
             </td>
           </tr>
           <tr>

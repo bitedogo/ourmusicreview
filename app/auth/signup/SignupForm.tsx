@@ -213,7 +213,7 @@ export function SignupForm() {
       }
 
       setHasSuccess(true);
-      setTimeout(() => router.push("/auth/signin?verified=1"), 1200);
+      setTimeout(() => router.push("/auth/signin"), 1200);
     } catch (error) {
       setErrorMessage(
         error instanceof Error
