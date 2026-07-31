@@ -77,10 +77,10 @@ export function AlbumReviewPreviewCard({
               <h3 className="truncate text-[16px] font-medium leading-[20px] text-black">
                 {albumTitle}
               </h3>
-              <p className="truncate text-[13px] font-normal leading-[16px] text-black">
+              <p className="truncate text-[13px] font-normal leading-[16px] text-[#A9A9A9]">
                 <ArtistNameLink
                   name={artist}
-                  className="max-w-full truncate text-left text-[13px] font-normal leading-[16px] text-black transition hover:text-[var(--color-brand-primary)] hover:underline disabled:cursor-wait disabled:no-underline"
+                  className="max-w-full truncate text-left text-[13px] font-normal leading-[16px] text-[#A9A9A9] transition hover:text-[var(--color-brand-primary)] hover:underline disabled:cursor-wait disabled:no-underline"
                 />
               </p>
             </div>
@@ -116,10 +116,10 @@ export function AlbumReviewPreviewCard({
           <h3 className="absolute left-[173px] right-[120px] top-[19px] truncate text-[24px] font-medium leading-[29px] text-black">
             {albumTitle}
           </h3>
-          <p className="absolute left-[173px] right-[120px] top-[47px] truncate text-[16px] font-normal leading-[19px] text-black">
+          <p className="absolute left-[173px] right-[120px] top-[47px] truncate text-[16px] font-normal leading-[19px] text-[#A9A9A9]">
             <ArtistNameLink
               name={artist}
-              className="max-w-full truncate text-left text-[16px] font-normal leading-[19px] text-black transition hover:text-[var(--color-brand-primary)] hover:underline disabled:cursor-wait disabled:no-underline"
+              className="max-w-full truncate text-left text-[16px] font-normal leading-[19px] text-[#A9A9A9] transition hover:text-[var(--color-brand-primary)] hover:underline disabled:cursor-wait disabled:no-underline"
             />
           </p>
 
