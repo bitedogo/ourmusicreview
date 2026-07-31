@@ -1,6 +1,6 @@
 /** 인증 관련 메일 HTML/텍스트 (카드형) */
 
-import { getEmailLogoUrl } from "@/src/lib/email/resend";
+import { EMAIL_LOGO_CID } from "@/src/lib/email/resend";
 
 function escapeHtml(value: string): string {
   return value
@@ -16,7 +16,6 @@ function layout(params: {
   subline?: string;
   bodyHtml: string;
 }) {
-  const logoUrl = getEmailLogoUrl();
   return `<!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -31,7 +30,7 @@ function layout(params: {
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#FFFFFF;border-top:3px solid #2B2B2B;border-radius:0 0 4px 4px;">
           <tr>
             <td style="padding:36px 40px 24px;text-align:center;">
-              <img src="${escapeHtml(logoUrl)}" alt="ORU" width="160" height="83" style="display:inline-block;width:160px;height:auto;max-width:70%;border:0;outline:none;text-decoration:none;" />
+              <img src="cid:${EMAIL_LOGO_CID}" alt="ORU" width="160" height="83" style="display:inline-block;width:160px;height:auto;max-width:70%;border:0;outline:none;text-decoration:none;" />
             </td>
           </tr>
           <tr>
