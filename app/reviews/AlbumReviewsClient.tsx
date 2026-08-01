@@ -6,7 +6,11 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { getReviewPreviewText } from "@/src/lib/utils/editor";
 import { AlbumReviewPreviewCard } from "@/src/components/reviews/AlbumReviewPreviewCard";
 import { ReviewSearchButton } from "@/src/components/reviews/ReviewSearchButton";
-import { REVIEW_PAGE_TITLE_CLASS } from "@/src/components/reviews/review-page-styles";
+import {
+  REVIEW_LIST_CONTENT_CLASS,
+  REVIEW_PAGE_TITLE_CLASS,
+} from "@/src/components/reviews/review-page-styles";
+
 import {
   ReviewSortToggle,
   type ReviewSortType,
@@ -147,75 +151,80 @@ export function AlbumReviewsClient() {
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-[860px] flex-col px-4 pb-10 pt-[61px] sm:px-6">
-      <section className="flex flex-col gap-[28px]">
-        <h1 className={REVIEW_PAGE_TITLE_CLASS}>앨범 리뷰</h1>
-        <div className="flex items-center justify-between gap-3">
-          <ReviewSortToggle
-            sort={sort}
-            expanded={isSortExpanded}
-            onExpandedChange={setIsSortExpanded}
-            buildHref={(nextSort) =>
-              buildReviewsHref(nextSort, 1, searchField, searchQuery)
-            }
-          />
-          <ReviewSearchButton onClick={() => setIsSearchModalOpen(true)} />
-        </div>
-      </section>
-
-      {!!searchQuery && (
-        <div className="mt-4 flex items-center gap-2 text-xs text-zinc-600">
-          <span className="rounded-full bg-zinc-100 px-2 py-1">
-            {SEARCH_FIELD_OPTIONS.find((opt) => opt.value === searchField)?.label}: {searchQuery}
-          </span>
-          <button
-            type="button"
-            onClick={removeSearch}
-            className="rounded-full border border-zinc-300 px-2 py-1 text-[11px] text-zinc-600 hover:bg-zinc-100"
-          >
-            검색 해제
-          </button>
-        </div>
-      )}
-
-      {isLoading ? (
-        <div className="mt-5 py-12 text-center text-sm text-zinc-500">리뷰를 불러오는 중...</div>
-      ) : error ? (
-        <div className="mt-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900">
-          {error}
-        </div>
-      ) : reviews.length === 0 ? (
-        <div className="mt-5 rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 px-4 py-12 text-center text-sm text-zinc-500">
-          아직 승인된 앨범 리뷰가 없습니다.
-        </div>
-      ) : (
-        <div className="mt-5 flex flex-col items-center gap-5">
-          {reviews.map((review) => (
-            <AlbumReviewPreviewCard
-              key={review.id}
-              href={`${reviewDetail(review.id)}?from=reviews&sort=${sort}&page=${page}&searchField=${searchField}&q=${encodeURIComponent(searchQuery)}`}
-              albumTitle={review.album?.title ?? "앨범"}
-              artist={review.album?.artist ?? "-"}
-              imageUrl={review.album?.imageUrl ?? null}
-              rating={Number(review.rating)}
-              previewText={getReviewPreviewText(review.content ?? "")}
-              authorNickname={review.user?.nickname ?? null}
-              createdAt={review.createdAt}
-              likeCount={review.likeCount}
-              commentCount={review.commentCount}
+      <div className={REVIEW_LIST_CONTENT_CLASS}>
+        <section className="flex flex-col gap-[28px]">
+          <h1 className={REVIEW_PAGE_TITLE_CLASS}>앨범 리뷰</h1>
+          <div className="flex items-center justify-between gap-3">
+            <ReviewSortToggle
+              sort={sort}
+              expanded={isSortExpanded}
+              onExpandedChange={setIsSortExpanded}
+              buildHref={(nextSort) =>
+                buildReviewsHref(nextSort, 1, searchField, searchQuery)
+              }
             />
-          ))}
-        </div>
-      )}
+            <ReviewSearchButton onClick={() => setIsSearchModalOpen(true)} />
+          </div>
+        </section>
 
-      {!isLoading && !error && (
-        <div className="flex justify-center pt-4">
-          <PaginationNav
-            currentPage={page}
-            totalPages={totalPages}
-            buildHref={(p) => buildReviewsHref(sort, p, searchField, searchQuery)}
-          />
-        </div>
-      )}
+        {!!searchQuery && (
+          <div className="mt-4 flex items-center gap-2 text-xs text-zinc-600">
+            <span className="rounded-full bg-zinc-100 px-2 py-1">
+              {SEARCH_FIELD_OPTIONS.find((opt) => opt.value === searchField)?.label}:{" "}
+              {searchQuery}
+            </span>
+            <button
+              type="button"
+              onClick={removeSearch}
+              className="rounded-full border border-zinc-300 px-2 py-1 text-[11px] text-zinc-600 hover:bg-zinc-100"
+            >
+              검색 해제
+            </button>
+          </div>
+        )}
+
+        {isLoading ? (
+          <div className="mt-5 py-12 text-center text-sm text-zinc-500">
+            리뷰를 불러오는 중...
+          </div>
+        ) : error ? (
+          <div className="mt-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900">
+            {error}
+          </div>
+        ) : reviews.length === 0 ? (
+          <div className="mt-5 rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 px-4 py-12 text-center text-sm text-zinc-500">
+            아직 승인된 앨범 리뷰가 없습니다.
+          </div>
+        ) : (
+          <div className="mt-5 flex flex-col gap-5">
+            {reviews.map((review) => (
+              <AlbumReviewPreviewCard
+                key={review.id}
+                href={`${reviewDetail(review.id)}?from=reviews&sort=${sort}&page=${page}&searchField=${searchField}&q=${encodeURIComponent(searchQuery)}`}
+                albumTitle={review.album?.title ?? "앨범"}
+                artist={review.album?.artist ?? "-"}
+                imageUrl={review.album?.imageUrl ?? null}
+                rating={Number(review.rating)}
+                previewText={getReviewPreviewText(review.content ?? "")}
+                authorNickname={review.user?.nickname ?? null}
+                createdAt={review.createdAt}
+                likeCount={review.likeCount}
+                commentCount={review.commentCount}
+              />
+            ))}
+          </div>
+        )}
+
+        {!isLoading && !error && (
+          <div className="flex justify-center pt-4">
+            <PaginationNav
+              currentPage={page}
+              totalPages={totalPages}
+              buildHref={(p) => buildReviewsHref(sort, p, searchField, searchQuery)}
+            />
+          </div>
+        )}
+      </div>
 
       {isSearchModalOpen && (
         <div

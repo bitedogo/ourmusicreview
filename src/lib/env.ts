@@ -9,6 +9,9 @@ interface ServerEnv {
   nodeEnv: "development" | "production" | "test";
   googleClientId: string;
   googleClientSecret: string;
+}
+
+interface EmailEnv {
   resendApiKey: string;
   resendFrom: string;
 }
@@ -44,11 +47,20 @@ export function getServerEnv(): ServerEnv {
       process.env.SUPABASE_SERVICE_ROLE_KEY
     ),
     googleClientId: requireEnv("GOOGLE_CLIENT_ID", process.env.GOOGLE_CLIENT_ID),
-    googleClientSecret: requireEnv("GOOGLE_CLIENT_SECRET", process.env.GOOGLE_CLIENT_SECRET),
+    googleClientSecret: requireEnv(
+      "GOOGLE_CLIENT_SECRET",
+      process.env.GOOGLE_CLIENT_SECRET
+    ),
+    nodeEnv: getNodeEnv(),
+  };
+}
+
+/** 메일 발송 시에만 필요 — 인증/DB 부팅과 분리 */
+export function getEmailEnv(): EmailEnv {
+  return {
     resendApiKey: requireEnv("RESEND_API_KEY", process.env.RESEND_API_KEY),
     resendFrom:
       process.env.RESEND_FROM?.trim() || "ORU <onboarding@resend.dev>",
-    nodeEnv: getNodeEnv(),
   };
 }
 

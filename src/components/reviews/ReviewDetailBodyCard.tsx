@@ -4,8 +4,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { HtmlRenderer } from "@/src/components/common/HtmlRenderer";
 import {
+  REVIEW_BORDER_GRAY,
   REVIEW_BRAND_TEAL,
   REVIEW_CARD_SHELL_CLASS,
+  REVIEW_DETAIL_BODY,
 } from "@/src/components/reviews/review-page-styles";
 import { getUserProfilePath } from "@/src/components/profile/user-profile-view";
 import { reviewEdit } from "@/src/lib/navigation/routes";
@@ -29,28 +31,169 @@ interface ReviewDetailBodyCardProps {
   onDelete: () => void;
 }
 
-function AuthorAvatar({ user }: { user: ReviewDetailAuthor }) {
+type DetailSize = "mobile" | "desktop";
+
+const AVATAR_PX: Record<DetailSize, number> = {
+  mobile: 26,
+  desktop: 40,
+};
+
+const OWNER_ACTION_CLASS: Record<DetailSize, string> = {
+  mobile:
+    "text-[10px] font-normal leading-[12px] text-[#D9D9D9] transition-colors hover:text-[var(--color-brand-primary)]",
+  desktop:
+    "text-xs font-medium text-zinc-400 transition-colors hover:text-[var(--color-brand-primary)]",
+};
+
+function AuthorAvatar({
+  user,
+  size,
+}: {
+  user: ReviewDetailAuthor;
+  size: DetailSize;
+}) {
+  const px = AVATAR_PX[size];
   return (
     <Link
       href={getUserProfilePath(user.id)}
-      className="h-8 w-8 shrink-0 overflow-hidden rounded-full bg-[#D9D9D9] sm:h-10 sm:w-10"
+      className={`shrink-0 overflow-hidden rounded-full bg-[#D9D9D9] ${
+        size === "mobile" ? "h-[26px] w-[26px]" : "h-10 w-10"
+      }`}
       aria-label={`${user.nickname} 프로필 보기`}
     >
       {user.profileImage ? (
         <Image
           src={user.profileImage}
           alt=""
-          width={40}
-          height={40}
-          sizes="40px"
+          width={px}
+          height={px}
+          sizes={`${px}px`}
           className="h-full w-full object-cover"
         />
       ) : (
-        <div className="flex h-full w-full items-center justify-center text-xs font-semibold text-zinc-600">
+        <div className="flex h-full w-full items-center justify-center text-[10px] font-semibold text-zinc-600 sm:text-xs">
           {user.nickname.charAt(0).toUpperCase()}
         </div>
       )}
     </Link>
+  );
+}
+
+function OwnerActions({
+  reviewId,
+  onDelete,
+  size,
+}: {
+  reviewId: string;
+  onDelete: () => void;
+  size: DetailSize;
+}) {
+  const className = OWNER_ACTION_CLASS[size];
+  return (
+    <>
+      <Link href={reviewEdit(reviewId)} className={className}>
+        수정
+      </Link>
+      <button type="button" onClick={onDelete} className={className}>
+        삭제
+      </button>
+    </>
+  );
+}
+
+function RatingBox({
+  ratingValue,
+  ratingColor,
+}: {
+  ratingValue: number;
+  ratingColor: string;
+}) {
+  return (
+    <div
+      className={REVIEW_DETAIL_BODY.rating.box}
+      style={{
+        borderColor: REVIEW_BORDER_GRAY,
+        boxShadow: `0px 2px 4px ${ratingColor}`,
+      }}
+    >
+      <span
+        className={REVIEW_DETAIL_BODY.rating.label}
+        style={{ color: REVIEW_BRAND_TEAL }}
+      >
+        RATING
+      </span>
+      <span
+        className={REVIEW_DETAIL_BODY.rating.score}
+        style={{ color: ratingColor }}
+      >
+        {formatRating(ratingValue)}
+      </span>
+    </div>
+  );
+}
+
+function MobileAuthorHeader({
+  user,
+  dateText,
+  reviewId,
+  isOwner,
+  onDelete,
+}: {
+  user: ReviewDetailAuthor;
+  dateText: string;
+  reviewId: string;
+  isOwner: boolean;
+  onDelete: () => void;
+}) {
+  return (
+    <div
+      className={`relative flex items-start justify-between gap-2 border-b border-[#D9D9D9] pb-3 pr-3 pt-3 sm:hidden ${REVIEW_DETAIL_BODY.authorOffset.mobile}`}
+    >
+      <div className="flex min-w-0 items-start gap-2">
+        <AuthorAvatar user={user} size="mobile" />
+        <div className="min-w-0">
+          <Link
+            href={getUserProfilePath(user.id)}
+            className="block truncate text-[12px] font-medium leading-[14px] text-black hover:underline"
+          >
+            {user.nickname}
+          </Link>
+          <span className="mt-0.5 block text-[10px] font-normal leading-[12px] text-[#D9D9D9]">
+            {dateText}
+          </span>
+        </div>
+      </div>
+      {isOwner ? (
+        <div className="flex shrink-0 items-center gap-1.5 pt-0.5">
+          <OwnerActions reviewId={reviewId} onDelete={onDelete} size="mobile" />
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function DesktopAuthorHeader({
+  user,
+  dateText,
+}: {
+  user: ReviewDetailAuthor;
+  dateText: string;
+}) {
+  return (
+    <div
+      className={`absolute top-[23px] z-[1] hidden min-w-0 items-center gap-[14px] sm:flex ${REVIEW_DETAIL_BODY.authorOffset.desktop}`}
+    >
+      <AuthorAvatar user={user} size="desktop" />
+      <Link
+        href={getUserProfilePath(user.id)}
+        className="min-w-0 truncate text-[24px] font-medium leading-[29px] text-black hover:underline"
+      >
+        {user.nickname}
+      </Link>
+      <span className="shrink-0 text-[14px] font-normal leading-[17px] text-black">
+        {dateText}
+      </span>
+    </div>
   );
 }
 
@@ -66,67 +209,37 @@ export function ReviewDetailBodyCard({
 }: ReviewDetailBodyCardProps) {
   const ratingValue = Number(rating);
   const ratingColor = getRatingScoreColor(ratingValue);
+  const dateText = formatDateYYYYMMDD(createdAt);
 
   return (
-    /* 앨범 카드 ↔ RATING 상단 30px: mt - |top| = 30 */
-    <div className="relative mt-[50px] w-full overflow-visible">
+    <div
+      className={`relative w-full overflow-visible ${REVIEW_DETAIL_BODY.gapFromAlbum.mobile} ${REVIEW_DETAIL_BODY.gapFromAlbum.desktop}`}
+    >
       <div
         className={`relative w-full overflow-visible ${REVIEW_CARD_SHELL_CLASS}`}
       >
-        {/* RATING — 모바일/데스크톱 모두 좌상단 걸침 + 옆에 작성자 */}
-        <div
-          className="absolute left-[-12px] top-[-20px] z-10 flex h-[96px] w-[96px] flex-col items-center justify-center rounded-[15px] border bg-white sm:left-[-23px] sm:h-[131px] sm:w-[131px]"
-          style={{
-            borderColor: `color-mix(in srgb, ${ratingColor} 45%, white)`,
-            boxShadow: `0px 2px 4px color-mix(in srgb, ${ratingColor} 35%, transparent)`,
-          }}
-        >
-          <span
-            className="text-[14px] font-bold leading-[17px] tracking-[0.05em] sm:text-[24px] sm:leading-[29px]"
-            style={{ color: REVIEW_BRAND_TEAL }}
-          >
-            RATING
-          </span>
-          <span
-            className="text-[36px] font-bold leading-none sm:text-[64px] sm:leading-[76px]"
-            style={{ color: ratingColor }}
-          >
-            {formatRating(ratingValue)}
-          </span>
-        </div>
+        <RatingBox ratingValue={ratingValue} ratingColor={ratingColor} />
 
-        <div className="absolute left-[96px] right-3 top-[18px] z-[1] flex min-w-0 items-center gap-[10px] sm:left-[131px] sm:right-auto sm:top-[23px] sm:gap-[14px]">
-          <AuthorAvatar user={user} />
-          <Link
-            href={getUserProfilePath(user.id)}
-            className="min-w-0 truncate text-[16px] font-medium leading-[20px] text-black hover:underline sm:text-[24px] sm:leading-[29px]"
-          >
-            {user.nickname}
-          </Link>
-          <span className="shrink-0 text-[12px] font-normal leading-[15px] text-black sm:text-[14px] sm:leading-[17px]">
-            {formatDateYYYYMMDD(createdAt)}
-          </span>
-        </div>
+        <MobileAuthorHeader
+          user={user}
+          dateText={dateText}
+          reviewId={reviewId}
+          isOwner={isOwner}
+          onDelete={onDelete}
+        />
+        <DesktopAuthorHeader user={user} dateText={dateText} />
 
-        <div className="px-4 pb-6 pt-[110px] text-[14px] font-normal leading-[200%] text-black sm:px-[50px] sm:pb-[40px] sm:pt-[157px]">
+        <div className="px-4 pb-6 pt-4 text-[14px] font-normal leading-[200%] text-black sm:px-[50px] sm:pb-[40px] sm:pt-[157px]">
           <HtmlRenderer html={content} />
         </div>
 
         {isOwner ? (
-          <div className="flex justify-end gap-3 px-4 pb-6 sm:px-[50px] sm:pb-[40px] sm:pt-0">
-            <Link
-              href={reviewEdit(reviewId)}
-              className="text-xs font-medium text-zinc-400 transition-colors hover:text-[var(--color-brand-primary)]"
-            >
-              수정
-            </Link>
-            <button
-              type="button"
-              onClick={onDelete}
-              className="text-xs font-medium text-zinc-400 transition-colors hover:text-[var(--color-brand-primary)]"
-            >
-              삭제
-            </button>
+          <div className="hidden justify-end gap-3 px-[50px] pb-[40px] sm:flex">
+            <OwnerActions
+              reviewId={reviewId}
+              onDelete={onDelete}
+              size="desktop"
+            />
           </div>
         ) : null}
 

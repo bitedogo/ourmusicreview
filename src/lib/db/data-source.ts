@@ -17,9 +17,15 @@ import { Faq } from "./entities/Faq";
 import { Playlist } from "./entities/Playlist";
 import { PlaylistTrack } from "./entities/PlaylistTrack";
 import { EmailOtpChallenge } from "./entities/EmailOtpChallenge";
-import { getServerEnv } from "@/src/lib/env";
 
-const { databaseUrl, nodeEnv } = getServerEnv();
+const databaseUrl = process.env.DATABASE_URL ?? "";
+const nodeEnv = process.env.NODE_ENV === "production" || process.env.NODE_ENV === "test"
+  ? process.env.NODE_ENV
+  : "development";
+
+if (!databaseUrl.trim()) {
+  throw new Error("[ENV] DATABASE_URL 환경 변수가 필요합니다.");
+}
 
 export const AppDataSource = new DataSource({
   type: "postgres",

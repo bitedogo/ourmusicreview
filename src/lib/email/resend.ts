@@ -1,7 +1,6 @@
 /** Resend 메일 발송 */
 
-import { Resend } from "resend";
-import { getServerEnv } from "@/src/lib/env";
+import { getEmailEnv, getServerEnv } from "@/src/lib/env";
 
 export type EmailContent = {
   subject: string;
@@ -13,7 +12,7 @@ let resendClient: Resend | null = null;
 
 function getResend() {
   if (!resendClient) {
-    resendClient = new Resend(getServerEnv().resendApiKey);
+    resendClient = new Resend(getEmailEnv().resendApiKey);
   }
   return resendClient;
 }
@@ -24,9 +23,9 @@ export async function sendEmail(params: {
   html: string;
   text: string;
 }) {
-  const env = getServerEnv();
+  const emailEnv = getEmailEnv();
   const { error } = await getResend().emails.send({
-    from: env.resendFrom,
+    from: emailEnv.resendFrom,
     to: params.to,
     subject: params.subject,
     html: params.html,

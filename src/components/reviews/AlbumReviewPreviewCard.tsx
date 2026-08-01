@@ -52,7 +52,7 @@ export function AlbumReviewPreviewCard({
   return (
     <Link
       href={href}
-      className="relative mx-auto block w-full max-w-[800px] transition hover:opacity-[0.98]"
+      className="relative block w-full transition hover:opacity-[0.98]"
     >
       {/*
         모바일 — 패딩 안 inset 커버.
