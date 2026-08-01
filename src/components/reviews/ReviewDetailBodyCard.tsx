@@ -140,7 +140,7 @@ function MobileAuthorHeader({
   return (
     <div className={author.root}>
       <div className={author.row}>
-        <div className="flex min-w-0 items-start gap-2">
+        <div className={author.identity}>
           <AuthorAvatar user={user} size="mobile" />
           <div className={author.meta}>
             <Link
@@ -170,23 +170,45 @@ function MobileAuthorHeader({
 function DesktopAuthorHeader({
   user,
   dateText,
+  reviewId,
+  isOwner,
+  onDelete,
 }: {
   user: ReviewDetailAuthor;
   dateText: string;
+  reviewId: string;
+  isOwner: boolean;
+  onDelete: () => void;
 }) {
   const { desktopAuthor } = REVIEW_DETAIL_BODY;
 
   return (
-    <div className={desktopAuthor.root}>
-      <AuthorAvatar user={user} size="desktop" />
-      <Link
-        href={getUserProfilePath(user.id)}
-        className={desktopAuthor.nickname}
-      >
-        {user.nickname}
-      </Link>
-      <span className={desktopAuthor.date}>{dateText}</span>
-    </div>
+    <>
+      <div className={desktopAuthor.root}>
+        <div className={desktopAuthor.identity}>
+          <AuthorAvatar user={user} size="desktop" />
+          <div className={desktopAuthor.meta}>
+            <Link
+              href={getUserProfilePath(user.id)}
+              className={desktopAuthor.nickname}
+            >
+              {user.nickname}
+            </Link>
+            <span className={desktopAuthor.date}>{dateText}</span>
+          </div>
+        </div>
+        {isOwner ? (
+          <div className={desktopAuthor.actions}>
+            <OwnerActions
+              reviewId={reviewId}
+              onDelete={onDelete}
+              size="desktop"
+            />
+          </div>
+        ) : null}
+      </div>
+      <div className={desktopAuthor.divider} aria-hidden />
+    </>
   );
 }
 
@@ -216,21 +238,17 @@ export function ReviewDetailBodyCard({
           isOwner={isOwner}
           onDelete={onDelete}
         />
-        <DesktopAuthorHeader user={user} dateText={dateText} />
+        <DesktopAuthorHeader
+          user={user}
+          dateText={dateText}
+          reviewId={reviewId}
+          isOwner={isOwner}
+          onDelete={onDelete}
+        />
 
         <div className={REVIEW_DETAIL_BODY.content}>
           <HtmlRenderer html={content} />
         </div>
-
-        {isOwner ? (
-          <div className={REVIEW_DETAIL_BODY.desktopAuthor.actions}>
-            <OwnerActions
-              reviewId={reviewId}
-              onDelete={onDelete}
-              size="desktop"
-            />
-          </div>
-        ) : null}
 
         {rejectReason ? (
           <div className={REVIEW_DETAIL_BODY.reject}>

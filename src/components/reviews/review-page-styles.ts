@@ -25,8 +25,8 @@ export const REVIEW_BRAND_TEAL = "#43A7B2";
 export const REVIEW_BORDER_GRAY = "#D9D9D9";
 
 /**
- * 리뷰 상세 본문 카드 (Figma Group 103 / Frame 104 · 모바일 SVG 기준)
- * 카드 343 / Rating 75·상단 -24 / 구분선 inset left 86 · right 22
+ * 리뷰 상세 본문 카드
+ * 모바일 SVG: card (4,26)·343 / 데스크톱: card 800 · avatar after rating 131
  */
 export const REVIEW_DETAIL_BODY = {
   root: "relative mt-[40px] w-full overflow-visible sm:mt-[50px]",
@@ -41,27 +41,36 @@ export const REVIEW_DETAIL_BODY = {
   },
 
   /**
-   * 모바일 작성자·구분선 — 좌우 inset만 고정, 너비에 따라 늘어남
-   * (343 기준 left 86 · right 22 ≈ 기존 234.53 폭)
+   * 모바일 — X·타이포는 Figma, Y는 구분선 위(h 51) 세로 중앙
+   * inset left 86 · right 22 / avatar→nick gap ≈ 6
    */
   author: {
-    root: "relative h-[52px] sm:hidden",
-    row: "absolute left-[86px] right-[22px] top-0 flex h-[51px] items-start justify-between gap-2 pt-3",
-    meta: "min-w-0 pt-px",
+    root: "relative h-[51px] sm:hidden",
+    row: "absolute inset-x-0 top-0 flex h-[51px] items-center justify-between gap-2 pl-[86px] pr-[22px]",
+    identity: "flex min-w-0 items-center gap-[6px]",
+    meta: "min-w-0",
     nickname:
       "block truncate text-[12px] font-medium leading-[14px] text-black hover:underline",
-    date: "mt-0.5 block text-[10px] font-normal leading-[12px] text-[#D9D9D9]",
-    actions: "flex shrink-0 items-center gap-1.5 pt-[7px]",
+    date: "mt-[2px] block text-[10px] font-normal leading-[12px] text-[#D9D9D9]",
+    actions: "flex shrink-0 items-center gap-0",
     divider:
-      "absolute left-[86px] right-[22px] bottom-0 h-px bg-[#D9D9D9]",
+      "absolute left-[86px] right-[22px] top-[51px] h-px bg-[#D9D9D9]",
   },
 
+  /**
+   * 데스크톱 — X·타이포는 Figma, Y는 구분선 위(h 111) 세로 중앙
+   * inset left 131 · right 50 / avatar→nick gap 10
+   */
   desktopAuthor: {
-    root: "absolute left-[131px] top-[23px] z-[1] hidden min-w-0 items-center gap-[14px] sm:flex",
+    root: "absolute left-[131px] right-[50px] top-0 z-[1] hidden h-[111px] min-w-0 items-center justify-between gap-[14px] sm:flex",
+    identity: "flex min-w-0 items-center gap-[10px]",
+    meta: "min-w-0",
     nickname:
-      "min-w-0 truncate text-[24px] font-medium leading-[29px] text-black hover:underline",
-    date: "shrink-0 text-[14px] font-normal leading-[17px] text-black",
-    actions: "hidden justify-end gap-3 px-[50px] pb-[40px] sm:flex",
+      "block truncate text-[20px] font-medium leading-[24px] text-black hover:underline",
+    date: "mt-[2px] block text-[11px] font-normal leading-[13px] text-[#D9D9D9]",
+    actions: "flex shrink-0 items-center gap-0",
+    divider:
+      "absolute left-[131px] right-[50px] top-[111px] hidden h-px bg-[#D9D9D9] sm:block",
   },
 
   content:
@@ -71,9 +80,9 @@ export const REVIEW_DETAIL_BODY = {
 
   ownerAction: {
     mobile:
-      "text-[10px] font-normal leading-[12px] text-[#D9D9D9] transition-colors hover:text-[var(--color-brand-primary)]",
+      "inline-flex w-[21px] items-center justify-end text-right text-[10px] font-normal leading-[12px] text-[#D9D9D9] transition-colors hover:text-[var(--color-brand-primary)]",
     desktop:
-      "text-xs font-medium text-zinc-400 transition-colors hover:text-[var(--color-brand-primary)]",
+      "inline-flex w-[31px] items-center justify-end text-right text-[14px] font-normal leading-[17px] text-[#D9D9D9] transition-colors hover:text-[var(--color-brand-primary)]",
   },
 
   avatar: {

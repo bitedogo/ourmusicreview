@@ -164,11 +164,11 @@ export function ReviewDetailAlbumCard({
           <h2 className="absolute left-[150px] right-[190px] top-[16px] truncate text-[24px] font-medium leading-[29px] text-black">
             {album.title}
           </h2>
-          <p className="absolute left-[150px] right-[190px] top-[44px] truncate text-[16px] font-normal leading-[19px] text-black">
+          <p className="absolute left-[150px] right-[190px] top-[44px] truncate text-[16px] font-normal leading-[19px] text-[#D9D9D9]">
             <ArtistNameLink
               name={album.artist}
               artistId={album.artistId}
-              className="max-w-full truncate text-left text-[16px] font-normal leading-[19px] text-black transition hover:text-[var(--color-brand-primary)] hover:underline disabled:cursor-wait disabled:no-underline"
+              className="max-w-full truncate text-left text-[16px] font-normal leading-[19px] text-[#D9D9D9] transition hover:text-[var(--color-brand-primary)] hover:underline disabled:cursor-wait disabled:no-underline"
             />
           </p>
           <p className="absolute left-[150px] top-[90px] text-[14px] font-normal leading-[17px] text-black">
@@ -203,11 +203,11 @@ export function ReviewDetailAlbumCard({
                 <h2 className="truncate text-[16px] font-medium leading-[20px] text-black">
                   {album.title}
                 </h2>
-                <p className="truncate text-[12px] font-normal leading-[15px] text-black">
+                <p className="truncate text-[16px] font-normal leading-[19px] text-[#D9D9D9]">
                   <ArtistNameLink
                     name={album.artist}
                     artistId={album.artistId}
-                    className="max-w-full truncate text-left text-[12px] font-normal leading-[15px] text-black transition hover:text-[var(--color-brand-primary)] hover:underline disabled:cursor-wait disabled:no-underline"
+                    className="max-w-full truncate text-left text-[16px] font-normal leading-[19px] text-[#D9D9D9] transition hover:text-[var(--color-brand-primary)] hover:underline disabled:cursor-wait disabled:no-underline"
                   />
                 </p>
               </div>
