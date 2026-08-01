@@ -26,7 +26,7 @@ export const REVIEW_BORDER_GRAY = "#D9D9D9";
 
 /**
  * 리뷰 상세 본문 카드 (Figma Group 103 / Frame 104 · 모바일 SVG 기준)
- * 카드 343 / Rating 75·상단 -24 / 구분선 left 86 · width 234.53
+ * 카드 343 / Rating 75·상단 -24 / 구분선 inset left 86 · right 22
  */
 export const REVIEW_DETAIL_BODY = {
   root: "relative mt-[40px] w-full overflow-visible sm:mt-[50px]",
@@ -40,16 +40,20 @@ export const REVIEW_DETAIL_BODY = {
       "flex h-[33px] w-[65px] shrink-0 items-center justify-center text-center text-[32px] font-bold leading-[38px] sm:h-[66px] sm:w-[97px] sm:text-[64px] sm:leading-[76px]",
   },
 
-  /** 모바일: 작성자·수정삭제·구분선 동일 열 (SVG left 86 · width 234.53) */
+  /**
+   * 모바일 작성자·구분선 — 좌우 inset만 고정, 너비에 따라 늘어남
+   * (343 기준 left 86 · right 22 ≈ 기존 234.53 폭)
+   */
   author: {
-    column: "ml-[86px] w-[234.53px] max-w-[calc(100%-108px)]",
-    row: "flex h-[51px] items-start justify-between gap-2 pt-3",
+    root: "relative h-[52px] sm:hidden",
+    row: "absolute left-[86px] right-[22px] top-0 flex h-[51px] items-start justify-between gap-2 pt-3",
     meta: "min-w-0 pt-px",
     nickname:
       "block truncate text-[12px] font-medium leading-[14px] text-black hover:underline",
     date: "mt-0.5 block text-[10px] font-normal leading-[12px] text-[#D9D9D9]",
     actions: "flex shrink-0 items-center gap-1.5 pt-[7px]",
-    divider: "h-px w-full bg-[#D9D9D9]",
+    divider:
+      "absolute left-[86px] right-[22px] bottom-0 h-px bg-[#D9D9D9]",
   },
 
   desktopAuthor: {

@@ -138,33 +138,31 @@ function MobileAuthorHeader({
   const { author } = REVIEW_DETAIL_BODY;
 
   return (
-    <div className="relative sm:hidden">
-      <div className={author.column}>
-        <div className={author.row}>
-          <div className="flex min-w-0 items-start gap-2">
-            <AuthorAvatar user={user} size="mobile" />
-            <div className={author.meta}>
-              <Link
-                href={getUserProfilePath(user.id)}
-                className={author.nickname}
-              >
-                {user.nickname}
-              </Link>
-              <span className={author.date}>{dateText}</span>
-            </div>
+    <div className={author.root}>
+      <div className={author.row}>
+        <div className="flex min-w-0 items-start gap-2">
+          <AuthorAvatar user={user} size="mobile" />
+          <div className={author.meta}>
+            <Link
+              href={getUserProfilePath(user.id)}
+              className={author.nickname}
+            >
+              {user.nickname}
+            </Link>
+            <span className={author.date}>{dateText}</span>
           </div>
-          {isOwner ? (
-            <div className={author.actions}>
-              <OwnerActions
-                reviewId={reviewId}
-                onDelete={onDelete}
-                size="mobile"
-              />
-            </div>
-          ) : null}
         </div>
-        <div className={author.divider} aria-hidden />
+        {isOwner ? (
+          <div className={author.actions}>
+            <OwnerActions
+              reviewId={reviewId}
+              onDelete={onDelete}
+              size="mobile"
+            />
+          </div>
+        ) : null}
       </div>
+      <div className={author.divider} aria-hidden />
     </div>
   );
 }
