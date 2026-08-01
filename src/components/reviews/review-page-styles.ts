@@ -25,15 +25,13 @@ export const REVIEW_BRAND_TEAL = "#43A7B2";
 export const REVIEW_BORDER_GRAY = "#D9D9D9";
 
 /**
- * 리뷰 상세 본문 카드 (Figma Group 103 / Frame 104)
- * — 앨범 카드 ↔ 본문 간격 · Rating 박스 크기·걸침
+ * 리뷰 상세 본문 카드 (Figma Group 103 / Frame 104 · 모바일 SVG 기준)
+ * 카드 343 / Rating 75·상단 -24 / 구분선 left 86 · width 234.53
  */
 export const REVIEW_DETAIL_BODY = {
-  /** 앨범 카드 ↔ 본문 박스 상단 간격 */
-  gapFromAlbum: {
-    mobile: "mt-[40px]",
-    desktop: "sm:mt-[50px]",
-  },
+  root: "relative mt-[40px] w-full overflow-visible sm:mt-[50px]",
+  shell: `relative w-full overflow-visible ${REVIEW_CARD_SHELL_CLASS}`,
+
   rating: {
     box: "absolute z-10 box-border flex flex-col items-center justify-center rounded-[15px] border bg-white pt-1 left-0 top-[-24px] h-[75px] w-[75px] sm:left-[-23px] sm:top-[-20px] sm:h-[131px] sm:w-[131px]",
     label:
@@ -41,9 +39,41 @@ export const REVIEW_DETAIL_BODY = {
     score:
       "flex h-[33px] w-[65px] shrink-0 items-center justify-center text-center text-[32px] font-bold leading-[38px] sm:h-[66px] sm:w-[97px] sm:text-[64px] sm:leading-[76px]",
   },
-  authorOffset: {
-    /** Rating 75 + gap ≈ 아바타 시작 */
-    mobile: "pl-[86px]",
-    desktop: "left-[131px]",
+
+  /** 모바일: 작성자·수정삭제·구분선 동일 열 (SVG left 86 · width 234.53) */
+  author: {
+    column: "ml-[86px] w-[234.53px] max-w-[calc(100%-108px)]",
+    row: "flex h-[51px] items-start justify-between gap-2 pt-3",
+    meta: "min-w-0 pt-px",
+    nickname:
+      "block truncate text-[12px] font-medium leading-[14px] text-black hover:underline",
+    date: "mt-0.5 block text-[10px] font-normal leading-[12px] text-[#D9D9D9]",
+    actions: "flex shrink-0 items-center gap-1.5 pt-[7px]",
+    divider: "h-px w-full bg-[#D9D9D9]",
+  },
+
+  desktopAuthor: {
+    root: "absolute left-[131px] top-[23px] z-[1] hidden min-w-0 items-center gap-[14px] sm:flex",
+    nickname:
+      "min-w-0 truncate text-[24px] font-medium leading-[29px] text-black hover:underline",
+    date: "shrink-0 text-[14px] font-normal leading-[17px] text-black",
+    actions: "hidden justify-end gap-3 px-[50px] pb-[40px] sm:flex",
+  },
+
+  content:
+    "px-[28px] pb-6 pt-5 text-[14px] font-normal leading-[200%] text-black sm:px-[50px] sm:pb-[40px] sm:pt-[157px]",
+  reject:
+    "mx-4 mb-6 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-900 sm:mx-[50px]",
+
+  ownerAction: {
+    mobile:
+      "text-[10px] font-normal leading-[12px] text-[#D9D9D9] transition-colors hover:text-[var(--color-brand-primary)]",
+    desktop:
+      "text-xs font-medium text-zinc-400 transition-colors hover:text-[var(--color-brand-primary)]",
+  },
+
+  avatar: {
+    mobile: "h-[26px] w-[26px]",
+    desktop: "h-10 w-10",
   },
 } as const;

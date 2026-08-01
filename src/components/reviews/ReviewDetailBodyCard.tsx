@@ -6,7 +6,6 @@ import { HtmlRenderer } from "@/src/components/common/HtmlRenderer";
 import {
   REVIEW_BORDER_GRAY,
   REVIEW_BRAND_TEAL,
-  REVIEW_CARD_SHELL_CLASS,
   REVIEW_DETAIL_BODY,
 } from "@/src/components/reviews/review-page-styles";
 import { getUserProfilePath } from "@/src/components/profile/user-profile-view";
@@ -38,13 +37,6 @@ const AVATAR_PX: Record<DetailSize, number> = {
   desktop: 40,
 };
 
-const OWNER_ACTION_CLASS: Record<DetailSize, string> = {
-  mobile:
-    "text-[10px] font-normal leading-[12px] text-[#D9D9D9] transition-colors hover:text-[var(--color-brand-primary)]",
-  desktop:
-    "text-xs font-medium text-zinc-400 transition-colors hover:text-[var(--color-brand-primary)]",
-};
-
 function AuthorAvatar({
   user,
   size,
@@ -56,9 +48,7 @@ function AuthorAvatar({
   return (
     <Link
       href={getUserProfilePath(user.id)}
-      className={`shrink-0 overflow-hidden rounded-full bg-[#D9D9D9] ${
-        size === "mobile" ? "h-[26px] w-[26px]" : "h-10 w-10"
-      }`}
+      className={`shrink-0 overflow-hidden rounded-full bg-[#D9D9D9] ${REVIEW_DETAIL_BODY.avatar[size]}`}
       aria-label={`${user.nickname} 프로필 보기`}
     >
       {user.profileImage ? (
@@ -88,7 +78,7 @@ function OwnerActions({
   onDelete: () => void;
   size: DetailSize;
 }) {
-  const className = OWNER_ACTION_CLASS[size];
+  const className = REVIEW_DETAIL_BODY.ownerAction[size];
   return (
     <>
       <Link href={reviewEdit(reviewId)} className={className}>
@@ -145,29 +135,36 @@ function MobileAuthorHeader({
   isOwner: boolean;
   onDelete: () => void;
 }) {
+  const { author } = REVIEW_DETAIL_BODY;
+
   return (
-    <div
-      className={`relative flex items-start justify-between gap-2 border-b border-[#D9D9D9] pb-3 pr-3 pt-3 sm:hidden ${REVIEW_DETAIL_BODY.authorOffset.mobile}`}
-    >
-      <div className="flex min-w-0 items-start gap-2">
-        <AuthorAvatar user={user} size="mobile" />
-        <div className="min-w-0">
-          <Link
-            href={getUserProfilePath(user.id)}
-            className="block truncate text-[12px] font-medium leading-[14px] text-black hover:underline"
-          >
-            {user.nickname}
-          </Link>
-          <span className="mt-0.5 block text-[10px] font-normal leading-[12px] text-[#D9D9D9]">
-            {dateText}
-          </span>
+    <div className="relative sm:hidden">
+      <div className={author.column}>
+        <div className={author.row}>
+          <div className="flex min-w-0 items-start gap-2">
+            <AuthorAvatar user={user} size="mobile" />
+            <div className={author.meta}>
+              <Link
+                href={getUserProfilePath(user.id)}
+                className={author.nickname}
+              >
+                {user.nickname}
+              </Link>
+              <span className={author.date}>{dateText}</span>
+            </div>
+          </div>
+          {isOwner ? (
+            <div className={author.actions}>
+              <OwnerActions
+                reviewId={reviewId}
+                onDelete={onDelete}
+                size="mobile"
+              />
+            </div>
+          ) : null}
         </div>
+        <div className={author.divider} aria-hidden />
       </div>
-      {isOwner ? (
-        <div className="flex shrink-0 items-center gap-1.5 pt-0.5">
-          <OwnerActions reviewId={reviewId} onDelete={onDelete} size="mobile" />
-        </div>
-      ) : null}
     </div>
   );
 }
@@ -179,20 +176,18 @@ function DesktopAuthorHeader({
   user: ReviewDetailAuthor;
   dateText: string;
 }) {
+  const { desktopAuthor } = REVIEW_DETAIL_BODY;
+
   return (
-    <div
-      className={`absolute top-[23px] z-[1] hidden min-w-0 items-center gap-[14px] sm:flex ${REVIEW_DETAIL_BODY.authorOffset.desktop}`}
-    >
+    <div className={desktopAuthor.root}>
       <AuthorAvatar user={user} size="desktop" />
       <Link
         href={getUserProfilePath(user.id)}
-        className="min-w-0 truncate text-[24px] font-medium leading-[29px] text-black hover:underline"
+        className={desktopAuthor.nickname}
       >
         {user.nickname}
       </Link>
-      <span className="shrink-0 text-[14px] font-normal leading-[17px] text-black">
-        {dateText}
-      </span>
+      <span className={desktopAuthor.date}>{dateText}</span>
     </div>
   );
 }
@@ -212,12 +207,8 @@ export function ReviewDetailBodyCard({
   const dateText = formatDateYYYYMMDD(createdAt);
 
   return (
-    <div
-      className={`relative w-full overflow-visible ${REVIEW_DETAIL_BODY.gapFromAlbum.mobile} ${REVIEW_DETAIL_BODY.gapFromAlbum.desktop}`}
-    >
-      <div
-        className={`relative w-full overflow-visible ${REVIEW_CARD_SHELL_CLASS}`}
-      >
+    <div className={REVIEW_DETAIL_BODY.root}>
+      <div className={REVIEW_DETAIL_BODY.shell}>
         <RatingBox ratingValue={ratingValue} ratingColor={ratingColor} />
 
         <MobileAuthorHeader
@@ -229,12 +220,12 @@ export function ReviewDetailBodyCard({
         />
         <DesktopAuthorHeader user={user} dateText={dateText} />
 
-        <div className="px-4 pb-6 pt-4 text-[14px] font-normal leading-[200%] text-black sm:px-[50px] sm:pb-[40px] sm:pt-[157px]">
+        <div className={REVIEW_DETAIL_BODY.content}>
           <HtmlRenderer html={content} />
         </div>
 
         {isOwner ? (
-          <div className="hidden justify-end gap-3 px-[50px] pb-[40px] sm:flex">
+          <div className={REVIEW_DETAIL_BODY.desktopAuthor.actions}>
             <OwnerActions
               reviewId={reviewId}
               onDelete={onDelete}
@@ -244,7 +235,7 @@ export function ReviewDetailBodyCard({
         ) : null}
 
         {rejectReason ? (
-          <div className="mx-4 mb-6 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-900 sm:mx-[50px]">
+          <div className={REVIEW_DETAIL_BODY.reject}>
             반려 사유: {rejectReason}
           </div>
         ) : null}
