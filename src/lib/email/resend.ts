@@ -1,5 +1,6 @@
 /** Resend 메일 발송 */
 
+import { Resend } from "resend";
 import { getEmailEnv, getServerEnv } from "@/src/lib/env";
 
 export type EmailContent = {
