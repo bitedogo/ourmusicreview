@@ -12,8 +12,9 @@
   --color-hero-title: #35909A;
   --color-hero-subtitle: rgba(67, 167, 178, 0.55);
   --color-nav-menu: #272727;
-  --color-rating-score-high: #F82512;
-  --color-rating-score-mid-high: #F35319;
+  /* high(≥9) 빨강 · midHigh(≥6) 주황 — 서로 확실히 구분 */
+  --color-rating-score-high: #E10600;
+  --color-rating-score-mid-high: #FF8A00;
   --color-rating-score-mid: #F8CA12;
   --color-rating-score-low: #11747C;
   --color-today-album-tab-today: #FBFBFB;
