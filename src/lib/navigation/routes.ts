@@ -39,3 +39,27 @@ export function userProfileReviews(userId: string): string {
 export function profilePlaylist(playlistId: string): string {
   return `/profile/playlists/${encodeURIComponent(playlistId)}`;
 }
+
+/** 공개 플레이리스트 목록 (내비 미노출 · URL 직접 진입) */
+export function playlistList(params?: {
+  page?: number;
+  searchField?: string;
+  q?: string;
+}): string {
+  if (!params) return "/playlist";
+  const search = new URLSearchParams();
+  if (params.page && params.page > 1) {
+    search.set("page", String(params.page));
+  }
+  const q = params.q?.trim();
+  if (q) {
+    search.set("searchField", params.searchField ?? "title");
+    search.set("q", q);
+  }
+  const qs = search.toString();
+  return qs ? `/playlist?${qs}` : "/playlist";
+}
+
+export function playlistDetail(playlistId: string): string {
+  return `/playlist/${encodeURIComponent(playlistId)}`;
+}

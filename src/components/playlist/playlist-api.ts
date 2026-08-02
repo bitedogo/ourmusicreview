@@ -89,6 +89,10 @@ export async function fetchPublicPlaylistsByUser(userId: string) {
   );
 }
 
+export interface PublicPlaylistListItemDto extends PlaylistListItemDto {
+  ownerNickname: string;
+}
+
 export async function fetchPlaylistDetail(playlistId: string) {
   return fetchJson<{ ok: boolean; data: { playlist: PlaylistDetailDto } }>(
     `/api/playlists/${encodeURIComponent(playlistId)}`

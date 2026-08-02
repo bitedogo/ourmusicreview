@@ -20,15 +20,15 @@ function formatDuration(ms: number | null) {
 
 interface PlaylistTrackListProps {
   tracks: PlaylistTrackDto[];
-  removingTrackId: string | null;
   streamingLinksByTrackId: Record<string, AlbumStreamingLinks>;
-  onRemoveTrack: (trackRowId: string, trackName: string) => void;
+  removingTrackId?: string | null;
+  onRemoveTrack?: (trackRowId: string, trackName: string) => void;
 }
 
 export function PlaylistTrackList({
   tracks,
-  removingTrackId,
   streamingLinksByTrackId,
+  removingTrackId = null,
   onRemoveTrack,
 }: PlaylistTrackListProps) {
   const [playingTrackId, setPlayingTrackId] = useState<string | null>(null);
@@ -116,14 +116,18 @@ export function PlaylistTrackList({
                         앨범
                       </Link>
                     ) : null}
-                    <button
-                      type="button"
-                      disabled={removingTrackId === track.id}
-                      onClick={() => void onRemoveTrack(track.id, track.trackName)}
-                      className="shrink-0 rounded-full border border-red-200 px-2.5 py-1 text-[11px] text-red-600 hover:bg-red-50 disabled:opacity-60"
-                    >
-                      {removingTrackId === track.id ? "제거중" : "제거"}
-                    </button>
+                    {onRemoveTrack ? (
+                      <button
+                        type="button"
+                        disabled={removingTrackId === track.id}
+                        onClick={() =>
+                          void onRemoveTrack(track.id, track.trackName)
+                        }
+                        className="shrink-0 rounded-full border border-red-200 px-2.5 py-1 text-[11px] text-red-600 hover:bg-red-50 disabled:opacity-60"
+                      >
+                        {removingTrackId === track.id ? "제거중" : "제거"}
+                      </button>
+                    ) : null}
                   </div>
                   <StreamingLinkButtons links={streamingLinks} />
                 </div>

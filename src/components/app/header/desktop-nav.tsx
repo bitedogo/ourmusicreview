@@ -10,7 +10,7 @@ interface DesktopNavProps {
 }
 
 const DEFAULT_NAV_CLASS =
-  "mt-20 hidden items-center justify-center gap-14 pb-1 text-[length:var(--nav-menu-font-size)] font-medium leading-[145%] tracking-[var(--tracking-nav-menu)] text-[var(--color-nav-menu)] md:flex";
+  "relative z-50 mt-20 hidden items-center justify-center gap-14 pb-1 text-[length:var(--nav-menu-font-size)] font-medium leading-[145%] tracking-[var(--tracking-nav-menu)] text-[var(--color-nav-menu)] md:flex";
 
 export function DesktopNav({ isAdmin, className }: DesktopNavProps) {
   return (
@@ -25,11 +25,11 @@ export function DesktopNav({ isAdmin, className }: DesktopNavProps) {
         </Link>
       ))}
       {isAdmin && (
-        <div className="group relative flex items-center">
+        <div className="group relative z-50 flex items-center">
           <span className="cursor-default transition-colors hover:text-[var(--color-accent)]">
             관리자
           </span>
-          <div className="absolute left-1/2 top-full hidden -translate-x-1/2 pt-2 group-hover:block">
+          <div className="absolute left-1/2 top-full z-50 hidden -translate-x-1/2 pt-2 group-hover:block">
             <HeaderDropdownPanel className="min-w-[10rem]">
               {ADMIN_LINKS.map(({ href, label }) => (
                 <Link

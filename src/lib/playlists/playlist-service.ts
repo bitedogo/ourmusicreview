@@ -166,6 +166,109 @@ export async function listPublicPlaylistsByUser(
   return playlists.map((playlist) => toListItem(playlist, counts.get(playlist.id) ?? 0));
 }
 
+const PUBLIC_PLAYLIST_PAGE_SIZE = 12;
+const PUBLIC_PLAYLIST_SEARCH_FIELDS = ["title", "author"] as const;
+export type PublicPlaylistSearchField =
+  (typeof PUBLIC_PLAYLIST_SEARCH_FIELDS)[number];
+
+export interface PublicPlaylistListItem extends PlaylistListItem {
+  ownerNickname: string;
+}
+
+export interface PublicPlaylistListParams {
+  page: string | null;
+  searchField: string | null;
+  q: string | null;
+}
+
+export interface PublicPlaylistListResult {
+  playlists: PublicPlaylistListItem[];
+  searchField: PublicPlaylistSearchField;
+  q: string;
+  page: number;
+  totalPages: number;
+  total: number;
+  pageSize: number;
+}
+
+function parsePublicPlaylistPage(value: string | null): number {
+  const n = value ? parseInt(value, 10) : NaN;
+  return Number.isFinite(n) && n >= 1 ? n : 1;
+}
+
+function parsePublicPlaylistSearchField(
+  value: string | null
+): PublicPlaylistSearchField {
+  if (
+    value &&
+    PUBLIC_PLAYLIST_SEARCH_FIELDS.includes(value as PublicPlaylistSearchField)
+  ) {
+    return value as PublicPlaylistSearchField;
+  }
+  return "title";
+}
+
+function parsePublicPlaylistSearchQuery(value: string | null): string {
+  if (!value) return "";
+  return value.trim().slice(0, 100);
+}
+
+/** 전역 공개 플레이리스트 목록 (is_public + 유저 show_playlists_public) */
+export async function listPublicPlaylists(
+  dataSource: DataSource,
+  params: PublicPlaylistListParams
+): Promise<PublicPlaylistListResult> {
+  const page = parsePublicPlaylistPage(params.page);
+  const searchField = parsePublicPlaylistSearchField(params.searchField);
+  const searchQuery = parsePublicPlaylistSearchQuery(params.q);
+
+  const qb = dataSource
+    .getRepository(Playlist)
+    .createQueryBuilder("playlist")
+    .innerJoinAndSelect("playlist.user", "user")
+    .where("playlist.is_public = :isPublic", { isPublic: "Y" })
+    .andWhere("user.show_playlists_public = :showPublic", { showPublic: "Y" });
+
+  if (searchQuery) {
+    const keyword = `%${searchQuery.toLowerCase()}%`;
+    if (searchField === "author") {
+      qb.andWhere("LOWER(user.nickname) LIKE :keyword", { keyword });
+    } else {
+      qb.andWhere("LOWER(playlist.title) LIKE :keyword", { keyword });
+    }
+  }
+
+  const total = await qb.clone().getCount();
+  const totalPages = Math.max(1, Math.ceil(total / PUBLIC_PLAYLIST_PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const start = (currentPage - 1) * PUBLIC_PLAYLIST_PAGE_SIZE;
+
+  const playlists = await qb
+    .orderBy("playlist.updatedAt", "DESC")
+    .addOrderBy("playlist.createdAt", "DESC")
+    .skip(start)
+    .take(PUBLIC_PLAYLIST_PAGE_SIZE)
+    .getMany();
+
+  const counts = await getPlaylistTrackCounts(
+    dataSource,
+    playlists.map((playlist) => playlist.id)
+  );
+
+  return {
+    playlists: playlists.map((playlist) => ({
+      ...toListItem(playlist, counts.get(playlist.id) ?? 0),
+      ownerNickname: playlist.user?.nickname ?? playlist.userId,
+    })),
+    searchField,
+    q: searchQuery,
+    page: currentPage,
+    totalPages,
+    total,
+    pageSize: PUBLIC_PLAYLIST_PAGE_SIZE,
+  };
+}
+
 export async function getPlaylistDetail(
   dataSource: DataSource,
   playlistId: string,
