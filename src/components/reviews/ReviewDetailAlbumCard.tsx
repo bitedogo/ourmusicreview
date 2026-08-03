@@ -149,9 +149,9 @@ export function ReviewDetailAlbumCard({
 
   return (
     <>
-      {/* 데스크톱 */}
+      {/* 데스크톱 — Figma 800×140 */}
       <div
-        className={`relative hidden h-[140px] w-full sm:block ${REVIEW_CARD_SHELL_CLASS}`}
+        className={`relative hidden h-[140px] w-[800px] max-w-full sm:block ${REVIEW_CARD_SHELL_CLASS}`}
       >
         <div className={`relative h-full ${REVIEW_CARD_CLIP_CLASS}`}>
           <AlbumCoverImage

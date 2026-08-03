@@ -32,18 +32,20 @@ export function AppHeader() {
         className={`relative mx-auto w-full ${SITE_CONTAINER_PADDING_X}`}
         style={contentMaxWidthStyle}
       >
-        <div className="relative flex items-center justify-center pt-[var(--header-logo-padding-top)]">
-          <div className="absolute left-0 flex items-center sm:left-0 md:hidden">
-            <HamburgerButton
-              isOpen={menuOpen}
-              onToggle={() => setMenuOpen((prev) => !prev)}
-            />
-          </div>
+        <div className="pt-[var(--header-logo-padding-top)]">
+          <div className="relative flex items-center justify-center">
+            <div className="absolute left-0 top-1/2 flex -translate-y-1/2 md:hidden">
+              <HamburgerButton
+                isOpen={menuOpen}
+                onToggle={() => setMenuOpen((prev) => !prev)}
+              />
+            </div>
 
-          <HeaderLogo />
+            <HeaderLogo />
 
-          <div className="absolute right-0 top-[calc(50%+12px)] flex -translate-y-1/2 items-center sm:right-0">
-            <ProfileMenu />
+            <div className="absolute right-0 top-1/2 flex -translate-y-1/2">
+              <ProfileMenu />
+            </div>
           </div>
         </div>
 

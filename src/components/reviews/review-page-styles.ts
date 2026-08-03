@@ -26,11 +26,11 @@ export const REVIEW_BORDER_GRAY = "#D9D9D9";
 
 /**
  * 리뷰 상세 본문 카드
- * 모바일 SVG: card (4,26)·343 / 데스크톱: card 800 · avatar after rating 131
+ * 모바일 SVG: card 343 / 데스크톱 Figma: card 800 고정
  */
 export const REVIEW_DETAIL_BODY = {
-  root: "relative mt-[40px] w-full overflow-visible sm:mt-[50px]",
-  shell: `relative w-full overflow-visible ${REVIEW_CARD_SHELL_CLASS}`,
+  root: "relative mt-[40px] w-full overflow-visible sm:mt-[50px] sm:w-[800px]",
+  shell: `relative w-full overflow-visible sm:w-[800px] ${REVIEW_CARD_SHELL_CLASS}`,
 
   rating: {
     box: "absolute z-10 box-border flex flex-col items-center justify-center rounded-[15px] border bg-white pt-1 left-0 top-[-24px] h-[75px] w-[75px] sm:left-[-23px] sm:top-[-20px] sm:h-[131px] sm:w-[131px]",
@@ -42,7 +42,7 @@ export const REVIEW_DETAIL_BODY = {
 
   /**
    * 모바일 — X·타이포는 Figma, Y는 구분선 위(h 51) 세로 중앙
-   * inset left 86 · right 22 / avatar→nick gap ≈ 6
+   * inset left 86 · right 22
    */
   author: {
     root: "relative h-[51px] sm:hidden",
@@ -58,11 +58,11 @@ export const REVIEW_DETAIL_BODY = {
   },
 
   /**
-   * 데스크톱 — X·타이포는 Figma, Y는 구분선 위(h 111) 세로 중앙
-   * inset left 131 · right 50 / avatar→nick gap 10
+   * 데스크톱 — 800 기준 absolute
+   * left 131 · width 619 (= 800 − 131 − 50)
    */
   desktopAuthor: {
-    root: "absolute left-[131px] right-[50px] top-0 z-[1] hidden h-[111px] min-w-0 items-center justify-between gap-[14px] sm:flex",
+    root: "absolute left-[131px] top-0 z-[1] hidden h-[111px] w-[619px] min-w-0 items-center justify-between gap-[14px] sm:flex",
     identity: "flex min-w-0 items-center gap-[10px]",
     meta: "min-w-0",
     nickname:
@@ -70,7 +70,7 @@ export const REVIEW_DETAIL_BODY = {
     date: "mt-[2px] block text-[11px] font-normal leading-[13px] text-[#D9D9D9]",
     actions: "flex shrink-0 items-center gap-0",
     divider:
-      "absolute left-[131px] right-[50px] top-[111px] hidden h-px bg-[#D9D9D9] sm:block",
+      "absolute left-[131px] top-[111px] hidden h-px w-[619px] bg-[#D9D9D9] sm:block",
   },
 
   content:

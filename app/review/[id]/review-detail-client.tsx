@@ -153,7 +153,7 @@ export function ReviewDetailClient({ reviewId }: { reviewId: string }) {
 
   if (isLoading) {
     return (
-      <div className="mx-auto flex min-h-screen w-full max-w-[800px] flex-col gap-6 px-4 py-10 sm:px-0">
+      <div className="mx-auto flex min-h-screen w-full max-w-[800px] flex-col gap-6 px-4 py-10 sm:w-[800px] sm:max-w-none sm:px-0">
         <div className="flex items-center justify-center py-12">
           <div className="text-sm text-zinc-500">리뷰를 불러오는 중...</div>
         </div>
@@ -163,7 +163,7 @@ export function ReviewDetailClient({ reviewId }: { reviewId: string }) {
 
   if (error || !review) {
     return (
-      <div className="mx-auto flex min-h-screen w-full max-w-[800px] flex-col gap-6 px-4 py-10 sm:px-0">
+      <div className="mx-auto flex min-h-screen w-full max-w-[800px] flex-col gap-6 px-4 py-10 sm:w-[800px] sm:max-w-none sm:px-0">
         <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900">
           {error ?? "리뷰를 찾을 수 없습니다."}
         </div>
@@ -180,8 +180,8 @@ export function ReviewDetailClient({ reviewId }: { reviewId: string }) {
   }
 
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-[800px] flex-col px-4 pb-16 pt-[61px] sm:px-0">
-      <h1 className={`mb-[28px] w-full max-w-[800px] ${REVIEW_PAGE_TITLE_CLASS}`}>
+    <div className="mx-auto flex min-h-screen w-full max-w-[800px] flex-col px-4 pb-16 pt-[61px] sm:w-[800px] sm:max-w-none sm:px-0">
+      <h1 className={`mb-[28px] w-full ${REVIEW_PAGE_TITLE_CLASS}`}>
         리뷰 상세
       </h1>
 
