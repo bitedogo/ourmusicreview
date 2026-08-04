@@ -27,7 +27,10 @@ export async function POST(
     const body = (await request.json()) as AddPlaylistTrackInput;
     const dataSource = await initializeDatabase();
     const result = await addTrackToPlaylist(dataSource, id, session.user.id, body);
-    return apiOk({ playlistTrackId: result.trackId }, { status: result.created ? 201 : 200 });
+    return apiOk(
+      { playlistTrackId: result.trackId, created: result.created },
+      { status: result.created ? 201 : 200 }
+    );
   } catch (error) {
     if (error instanceof ServiceError) {
       return apiError(error.message, { status: error.status });

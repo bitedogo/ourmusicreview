@@ -4,6 +4,7 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import type { AlbumDetail, AlbumDetailTrack } from "@/src/lib/album/detail-types";
+import { buildAddTrackPayload } from "@/src/components/playlist/build-add-track-payload";
 import {
   addTrackToPlaylistApi,
   createPlaylistApi,
@@ -82,19 +83,10 @@ export function AddTrackToPlaylistModal({
         return;
       }
 
-      await addTrackToPlaylistApi(targetPlaylistId, {
-        trackId: track.id,
-        trackName: track.title,
-        artistName: track.artists[0] ?? "",
-        collectionId: album.id,
-        collectionName: album.name,
-        artworkUrl100: album.imageUrl,
-        previewUrl: track.previewUrl ?? null,
-        trackNumber: track.trackNumber,
-        discNumber: track.discNumber,
-        durationMs: track.durationMs,
-      });
-
+      await addTrackToPlaylistApi(
+        targetPlaylistId,
+        buildAddTrackPayload(album, track)
+      );
       alert(`"${track.title}" 을(를) 플레이리스트에 저장했습니다.`);
       onClose();
     } catch {

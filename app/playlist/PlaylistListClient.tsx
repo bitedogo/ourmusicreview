@@ -353,7 +353,7 @@ export function PlaylistListClient() {
           </h2>
         </div>
 
-        <div className="-mx-1 mt-4 flex gap-5 overflow-x-auto px-1 pb-2 scrollbar-thin">
+        <div className="mt-4 grid grid-cols-8 gap-x-2 gap-y-4 sm:gap-x-3 sm:gap-y-5">
           {genreCircles.map((circle) => {
             const isActive =
               circle.id === SPECIAL_GENRE_ALL
@@ -368,10 +368,10 @@ export function PlaylistListClient() {
                 key={circle.id}
                 type="button"
                 onClick={() => selectGenre(circle.id)}
-                className="group flex w-[76px] shrink-0 flex-col items-center gap-2.5"
+                className="group flex w-full flex-col items-center gap-2"
               >
                 <span
-                  className={`relative flex h-[72px] w-[72px] items-center justify-center overflow-hidden rounded-full bg-gradient-to-br ${genreTone(circle.id)} text-lg font-semibold text-white shadow-[0_8px_20px_rgba(0,0,0,0.12)] transition ${
+                  className={`relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-full bg-gradient-to-br ${genreTone(circle.id)} text-sm font-semibold text-white shadow-[0_8px_20px_rgba(0,0,0,0.12)] transition sm:text-lg ${
                     isActive
                       ? "ring-2 ring-[#C45C2A] ring-offset-2 ring-offset-[#F7F7F8]"
                       : "group-hover:scale-[1.03]"
@@ -382,7 +382,7 @@ export function PlaylistListClient() {
                       src={circle.imageUrl}
                       alt={circle.label}
                       fill
-                      sizes="72px"
+                      sizes="(max-width: 640px) 11vw, 80px"
                       className="object-cover"
                     />
                   ) : (
@@ -390,7 +390,7 @@ export function PlaylistListClient() {
                   )}
                 </span>
                 <span
-                  className={`w-full truncate text-center text-[12px] font-medium ${
+                  className={`w-full truncate text-center text-[10px] font-medium sm:text-[12px] ${
                     isActive ? "text-zinc-900" : "text-zinc-600"
                   }`}
                 >

@@ -2,7 +2,8 @@
 /** 내 플레이리스트 상세(트랙 목록) */
 
 import { useParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { AddTracksFromAlbumModal } from "@/src/components/playlist/add-tracks-from-album-modal";
 import { PlaylistCoverEditor } from "@/src/components/playlist/playlist-cover-editor";
 import { PlaylistDetailHeader } from "@/src/components/playlist/playlist-detail-header";
 import { PlaylistTrackList } from "@/src/components/playlist/playlist-track-list";
@@ -14,6 +15,7 @@ export default function ProfilePlaylistDetailPage() {
   const router = useRouter();
   const playlistId = params?.id ?? "";
   const [isCoverEditorOpen, setIsCoverEditorOpen] = useState(false);
+  const [isAddTracksOpen, setIsAddTracksOpen] = useState(false);
 
   const {
     playlist,
@@ -22,12 +24,18 @@ export default function ProfilePlaylistDetailPage() {
     isSaving,
     removingTrackId,
     streamingLinksByTrackId,
+    reload,
     removeTrack,
     deletePlaylist,
     saveCover,
     clearCover,
     saveGenres,
   } = usePlaylistDetail(playlistId);
+
+  const existingTrackIds = useMemo(
+    () => playlist?.tracks.map((track) => track.trackId) ?? [],
+    [playlist]
+  );
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-3xl flex-col gap-6 px-6 py-10 sm:px-16">
@@ -90,6 +98,24 @@ export default function ProfilePlaylistDetailPage() {
             removingTrackId={removingTrackId}
             streamingLinksByTrackId={streamingLinksByTrackId}
             onRemoveTrack={(id, name) => void removeTrack(id, name)}
+          />
+
+          <div className="flex justify-end">
+            <button
+              type="button"
+              onClick={() => setIsAddTracksOpen(true)}
+              className="rounded-full bg-[var(--color-brand-primary)] px-4 py-2 text-xs font-semibold text-white hover:bg-[var(--color-brand-primary-hover)]"
+            >
+              곡 추가
+            </button>
+          </div>
+
+          <AddTracksFromAlbumModal
+            isOpen={isAddTracksOpen}
+            playlistId={playlist.id}
+            existingTrackIds={existingTrackIds}
+            onClose={() => setIsAddTracksOpen(false)}
+            onTracksChanged={() => void reload()}
           />
         </>
       )}

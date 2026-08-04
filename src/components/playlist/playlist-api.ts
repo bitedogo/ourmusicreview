@@ -109,29 +109,31 @@ export async function fetchPlaylistDetail(playlistId: string) {
   );
 }
 
+export interface AddPlaylistTrackInput {
+  trackId: string;
+  trackName: string;
+  artistName: string;
+  collectionId?: string | null;
+  collectionName?: string | null;
+  artworkUrl100?: string | null;
+  previewUrl?: string | null;
+  trackNumber?: number | null;
+  discNumber?: number | null;
+  durationMs?: number | null;
+}
+
 export async function addTrackToPlaylistApi(
   playlistId: string,
-  input: {
-    trackId: string;
-    trackName: string;
-    artistName: string;
-    collectionId?: string | null;
-    collectionName?: string | null;
-    artworkUrl100?: string | null;
-    previewUrl?: string | null;
-    trackNumber?: number | null;
-    discNumber?: number | null;
-    durationMs?: number | null;
-  }
+  input: AddPlaylistTrackInput
 ) {
-  return fetchJson<{ ok: boolean; data: { playlistTrackId: string } }>(
-    `/api/playlists/${encodeURIComponent(playlistId)}/tracks`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(input),
-    }
-  );
+  return fetchJson<{
+    ok: boolean;
+    data: { playlistTrackId: string; created: boolean };
+  }>(`/api/playlists/${encodeURIComponent(playlistId)}/tracks`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
 }
 
 export async function removeTrackFromPlaylistApi(

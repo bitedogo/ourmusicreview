@@ -34,9 +34,11 @@ export function usePlaylistDetail(playlistId: string) {
     [playlist]
   );
 
-  const loadPlaylist = useCallback(async () => {
+  const loadPlaylist = useCallback(async (options?: { silent?: boolean }) => {
     if (!playlistId) return;
-    setIsLoading(true);
+    if (!options?.silent) {
+      setIsLoading(true);
+    }
     setError(null);
     try {
       const response = await fetchPlaylistDetail(playlistId);
@@ -45,7 +47,9 @@ export function usePlaylistDetail(playlistId: string) {
       setPlaylist(null);
       setError(getApiErrorMessage(err, "플레이리스트를 불러오지 못했습니다."));
     } finally {
-      setIsLoading(false);
+      if (!options?.silent) {
+        setIsLoading(false);
+      }
     }
   }, [playlistId]);
 
@@ -214,6 +218,7 @@ export function usePlaylistDetail(playlistId: string) {
     isSaving,
     removingTrackId,
     streamingLinksByTrackId,
+    reload: () => loadPlaylist({ silent: true }),
     removeTrack,
     deletePlaylist,
     saveCover,

@@ -7,16 +7,9 @@ import { useState } from "react";
 import { ArtistNameLink } from "@/src/components/app/artist-name-link";
 import type { PlaylistTrackDto } from "@/src/components/playlist/playlist-api";
 import { StreamingLinkButtons } from "@/src/components/streaming/streaming-link-buttons";
+import { formatTrackDuration } from "@/src/lib/album/track-utils";
 import type { AlbumStreamingLinks } from "@/src/lib/streaming/types";
 import { buildTrackStreamingLinks } from "@/src/lib/streaming/track-links";
-
-function formatDuration(ms: number | null) {
-  if (ms == null || ms <= 0) return "-";
-  const totalSec = Math.floor(ms / 1000);
-  const min = Math.floor(totalSec / 60);
-  const sec = totalSec % 60;
-  return `${min}:${String(sec).padStart(2, "0")}`;
-}
 
 interface PlaylistTrackListProps {
   tracks: PlaylistTrackDto[];
@@ -90,7 +83,7 @@ export function PlaylistTrackList({
                     {track.collectionName ? ` · ${track.collectionName}` : ""}
                   </p>
                   <p className="mt-1 text-xs text-zinc-400">
-                    {formatDuration(track.durationMs)}
+                    {formatTrackDuration(track.durationMs)}
                   </p>
                 </div>
                 <div className="flex shrink-0 flex-col items-end gap-2">
