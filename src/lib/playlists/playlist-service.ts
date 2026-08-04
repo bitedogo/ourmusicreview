@@ -4,7 +4,15 @@ import { randomUUID } from "crypto";
 import type { DataSource } from "typeorm";
 import { Playlist } from "@/src/lib/db/entities/Playlist";
 import { PlaylistTrack } from "@/src/lib/db/entities/PlaylistTrack";
+import { PlaylistGenre } from "@/src/lib/db/entities/PlaylistGenre";
+import {
+  assertValidGenreIds,
+  resolveGenreFilterIds,
+  type GenreDto,
+} from "@/src/lib/genres/genre-service";
 import { ServiceError } from "@/src/lib/http/service-error";
+
+export type PlaylistGenreDto = GenreDto;
 
 export interface PlaylistListItem {
   id: string;
@@ -14,6 +22,7 @@ export interface PlaylistListItem {
   isPublic: boolean;
   coverImageUrl: string | null;
   trackCount: number;
+  genres: PlaylistGenreDto[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -41,6 +50,7 @@ export interface CreatePlaylistInput {
   description?: string | null;
   isPublic?: boolean;
   coverImageUrl?: string | null;
+  genreIds?: string[];
 }
 
 export interface UpdatePlaylistInput {
@@ -48,11 +58,13 @@ export interface UpdatePlaylistInput {
   description?: string | null;
   isPublic?: boolean;
   coverImageUrl?: string | null;
+  genreIds?: string[];
 }
 
 function toListItem(
   playlist: Playlist,
-  trackCount: number
+  trackCount: number,
+  genres: PlaylistGenreDto[] = []
 ): PlaylistListItem {
   return {
     id: playlist.id,
@@ -62,6 +74,7 @@ function toListItem(
     isPublic: playlist.isPublic === "Y",
     coverImageUrl: playlist.coverImageUrl ?? null,
     trackCount,
+    genres,
     createdAt: playlist.createdAt,
     updatedAt: playlist.updatedAt,
   };
@@ -107,6 +120,60 @@ async function getPlaylistTrackCounts(
   return map;
 }
 
+async function getGenresByPlaylistIds(
+  dataSource: DataSource,
+  playlistIds: string[]
+): Promise<Map<string, PlaylistGenreDto[]>> {
+  const map = new Map<string, PlaylistGenreDto[]>();
+  if (playlistIds.length === 0) return map;
+
+  const rows = await dataSource
+    .getRepository(PlaylistGenre)
+    .createQueryBuilder("pg")
+    .innerJoinAndSelect("pg.genre", "genre")
+    .where("pg.playlist_id IN (:...playlistIds)", { playlistIds })
+    .orderBy("genre.parent_id", "ASC")
+    .addOrderBy("genre.name_ko", "ASC")
+    .getMany();
+
+  for (const row of rows) {
+    const list = map.get(row.playlistId) ?? [];
+    list.push({
+      id: row.genre.id,
+      nameKo: row.genre.nameKo,
+      nameEn: row.genre.nameEn,
+      parentId: row.genre.parentId,
+    });
+    map.set(row.playlistId, list);
+  }
+  return map;
+}
+
+async function replacePlaylistGenres(
+  dataSource: DataSource,
+  playlistId: string,
+  genreIds: string[]
+): Promise<PlaylistGenreDto[]> {
+  const validated = await assertValidGenreIds(dataSource, genreIds);
+  const repository = dataSource.getRepository(PlaylistGenre);
+
+  await repository.delete({ playlistId });
+
+  if (validated.length === 0) return [];
+
+  await repository.save(
+    validated.map((genreId) =>
+      repository.create({
+        playlistId,
+        genreId,
+      })
+    )
+  );
+
+  const genresMap = await getGenresByPlaylistIds(dataSource, [playlistId]);
+  return genresMap.get(playlistId) ?? [];
+}
+
 export async function createPlaylist(
   dataSource: DataSource,
   userId: string,
@@ -128,25 +195,57 @@ export async function createPlaylist(
   });
 
   await playlistRepository.save(playlist);
-  return toListItem(playlist, 0);
+
+  const genres =
+    input.genreIds !== undefined
+      ? await replacePlaylistGenres(dataSource, playlist.id, input.genreIds)
+      : [];
+
+  return toListItem(playlist, 0, genres);
 }
 
 export async function listMyPlaylists(
   dataSource: DataSource,
-  userId: string
+  userId: string,
+  genreId?: string | null
 ): Promise<PlaylistListItem[]> {
   const playlistRepository = dataSource.getRepository(Playlist);
-  const playlists = await playlistRepository.find({
-    where: { userId },
-    order: { updatedAt: "DESC", createdAt: "DESC" },
-  });
+  const qb = playlistRepository
+    .createQueryBuilder("playlist")
+    .where("playlist.user_id = :userId", { userId });
 
-  const counts = await getPlaylistTrackCounts(
-    dataSource,
-    playlists.map((playlist) => playlist.id)
+  if (genreId?.trim()) {
+    const genreIds = await resolveGenreFilterIds(dataSource, genreId.trim());
+    if (genreIds.length > 0) {
+      qb.andWhere(
+        `EXISTS (
+          SELECT 1 FROM playlist_genres pg
+          WHERE pg.playlist_id = playlist.id
+            AND pg.genre_id IN (:...genreIds)
+        )`,
+        { genreIds }
+      );
+    }
+  }
+
+  const playlists = await qb
+    .orderBy("playlist.updatedAt", "DESC")
+    .addOrderBy("playlist.createdAt", "DESC")
+    .getMany();
+
+  const ids = playlists.map((playlist) => playlist.id);
+  const [counts, genresMap] = await Promise.all([
+    getPlaylistTrackCounts(dataSource, ids),
+    getGenresByPlaylistIds(dataSource, ids),
+  ]);
+
+  return playlists.map((playlist) =>
+    toListItem(
+      playlist,
+      counts.get(playlist.id) ?? 0,
+      genresMap.get(playlist.id) ?? []
+    )
   );
-
-  return playlists.map((playlist) => toListItem(playlist, counts.get(playlist.id) ?? 0));
 }
 
 export async function listPublicPlaylistsByUser(
@@ -159,11 +258,18 @@ export async function listPublicPlaylistsByUser(
     order: { updatedAt: "DESC", createdAt: "DESC" },
   });
 
-  const counts = await getPlaylistTrackCounts(
-    dataSource,
-    playlists.map((playlist) => playlist.id)
+  const ids = playlists.map((playlist) => playlist.id);
+  const [counts, genresMap] = await Promise.all([
+    getPlaylistTrackCounts(dataSource, ids),
+    getGenresByPlaylistIds(dataSource, ids),
+  ]);
+  return playlists.map((playlist) =>
+    toListItem(
+      playlist,
+      counts.get(playlist.id) ?? 0,
+      genresMap.get(playlist.id) ?? []
+    )
   );
-  return playlists.map((playlist) => toListItem(playlist, counts.get(playlist.id) ?? 0));
 }
 
 const PUBLIC_PLAYLIST_PAGE_SIZE = 12;
@@ -179,12 +285,14 @@ export interface PublicPlaylistListParams {
   page: string | null;
   searchField: string | null;
   q: string | null;
+  genre: string | null;
 }
 
 export interface PublicPlaylistListResult {
   playlists: PublicPlaylistListItem[];
   searchField: PublicPlaylistSearchField;
   q: string;
+  genre: string | null;
   page: number;
   totalPages: number;
   total: number;
@@ -221,6 +329,7 @@ export async function listPublicPlaylists(
   const page = parsePublicPlaylistPage(params.page);
   const searchField = parsePublicPlaylistSearchField(params.searchField);
   const searchQuery = parsePublicPlaylistSearchQuery(params.q);
+  const genreFilter = params.genre?.trim() || null;
 
   const qb = dataSource
     .getRepository(Playlist)
@@ -238,6 +347,20 @@ export async function listPublicPlaylists(
     }
   }
 
+  if (genreFilter) {
+    const genreIds = await resolveGenreFilterIds(dataSource, genreFilter);
+    if (genreIds.length > 0) {
+      qb.andWhere(
+        `EXISTS (
+          SELECT 1 FROM playlist_genres pg
+          WHERE pg.playlist_id = playlist.id
+            AND pg.genre_id IN (:...genreIds)
+        )`,
+        { genreIds }
+      );
+    }
+  }
+
   const total = await qb.clone().getCount();
   const totalPages = Math.max(1, Math.ceil(total / PUBLIC_PLAYLIST_PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
@@ -250,18 +373,24 @@ export async function listPublicPlaylists(
     .take(PUBLIC_PLAYLIST_PAGE_SIZE)
     .getMany();
 
-  const counts = await getPlaylistTrackCounts(
-    dataSource,
-    playlists.map((playlist) => playlist.id)
-  );
+  const ids = playlists.map((playlist) => playlist.id);
+  const [counts, genresMap] = await Promise.all([
+    getPlaylistTrackCounts(dataSource, ids),
+    getGenresByPlaylistIds(dataSource, ids),
+  ]);
 
   return {
     playlists: playlists.map((playlist) => ({
-      ...toListItem(playlist, counts.get(playlist.id) ?? 0),
+      ...toListItem(
+        playlist,
+        counts.get(playlist.id) ?? 0,
+        genresMap.get(playlist.id) ?? []
+      ),
       ownerNickname: playlist.user?.nickname ?? playlist.userId,
     })),
     searchField,
     q: searchQuery,
+    genre: genreFilter,
     page: currentPage,
     totalPages,
     total,
@@ -292,8 +421,14 @@ export async function getPlaylistDetail(
     order: { position: "ASC", createdAt: "ASC" },
   });
 
+  const genresMap = await getGenresByPlaylistIds(dataSource, [playlist.id]);
+
   return {
-    ...toListItem(playlist, tracks.length),
+    ...toListItem(
+      playlist,
+      tracks.length,
+      genresMap.get(playlist.id) ?? []
+    ),
     tracks: tracks.map((track) => ({
       id: track.id,
       trackId: track.trackId,
@@ -330,6 +465,7 @@ export async function updatePlaylist(
   }
 
   let changed = false;
+  let genres: PlaylistGenreDto[] | undefined;
 
   if (input.title !== undefined) {
     const title = normalizeText(input.title, 255);
@@ -366,15 +502,27 @@ export async function updatePlaylist(
     }
   }
 
+  if (input.genreIds !== undefined) {
+    genres = await replacePlaylistGenres(dataSource, playlist.id, input.genreIds);
+    changed = true;
+  }
+
   if (!changed) {
     throw new ServiceError("수정된 내용이 없습니다.", 400);
   }
 
   await playlistRepository.save(playlist);
+
   const trackCount = await dataSource
     .getRepository(PlaylistTrack)
     .count({ where: { playlistId: playlist.id } });
-  return toListItem(playlist, trackCount);
+
+  if (genres === undefined) {
+    const genresMap = await getGenresByPlaylistIds(dataSource, [playlist.id]);
+    genres = genresMap.get(playlist.id) ?? [];
+  }
+
+  return toListItem(playlist, trackCount, genres);
 }
 
 export async function deletePlaylist(

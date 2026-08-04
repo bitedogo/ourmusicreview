@@ -12,6 +12,7 @@ import {
   createPlaylistApi,
   type PlaylistListItemDto,
 } from "./playlist-api";
+import { GenreSelector } from "./genre-selector";
 
 interface CreatePlaylistModalProps {
   isOpen: boolean;
@@ -28,6 +29,7 @@ export function CreatePlaylistModal({
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [genreIds, setGenreIds] = useState<string[]>([]);
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreviewUrl, setCoverPreviewUrl] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -49,6 +51,7 @@ export function CreatePlaylistModal({
   const resetForm = useCallback(() => {
     setTitle("");
     setDescription("");
+    setGenreIds([]);
     setCoverFile(null);
     setError(null);
     setIsSaving(false);
@@ -99,6 +102,7 @@ export function CreatePlaylistModal({
         description: description.trim() || "",
         isPublic: false,
         coverImageUrl,
+        genreIds,
       });
       onCreated(response.data.playlist);
       onClose();
@@ -118,7 +122,7 @@ export function CreatePlaylistModal({
         onClick={onClose}
       >
         <div
-          className="w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-5 shadow-xl"
+          className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border border-zinc-200 bg-white p-5 shadow-xl"
           onClick={(event) => event.stopPropagation()}
         >
           <h3 className="text-lg font-semibold text-zinc-900">
@@ -142,6 +146,17 @@ export function CreatePlaylistModal({
               rows={3}
               className="w-full resize-none rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500"
             />
+
+            <div>
+              <p className="mb-1.5 text-xs font-medium text-zinc-600">
+                장르 (선택)
+              </p>
+              <GenreSelector
+                value={genreIds}
+                onChange={setGenreIds}
+                disabled={isSaving}
+              />
+            </div>
 
             <div>
               <p className="mb-1.5 text-xs font-medium text-zinc-600">

@@ -3,6 +3,13 @@
 
 import { fetchJson } from "@/src/lib/http/client";
 
+export interface PlaylistGenreDto {
+  id: string;
+  nameKo: string;
+  nameEn: string;
+  parentId: string | null;
+}
+
 export interface PlaylistListItemDto {
   id: string;
   userId: string;
@@ -11,6 +18,7 @@ export interface PlaylistListItemDto {
   isPublic: boolean;
   coverImageUrl: string | null;
   trackCount: number;
+  genres?: PlaylistGenreDto[];
   createdAt: string;
   updatedAt: string;
 }
@@ -46,6 +54,7 @@ export async function createPlaylistApi(input: {
   description?: string;
   isPublic?: boolean;
   coverImageUrl?: string | null;
+  genreIds?: string[];
 }) {
   return fetchJson<{ ok: boolean; data: { playlist: PlaylistListItemDto } }>(
     "/api/playlists",
@@ -64,6 +73,7 @@ export async function updatePlaylistApi(
     description?: string | null;
     isPublic?: boolean;
     coverImageUrl?: string | null;
+    genreIds?: string[];
   }
 ) {
   return fetchJson<{ ok: boolean; data: { playlist: PlaylistListItemDto } }>(

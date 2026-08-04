@@ -1,4 +1,4 @@
-﻿/** 리뷰 상세 — RATING·작성자·본문 카드 */
+/** 리뷰 상세 — RATING·작성자·본문 카드 */
 
 import Link from "next/link";
 import Image from "next/image";
@@ -102,8 +102,8 @@ function RatingBox({
     <div
       className={REVIEW_DETAIL_BODY.rating.box}
       style={{
-        borderColor: REVIEW_BORDER_GRAY,
-        boxShadow: `0px 2px 4px ${ratingColor}`,
+        // 본문 카드와 동일: 1px 링을 박스 바깥에 그려 좌측 외곽선 정렬
+        boxShadow: `0 0 0 1px ${REVIEW_BORDER_GRAY}, 0px 2px 4px ${ratingColor}`,
       }}
     >
       <span

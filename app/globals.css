@@ -128,19 +128,26 @@
   --safe-area-top: env(safe-area-inset-top, 0px);
 
   --footer-height: auto;
+  /* 차트(24)보다 안쪽 — 좌우 32 */
+  --footer-padding-x: 32px;
+  /* 모바일 Figma Container: padding 22px 0 · gap 12 · Nav gap 3 */
   --footer-padding-top: 22px;
-  --footer-padding-bottom: 10px;
+  --footer-padding-bottom: 32px;
+  /* Header(Policy/Support/Contact) — padding: 11px 0 0 */
+  --footer-header-padding-top: 11px;
   --footer-text-brand: #949494;
   --footer-text-menu: #949494;
   --footer-text-link: #c4c4c4;
   --footer-text-size-primary: 11px;
   --footer-text-size-secondary: 11px;
-  --footer-text-size-menu: 13px;
-  --footer-text-size-policy-link: 10px;
-  --footer-text-size-support-link: 11px;
+  --footer-text-size-menu: 11px;
+  /* 밑줄 링크 전부 10px (Policy + Support) */
+  --footer-text-size-underline-link: 10px;
+  /* E-mail — 11px, 밑줄 없음 */
+  --footer-text-size-plain-link: 11px;
   --footer-line-height-primary: 145%;
   --footer-line-height-secondary: 145%;
-  --footer-brand-max-width: 42rem;
+  --footer-brand-max-width: 319px;
   --footer-gap-one-line: 13px;
   --footer-gap-two-lines: 0px;
   --footer-gap-legal-lines: 8px;
@@ -159,15 +166,18 @@
     --featured-slider-today-album-gap: 101px;
     --today-album-chart-gap: 101px;
     --footer-height: 274px;
+    --footer-padding-x: var(--page-padding-x-desktop);
     --footer-padding-top: 48px;
     --footer-padding-bottom: 0px;
+    --footer-header-padding-top: 0px;
     --footer-text-size-primary: 16px;
     --footer-text-size-secondary: 12px;
     --footer-text-size-menu: 16px;
-    --footer-text-size-policy-link: 16px;
-    --footer-text-size-support-link: 16px;
+    --footer-text-size-underline-link: 16px;
+    --footer-text-size-plain-link: 16px;
     --footer-line-height-primary: 145%;
     --footer-line-height-secondary: 145%;
+    --footer-brand-max-width: 42rem;
     --footer-gap-one-line: calc(16px * 1.5);
     --footer-gap-two-lines: 32px;
     --footer-gap-sections: 0px;

@@ -3,6 +3,7 @@
 import { NextRequest } from "next/server";
 import { initializeDatabase } from "@/src/lib/db";
 import { noStoreJson, publicCachedJson } from "@/src/lib/http/cache";
+import { ServiceError } from "@/src/lib/http/service-error";
 import { listPublicPlaylists } from "@/src/lib/playlists/playlist-service";
 
 export async function GET(request: NextRequest) {
@@ -14,10 +15,17 @@ export async function GET(request: NextRequest) {
       page: searchParams.get("page"),
       searchField: searchParams.get("searchField"),
       q: searchParams.get("q"),
+      genre: searchParams.get("genre"),
     });
 
     return publicCachedJson({ ok: true, ...result }, 20, 60);
   } catch (error) {
+    if (error instanceof ServiceError) {
+      return noStoreJson(
+        { ok: false, error: error.message },
+        { status: error.status }
+      );
+    }
     return noStoreJson(
       {
         ok: false,

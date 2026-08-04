@@ -10,13 +10,20 @@ import {
   type CreatePlaylistInput,
 } from "@/src/lib/playlists/playlist-service";
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const { session, response } = await requireSessionApi();
     if (response) return response;
 
+    const { searchParams } = new URL(request.url);
+    const genre = searchParams.get("genre");
+
     const dataSource = await initializeDatabase();
-    const playlists = await listMyPlaylists(dataSource, session.user.id);
+    const playlists = await listMyPlaylists(
+      dataSource,
+      session.user.id,
+      genre
+    );
     return apiOk({ playlists });
   } catch (error) {
     if (error instanceof ServiceError) {

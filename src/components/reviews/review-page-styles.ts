@@ -14,6 +14,10 @@ export const REVIEW_PAGE_TITLE_CLASS =
 export const REVIEW_CARD_SHELL_CLASS =
   "rounded-[15px] bg-white shadow-[0_0_0_1px_#D9D9D9,0px_2px_4px_rgba(0,0,0,0.25)]";
 
+/** 모바일 카드 셸 — Figma 343×100, radius 10 */
+export const REVIEW_MOBILE_CARD_SHELL_CLASS =
+  "rounded-[10px] bg-white shadow-[0_0_0_1px_#D9D9D9,0px_2px_4px_rgba(0,0,0,0.25)]";
+
 /** 안쪽 클립 — 커버·배지를 카드 R로 자름 (셸과 분리) */
 export const REVIEW_CARD_CLIP_CLASS = "overflow-hidden rounded-[15px]";
 
@@ -21,8 +25,31 @@ export const REVIEW_CARD_CLIP_CLASS = "overflow-hidden rounded-[15px]";
 export const REVIEW_COVER_RADIUS_CLASS =
   "rounded-tl-[10px] rounded-tr-[10px] rounded-br-[10px] rounded-bl-none";
 
+/** 모바일 커버 — radius 6 + 좌하단 배지용 직각 */
+export const REVIEW_MOBILE_COVER_RADIUS_CLASS =
+  "rounded-tl-[6px] rounded-tr-[6px] rounded-br-[6px] rounded-bl-none";
+
 export const REVIEW_BRAND_TEAL = "#43A7B2";
 export const REVIEW_BORDER_GRAY = "#D9D9D9";
+
+/** 리뷰 카드 공통 텍스트 색 (Figma) */
+export const REVIEW_TEXT = {
+  title: "text-[#505050]",
+  /** 상세 앨범 카드 아티스트 */
+  artist: "text-[#C4C4C4]",
+  /** 미리보기 카드 아티스트 */
+  artistMuted: "text-[#949494]",
+  meta: "text-[#505050]",
+  preview: "text-[#C4C4C4]",
+} as const;
+
+const ARTIST_LINK_INTERACTIVE =
+  "transition hover:text-[var(--color-brand-primary)] hover:underline disabled:cursor-wait disabled:no-underline";
+
+/** ArtistNameLink용 — 부모와 동일 타이포 + 호버 */
+export function reviewArtistLinkClass(typography: string) {
+  return `max-w-full truncate text-left ${typography} ${ARTIST_LINK_INTERACTIVE}`;
+}
 
 /**
  * 리뷰 상세 본문 카드
@@ -32,12 +59,16 @@ export const REVIEW_DETAIL_BODY = {
   root: "relative mt-[40px] w-full overflow-visible sm:mt-[50px] sm:w-[800px]",
   shell: `relative w-full overflow-visible sm:w-[800px] ${REVIEW_CARD_SHELL_CLASS}`,
 
+  /**
+   * 모바일 — 카드 좌상단에 걸침 (top -24)
+   * 테두리는 border 대신 0 0 0 1px 링 — 본문 카드 셸과 동일 방식
+   */
   rating: {
-    box: "absolute z-10 box-border flex flex-col items-center justify-center rounded-[15px] border bg-white pt-1 left-0 top-[-24px] h-[75px] w-[75px] sm:left-[-23px] sm:top-[-20px] sm:h-[131px] sm:w-[131px]",
+    box: "absolute z-10 box-border flex flex-col items-center justify-center rounded-[15px] bg-white pt-1 left-0 top-[-24px] h-[75px] w-[75px] sm:left-[-23px] sm:top-[-20px] sm:h-[131px] sm:w-[131px]",
     label:
       "shrink-0 text-center text-[12px] font-bold leading-[14px] tracking-[0.05em] sm:text-[24px] sm:leading-[29px]",
     score:
-      "flex h-[33px] w-[65px] shrink-0 items-center justify-center text-center text-[32px] font-bold leading-[38px] sm:h-[66px] sm:w-[97px] sm:text-[64px] sm:leading-[76px]",
+      "flex h-[33px] w-[65px] shrink-0 items-center justify-center text-center text-[32px] font-bold leading-none sm:h-[66px] sm:w-[97px] sm:text-[64px] sm:leading-[76px]",
   },
 
   /**

@@ -1,8 +1,11 @@
 "use client";
-/** 플레이리스트 상세 헤더(커버·메타·액션) */
+/** 플레이리스트 상세 헤더(커버·메타·장르·액션) */
 
 import Image from "next/image";
+import { useEffect, useState } from "react";
 import type { PlaylistDetailDto } from "@/src/components/playlist/playlist-api";
+import { GenreSelector } from "@/src/components/playlist/genre-selector";
+import { GenreTags } from "@/src/components/playlist/genre-tags";
 
 const actionButtonClass =
   "rounded-full border border-zinc-300 px-3 py-1 text-[11px] text-zinc-700 hover:bg-zinc-50 disabled:opacity-60";
@@ -12,6 +15,7 @@ interface PlaylistDetailHeaderProps {
   isSaving: boolean;
   onToggleCoverEditor: () => void;
   onDelete: () => void;
+  onSaveGenres?: (genreIds: string[]) => Promise<boolean>;
   coverEditor: React.ReactNode;
 }
 
@@ -20,8 +24,24 @@ export function PlaylistDetailHeader({
   isSaving,
   onToggleCoverEditor,
   onDelete,
+  onSaveGenres,
   coverEditor,
 }: PlaylistDetailHeaderProps) {
+  const [isGenreEditorOpen, setIsGenreEditorOpen] = useState(false);
+  const [draftGenreIds, setDraftGenreIds] = useState<string[]>(
+    () => playlist.genres?.map((g) => g.id) ?? []
+  );
+
+  useEffect(() => {
+    setDraftGenreIds(playlist.genres?.map((g) => g.id) ?? []);
+  }, [playlist.genres]);
+
+  async function handleSaveGenres() {
+    if (!onSaveGenres) return;
+    const ok = await onSaveGenres(draftGenreIds);
+    if (ok) setIsGenreEditorOpen(false);
+  }
+
   return (
     <section className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
       <div className="flex items-stretch gap-4">
@@ -53,9 +73,29 @@ export function PlaylistDetailHeader({
               {playlist.description ? (
                 <p className="mt-2 text-sm text-zinc-600">{playlist.description}</p>
               ) : null}
+              {!isGenreEditorOpen ? (
+                <GenreTags
+                  genres={playlist.genres ?? []}
+                  className="mt-2"
+                  size="md"
+                />
+              ) : null}
             </div>
 
-            <div className="flex shrink-0 items-center gap-2">
+            <div className="flex shrink-0 flex-col items-end gap-2 sm:flex-row sm:items-center">
+              {onSaveGenres ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setDraftGenreIds(playlist.genres?.map((g) => g.id) ?? []);
+                    setIsGenreEditorOpen((prev) => !prev);
+                  }}
+                  disabled={isSaving}
+                  className={actionButtonClass}
+                >
+                  장르 수정
+                </button>
+              ) : null}
               <button
                 type="button"
                 onClick={onToggleCoverEditor}
@@ -79,6 +119,34 @@ export function PlaylistDetailHeader({
           </div>
         </div>
       </div>
+
+      {isGenreEditorOpen && onSaveGenres ? (
+        <div className="mt-4 border-t border-zinc-100 pt-4">
+          <GenreSelector
+            value={draftGenreIds}
+            onChange={setDraftGenreIds}
+            disabled={isSaving}
+          />
+          <div className="mt-3 flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => setIsGenreEditorOpen(false)}
+              disabled={isSaving}
+              className={actionButtonClass}
+            >
+              취소
+            </button>
+            <button
+              type="button"
+              onClick={() => void handleSaveGenres()}
+              disabled={isSaving}
+              className="rounded-full bg-[var(--color-brand-primary)] px-3 py-1 text-[11px] font-semibold text-white hover:bg-[var(--color-brand-primary-hover)] disabled:opacity-60"
+            >
+              {isSaving ? "저장 중..." : "장르 저장"}
+            </button>
+          </div>
+        </div>
+      ) : null}
 
       {coverEditor}
     </section>

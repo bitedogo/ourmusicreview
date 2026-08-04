@@ -13,7 +13,9 @@
     "icons:oru": "node scripts/generate-oru-app-icons.mjs",
     "db:migrate:playlists": "node scripts/run-playlist-migration.mjs",
     "db:migrate:email-auth": "node scripts/run-email-auth-migration.mjs",
-    "db:migrate:email-otp": "node scripts/run-email-otp-challenges-migration.mjs"
+    "db:migrate:email-otp": "node scripts/run-email-otp-challenges-migration.mjs",
+    "db:migrate:genres": "node scripts/run-genre-migration.mjs",
+    "db:seed:genres": "node scripts/seed-genres.mjs"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.10",

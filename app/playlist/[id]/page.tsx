@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { PlaylistTrackList } from "@/src/components/playlist/playlist-track-list";
+import { GenreTags } from "@/src/components/playlist/genre-tags";
 import { usePlaylistDetail } from "@/src/hooks/use-playlist-detail";
 import { getUserProfilePath } from "@/src/components/profile/profile-view-types";
 import { playlistList } from "@/src/lib/navigation/routes";
@@ -87,6 +88,11 @@ export default function PublicPlaylistDetailPage() {
                     {playlist.description}
                   </p>
                 ) : null}
+                <GenreTags
+                  genres={playlist.genres ?? []}
+                  className="mt-2"
+                  size="md"
+                />
               </div>
             </div>
           </section>

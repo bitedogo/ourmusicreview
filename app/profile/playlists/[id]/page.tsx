@@ -26,6 +26,7 @@ export default function ProfilePlaylistDetailPage() {
     deletePlaylist,
     saveCover,
     clearCover,
+    saveGenres,
   } = usePlaylistDetail(playlistId);
 
   return (
@@ -70,6 +71,7 @@ export default function ProfilePlaylistDetailPage() {
             isSaving={isSaving}
             onToggleCoverEditor={() => setIsCoverEditorOpen((prev) => !prev)}
             onDelete={() => void deletePlaylist()}
+            onSaveGenres={saveGenres}
             coverEditor={
               isCoverEditorOpen ? (
                 <PlaylistCoverEditor

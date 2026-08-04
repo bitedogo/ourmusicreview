@@ -9,12 +9,27 @@ import {
   REVIEW_BRAND_TEAL,
   REVIEW_CARD_CLIP_CLASS,
   REVIEW_CARD_SHELL_CLASS,
+  REVIEW_MOBILE_CARD_SHELL_CLASS,
+  REVIEW_MOBILE_COVER_RADIUS_CLASS,
+  REVIEW_TEXT,
+  reviewArtistLinkClass,
 } from "@/src/components/reviews/review-page-styles";
 import { formatAlbumReleaseDate } from "@/src/lib/utils/date";
 import { formatRating, getRatingScoreColor } from "@/src/lib/utils/rating";
 
-/** 상세 앨범 카드 커버 — 네 모서리 모두 R (레이팅 배지 없음) */
-const DETAIL_COVER_RADIUS_CLASS = "overflow-hidden rounded-[10px]";
+const DESKTOP_COVER_RADIUS_CLASS = "overflow-hidden rounded-[10px]";
+
+const MORE_REVIEW_CLASS = {
+  mobile:
+    "absolute bottom-[9px] right-[9px] inline-flex h-[16px] w-[62px] items-center justify-center rounded-[5px] text-[8px] font-normal leading-[10px] text-white",
+  desktop:
+    "absolute bottom-[12px] right-[11px] flex h-[30px] w-[100px] items-center justify-center rounded-[10px] text-[13px] font-normal leading-[16px] text-white transition hover:bg-[var(--color-brand-primary-hover)]",
+} as const;
+
+const FOOTER_ACTION_CLASS = {
+  mobile: "absolute bottom-[9px] right-[9px]",
+  desktop: "absolute bottom-[12px] right-[11px]",
+} as const;
 
 export interface ReviewDetailAlbum {
   albumId: string;
@@ -37,34 +52,36 @@ interface ReviewDetailAlbumCardProps {
 
 function AverageRatingLabel({
   averageRating,
-  size,
 }: {
   averageRating: number | null;
-  size: "mobile" | "desktop";
 }) {
   const color = getRatingScoreColor(averageRating);
-  const isMobile = size === "mobile";
 
   return (
-    <div
-      className={`flex shrink-0 items-baseline ${
-        isMobile ? "gap-[3px] pt-[1px]" : "gap-[7px]"
-      }`}
-    >
+    <div className="flex shrink-0 items-baseline gap-[7px]">
       <span
-        className={`font-medium ${
-          isMobile ? "text-[10px]" : "text-[16px] leading-[19px]"
-        }`}
+        className="text-[16px] font-medium leading-[19px]"
         style={{ color: REVIEW_BRAND_TEAL }}
       >
         Average Rating
       </span>
-      <span
-        className={`font-bold ${
-          isMobile ? "text-[15px] leading-none" : "text-[24px] leading-[29px]"
-        }`}
-        style={{ color }}
-      >
+      <span className="text-[24px] font-bold leading-[29px]" style={{ color }}>
+        {formatRating(averageRating)}
+      </span>
+    </div>
+  );
+}
+
+function MobileCoverRatingBadge({
+  averageRating,
+}: {
+  averageRating: number | null;
+}) {
+  const color = getRatingScoreColor(averageRating);
+
+  return (
+    <div className="pointer-events-none absolute -bottom-px -left-px z-[1] flex h-[28px] w-[29px] items-center justify-center rounded-tr-[10px] bg-white">
+      <span className="text-[13px] font-bold leading-[16px]" style={{ color }}>
         {formatRating(averageRating)}
       </span>
     </div>
@@ -76,17 +93,12 @@ function MoreReviewButton({
   size,
 }: {
   href: string;
-  size: "mobile" | "desktop";
+  size: keyof typeof MORE_REVIEW_CLASS;
 }) {
-  const isMobile = size === "mobile";
   return (
     <Link
       href={href}
-      className={
-        isMobile
-          ? "absolute bottom-[8px] right-[8px] inline-flex h-[26px] items-center rounded-[10px] px-3 text-[11px] text-white"
-          : "absolute bottom-[12px] right-[11px] flex h-[30px] w-[100px] items-center justify-center rounded-[10px] text-[13px] font-normal leading-[16px] text-white transition hover:bg-[var(--color-brand-primary-hover)]"
-      }
+      className={MORE_REVIEW_CLASS[size]}
       style={{ backgroundColor: REVIEW_BRAND_TEAL }}
     >
       More Review
@@ -123,6 +135,24 @@ function AlbumCoverImage({
   );
 }
 
+function CardFooter({
+  size,
+  showMoreReview,
+  moreHref,
+  footerAction,
+}: {
+  size: keyof typeof MORE_REVIEW_CLASS;
+  showMoreReview: boolean;
+  moreHref: string;
+  footerAction?: ReactNode;
+}) {
+  if (showMoreReview) {
+    return <MoreReviewButton href={moreHref} size={size} />;
+  }
+  if (!footerAction) return null;
+  return <div className={FOOTER_ACTION_CLASS[size]}>{footerAction}</div>;
+}
+
 export function ReviewDetailAlbumCard({
   album,
   averageRating,
@@ -132,96 +162,107 @@ export function ReviewDetailAlbumCard({
   const genreLabel = album.genre?.trim() || "장르 정보 없음";
   const releaseLabel = `발매일 ${formatAlbumReleaseDate(album.releaseDate)}`;
   const moreHref = `/review/album/${encodeURIComponent(album.albumId)}`;
-
-  const footer =
-    showMoreReview ? (
-      <MoreReviewButton href={moreHref} size="desktop" />
-    ) : footerAction ? (
-      <div className="absolute bottom-[12px] right-[11px]">{footerAction}</div>
-    ) : null;
-
-  const mobileFooter =
-    showMoreReview ? (
-      <MoreReviewButton href={moreHref} size="mobile" />
-    ) : footerAction ? (
-      <div className="absolute bottom-[8px] right-[8px]">{footerAction}</div>
-    ) : null;
+  const footerProps = { showMoreReview, moreHref, footerAction };
 
   return (
     <>
-      {/* 데스크톱 — Figma 800×140 */}
+      {/* 데스크톱 — Figma 800×160 */}
       <div
-        className={`relative hidden h-[140px] w-[800px] max-w-full sm:block ${REVIEW_CARD_SHELL_CLASS}`}
+        className={`relative hidden h-[160px] w-[800px] max-w-full sm:block ${REVIEW_CARD_SHELL_CLASS}`}
       >
         <div className={`relative h-full ${REVIEW_CARD_CLIP_CLASS}`}>
           <AlbumCoverImage
             imageUrl={album.imageUrl}
             title={album.title}
-            size={128}
-            className={`absolute left-[6px] top-[6px] h-[128px] w-[128px] ${DETAIL_COVER_RADIUS_CLASS}`}
+            size={150}
+            className={`absolute left-[6.5px] top-[6px] h-[148px] w-[150px] ${DESKTOP_COVER_RADIUS_CLASS}`}
           />
 
-          <h2 className="absolute left-[150px] right-[190px] top-[16px] truncate text-[24px] font-medium leading-[29px] text-black">
+          <h2
+            className={`absolute left-[172.5px] right-[172px] top-[19px] truncate text-[24px] font-medium leading-[29px] ${REVIEW_TEXT.title}`}
+          >
             {album.title}
           </h2>
-          <p className="absolute left-[150px] right-[190px] top-[44px] truncate text-[16px] font-normal leading-[19px] text-[#D9D9D9]">
+          <p
+            className={`absolute left-[172.5px] right-[172px] top-[47px] truncate text-[16px] font-normal leading-[19px] ${REVIEW_TEXT.artist}`}
+          >
             <ArtistNameLink
               name={album.artist}
               artistId={album.artistId}
-              className="max-w-full truncate text-left text-[16px] font-normal leading-[19px] text-[#D9D9D9] transition hover:text-[var(--color-brand-primary)] hover:underline disabled:cursor-wait disabled:no-underline"
+              className={reviewArtistLinkClass(
+                `text-[16px] font-normal leading-[19px] ${REVIEW_TEXT.artist}`,
+              )}
             />
           </p>
-          <p className="absolute left-[150px] top-[90px] text-[14px] font-normal leading-[17px] text-black">
+          <p
+            className={`absolute left-[172.5px] top-[93px] text-[14px] font-normal leading-[17px] ${REVIEW_TEXT.meta}`}
+          >
             {releaseLabel}
           </p>
-          <p className="absolute left-[150px] top-[116px] text-[14px] font-normal leading-[17px] text-black">
+          <p
+            className={`absolute left-[172.5px] top-[125px] text-[14px] font-normal leading-[17px] ${REVIEW_TEXT.meta}`}
+          >
             {genreLabel}
           </p>
 
-          <div className="absolute right-[11px] top-[16px]">
-            <AverageRatingLabel averageRating={averageRating} size="desktop" />
+          <div className="absolute right-[17px] top-[19px]">
+            <AverageRatingLabel averageRating={averageRating} />
           </div>
 
-          {footer}
+          <CardFooter size="desktop" {...footerProps} />
         </div>
       </div>
 
-      {/* 모바일 */}
+      {/* 모바일 — Figma 343×100 */}
       <div
-        className={`relative block w-full p-[8px] sm:hidden ${REVIEW_CARD_SHELL_CLASS}`}
+        className={`relative block h-[100px] w-full sm:hidden ${REVIEW_MOBILE_CARD_SHELL_CLASS}`}
       >
-        <div className="flex gap-[10px]">
-          <AlbumCoverImage
-            imageUrl={album.imageUrl}
-            title={album.title}
-            size={96}
-            className={`h-[96px] w-[96px] shrink-0 ${DETAIL_COVER_RADIUS_CLASS}`}
-          />
-          <div className="flex min-h-[96px] min-w-0 flex-1 flex-col pr-[2px]">
-            <div className="flex items-start justify-between gap-2">
-              <div className="min-w-0 flex-1">
-                <h2 className="truncate text-[16px] font-medium leading-[20px] text-black">
-                  {album.title}
-                </h2>
-                <p className="truncate text-[16px] font-normal leading-[19px] text-[#D9D9D9]">
-                  <ArtistNameLink
-                    name={album.artist}
-                    artistId={album.artistId}
-                    className="max-w-full truncate text-left text-[16px] font-normal leading-[19px] text-[#D9D9D9] transition hover:text-[var(--color-brand-primary)] hover:underline disabled:cursor-wait disabled:no-underline"
-                  />
-                </p>
+        <div className="relative h-full w-full">
+          <div className="absolute left-[8px] top-[7px] h-[83px] w-[83px]">
+            <div
+              className={`relative h-full w-full ${REVIEW_MOBILE_COVER_RADIUS_CLASS}`}
+            >
+              <div className="absolute inset-0 overflow-hidden rounded-[inherit]">
+                <AlbumCoverImage
+                  imageUrl={album.imageUrl}
+                  title={album.title}
+                  size={83}
+                  className="h-full w-full"
+                />
               </div>
-              <AverageRatingLabel averageRating={averageRating} size="mobile" />
-            </div>
-            <div className="mt-auto max-w-[calc(100%-88px)] pb-[2px]">
-              <p className="mb-[4px] text-[11px] leading-[14px] text-black">
-                {releaseLabel}
-              </p>
-              <p className="text-[11px] leading-[14px] text-black">{genreLabel}</p>
+              <MobileCoverRatingBadge averageRating={averageRating} />
             </div>
           </div>
+
+          <h2
+            className={`absolute left-[101px] right-[16px] top-[13px] truncate text-[16px] font-medium leading-[19px] ${REVIEW_TEXT.title}`}
+          >
+            {album.title}
+          </h2>
+          <p
+            className={`absolute left-[101px] right-[16px] top-[31px] truncate text-[13px] font-normal leading-[16px] ${REVIEW_TEXT.artist}`}
+          >
+            <ArtistNameLink
+              name={album.artist}
+              artistId={album.artistId}
+              className={reviewArtistLinkClass(
+                `text-[13px] font-normal leading-[16px] ${REVIEW_TEXT.artist}`,
+              )}
+            />
+          </p>
+          <p
+            className={`absolute left-[101px] top-[66px] text-[8px] font-normal leading-[10px] ${REVIEW_TEXT.meta}`}
+          >
+            {releaseLabel}
+          </p>
+          <p
+            className={`absolute left-[101px] top-[82px] max-w-[calc(100%-180px)] truncate text-[8px] font-normal leading-[10px] ${REVIEW_TEXT.meta}`}
+          >
+            {genreLabel}
+          </p>
+
+          <CardFooter size="mobile" {...footerProps} />
         </div>
-        {mobileFooter}
       </div>
     </>
   );

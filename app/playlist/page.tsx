@@ -2,23 +2,17 @@
 
 import { Suspense } from "react";
 import { PlaylistListClient } from "./PlaylistListClient";
-import {
-  REVIEW_LIST_CONTENT_CLASS,
-  REVIEW_PAGE_TITLE_CLASS,
-} from "@/src/components/reviews/review-page-styles";
 
 export default function PlaylistPage() {
   return (
     <Suspense
       fallback={
-        <div className="mx-auto flex min-h-screen w-full max-w-[860px] flex-col px-4 pb-10 pt-[61px] sm:px-6">
-          <div className={REVIEW_LIST_CONTENT_CLASS}>
-            <section>
-              <h1 className={REVIEW_PAGE_TITLE_CLASS}>플레이리스트</h1>
-            </section>
-            <div className="mt-5 py-12 text-center text-sm text-zinc-500">
-              플레이리스트를 불러오는 중...
-            </div>
+        <div className="mx-auto flex min-h-screen w-full max-w-[860px] flex-col bg-[#F7F7F8] px-4 pb-14 pt-[72px] sm:px-6">
+          <h1 className="text-[28px] font-semibold tracking-tight text-zinc-900">
+            플레이리스트
+          </h1>
+          <div className="mt-6 flex min-h-[168px] items-center justify-center rounded-[28px] bg-gradient-to-br from-[#C45C2A] to-[#7A2E12] text-sm text-white/80 sm:min-h-[200px]">
+            불러오는 중...
           </div>
         </div>
       }

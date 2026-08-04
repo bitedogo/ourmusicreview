@@ -5,8 +5,8 @@ import Image from "next/image";
 export type ReviewRatingBadgeSize = "mobile" | "desktop";
 
 const BADGE_BOX: Record<ReviewRatingBadgeSize, string> = {
-  // 오버랩용 +1px — 커버 가장자리 AA 선 덮기
-  mobile: "h-[29px] w-[53px]",
+  // 모바일 Figma: 점수 13px + /10 7px · 오버랩용 +1px
+  mobile: "h-[22px] w-[42px]",
   desktop: "h-[43px] w-[70px]",
 };
 
@@ -28,7 +28,7 @@ export function ReviewRatingBadge({
     >
       <span className="inline-flex items-baseline font-bold leading-none tracking-[-0.005em]">
         <span
-          className={size === "mobile" ? "text-[16px]" : "text-[20px]"}
+          className={size === "mobile" ? "text-[13px] leading-[16px]" : "text-[20px]"}
           style={{ color: ratingColor }}
         >
           {ratingText}
@@ -36,7 +36,7 @@ export function ReviewRatingBadge({
         <span
           className={
             size === "mobile"
-              ? "text-[10px] tracking-normal text-[#C0C0C0]"
+              ? "text-[7px] leading-[10px] tracking-normal text-[#C0C0C0]"
               : "text-[11px] tracking-normal text-[#C0C0C0]"
           }
         >

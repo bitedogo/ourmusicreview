@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { CreatePlaylistModal } from "@/src/components/playlist/create-playlist-modal";
+import { GenreTags } from "@/src/components/playlist/genre-tags";
 import { ProfilePrivacyToggle } from "@/src/components/profile/ProfilePrivacyToggle";
 import { ProfileListPageLayout } from "@/src/components/profile/profile-list-page-layout";
 import {
@@ -109,6 +110,7 @@ export default function ProfilePlaylistsPage() {
                   {item.title}
                 </h3>
                 <p className="mt-0.5 text-xs text-zinc-500">{item.trackCount}곡</p>
+                <GenreTags genres={item.genres ?? []} className="mt-1.5" />
                 {item.description ? (
                   <p className="mt-1 line-clamp-1 text-xs text-zinc-600">
                     {item.description}

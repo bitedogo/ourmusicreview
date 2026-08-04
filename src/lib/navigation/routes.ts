@@ -45,6 +45,7 @@ export function playlistList(params?: {
   page?: number;
   searchField?: string;
   q?: string;
+  genre?: string;
 }): string {
   if (!params) return "/playlist";
   const search = new URLSearchParams();
@@ -55,6 +56,10 @@ export function playlistList(params?: {
   if (q) {
     search.set("searchField", params.searchField ?? "title");
     search.set("q", q);
+  }
+  const genre = params.genre?.trim();
+  if (genre) {
+    search.set("genre", genre);
   }
   const qs = search.toString();
   return qs ? `/playlist?${qs}` : "/playlist";

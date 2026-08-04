@@ -181,6 +181,32 @@ export function usePlaylistDetail(playlistId: string) {
     }
   }, [playlist]);
 
+  const saveGenres = useCallback(
+    async (genreIds: string[]) => {
+      if (!playlist) return false;
+      setIsSaving(true);
+      try {
+        const response = await updatePlaylistApi(playlist.id, { genreIds });
+        setPlaylist((prev) =>
+          prev
+            ? {
+                ...prev,
+                genres: response.data.playlist.genres ?? [],
+                updatedAt: response.data.playlist.updatedAt,
+              }
+            : prev
+        );
+        return true;
+      } catch (err) {
+        alert(getApiErrorMessage(err, "장르 저장에 실패했습니다."));
+        return false;
+      } finally {
+        setIsSaving(false);
+      }
+    },
+    [playlist]
+  );
+
   return {
     playlist,
     isLoading,
@@ -192,5 +218,6 @@ export function usePlaylistDetail(playlistId: string) {
     deletePlaylist,
     saveCover,
     clearCover,
+    saveGenres,
   };
 }
