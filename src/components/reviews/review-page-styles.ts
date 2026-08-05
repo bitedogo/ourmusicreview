@@ -82,7 +82,8 @@ export const REVIEW_DETAIL_BODY = {
     meta: "min-w-0",
     nickname:
       "block truncate text-[12px] font-medium leading-[14px] text-black hover:underline",
-    date: "mt-[2px] block text-[10px] font-normal leading-[12px] text-[#D9D9D9]",
+    metaLine:
+      "mt-[2px] flex items-center gap-[7px] text-[10px] font-normal leading-[12px] text-[#C4C4C4]",
     actions: "flex shrink-0 items-center gap-0",
     divider:
       "absolute left-[86px] right-[22px] top-[51px] h-px bg-[#D9D9D9]",
@@ -98,7 +99,8 @@ export const REVIEW_DETAIL_BODY = {
     meta: "min-w-0",
     nickname:
       "block truncate text-[20px] font-medium leading-[24px] text-black hover:underline",
-    date: "mt-[2px] block text-[11px] font-normal leading-[13px] text-[#D9D9D9]",
+    metaLine:
+      "mt-[2px] flex items-center gap-[11px] text-[11px] font-normal leading-[13px] text-[#C4C4C4]",
     actions: "flex shrink-0 items-center gap-0",
     divider:
       "absolute left-[131px] top-[111px] hidden h-px w-[619px] bg-[#D9D9D9] sm:block",

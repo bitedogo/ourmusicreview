@@ -2,6 +2,7 @@
 /** 댓글 목록 */
 
 import { CommentItem } from "@/src/components/interaction/CommentItem";
+import { COMMENT_DETAIL_CLASS } from "@/src/components/interaction/comment-detail-styles";
 import type { CommentItemData } from "@/src/components/interaction/comment-types";
 
 interface CommentListProps {
@@ -10,8 +11,11 @@ interface CommentListProps {
   variant: "default" | "detail";
   currentUserId?: string;
   isAdmin?: boolean;
+  isLoggedIn: boolean;
   onDelete: (commentId: string) => void;
   onEdit: (commentId: string, content: string) => Promise<boolean>;
+  onLike: (commentId: string) => void;
+  onReply: (parentId: string, content: string) => Promise<boolean>;
 }
 
 export function CommentList({
@@ -20,23 +24,25 @@ export function CommentList({
   variant,
   currentUserId,
   isAdmin,
+  isLoggedIn,
   onDelete,
   onEdit,
+  onLike,
+  onReply,
 }: CommentListProps) {
-  const emptyClass =
-    variant === "detail"
-      ? "py-6 text-center text-sm text-zinc-400"
-      : "py-10 text-center text-xs text-zinc-400";
-  const loadingClass =
-    variant === "detail"
-      ? "py-6 text-center text-sm text-zinc-400"
-      : "text-center text-xs text-zinc-400";
-  const listClass =
-    variant === "detail" ? "space-y-8 px-4 pt-[37px] sm:px-[44px]" : "space-y-6";
+  const isDetail = variant === "detail";
+  const emptyClass = isDetail
+    ? COMMENT_DETAIL_CLASS.empty
+    : "py-10 text-center text-xs text-zinc-400";
+  const loadingClass = isDetail
+    ? COMMENT_DETAIL_CLASS.empty
+    : "text-center text-xs text-zinc-400";
+  const listClass = isDetail ? COMMENT_DETAIL_CLASS.list : "space-y-6";
+  const listOffsetClass = isDetail ? COMMENT_DETAIL_CLASS.listOffset : undefined;
 
   if (isLoading) {
     return (
-      <div className={variant === "detail" ? listClass : undefined}>
+      <div className={listOffsetClass}>
         <p className={loadingClass}>불러오는 중...</p>
       </div>
     );
@@ -44,7 +50,7 @@ export function CommentList({
 
   if (comments.length === 0) {
     return (
-      <div className={variant === "detail" ? listClass : undefined}>
+      <div className={listOffsetClass}>
         <p className={emptyClass}>첫 번째 댓글을 남겨보세요.</p>
       </div>
     );
@@ -52,21 +58,20 @@ export function CommentList({
 
   return (
     <div className={listClass}>
-      {comments.map((comment) => {
-        const isOwner = currentUserId === comment.user.id;
-        const canDelete = isOwner || Boolean(isAdmin);
-        return (
-          <CommentItem
-            key={comment.id}
-            comment={comment}
-            variant={variant}
-            isOwner={isOwner}
-            canDelete={canDelete}
-            onDelete={onDelete}
-            onEdit={onEdit}
-          />
-        );
-      })}
+      {comments.map((comment) => (
+        <CommentItem
+          key={comment.id}
+          comment={comment}
+          variant={variant}
+          currentUserId={currentUserId}
+          isAdmin={isAdmin}
+          isLoggedIn={isLoggedIn}
+          onDelete={onDelete}
+          onEdit={onEdit}
+          onLike={onLike}
+          onReply={onReply}
+        />
+      ))}
     </div>
   );
 }

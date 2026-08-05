@@ -5,11 +5,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { ReportModal } from "@/src/components/interaction/ReportModal";
-import {
-  CircleLikeIcon,
-  CircleScrapIcon,
-  CircleSirenIcon,
-} from "@/src/components/interaction/interaction-icons";
+import { ReviewDetailCircleButtons } from "@/src/components/interaction/ReviewDetailCircleButtons";
 import { useReportModal } from "@/src/hooks/use-report-modal";
 
 interface InteractionButtonsProps {
@@ -113,6 +109,20 @@ export function InteractionButtons({
     reportModal.open();
   };
 
+  const handleShare = async () => {
+    const url = window.location.href;
+    try {
+      if (navigator.share) {
+        await navigator.share({ url, title: document.title });
+        return;
+      }
+      await navigator.clipboard.writeText(url);
+      alert("링크가 복사되었습니다.");
+    } catch {
+      /* 사용자 취소 등 */
+    }
+  };
+
   const reportModalUi = reportModal.isOpen ? (
     <ReportModal
       title="신고하기"
@@ -128,41 +138,17 @@ export function InteractionButtons({
 
   if (variant === "circle") {
     return (
-      <div className="flex items-center justify-center gap-[14px] py-6">
-        <button
-          type="button"
-          onClick={handleLike}
-          aria-label={likeInfo.liked ? "좋아요 취소" : "좋아요"}
-          className="relative h-[55px] w-[55px] shrink-0 transition hover:opacity-90"
-        >
-          <CircleLikeIcon liked={likeInfo.liked} />
-          <span className="pointer-events-none absolute inset-x-0 bottom-[8px] text-center text-[11px] font-medium leading-none text-black">
-            {likeInfo.count}
-          </span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => alert("스크랩 기능은 준비 중입니다.")}
-          aria-label="스크랩"
-          className="h-[55px] w-[55px] shrink-0 transition hover:opacity-90"
-        >
-          <CircleScrapIcon />
-        </button>
-
-        {!isNotice && !isOwnContent && (
-          <button
-            type="button"
-            onClick={handleOpenReportModal}
-            aria-label="신고"
-            className="h-[55px] w-[55px] shrink-0 transition hover:opacity-90"
-          >
-            <CircleSirenIcon />
-          </button>
-        )}
-
+      <>
+        <ReviewDetailCircleButtons
+          liked={likeInfo.liked}
+          likeCount={likeInfo.count}
+          showReport={Boolean(!isNotice && !isOwnContent)}
+          onLike={handleLike}
+          onShare={() => void handleShare()}
+          onReport={handleOpenReportModal}
+        />
         {reportModalUi}
-      </div>
+      </>
     );
   }
 

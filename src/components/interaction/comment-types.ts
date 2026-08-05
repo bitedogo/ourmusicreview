@@ -4,6 +4,11 @@ export interface CommentItemData {
   id: string;
   content: string;
   createdAt: string;
+  parentId?: string | null;
+  likeCount: number;
+  liked: boolean;
+  replyCount: number;
+  replies: CommentItemData[];
   user: {
     id: string;
     nickname: string;

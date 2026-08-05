@@ -24,6 +24,7 @@ interface ReviewDetailBodyCardProps {
   content: string;
   rating: number;
   createdAt: string;
+  views: number;
   rejectReason: string | null;
   user: ReviewDetailAuthor;
   isOwner: boolean;
@@ -122,15 +123,39 @@ function RatingBox({
   );
 }
 
+function AuthorMetaLine({
+  dateText,
+  views,
+  size,
+}: {
+  dateText: string;
+  views: number;
+  size: DetailSize;
+}) {
+  const className =
+    size === "mobile"
+      ? REVIEW_DETAIL_BODY.author.metaLine
+      : REVIEW_DETAIL_BODY.desktopAuthor.metaLine;
+
+  return (
+    <div className={className}>
+      <span>{dateText}</span>
+      <span>조회수 {views}</span>
+    </div>
+  );
+}
+
 function MobileAuthorHeader({
   user,
   dateText,
+  views,
   reviewId,
   isOwner,
   onDelete,
 }: {
   user: ReviewDetailAuthor;
   dateText: string;
+  views: number;
   reviewId: string;
   isOwner: boolean;
   onDelete: () => void;
@@ -149,7 +174,7 @@ function MobileAuthorHeader({
             >
               {user.nickname}
             </Link>
-            <span className={author.date}>{dateText}</span>
+            <AuthorMetaLine dateText={dateText} views={views} size="mobile" />
           </div>
         </div>
         {isOwner ? (
@@ -170,12 +195,14 @@ function MobileAuthorHeader({
 function DesktopAuthorHeader({
   user,
   dateText,
+  views,
   reviewId,
   isOwner,
   onDelete,
 }: {
   user: ReviewDetailAuthor;
   dateText: string;
+  views: number;
   reviewId: string;
   isOwner: boolean;
   onDelete: () => void;
@@ -194,7 +221,7 @@ function DesktopAuthorHeader({
             >
               {user.nickname}
             </Link>
-            <span className={desktopAuthor.date}>{dateText}</span>
+            <AuthorMetaLine dateText={dateText} views={views} size="desktop" />
           </div>
         </div>
         {isOwner ? (
@@ -217,6 +244,7 @@ export function ReviewDetailBodyCard({
   content,
   rating,
   createdAt,
+  views,
   rejectReason,
   user,
   isOwner,
@@ -234,6 +262,7 @@ export function ReviewDetailBodyCard({
         <MobileAuthorHeader
           user={user}
           dateText={dateText}
+          views={views}
           reviewId={reviewId}
           isOwner={isOwner}
           onDelete={onDelete}
@@ -241,6 +270,7 @@ export function ReviewDetailBodyCard({
         <DesktopAuthorHeader
           user={user}
           dateText={dateText}
+          views={views}
           reviewId={reviewId}
           isOwner={isOwner}
           onDelete={onDelete}

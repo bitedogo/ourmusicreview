@@ -11,6 +11,7 @@ import {
 import { User } from "./User";
 import { Post } from "./Post";
 import { Review } from "./Review";
+import { Comment } from "./Comment";
 
 @Entity({ name: "likes", schema: "public" })
 export class Like {
@@ -26,6 +27,9 @@ export class Like {
   @Column({ name: "review_id", type: "varchar", length: 255, nullable: true })
   reviewId?: string | null;
 
+  @Column({ name: "comment_id", type: "varchar", length: 50, nullable: true })
+  commentId?: string | null;
+
   @CreateDateColumn({ name: "created_at", type: "timestamp" })
   createdAt!: Date;
 
@@ -40,4 +44,8 @@ export class Like {
   @ManyToOne(() => Review, { onDelete: "CASCADE", nullable: true })
   @JoinColumn({ name: "review_id" })
   review?: Review | null;
+
+  @ManyToOne(() => Comment, { onDelete: "CASCADE", nullable: true })
+  @JoinColumn({ name: "comment_id" })
+  comment?: Comment | null;
 }

@@ -29,6 +29,9 @@ export class Comment {
   @Column({ name: "review_id", type: "varchar", length: 255, nullable: true })
   reviewId?: string | null;
 
+  @Column({ name: "parent_id", type: "varchar", length: 50, nullable: true })
+  parentId?: string | null;
+
   @CreateDateColumn({ name: "created_at", type: "timestamp" })
   createdAt!: Date;
 
@@ -43,4 +46,8 @@ export class Comment {
   @ManyToOne(() => Review, { onDelete: "CASCADE", nullable: true })
   @JoinColumn({ name: "review_id" })
   review?: Review | null;
+
+  @ManyToOne(() => Comment, { onDelete: "CASCADE", nullable: true })
+  @JoinColumn({ name: "parent_id" })
+  parent?: Comment | null;
 }

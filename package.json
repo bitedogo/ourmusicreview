@@ -15,6 +15,8 @@
     "db:migrate:email-auth": "node scripts/run-email-auth-migration.mjs",
     "db:migrate:email-otp": "node scripts/run-email-otp-challenges-migration.mjs",
     "db:migrate:genres": "node scripts/run-genre-migration.mjs",
+    "db:migrate:comments": "node scripts/run-comment-replies-migration.mjs",
+    "db:migrate:review-views": "node scripts/run-review-views-migration.mjs",
     "db:seed:genres": "node scripts/seed-genres.mjs"
   },
   "dependencies": {

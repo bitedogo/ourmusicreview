@@ -14,6 +14,7 @@ import {
   NextReviewIcon,
 } from "@/src/components/reviews/review-detail-nav-icons";
 import { REVIEW_PAGE_TITLE_CLASS } from "@/src/components/reviews/review-page-styles";
+import { useReviewViewIncrement } from "@/src/hooks/use-review-view-increment";
 import { fetchJson, getApiErrorMessage } from "@/src/lib/http/client";
 
 interface ReviewDetail {
@@ -24,6 +25,7 @@ interface ReviewDetail {
   rejectReason: string | null;
   userId: string;
   albumId: string;
+  views: number;
   createdAt: string;
   updatedAt: string;
   user: {
@@ -71,6 +73,7 @@ export function ReviewDetailClient({ reviewId }: { reviewId: string }) {
   const [averageRating, setAverageRating] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const displayedViews = useReviewViewIncrement(reviewId, review?.views ?? 0);
 
   const isOwner =
     session?.user?.id === review?.userId ||
@@ -215,6 +218,7 @@ export function ReviewDetailClient({ reviewId }: { reviewId: string }) {
         content={review.content}
         rating={review.rating}
         createdAt={review.createdAt}
+        views={displayedViews}
         rejectReason={review.rejectReason}
         user={review.user}
         isOwner={isOwner}

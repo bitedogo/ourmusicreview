@@ -21,6 +21,7 @@ export interface ReviewDetailResult {
     rejectReason: string | null;
     userId: string;
     albumId: string;
+    views: number;
     createdAt: Date;
     updatedAt: Date;
     user: {
@@ -78,6 +79,7 @@ export async function getReviewDetail(
       rejectReason: review.rejectReason,
       userId: review.userId,
       albumId: review.albumId,
+      views: review.views ?? 0,
       createdAt: review.createdAt,
       updatedAt: review.updatedAt,
       user: {

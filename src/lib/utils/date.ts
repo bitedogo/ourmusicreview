@@ -12,6 +12,21 @@ export function formatDateYYYYMMDD(dateInput: string | Date): string {
   }
 }
 
+/** 댓글 상세 — YYYY.MM.DD HH:mm */
+export function formatDateYYYYMMDDHHmm(dateInput: string | Date): string {
+  try {
+    const d = new Date(dateInput);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    const h = String(d.getHours()).padStart(2, "0");
+    const min = String(d.getMinutes()).padStart(2, "0");
+    return `${y}.${m}.${day} ${h}:${min}`;
+  } catch {
+    return String(dateInput);
+  }
+}
+
 /** 리뷰 카드용 — YYYY. MM. DD */
 export function formatDateDottedSpaced(dateInput: string | Date): string {
   try {

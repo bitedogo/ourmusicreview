@@ -1,17 +1,23 @@
 "use client";
 /** 댓글 목록·작성 섹션 */
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import {
+  createCommentApi,
   deleteCommentApi,
   editCommentApi,
   fetchCommentsApi,
+  toggleCommentLikeApi,
+  updateCommentLikeInTree,
 } from "@/src/components/interaction/comment-api";
 import { CommentForm } from "@/src/components/interaction/CommentForm";
 import { CommentList } from "@/src/components/interaction/CommentList";
 import type { CommentItemData } from "@/src/components/interaction/comment-types";
 import { useCommentCompose } from "@/src/hooks/use-comment-compose";
+
+const COMMENTS_PER_PAGE = 10;
 
 interface CommentSectionProps {
   postId?: string;
@@ -20,14 +26,51 @@ interface CommentSectionProps {
   variant?: "default" | "detail";
 }
 
+function CommentPagination({
+  page,
+  totalPages,
+  onPageChange,
+}: {
+  page: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
+}) {
+  if (totalPages <= 1) return null;
+
+  const pages = Array.from({ length: totalPages }, (_, index) => index + 1);
+
+  return (
+    <nav
+      aria-label="댓글 페이지"
+      className="flex items-center justify-end gap-2 py-3 text-[12px] font-normal leading-[14px] text-[#C4C4C4]"
+    >
+      {pages.map((pageNumber) => (
+        <button
+          key={pageNumber}
+          type="button"
+          onClick={() => onPageChange(pageNumber)}
+          className={`transition hover:text-[#505050] ${
+            pageNumber === page ? "text-[#505050]" : ""
+          }`}
+        >
+          {pageNumber}
+        </button>
+      ))}
+    </nav>
+  );
+}
+
 export function CommentSection({
   postId,
   reviewId,
   variant = "default",
 }: CommentSectionProps) {
   const { data: session } = useSession();
+  const router = useRouter();
   const [comments, setComments] = useState<CommentItemData[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [page, setPage] = useState(1);
 
   const fetchComments = useCallback(async () => {
     setIsLoading(true);
@@ -35,6 +78,7 @@ export function CommentSection({
       const data = await fetchCommentsApi(postId, reviewId);
       if (data.ok) {
         setComments(data.data?.comments ?? []);
+        setTotalCount(data.data?.totalCount ?? data.data?.comments?.length ?? 0);
       }
     } catch {
       /* ignore */
@@ -44,8 +88,12 @@ export function CommentSection({
   }, [postId, reviewId]);
 
   useEffect(() => {
-    fetchComments();
+    void fetchComments();
   }, [fetchComments]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [comments.length]);
 
   const compose = useCommentCompose({
     postId,
@@ -53,13 +101,19 @@ export function CommentSection({
     onCreated: fetchComments,
   });
 
+  const requireLogin = () => {
+    if (confirm("로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?")) {
+      router.push("/auth/signin");
+    }
+  };
+
   const handleDelete = async (commentId: string) => {
     if (!confirm("댓글을 삭제하시겠습니까?")) return;
 
     try {
       const data = await deleteCommentApi(commentId);
       if (data.ok) {
-        fetchComments();
+        await fetchComments();
       } else {
         alert(data.error || "댓글 삭제에 실패했습니다.");
       }
@@ -72,13 +126,17 @@ export function CommentSection({
     try {
       const data = await editCommentApi(commentId, nextContent);
       if (data.ok) {
-        setComments((prev) =>
-          prev.map((c) =>
-            c.id === commentId
-              ? { ...c, content: data.data?.content ?? nextContent }
-              : c
-          )
-        );
+        const updateTree = (items: CommentItemData[]): CommentItemData[] =>
+          items.map((comment) =>
+            comment.id === commentId
+              ? { ...comment, content: data.data?.content ?? nextContent }
+              : {
+                  ...comment,
+                  replies: updateTree(comment.replies),
+                }
+          );
+
+        setComments((prev) => updateTree(prev));
         return true;
       }
       alert(data.error || "댓글 수정에 실패했습니다.");
@@ -89,17 +147,72 @@ export function CommentSection({
     }
   };
 
+  const handleLike = async (commentId: string) => {
+    if (!session) {
+      requireLogin();
+      return;
+    }
+
+    try {
+      const data = await toggleCommentLikeApi(commentId);
+      if (data.ok) {
+        setComments((prev) =>
+          updateCommentLikeInTree(
+            prev,
+            commentId,
+            data.data?.liked ?? false,
+            data.data?.count ?? 0
+          )
+        );
+      }
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const handleReply = async (parentId: string, content: string) => {
+    if (!session) {
+      requireLogin();
+      return false;
+    }
+
+    try {
+      const data = await createCommentApi(content, postId, reviewId, parentId);
+      if (data.ok) {
+        await fetchComments();
+        return true;
+      }
+      alert(data.error || "답글 작성에 실패했습니다.");
+      return false;
+    } catch {
+      alert("답글 작성 중 오류가 발생했습니다.");
+      return false;
+    }
+  };
+
   const isAdmin =
     (session?.user as { role?: string } | undefined)?.role === "ADMIN";
+
+  const totalPages = Math.max(1, Math.ceil(comments.length / COMMENTS_PER_PAGE));
+  const pagedComments = useMemo(() => {
+    if (variant !== "detail") return comments;
+    const start = (page - 1) * COMMENTS_PER_PAGE;
+    return comments.slice(start, start + COMMENTS_PER_PAGE);
+  }, [comments, page, variant]);
+
   const listProps = {
-    comments,
+    comments: variant === "detail" ? pagedComments : comments,
     isLoading,
     variant: variant as "default" | "detail",
     currentUserId: session?.user?.id,
     isAdmin,
+    isLoggedIn: Boolean(session),
     onDelete: handleDelete,
     onEdit: handleEdit,
+    onLike: handleLike,
+    onReply: handleReply,
   };
+
   const formProps = {
     variant: variant as "default" | "detail",
     content: compose.content,
@@ -109,27 +222,30 @@ export function CommentSection({
     onSubmit: compose.submit,
   };
 
+  const commentCountLabel = totalCount || comments.length;
+
   if (variant === "detail") {
     return (
       <section id="review-comments" className="mt-[40px] scroll-mt-8 sm:mt-[30px]">
-        <div className="w-full rounded-[15px] border border-[#D9D9D9] bg-white shadow-[0px_2px_4px_rgba(0,0,0,0.25)]">
-          <div className="px-4 pt-[30px] sm:px-[44px]">
-            <div className="flex items-end gap-[11px]">
-              <h3 className="text-[16px] font-normal leading-[19px] text-black">
-                댓글
-              </h3>
-              <span className="text-[16px] font-normal leading-[19px] text-[#D9D9D9]">
-                {comments.length}
-              </span>
-            </div>
-            <div className="mt-[20px] h-px w-full bg-[#D9D9D9]" />
+        <div className="w-full rounded-[15px] border border-[#D9D9D9] bg-white px-4 pb-10 pt-8 shadow-[0px_2px_4px_rgba(0,0,0,0.25)] sm:px-[44px] sm:pt-[36px]">
+          <div className="flex items-end gap-2">
+            <h3 className="text-[16px] font-normal leading-[19px] text-[#505050]">
+              댓글
+            </h3>
+            <span className="text-[16px] font-normal leading-[19px] text-[#D9D9D9]">
+              {commentCountLabel}
+            </span>
           </div>
+
+          <CommentForm {...formProps} />
 
           <CommentList {...listProps} />
 
-          <div className="px-4 pb-[40px] pt-[48px] sm:px-[44px]">
-            <CommentForm {...formProps} />
-          </div>
+          <CommentPagination
+            page={page}
+            totalPages={totalPages}
+            onPageChange={setPage}
+          />
         </div>
       </section>
     );
@@ -139,7 +255,7 @@ export function CommentSection({
     <section className="mt-10 space-y-6">
       <div className="flex items-center gap-2 border-b border-zinc-100 pb-3">
         <h3 className="text-sm font-bold text-zinc-900">댓글</h3>
-        <span className="text-xs text-zinc-400">{comments.length}</span>
+        <span className="text-xs text-zinc-400">{commentCountLabel}</span>
       </div>
 
       <CommentList {...listProps} />

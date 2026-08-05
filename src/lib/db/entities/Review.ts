@@ -41,6 +41,9 @@ export class Review {
   @Column({ name: "album_id", type: "varchar", length: 255 })
   albumId!: string;
 
+  @Column({ name: "views", type: "int", default: 0 })
+  views!: number;
+
   @CreateDateColumn({ name: "created_at", type: "timestamp" })
   createdAt!: Date;
 

@@ -19,20 +19,32 @@ async function parseJson<T>(response: Response): Promise<ApiResult<T>> {
 export async function fetchCommentsApi(postId?: string, reviewId?: string) {
   const query = getCommentQuery(postId, reviewId);
   const response = await fetch(`/api/comments?${query}`);
-  return parseJson<{ comments: CommentItemData[] }>(response);
+  return parseJson<{ comments: CommentItemData[]; totalCount: number }>(
+    response
+  );
 }
 
 export async function createCommentApi(
   content: string,
   postId?: string,
-  reviewId?: string
+  reviewId?: string,
+  parentId?: string
 ) {
   const response = await fetch("/api/comments", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ content, postId, reviewId }),
+    body: JSON.stringify({ content, postId, reviewId, parentId }),
   });
   return parseJson<{ id?: string }>(response);
+}
+
+export async function toggleCommentLikeApi(commentId: string) {
+  const response = await fetch("/api/comments/like", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ commentId }),
+  });
+  return parseJson<{ liked: boolean; count: number }>(response);
 }
 
 export async function deleteCommentApi(commentId: string) {
@@ -49,4 +61,28 @@ export async function editCommentApi(commentId: string, content: string) {
     body: JSON.stringify({ content }),
   });
   return parseJson<{ id?: string; content?: string }>(response);
+}
+
+export function countAllComments(comments: CommentItemData[]): number {
+  return comments.reduce(
+    (sum, comment) => sum + 1 + countAllComments(comment.replies),
+    0
+  );
+}
+
+export function updateCommentLikeInTree(
+  comments: CommentItemData[],
+  commentId: string,
+  liked: boolean,
+  count: number
+): CommentItemData[] {
+  return comments.map((comment) => {
+    if (comment.id === commentId) {
+      return { ...comment, liked, likeCount: count };
+    }
+    return {
+      ...comment,
+      replies: updateCommentLikeInTree(comment.replies, commentId, liked, count),
+    };
+  });
 }
