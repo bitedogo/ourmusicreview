@@ -40,7 +40,7 @@ export function DesktopWedgeBar({
             y2="92.0001"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stopColor="#63C4CB" />
+            <stop stopColor="#63C4CC" />
             <stop offset="0.35" stopColor="#F8CA12" />
             <stop offset="0.75" stopColor="#FFA310" />
             <stop offset="1" stopColor="#F82512" />
