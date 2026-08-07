@@ -10,10 +10,12 @@ import {
   editCommentApi,
   fetchCommentsApi,
   toggleCommentLikeApi,
+  updateCommentContentInTree,
   updateCommentLikeInTree,
 } from "@/src/components/interaction/comment-api";
 import { CommentForm } from "@/src/components/interaction/CommentForm";
 import { CommentList } from "@/src/components/interaction/CommentList";
+import { COMMENT_DETAIL_CLASS as styles } from "@/src/components/interaction/comment-detail-styles";
 import type { CommentItemData } from "@/src/components/interaction/comment-types";
 import { useCommentCompose } from "@/src/hooks/use-comment-compose";
 
@@ -22,6 +24,7 @@ const COMMENTS_PER_PAGE = 10;
 interface CommentSectionProps {
   postId?: string;
   reviewId?: string;
+  playlistId?: string;
   /** detail: 리뷰 상세 Figma 스타일 */
   variant?: "default" | "detail";
 }
@@ -37,25 +40,22 @@ function CommentPagination({
 }) {
   if (totalPages <= 1) return null;
 
-  const pages = Array.from({ length: totalPages }, (_, index) => index + 1);
-
   return (
-    <nav
-      aria-label="댓글 페이지"
-      className="flex items-center justify-end gap-2 py-3 text-[12px] font-normal leading-[14px] text-[#C4C4C4]"
-    >
-      {pages.map((pageNumber) => (
-        <button
-          key={pageNumber}
-          type="button"
-          onClick={() => onPageChange(pageNumber)}
-          className={`transition hover:text-[#505050] ${
-            pageNumber === page ? "text-[#505050]" : ""
-          }`}
-        >
-          {pageNumber}
-        </button>
-      ))}
+    <nav aria-label="댓글 페이지" className={styles.pagination}>
+      {Array.from({ length: totalPages }, (_, index) => index + 1).map(
+        (pageNumber) => (
+          <button
+            key={pageNumber}
+            type="button"
+            onClick={() => onPageChange(pageNumber)}
+            className={`transition hover:text-[#505050] ${
+              pageNumber === page ? styles.paginationActive : ""
+            }`}
+          >
+            {pageNumber}
+          </button>
+        )
+      )}
     </nav>
   );
 }
@@ -63,6 +63,7 @@ function CommentPagination({
 export function CommentSection({
   postId,
   reviewId,
+  playlistId,
   variant = "default",
 }: CommentSectionProps) {
   const { data: session } = useSession();
@@ -72,10 +73,14 @@ export function CommentSection({
   const [isLoading, setIsLoading] = useState(false);
   const [page, setPage] = useState(1);
 
+  const isLoggedIn = Boolean(session);
+  const isAdmin =
+    (session?.user as { role?: string } | undefined)?.role === "ADMIN";
+
   const fetchComments = useCallback(async () => {
     setIsLoading(true);
     try {
-      const data = await fetchCommentsApi(postId, reviewId);
+      const data = await fetchCommentsApi(postId, reviewId, playlistId);
       if (data.ok) {
         setComments(data.data?.comments ?? []);
         setTotalCount(data.data?.totalCount ?? data.data?.comments?.length ?? 0);
@@ -85,7 +90,7 @@ export function CommentSection({
     } finally {
       setIsLoading(false);
     }
-  }, [postId, reviewId]);
+  }, [postId, reviewId, playlistId]);
 
   useEffect(() => {
     void fetchComments();
@@ -98,6 +103,7 @@ export function CommentSection({
   const compose = useCommentCompose({
     postId,
     reviewId,
+    playlistId,
     onCreated: fetchComments,
   });
 
@@ -126,17 +132,13 @@ export function CommentSection({
     try {
       const data = await editCommentApi(commentId, nextContent);
       if (data.ok) {
-        const updateTree = (items: CommentItemData[]): CommentItemData[] =>
-          items.map((comment) =>
-            comment.id === commentId
-              ? { ...comment, content: data.data?.content ?? nextContent }
-              : {
-                  ...comment,
-                  replies: updateTree(comment.replies),
-                }
-          );
-
-        setComments((prev) => updateTree(prev));
+        setComments((prev) =>
+          updateCommentContentInTree(
+            prev,
+            commentId,
+            data.data?.content ?? nextContent
+          )
+        );
         return true;
       }
       alert(data.error || "댓글 수정에 실패했습니다.");
@@ -177,7 +179,13 @@ export function CommentSection({
     }
 
     try {
-      const data = await createCommentApi(content, postId, reviewId, parentId);
+      const data = await createCommentApi(
+        content,
+        postId,
+        reviewId,
+        parentId,
+        playlistId
+      );
       if (data.ok) {
         await fetchComments();
         return true;
@@ -189,9 +197,6 @@ export function CommentSection({
       return false;
     }
   };
-
-  const isAdmin =
-    (session?.user as { role?: string } | undefined)?.role === "ADMIN";
 
   const totalPages = Math.max(1, Math.ceil(comments.length / COMMENTS_PER_PAGE));
   const pagedComments = useMemo(() => {
@@ -206,7 +211,7 @@ export function CommentSection({
     variant: variant as "default" | "detail",
     currentUserId: session?.user?.id,
     isAdmin,
-    isLoggedIn: Boolean(session),
+    isLoggedIn,
     onDelete: handleDelete,
     onEdit: handleEdit,
     onLike: handleLike,
@@ -217,7 +222,7 @@ export function CommentSection({
     variant: variant as "default" | "detail",
     content: compose.content,
     isSubmitting: compose.isSubmitting,
-    isLoggedIn: Boolean(session),
+    isLoggedIn,
     onContentChange: compose.setContent,
     onSubmit: compose.submit,
   };
@@ -226,21 +231,15 @@ export function CommentSection({
 
   if (variant === "detail") {
     return (
-      <section id="review-comments" className="mt-[40px] scroll-mt-8 sm:mt-[30px]">
-        <div className="w-full rounded-[15px] border border-[#D9D9D9] bg-white px-4 pb-10 pt-8 shadow-[0px_2px_4px_rgba(0,0,0,0.25)] sm:px-[44px] sm:pt-[36px]">
-          <div className="flex items-end gap-2">
-            <h3 className="text-[16px] font-normal leading-[19px] text-[#505050]">
-              댓글
-            </h3>
-            <span className="text-[16px] font-normal leading-[19px] text-[#D9D9D9]">
-              {commentCountLabel}
-            </span>
+      <section id="review-comments" className={styles.section}>
+        <div className={styles.card}>
+          <div className={styles.titleRow}>
+            <h3 className={styles.title}>댓글</h3>
+            <span className={styles.titleCount}>{commentCountLabel}</span>
           </div>
 
           <CommentForm {...formProps} />
-
           <CommentList {...listProps} />
-
           <CommentPagination
             page={page}
             totalPages={totalPages}

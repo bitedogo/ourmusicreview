@@ -56,6 +56,8 @@ export interface ProfilePlaylistItem {
   isPublic: boolean;
   coverImageUrl: string | null;
   trackCount: number;
+  likeCount?: number;
+  commentCount?: number;
   genres?: Array<{ id: string; nameKo: string }>;
   updatedAt: string;
 }

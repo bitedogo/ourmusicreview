@@ -7,7 +7,7 @@ export default function PlaylistPage() {
   return (
     <Suspense
       fallback={
-        <div className="mx-auto flex min-h-screen w-full max-w-[860px] flex-col bg-[#F7F7F8] px-4 pb-14 pt-[72px] sm:px-6">
+        <div className="mx-auto flex min-h-screen w-full max-w-[860px] flex-col bg-white px-4 pb-14 pt-[72px] sm:px-6">
           <h1 className="text-[28px] font-semibold tracking-tight text-zinc-900">
             플레이리스트
           </h1>

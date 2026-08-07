@@ -37,6 +37,12 @@ const GENRES = [
   { id: "electronic", nameKo: "일렉트로닉", nameEn: "Electronic", parentId: null },
   { id: "pop", nameKo: "팝", nameEn: "Pop", parentId: null },
   { id: "jazz", nameKo: "재즈", nameEn: "Jazz", parentId: null },
+  {
+    id: "comprehensive",
+    nameKo: "종합",
+    nameEn: "Comprehensive",
+    parentId: null,
+  },
 
   { id: "experimental-hiphop", nameKo: "익스페리멘탈 힙합", nameEn: "Experimental Hip-hop", parentId: "hiphop" },
   { id: "boom-bap", nameKo: "붐뱁", nameEn: "Boom Bap", parentId: "hiphop" },

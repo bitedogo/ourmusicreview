@@ -3,7 +3,11 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { fetchPublicPlaylistsByUser, type PlaylistListItemDto } from "@/src/components/playlist/playlist-api";
+import {
+  fetchPublicPlaylistsByUser,
+  type PlaylistListItemDto,
+} from "@/src/components/playlist/playlist-api";
+import { PlaylistEngagementCounts } from "@/src/components/playlist/playlist-engagement-counts";
 
 export default function UserPlaylistsPage() {
   const params = useParams<{ userId: string }>();
@@ -71,6 +75,12 @@ export default function UserPlaylistsPage() {
             >
               <h2 className="truncate text-sm font-semibold text-zinc-900">{item.title}</h2>
               <p className="mt-1 text-xs text-zinc-500">{item.trackCount}곡</p>
+              <PlaylistEngagementCounts
+                likeCount={item.likeCount ?? 0}
+                commentCount={item.commentCount ?? 0}
+                className="mt-1.5"
+                size="mobile"
+              />
               {item.description ? (
                 <p className="mt-2 line-clamp-2 text-xs text-zinc-600">{item.description}</p>
               ) : null}

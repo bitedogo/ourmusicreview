@@ -17,9 +17,10 @@ export async function POST(request: Request) {
     const { session, response } = await requireSessionApi();
     if (response) return response;
 
-    const { content, postId, reviewId, parentId } = await request.json();
+    const { content, postId, reviewId, playlistId, parentId } =
+      await request.json();
 
-    if (!content || (!postId && !reviewId)) {
+    if (!content || (!postId && !reviewId && !playlistId)) {
       return apiError("필수 정보가 누락되었습니다.", { status: 400 });
     }
 
@@ -28,6 +29,7 @@ export async function POST(request: Request) {
 
     let resolvedPostId = postId ? String(postId) : null;
     let resolvedReviewId = reviewId ? String(reviewId) : null;
+    let resolvedPlaylistId = playlistId ? String(playlistId) : null;
 
     if (parentId) {
       const parent = await commentRepository.findOne({
@@ -41,6 +43,7 @@ export async function POST(request: Request) {
       }
       resolvedPostId = parent.postId ?? null;
       resolvedReviewId = parent.reviewId ?? null;
+      resolvedPlaylistId = parent.playlistId ?? null;
     }
 
     const newComment = new Comment();
@@ -49,6 +52,7 @@ export async function POST(request: Request) {
     newComment.userId = session.user.id;
     newComment.postId = resolvedPostId;
     newComment.reviewId = resolvedReviewId;
+    newComment.playlistId = resolvedPlaylistId;
     newComment.parentId = parentId ? String(parentId) : null;
 
     if (!newComment.content) {
@@ -68,9 +72,12 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const postId = searchParams.get("postId");
     const reviewId = searchParams.get("reviewId");
+    const playlistId = searchParams.get("playlistId");
 
-    if (!postId && !reviewId) {
-      return apiError("postId 또는 reviewId가 필요합니다.", { status: 400 });
+    if (!postId && !reviewId && !playlistId) {
+      return apiError("postId, reviewId 또는 playlistId가 필요합니다.", {
+        status: 400,
+      });
     }
 
     const dataSource = await initializeDatabase();
@@ -79,7 +86,11 @@ export async function GET(request: Request) {
     const likeRepository = dataSource.getRepository(Like);
 
     const comments = await commentRepository.find({
-      where: postId ? { postId } : { reviewId: reviewId! },
+      where: postId
+        ? { postId }
+        : reviewId
+          ? { reviewId }
+          : { playlistId: playlistId! },
       relations: ["user"],
       order: { createdAt: "ASC" },
     });

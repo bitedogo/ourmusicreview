@@ -2,6 +2,8 @@
 
 import { randomUUID } from "crypto";
 import type { DataSource } from "typeorm";
+import { Comment } from "@/src/lib/db/entities/Comment";
+import { Like } from "@/src/lib/db/entities/Like";
 import { Playlist } from "@/src/lib/db/entities/Playlist";
 import { PlaylistTrack } from "@/src/lib/db/entities/PlaylistTrack";
 import { PlaylistGenre } from "@/src/lib/db/entities/PlaylistGenre";
@@ -10,6 +12,7 @@ import {
   resolveGenreFilterIds,
   type GenreDto,
 } from "@/src/lib/genres/genre-service";
+import { collapsePlaylistGenresForDisplay } from "@/src/lib/genres/genre-covers";
 import { ServiceError } from "@/src/lib/http/service-error";
 
 export type PlaylistGenreDto = GenreDto;
@@ -22,6 +25,8 @@ export interface PlaylistListItem {
   isPublic: boolean;
   coverImageUrl: string | null;
   trackCount: number;
+  likeCount: number;
+  commentCount: number;
   genres: PlaylistGenreDto[];
   createdAt: Date;
   updatedAt: Date;
@@ -64,7 +69,9 @@ export interface UpdatePlaylistInput {
 function toListItem(
   playlist: Playlist,
   trackCount: number,
-  genres: PlaylistGenreDto[] = []
+  genres: PlaylistGenreDto[] = [],
+  likeCount = 0,
+  commentCount = 0
 ): PlaylistListItem {
   return {
     id: playlist.id,
@@ -74,6 +81,8 @@ function toListItem(
     isPublic: playlist.isPublic === "Y",
     coverImageUrl: playlist.coverImageUrl ?? null,
     trackCount,
+    likeCount,
+    commentCount,
     genres,
     createdAt: playlist.createdAt,
     updatedAt: playlist.updatedAt,
@@ -120,6 +129,64 @@ async function getPlaylistTrackCounts(
   return map;
 }
 
+async function getPlaylistLikeCounts(
+  dataSource: DataSource,
+  playlistIds: string[]
+): Promise<Map<string, number>> {
+  if (playlistIds.length === 0) return new Map();
+
+  const rows = await dataSource
+    .getRepository(Like)
+    .createQueryBuilder("like")
+    .select("like.playlist_id", "playlistId")
+    .addSelect("COUNT(*)::int", "count")
+    .where("like.playlist_id IN (:...playlistIds)", { playlistIds })
+    .groupBy("like.playlist_id")
+    .getRawMany<{ playlistId: string; count: number }>();
+
+  const map = new Map<string, number>();
+  for (const row of rows) {
+    map.set(row.playlistId, Number(row.count || 0));
+  }
+  return map;
+}
+
+async function getPlaylistCommentCounts(
+  dataSource: DataSource,
+  playlistIds: string[]
+): Promise<Map<string, number>> {
+  if (playlistIds.length === 0) return new Map();
+
+  const rows = await dataSource
+    .getRepository(Comment)
+    .createQueryBuilder("comment")
+    .select("comment.playlist_id", "playlistId")
+    .addSelect("COUNT(*)::int", "count")
+    .where("comment.playlist_id IN (:...playlistIds)", { playlistIds })
+    .groupBy("comment.playlist_id")
+    .getRawMany<{ playlistId: string; count: number }>();
+
+  const map = new Map<string, number>();
+  for (const row of rows) {
+    map.set(row.playlistId, Number(row.count || 0));
+  }
+  return map;
+}
+
+async function getPlaylistEngagementCounts(
+  dataSource: DataSource,
+  playlistIds: string[]
+): Promise<{
+  likeCounts: Map<string, number>;
+  commentCounts: Map<string, number>;
+}> {
+  const [likeCounts, commentCounts] = await Promise.all([
+    getPlaylistLikeCounts(dataSource, playlistIds),
+    getPlaylistCommentCounts(dataSource, playlistIds),
+  ]);
+  return { likeCounts, commentCounts };
+}
+
 async function getGenresByPlaylistIds(
   dataSource: DataSource,
   playlistIds: string[]
@@ -146,6 +213,11 @@ async function getGenresByPlaylistIds(
     });
     map.set(row.playlistId, list);
   }
+
+  for (const [playlistId, list] of map) {
+    map.set(playlistId, collapsePlaylistGenresForDisplay(list));
+  }
+
   return map;
 }
 
@@ -234,16 +306,19 @@ export async function listMyPlaylists(
     .getMany();
 
   const ids = playlists.map((playlist) => playlist.id);
-  const [counts, genresMap] = await Promise.all([
+  const [counts, genresMap, engagement] = await Promise.all([
     getPlaylistTrackCounts(dataSource, ids),
     getGenresByPlaylistIds(dataSource, ids),
+    getPlaylistEngagementCounts(dataSource, ids),
   ]);
 
   return playlists.map((playlist) =>
     toListItem(
       playlist,
       counts.get(playlist.id) ?? 0,
-      genresMap.get(playlist.id) ?? []
+      genresMap.get(playlist.id) ?? [],
+      engagement.likeCounts.get(playlist.id) ?? 0,
+      engagement.commentCounts.get(playlist.id) ?? 0
     )
   );
 }
@@ -259,15 +334,18 @@ export async function listPublicPlaylistsByUser(
   });
 
   const ids = playlists.map((playlist) => playlist.id);
-  const [counts, genresMap] = await Promise.all([
+  const [counts, genresMap, engagement] = await Promise.all([
     getPlaylistTrackCounts(dataSource, ids),
     getGenresByPlaylistIds(dataSource, ids),
+    getPlaylistEngagementCounts(dataSource, ids),
   ]);
   return playlists.map((playlist) =>
     toListItem(
       playlist,
       counts.get(playlist.id) ?? 0,
-      genresMap.get(playlist.id) ?? []
+      genresMap.get(playlist.id) ?? [],
+      engagement.likeCounts.get(playlist.id) ?? 0,
+      engagement.commentCounts.get(playlist.id) ?? 0
     )
   );
 }
@@ -374,9 +452,10 @@ export async function listPublicPlaylists(
     .getMany();
 
   const ids = playlists.map((playlist) => playlist.id);
-  const [counts, genresMap] = await Promise.all([
+  const [counts, genresMap, engagement] = await Promise.all([
     getPlaylistTrackCounts(dataSource, ids),
     getGenresByPlaylistIds(dataSource, ids),
+    getPlaylistEngagementCounts(dataSource, ids),
   ]);
 
   return {
@@ -384,7 +463,9 @@ export async function listPublicPlaylists(
       ...toListItem(
         playlist,
         counts.get(playlist.id) ?? 0,
-        genresMap.get(playlist.id) ?? []
+        genresMap.get(playlist.id) ?? [],
+        engagement.likeCounts.get(playlist.id) ?? 0,
+        engagement.commentCounts.get(playlist.id) ?? 0
       ),
       ownerNickname: playlist.user?.nickname ?? playlist.userId,
     })),
@@ -422,12 +503,17 @@ export async function getPlaylistDetail(
   });
 
   const genresMap = await getGenresByPlaylistIds(dataSource, [playlist.id]);
+  const engagement = await getPlaylistEngagementCounts(dataSource, [
+    playlist.id,
+  ]);
 
   return {
     ...toListItem(
       playlist,
       tracks.length,
-      genresMap.get(playlist.id) ?? []
+      genresMap.get(playlist.id) ?? [],
+      engagement.likeCounts.get(playlist.id) ?? 0,
+      engagement.commentCounts.get(playlist.id) ?? 0
     ),
     tracks: tracks.map((track) => ({
       id: track.id,
@@ -522,7 +608,17 @@ export async function updatePlaylist(
     genres = genresMap.get(playlist.id) ?? [];
   }
 
-  return toListItem(playlist, trackCount, genres);
+  const engagement = await getPlaylistEngagementCounts(dataSource, [
+    playlist.id,
+  ]);
+
+  return toListItem(
+    playlist,
+    trackCount,
+    genres,
+    engagement.likeCounts.get(playlist.id) ?? 0,
+    engagement.commentCounts.get(playlist.id) ?? 0
+  );
 }
 
 export async function deletePlaylist(

@@ -11,6 +11,7 @@ import {
 import { User } from "./User";
 import { Post } from "./Post";
 import { Review } from "./Review";
+import { Playlist } from "./Playlist";
 
 @Entity({ name: "comments", schema: "public" })
 export class Comment {
@@ -29,6 +30,9 @@ export class Comment {
   @Column({ name: "review_id", type: "varchar", length: 255, nullable: true })
   reviewId?: string | null;
 
+  @Column({ name: "playlist_id", type: "varchar", length: 255, nullable: true })
+  playlistId?: string | null;
+
   @Column({ name: "parent_id", type: "varchar", length: 50, nullable: true })
   parentId?: string | null;
 
@@ -46,6 +50,10 @@ export class Comment {
   @ManyToOne(() => Review, { onDelete: "CASCADE", nullable: true })
   @JoinColumn({ name: "review_id" })
   review?: Review | null;
+
+  @ManyToOne(() => Playlist, { onDelete: "CASCADE", nullable: true })
+  @JoinColumn({ name: "playlist_id" })
+  playlist?: Playlist | null;
 
   @ManyToOne(() => Comment, { onDelete: "CASCADE", nullable: true })
   @JoinColumn({ name: "parent_id" })

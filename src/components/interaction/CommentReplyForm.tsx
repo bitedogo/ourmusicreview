@@ -1,5 +1,8 @@
 "use client";
-/** 댓글 답글 작성 폼 */
+/** 댓글 답글 작성 폼 — detail / default */
+
+import { CommentDetailComposeBox } from "@/src/components/interaction/comment-detail-compose-box";
+import { COMMENT_DETAIL_FORM_CLASS as form } from "@/src/components/interaction/comment-detail-styles";
 
 interface CommentReplyFormProps {
   variant: "default" | "detail";
@@ -18,23 +21,13 @@ export function CommentReplyForm({
 }: CommentReplyFormProps) {
   if (variant === "detail") {
     return (
-      <form onSubmit={onSubmit} className="mt-3">
-        <div className="relative box-border h-[62px] w-full rounded-[10px] border-[1.75px] border-[#D9D9D9] bg-white pl-[21px] pr-[92px]">
-          <textarea
-            value={content}
-            onChange={(e) => onContentChange(e.target.value)}
-            placeholder="답글을 남겨보세요..."
-            rows={1}
-            className="absolute left-[21px] top-[6px] h-[28px] w-[calc(100%-113px)] resize-none overflow-hidden border-0 bg-transparent p-0 text-[14px] font-normal leading-[200%] text-[#505050] outline-none placeholder:text-[#D9D9D9] focus:ring-0"
-          />
-          <button
-            type="submit"
-            disabled={isSubmitting || !content.trim()}
-            className="absolute bottom-[5px] right-[5px] flex h-[30px] w-[86px] items-center justify-center rounded-[5px] bg-[#D9D9D9] text-[14px] font-normal leading-[200%] text-white transition hover:bg-[#c8c8c8] disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {isSubmitting ? "..." : "등록"}
-          </button>
-        </div>
+      <form onSubmit={onSubmit} className={form.replyWrap}>
+        <CommentDetailComposeBox
+          content={content}
+          isSubmitting={isSubmitting}
+          placeholder="답글을 남겨보세요..."
+          onContentChange={onContentChange}
+        />
       </form>
     );
   }

@@ -40,7 +40,7 @@ export function PlaylistTrackList({
   return (
     <section>
       <h2 className="mb-3 text-sm font-semibold text-zinc-800">트랙 목록</h2>
-      <ul className="overflow-hidden rounded-2xl border border-zinc-200 bg-white">
+      <ul className="w-full overflow-hidden rounded-2xl bg-white shadow-[0_0_0_1px_#D9D9D9,0px_2px_4px_rgba(0,0,0,0.25)]">
         {tracks.map((track, index) => {
           const resolved = streamingLinksByTrackId[track.trackId];
           const streamingLinks =

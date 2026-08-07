@@ -7,12 +7,14 @@ import { createCommentApi } from "@/src/components/interaction/comment-api";
 interface UseCommentComposeParams {
   postId?: string;
   reviewId?: string;
+  playlistId?: string;
   onCreated: () => void | Promise<void>;
 }
 
 export function useCommentCompose({
   postId,
   reviewId,
+  playlistId,
   onCreated,
 }: UseCommentComposeParams) {
   const [content, setContent] = useState("");
@@ -24,7 +26,13 @@ export function useCommentCompose({
 
     setIsSubmitting(true);
     try {
-      const data = await createCommentApi(content, postId, reviewId);
+      const data = await createCommentApi(
+        content,
+        postId,
+        reviewId,
+        undefined,
+        playlistId
+      );
       if (data.ok) {
         setContent("");
         await onCreated();

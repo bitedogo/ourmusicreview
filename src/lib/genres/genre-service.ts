@@ -33,7 +33,13 @@ export async function getGenreTree(
   dataSource: DataSource
 ): Promise<GenreTreeNode[]> {
   const flat = await listGenresFlat(dataSource);
-  const roots = flat.filter((g) => g.parentId == null);
+  /** 종합·All 은 특수 칩용 — 대분류 트리에서 제외 */
+  const roots = flat.filter(
+    (g) =>
+      g.parentId == null &&
+      g.id !== "comprehensive" &&
+      g.id !== "all"
+  );
   return roots.map((root) => ({
     ...root,
     children: flat.filter((g) => g.parentId === root.id),
@@ -41,16 +47,13 @@ export async function getGenreTree(
 }
 
 /** 대분류면 자신 + 모든 하위 장르 ID, 소분류면 자신만.
- *  comprehensive(종합)면 모든 대분류·소분류 ID */
+ *  comprehensive(종합)면 '종합' 태그만 — 다른 대분류·소분류 포함하지 않음 */
 export async function resolveGenreFilterIds(
   dataSource: DataSource,
   genreId: string
 ): Promise<string[]> {
   if (genreId === "comprehensive") {
-    const rows = await dataSource.getRepository(Genre).find({
-      select: ["id"],
-    });
-    return rows.map((row) => row.id);
+    return ["comprehensive"];
   }
 
   if (genreId === "all") {

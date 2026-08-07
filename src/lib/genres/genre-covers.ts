@@ -83,11 +83,17 @@ export function sortRootGenres<T extends { id: string }>(genres: T[]): T[] {
   });
 }
 
-/** DB 대분류 + 종합 + All 원형 목록 */
+/** DB 대분류만(종합·All 제외) + 특수 칩용 종합/All 원형 목록 */
 export function buildGenreCircles<
   T extends { id: string; nameKo?: string; children?: { id: string }[] },
 >(genres: T[]): GenreCircleItem[] {
-  const sorted = sortRootGenres(genres);
+  const sorted = sortRootGenres(
+    genres.filter(
+      (genre) =>
+        genre.id !== SPECIAL_GENRE_COMPREHENSIVE &&
+        genre.id !== SPECIAL_GENRE_ALL
+    )
+  );
   return [
     ...sorted.map((genre) => ({
       id: genre.id,
@@ -108,4 +114,47 @@ export function buildGenreCircles<
       kind: "special" as const,
     },
   ];
+}
+
+/**
+ * 예전 버그로 대분류 전체가 저장된 경우 → 종합 한 장르로 표시.
+ * 소분류 종합(= 대분류 ID 하나)은 대분류 이름 그대로 유지.
+ */
+export function collapsePlaylistGenresForDisplay<
+  T extends { id: string; nameKo: string; parentId?: string | null },
+>(genres: T[]): T[] {
+  if (genres.length === 0) return genres;
+
+  if (
+    genres.length === 1 &&
+    genres[0].id === SPECIAL_GENRE_COMPREHENSIVE
+  ) {
+    return [
+      {
+        ...genres[0],
+        nameKo: GENRE_CIRCLE_LABELS[SPECIAL_GENRE_COMPREHENSIVE],
+      },
+    ];
+  }
+
+  const ids = new Set(genres.map((g) => g.id));
+  const isLegacyAllRoots =
+    ROOT_GENRE_ORDER.length > 0 &&
+    genres.length === ROOT_GENRE_ORDER.length &&
+    ROOT_GENRE_ORDER.every((id) => ids.has(id)) &&
+    genres.every((g) =>
+      (ROOT_GENRE_ORDER as readonly string[]).includes(g.id)
+    );
+
+  if (isLegacyAllRoots) {
+    return [
+      {
+        ...genres[0],
+        id: SPECIAL_GENRE_COMPREHENSIVE,
+        nameKo: GENRE_CIRCLE_LABELS[SPECIAL_GENRE_COMPREHENSIVE],
+      } as T,
+    ];
+  }
+
+  return genres;
 }

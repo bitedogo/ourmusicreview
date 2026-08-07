@@ -8,6 +8,11 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { PaginationNav } from "@/src/components/common/PaginationNav";
 import type { PublicPlaylistListItemDto } from "@/src/components/playlist/playlist-api";
 import type { GenreTreeNode } from "@/src/components/playlist/genre-selector";
+import { PlaylistCoverFlow } from "@/src/components/playlist/playlist-cover-flow";
+import {
+  PlaylistListCard,
+  PlaylistListCardGrid,
+} from "@/src/components/playlist/playlist-list-card";
 import { ReviewSearchButton } from "@/src/components/reviews/ReviewSearchButton";
 import { playlistDetail, playlistList } from "@/src/lib/navigation/routes";
 import {
@@ -59,7 +64,6 @@ export function PlaylistListClient() {
   const [genreTree, setGenreTree] = useState<GenreTreeNode[]>([]);
   const [page, setPage] = useState(pageFromUrl);
   const [totalPages, setTotalPages] = useState(1);
-  const [total, setTotal] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
@@ -191,7 +195,6 @@ export function PlaylistListClient() {
 
         setPlaylists(data.playlists ?? []);
         setTotalPages(Math.max(1, data.totalPages ?? 1));
-        setTotal(data.total ?? 0);
         setPage(data.page ?? 1);
       } catch (err) {
         if (controller.signal.aborted) return;
@@ -241,119 +244,26 @@ export function PlaylistListClient() {
   const isAllActive =
     !genreFromUrl || genreFromUrl === SPECIAL_GENRE_ALL;
 
-  const featuredPlaylist =
-    featured.length > 0
-      ? featured[Math.min(featuredIndex, featured.length - 1)]
-      : null;
-
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-[860px] flex-col bg-[#F7F7F8] px-4 pb-14 pt-[72px] sm:px-6">
+    <div className="mx-auto flex min-h-screen w-full max-w-[832px] flex-col bg-white px-4 pb-14 pt-[72px] sm:px-6">
       <div className="flex items-center justify-between gap-3">
         <h1 className="text-[28px] font-semibold leading-tight tracking-tight text-zinc-900">
           플레이리스트
         </h1>
-        <ReviewSearchButton onClick={() => setIsSearchModalOpen(true)} />
       </div>
 
       {/* 1. 추천 플레이리스트 */}
       <section className="mt-6">
-        {featuredPlaylist ? (
-          <Link
-            href={playlistDetail(featuredPlaylist.id)}
-            className="group relative block overflow-hidden rounded-[28px] bg-gradient-to-br from-[#C45C2A] via-[#B04A22] to-[#7A2E12] shadow-[0_18px_40px_rgba(140,50,20,0.28)] transition hover:brightness-[1.03]"
-          >
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_70%_20%,rgba(255,255,255,0.18),transparent_55%)]" />
-            <div className="relative flex min-h-[168px] items-stretch sm:min-h-[200px]">
-              <div className="relative z-10 flex min-w-0 flex-1 flex-col justify-center px-5 py-5 sm:px-7 sm:py-6">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/80">
-                  Recommended Playlist
-                </p>
-                <h2 className="mt-2 line-clamp-2 text-[22px] font-bold uppercase leading-tight tracking-wide text-white sm:text-[28px]">
-                  {featuredPlaylist.title}
-                </h2>
-                <p className="mt-2 line-clamp-2 max-w-[240px] text-[12px] leading-relaxed text-white/85 sm:max-w-[280px] sm:text-[13px]">
-                  {featuredPlaylist.description?.trim() ||
-                    `${featuredPlaylist.ownerNickname}의 공개 플레이리스트`}
-                </p>
-                <div className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-white/90 sm:text-xs">
-                  <span>{featuredPlaylist.trackCount}곡</span>
-                  <span className="text-white/50">·</span>
-                  <span>{featuredPlaylist.ownerNickname}</span>
-                  {(featuredPlaylist.genres?.length ?? 0) > 0 ? (
-                    <>
-                      <span className="text-white/50">·</span>
-                      <span className="line-clamp-1">
-                        {featuredPlaylist.genres!
-                          .slice(0, 2)
-                          .map((g) => g.nameKo)
-                          .join(", ")}
-                      </span>
-                    </>
-                  ) : null}
-                </div>
-              </div>
-
-              <div className="relative w-[42%] shrink-0 sm:w-[46%]">
-                {featuredPlaylist.coverImageUrl ? (
-                  <Image
-                    src={featuredPlaylist.coverImageUrl}
-                    alt=""
-                    fill
-                    unoptimized
-                    className="object-cover object-center opacity-95 transition duration-500 group-hover:scale-[1.03]"
-                  />
-                ) : (
-                  <div className="absolute inset-0 bg-black/20" />
-                )}
-                <div className="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-[#B04A22] to-transparent sm:w-24" />
-                {featuredPlaylist.coverImageUrl ? (
-                  <div className="absolute bottom-3 right-3 h-12 w-12 overflow-hidden rounded-lg border border-white/30 shadow-lg sm:h-14 sm:w-14">
-                    <Image
-                      src={featuredPlaylist.coverImageUrl}
-                      alt=""
-                      fill
-                      unoptimized
-                      className="object-cover"
-                    />
-                  </div>
-                ) : null}
-              </div>
-            </div>
-          </Link>
-        ) : (
-          <div className="flex min-h-[168px] items-center justify-center rounded-[28px] bg-gradient-to-br from-[#C45C2A] to-[#7A2E12] px-6 text-sm text-white/80 shadow-[0_18px_40px_rgba(140,50,20,0.28)] sm:min-h-[200px]">
-            아직 추천할 공개 플레이리스트가 없습니다.
-          </div>
-        )}
-
-        {featured.length > 1 ? (
-          <div className="mt-3 flex items-center justify-center gap-1.5">
-            {featured.map((item, index) => (
-              <button
-                key={item.id}
-                type="button"
-                aria-label={`추천 ${index + 1}`}
-                onClick={() => setFeaturedIndex(index)}
-                className={`h-1.5 rounded-full transition ${
-                  index === featuredIndex
-                    ? "w-5 bg-[#C45C2A]"
-                    : "w-1.5 bg-zinc-300 hover:bg-zinc-400"
-                }`}
-              />
-            ))}
-          </div>
-        ) : null}
+        <PlaylistCoverFlow
+          playlists={featured}
+          activeIndex={featuredIndex}
+          onActiveIndexChange={setFeaturedIndex}
+        />
       </section>
 
-      {/* 2. 장르 원형 */}
-      <section className="mt-9">
-        <div className="flex items-end justify-between gap-3">
-          <h2 className="text-[20px] font-bold tracking-tight text-zinc-900">
-            장르
-          </h2>
-        </div>
-
-        <div className="mt-4 grid grid-cols-8 gap-x-2 gap-y-4 sm:gap-x-3 sm:gap-y-5">
+      {/* 2. 장르 원형 — 최대 1200px (페이지 832보다 넓게 중앙 정렬) */}
+      <section className="mt-9 w-[min(1200px,calc(100vw-2rem))] self-center sm:w-[min(1200px,calc(100vw-3rem))]">
+        <div className="grid grid-cols-8 gap-x-3 gap-y-5 sm:gap-x-5 sm:gap-y-6">
           {genreCircles.map((circle) => {
             const isActive =
               circle.id === SPECIAL_GENRE_ALL
@@ -368,12 +278,12 @@ export function PlaylistListClient() {
                 key={circle.id}
                 type="button"
                 onClick={() => selectGenre(circle.id)}
-                className="group flex w-full flex-col items-center gap-2"
+                className="group flex w-full flex-col items-center gap-2.5 sm:gap-3"
               >
                 <span
-                  className={`relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-full bg-gradient-to-br ${genreTone(circle.id)} text-sm font-semibold text-white shadow-[0_8px_20px_rgba(0,0,0,0.12)] transition sm:text-lg ${
+                  className={`relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-full bg-gradient-to-br ${genreTone(circle.id)} text-base font-semibold text-white shadow-[0_10px_24px_rgba(0,0,0,0.12)] transition sm:text-xl ${
                     isActive
-                      ? "ring-2 ring-[#C45C2A] ring-offset-2 ring-offset-[#F7F7F8]"
+                      ? "ring-2 ring-[var(--color-brand-primary)] ring-offset-2 ring-offset-white sm:ring-offset-4"
                       : "group-hover:scale-[1.03]"
                   }`}
                 >
@@ -382,7 +292,7 @@ export function PlaylistListClient() {
                       src={circle.imageUrl}
                       alt={circle.label}
                       fill
-                      sizes="(max-width: 640px) 11vw, 80px"
+                      sizes="(max-width: 640px) 12vw, 140px"
                       className="object-cover"
                     />
                   ) : (
@@ -390,7 +300,7 @@ export function PlaylistListClient() {
                   )}
                 </span>
                 <span
-                  className={`w-full truncate text-center text-[10px] font-medium sm:text-[12px] ${
+                  className={`w-full truncate text-center text-[11px] font-medium sm:text-[14px] ${
                     isActive ? "text-zinc-900" : "text-zinc-600"
                   }`}
                 >
@@ -399,6 +309,29 @@ export function PlaylistListClient() {
               </button>
             );
           })}
+        </div>
+      </section>
+
+      {/* 3. 플레이리스트 목록 */}
+      <section className="mt-9">
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-[20px] font-bold tracking-tight text-zinc-900">
+            {selectedGenreLabel
+              ? `${selectedGenreLabel} 플레이리스트`
+              : "전체 플레이리스트"}
+          </h2>
+          <div className="flex shrink-0 items-center gap-3">
+            {!!searchQueryFromUrl && (
+              <button
+                type="button"
+                onClick={removeSearch}
+                className="text-xs font-medium text-zinc-500 hover:text-zinc-800"
+              >
+                검색 해제
+              </button>
+            )}
+            <ReviewSearchButton onClick={() => setIsSearchModalOpen(true)} />
+          </div>
         </div>
 
         {childOptions.length > 0 ? (
@@ -417,7 +350,7 @@ export function PlaylistListClient() {
                   className={`rounded-full px-3 py-1 text-[11px] transition ${
                     genreFromUrl === child.id
                       ? "bg-zinc-900 text-white"
-                      : "bg-white text-zinc-600 shadow-sm hover:bg-zinc-50"
+                      : "bg-white text-zinc-600 shadow-sm ring-1 ring-[#D9D9D9] hover:bg-zinc-50"
                   }`}
                 >
                   {child.nameKo}
@@ -426,31 +359,6 @@ export function PlaylistListClient() {
             })}
           </div>
         ) : null}
-      </section>
-
-      {/* 3. 플레이리스트 목록 */}
-      <section className="mt-9">
-        <div className="flex items-end justify-between gap-3">
-          <div>
-            <h2 className="text-[20px] font-bold tracking-tight text-zinc-900">
-              {selectedGenreLabel
-                ? `${selectedGenreLabel} 플레이리스트`
-                : "전체 플레이리스트"}
-            </h2>
-            {!isLoading && !error ? (
-              <p className="mt-1 text-xs text-zinc-500">{total}개</p>
-            ) : null}
-          </div>
-          {!!searchQueryFromUrl && (
-            <button
-              type="button"
-              onClick={removeSearch}
-              className="text-xs font-medium text-zinc-500 hover:text-zinc-800"
-            >
-              검색 해제
-            </button>
-          )}
-        </div>
 
         {!!searchQueryFromUrl && (
           <p className="mt-2 text-xs text-zinc-500">
@@ -463,70 +371,33 @@ export function PlaylistListClient() {
           </p>
         )}
 
-        <div className="mt-3 overflow-hidden rounded-2xl bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+        <div className="mt-3">
           {isLoading ? (
-            <div className="px-4 py-14 text-center text-sm text-zinc-500">
+            <div className="rounded-2xl bg-white px-4 py-14 text-center text-sm text-zinc-500 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
               플레이리스트를 불러오는 중...
             </div>
           ) : error ? (
-            <div className="px-4 py-8 text-center text-sm text-red-600">
+            <div className="rounded-2xl bg-white px-4 py-8 text-center text-sm text-red-600 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
               {error}
             </div>
           ) : playlists.length === 0 ? (
-            <div className="px-4 py-14 text-center text-sm text-zinc-500">
+            <div className="rounded-2xl bg-white px-4 py-14 text-center text-sm text-zinc-500 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
               {searchQueryFromUrl || genreFromUrl
                 ? "조건에 맞는 플레이리스트가 없습니다."
                 : "공개된 플레이리스트가 없습니다."}
             </div>
           ) : (
-            <ul>
-              {playlists.map((item, index) => (
+            <PlaylistListCardGrid>
+              {playlists.map((item) => (
                 <li key={item.id}>
-                  <Link
+                  <PlaylistListCard
+                    item={item}
                     href={playlistDetail(item.id)}
-                    className={`flex items-center gap-3.5 px-4 py-3.5 transition hover:bg-zinc-50 ${
-                      index > 0 ? "border-t border-zinc-100" : ""
-                    }`}
-                  >
-                    <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-zinc-100">
-                      {item.coverImageUrl ? (
-                        <Image
-                          src={item.coverImageUrl}
-                          alt=""
-                          fill
-                          unoptimized
-                          className="object-cover"
-                        />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center text-[9px] text-zinc-400">
-                          Cover
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="min-w-0 flex-1">
-                      <div className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                        <h3 className="truncate text-[14px] font-semibold text-zinc-900">
-                          {item.title}
-                        </h3>
-                        <span className="truncate text-[12px] text-zinc-400">
-                          {item.ownerNickname}
-                        </span>
-                      </div>
-                      {(item.genres?.length ?? 0) > 0 ? (
-                        <p className="mt-0.5 truncate text-[11px] text-zinc-400">
-                          {item.genres!.map((g) => g.nameKo).join(" · ")}
-                        </p>
-                      ) : null}
-                    </div>
-
-                    <span className="shrink-0 text-[12px] tabular-nums text-zinc-400">
-                      {item.trackCount}곡
-                    </span>
-                  </Link>
+                    showOwner
+                  />
                 </li>
               ))}
-            </ul>
+            </PlaylistListCardGrid>
           )}
         </div>
 

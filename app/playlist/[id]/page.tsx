@@ -2,10 +2,12 @@
 /** 공개 플레이리스트 상세 (읽기 전용) */
 
 import { useParams, useRouter } from "next/navigation";
-import Image from "next/image";
 import Link from "next/link";
 import { PlaylistTrackList } from "@/src/components/playlist/playlist-track-list";
 import { GenreTags } from "@/src/components/playlist/genre-tags";
+import { PlaylistEngagementCounts } from "@/src/components/playlist/playlist-engagement-counts";
+import { PlaylistVinylCover } from "@/src/components/playlist/playlist-vinyl-cover";
+import { CommentSection } from "@/src/components/interaction/CommentSection";
 import { usePlaylistDetail } from "@/src/hooks/use-playlist-detail";
 import { getUserProfilePath } from "@/src/components/profile/profile-view-types";
 import { playlistList } from "@/src/lib/navigation/routes";
@@ -18,7 +20,7 @@ export default function PublicPlaylistDetailPage() {
     usePlaylistDetail(playlistId);
 
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-3xl flex-col gap-6 px-6 py-10 sm:px-16">
+    <div className="mx-auto flex min-h-screen w-full max-w-[640px] flex-col px-4 py-10 sm:px-0">
       <button
         type="button"
         onClick={() => router.push(playlistList())}
@@ -53,54 +55,55 @@ export default function PublicPlaylistDetailPage() {
         </div>
       ) : (
         <>
-          <section className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
-            <div className="flex items-stretch gap-4">
-              <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-zinc-100 sm:h-28 sm:w-28">
-                {playlist.coverImageUrl ? (
-                  <Image
-                    src={playlist.coverImageUrl}
-                    alt=""
-                    fill
-                    unoptimized
-                    className="object-cover"
-                  />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center text-xs text-zinc-400">
-                    No Cover
-                  </div>
-                )}
-              </div>
-              <div className="min-w-0 flex-1">
-                <h1 className="truncate text-xl font-semibold tracking-tight text-zinc-900">
-                  {playlist.title}
-                </h1>
-                <p className="mt-1 text-xs text-zinc-500">
-                  {playlist.trackCount}곡 ·{" "}
-                  <Link
-                    href={getUserProfilePath(playlist.userId)}
-                    className="hover:text-[var(--color-brand-primary)] hover:underline"
-                  >
-                    작성자 프로필
-                  </Link>
-                </p>
-                {playlist.description ? (
-                  <p className="mt-2 text-sm text-zinc-600">
-                    {playlist.description}
-                  </p>
-                ) : null}
-                <GenreTags
-                  genres={playlist.genres ?? []}
-                  className="mt-2"
+          <div className="flex flex-col gap-6">
+            <section className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+              <div className="flex items-stretch gap-4">
+                <PlaylistVinylCover
+                  coverImageUrl={playlist.coverImageUrl}
+                  alt={playlist.title}
                   size="md"
+                  interactive
                 />
+                <div className="min-w-0 flex-1">
+                  <h1 className="truncate text-xl font-semibold tracking-tight text-zinc-900">
+                    {playlist.title}
+                  </h1>
+                  <p className="mt-1 text-xs text-zinc-500">
+                    {playlist.trackCount}곡 ·{" "}
+                    <Link
+                      href={getUserProfilePath(playlist.userId)}
+                      className="hover:text-[var(--color-brand-primary)] hover:underline"
+                    >
+                      작성자 프로필
+                    </Link>
+                  </p>
+                  <PlaylistEngagementCounts
+                    likeCount={playlist.likeCount ?? 0}
+                    commentCount={playlist.commentCount ?? 0}
+                    className="mt-1.5"
+                    size="desktop"
+                  />
+                  {playlist.description ? (
+                    <p className="mt-2 text-sm text-zinc-600">
+                      {playlist.description}
+                    </p>
+                  ) : null}
+                  <GenreTags
+                    genres={playlist.genres ?? []}
+                    className="mt-2"
+                    size="md"
+                  />
+                </div>
               </div>
-            </div>
-          </section>
+            </section>
 
-          <PlaylistTrackList
-            tracks={playlist.tracks}
-            streamingLinksByTrackId={streamingLinksByTrackId}
-          />
+            <PlaylistTrackList
+              tracks={playlist.tracks}
+              streamingLinksByTrackId={streamingLinksByTrackId}
+            />
+          </div>
+
+          <CommentSection playlistId={playlist.id} variant="detail" />
         </>
       )}
     </div>

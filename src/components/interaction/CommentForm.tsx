@@ -1,5 +1,8 @@
 "use client";
-/** 댓글 작성 폼 */
+/** 댓글 작성 폼 — detail / default */
+
+import { CommentDetailComposeBox } from "@/src/components/interaction/comment-detail-compose-box";
+import { COMMENT_DETAIL_FORM_CLASS as form } from "@/src/components/interaction/comment-detail-styles";
 
 interface CommentFormProps {
   variant: "default" | "detail";
@@ -9,15 +12,6 @@ interface CommentFormProps {
   onContentChange: (value: string) => void;
   onSubmit: (e: React.FormEvent) => void;
 }
-
-const DETAIL_FORM_BOX_CLASS =
-  "relative box-border h-[62px] w-full rounded-[10px] border-[1.75px] border-[#D9D9D9] bg-white";
-
-const DETAIL_FORM_TEXT_CLASS =
-  "absolute left-[21px] top-[6px] h-[28px] w-[575px] max-w-[calc(100%-136px)] resize-none overflow-hidden border-0 bg-transparent p-0 text-[14px] font-normal leading-[200%] text-[#505050] outline-none placeholder:text-[#D9D9D9] focus:ring-0";
-
-const DETAIL_SUBMIT_BUTTON_CLASS =
-  "absolute bottom-[5px] right-[5px] flex h-[30px] w-[86px] items-center justify-center rounded-[5px] bg-[#D9D9D9] text-[14px] font-normal leading-[200%] text-white transition hover:bg-[#c8c8c8] disabled:cursor-not-allowed disabled:opacity-60";
 
 export function CommentForm({
   variant,
@@ -30,34 +24,26 @@ export function CommentForm({
   if (variant === "detail") {
     if (!isLoggedIn) {
       return (
-        <div className="mt-[18px]">
-          <div className={DETAIL_FORM_BOX_CLASS}>
-            <p className={`${DETAIL_FORM_TEXT_CLASS} flex items-center text-[#D9D9D9]`}>
-              로그인 후 댓글을 남길 수 있습니다.
-            </p>
-          </div>
+        <div className={form.wrap}>
+          <CommentDetailComposeBox
+            content=""
+            isSubmitting={false}
+            placeholder=""
+            onContentChange={() => {}}
+            message="로그인 후 댓글을 남길 수 있습니다."
+          />
         </div>
       );
     }
 
     return (
-      <form onSubmit={onSubmit} className="mt-[18px]">
-        <div className={DETAIL_FORM_BOX_CLASS}>
-          <textarea
-            value={content}
-            onChange={(e) => onContentChange(e.target.value)}
-            placeholder="댓글을 남겨보세요..."
-            rows={1}
-            className={DETAIL_FORM_TEXT_CLASS}
-          />
-          <button
-            type="submit"
-            disabled={isSubmitting || !content.trim()}
-            className={DETAIL_SUBMIT_BUTTON_CLASS}
-          >
-            {isSubmitting ? "..." : "등록"}
-          </button>
-        </div>
+      <form onSubmit={onSubmit} className={form.wrap}>
+        <CommentDetailComposeBox
+          content={content}
+          isSubmitting={isSubmitting}
+          placeholder="댓글을 남겨보세요..."
+          onContentChange={onContentChange}
+        />
       </form>
     );
   }

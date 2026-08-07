@@ -1,5 +1,5 @@
 "use client";
-/** 리뷰 상세 댓글 한 줄 (Figma detail variant) */
+/** 리뷰 상세 댓글 한 줄 */
 
 import { useState } from "react";
 import Link from "next/link";
@@ -26,16 +26,14 @@ interface CommentDetailItemProps {
   onReply: (parentId: string, content: string) => Promise<boolean>;
 }
 
-function CommentDetailOwnerActions({
+function OwnerActions({
   isOwner,
   canDelete,
-  actionClass,
   onEdit,
   onDelete,
 }: {
   isOwner: boolean;
   canDelete: boolean;
-  actionClass: string;
   onEdit: () => void;
   onDelete: () => void;
 }) {
@@ -44,16 +42,54 @@ function CommentDetailOwnerActions({
   return (
     <span className={styles.ownerActions}>
       {isOwner ? (
-        <button type="button" onClick={onEdit} className={actionClass}>
+        <button type="button" onClick={onEdit} className={styles.action}>
           수정
         </button>
       ) : null}
       {canDelete ? (
-        <button type="button" onClick={onDelete} className={actionClass}>
+        <button type="button" onClick={onDelete} className={styles.action}>
           삭제
         </button>
       ) : null}
     </span>
+  );
+}
+
+function EditForm({
+  draft,
+  isSaving,
+  onDraftChange,
+  onCancel,
+  onSave,
+}: {
+  draft: string;
+  isSaving: boolean;
+  onDraftChange: (value: string) => void;
+  onCancel: () => void;
+  onSave: () => void;
+}) {
+  return (
+    <div className={styles.editWrap}>
+      <textarea
+        value={draft}
+        onChange={(e) => onDraftChange(e.target.value)}
+        rows={3}
+        className={styles.editTextarea}
+      />
+      <div className={styles.editActions}>
+        <button type="button" onClick={onCancel} className={styles.action}>
+          취소
+        </button>
+        <button
+          type="button"
+          onClick={onSave}
+          disabled={isSaving || !draft.trim()}
+          className={styles.saveButton}
+        >
+          {isSaving ? "저장 중..." : "저장"}
+        </button>
+      </div>
+    </div>
   );
 }
 
@@ -110,34 +146,19 @@ export function CommentDetailItem({
     }
   };
 
-  const replyList =
-    comment.replies.length > 0 ? (
-      <div className={styles.replyList}>
-        {comment.replies.map((reply) => (
-          <CommentDetailItem
-            key={reply.id}
-            comment={reply}
-            depth={depth + 1}
-            currentUserId={currentUserId}
-            isAdmin={isAdmin}
-            isLoggedIn={isLoggedIn}
-            isReply
-            onDelete={onDelete}
-            onEdit={onEdit}
-            onLike={onLike}
-            onReply={onReply}
-          />
-        ))}
-      </div>
-    ) : null;
-
   return (
     <div className={isReply ? styles.replyIndent : undefined}>
       <article className={styles.article}>
-        <CommentAvatar user={comment.user} size="detail" />
-        <div className="min-w-0 flex-1">
+        <div className={styles.avatar}>
+          <CommentAvatar user={comment.user} size="detail" />
+        </div>
+
+        <div className={styles.body}>
           <div className={styles.nicknameRow}>
-            <Link href={getUserProfilePath(comment.user.id)} className={styles.nickname}>
+            <Link
+              href={getUserProfilePath(comment.user.id)}
+              className={styles.nickname}
+            >
               {comment.user.nickname}
             </Link>
             <time dateTime={comment.createdAt} className={styles.mobileDate}>
@@ -146,32 +167,21 @@ export function CommentDetailItem({
           </div>
 
           {isEditing ? (
-            <div className="mt-[3px] space-y-2">
-              <textarea
-                value={draft}
-                onChange={(e) => setDraft(e.target.value)}
-                rows={3}
-                className={styles.editTextarea}
-              />
-              <div className="flex justify-end gap-[7px]">
-                <button type="button" onClick={cancelEdit} className={styles.action}>
-                  취소
-                </button>
-                <button
-                  type="button"
-                  onClick={saveEdit}
-                  disabled={isSaving || !draft.trim()}
-                  className={styles.saveButton}
-                >
-                  {isSaving ? "저장 중..." : "저장"}
-                </button>
-              </div>
-            </div>
+            <EditForm
+              draft={draft}
+              isSaving={isSaving}
+              onDraftChange={setDraft}
+              onCancel={cancelEdit}
+              onSave={saveEdit}
+            />
           ) : (
             <>
               <div className={styles.contentWrap}>
                 <p className={styles.content}>{comment.content}</p>
-                <time dateTime={comment.createdAt} className={styles.desktopDate}>
+                <time
+                  dateTime={comment.createdAt}
+                  className={styles.desktopDate}
+                >
                   {formatDateYYYYMMDDHHmm(comment.createdAt)}
                 </time>
               </div>
@@ -186,10 +196,9 @@ export function CommentDetailItem({
                   onLikeClick={handleLikeClick}
                   onReplyClick={canReply ? handleReplyClick : undefined}
                 />
-                <CommentDetailOwnerActions
+                <OwnerActions
                   isOwner={isOwner}
                   canDelete={canDelete}
-                  actionClass={styles.action}
                   onEdit={startEdit}
                   onDelete={() => onDelete(comment.id)}
                 />
@@ -208,7 +217,26 @@ export function CommentDetailItem({
           )}
         </div>
       </article>
-      {!isEditing ? replyList : null}
+
+      {!isEditing && comment.replies.length > 0 ? (
+        <div className={styles.replyList}>
+          {comment.replies.map((reply) => (
+            <CommentDetailItem
+              key={reply.id}
+              comment={reply}
+              depth={depth + 1}
+              currentUserId={currentUserId}
+              isAdmin={isAdmin}
+              isLoggedIn={isLoggedIn}
+              isReply
+              onDelete={onDelete}
+              onEdit={onEdit}
+              onLike={onLike}
+              onReply={onReply}
+            />
+          ))}
+        </div>
+      ) : null}
     </div>
   );
 }

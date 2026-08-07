@@ -2,7 +2,7 @@
 /** 댓글 목록 */
 
 import { CommentItem } from "@/src/components/interaction/CommentItem";
-import { COMMENT_DETAIL_CLASS } from "@/src/components/interaction/comment-detail-styles";
+import { COMMENT_DETAIL_CLASS as styles } from "@/src/components/interaction/comment-detail-styles";
 import type { CommentItemData } from "@/src/components/interaction/comment-types";
 
 interface CommentListProps {
@@ -31,18 +31,16 @@ export function CommentList({
   onReply,
 }: CommentListProps) {
   const isDetail = variant === "detail";
-  const emptyClass = isDetail
-    ? COMMENT_DETAIL_CLASS.empty
+  const statusClass = isDetail
+    ? styles.empty
     : "py-10 text-center text-xs text-zinc-400";
   const loadingClass = isDetail
-    ? COMMENT_DETAIL_CLASS.empty
+    ? styles.empty
     : "text-center text-xs text-zinc-400";
-  const listClass = isDetail ? COMMENT_DETAIL_CLASS.list : "space-y-6";
-  const listOffsetClass = isDetail ? COMMENT_DETAIL_CLASS.listOffset : undefined;
 
   if (isLoading) {
     return (
-      <div className={listOffsetClass}>
+      <div className={isDetail ? styles.listOffset : undefined}>
         <p className={loadingClass}>불러오는 중...</p>
       </div>
     );
@@ -50,14 +48,14 @@ export function CommentList({
 
   if (comments.length === 0) {
     return (
-      <div className={listOffsetClass}>
-        <p className={emptyClass}>첫 번째 댓글을 남겨보세요.</p>
+      <div className={isDetail ? styles.listOffset : undefined}>
+        <p className={statusClass}>첫 번째 댓글을 남겨보세요.</p>
       </div>
     );
   }
 
   return (
-    <div className={listClass}>
+    <div className={isDetail ? styles.list : "space-y-6"}>
       {comments.map((comment) => (
         <CommentItem
           key={comment.id}

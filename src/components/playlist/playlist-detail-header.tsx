@@ -1,11 +1,12 @@
 "use client";
 /** 플레이리스트 상세 헤더(커버·메타·장르·액션) */
 
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import type { PlaylistDetailDto } from "@/src/components/playlist/playlist-api";
 import { GenreSelector } from "@/src/components/playlist/genre-selector";
 import { GenreTags } from "@/src/components/playlist/genre-tags";
+import { PlaylistEngagementCounts } from "@/src/components/playlist/playlist-engagement-counts";
+import { PlaylistVinylCover } from "@/src/components/playlist/playlist-vinyl-cover";
 
 const actionButtonClass =
   "rounded-full border border-zinc-300 px-3 py-1 text-[11px] text-zinc-700 hover:bg-zinc-50 disabled:opacity-60";
@@ -45,21 +46,12 @@ export function PlaylistDetailHeader({
   return (
     <section className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
       <div className="flex items-stretch gap-4">
-        <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-zinc-100 sm:h-28 sm:w-28">
-          {playlist.coverImageUrl ? (
-            <Image
-              src={playlist.coverImageUrl}
-              alt={playlist.title}
-              fill
-              unoptimized
-              className="object-cover"
-            />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center text-xs text-zinc-400">
-              No Cover
-            </div>
-          )}
-        </div>
+        <PlaylistVinylCover
+          coverImageUrl={playlist.coverImageUrl}
+          alt={playlist.title}
+          size="md"
+          interactive
+        />
 
         <div className="flex min-w-0 flex-1 flex-col">
           <div className="flex items-start gap-3">
@@ -70,6 +62,12 @@ export function PlaylistDetailHeader({
               <p className="mt-1 text-xs text-zinc-500">
                 {playlist.trackCount}곡 · {playlist.isPublic ? "공개" : "비공개"}
               </p>
+              <PlaylistEngagementCounts
+                likeCount={playlist.likeCount ?? 0}
+                commentCount={playlist.commentCount ?? 0}
+                className="mt-1.5"
+                size="desktop"
+              />
               {playlist.description ? (
                 <p className="mt-2 text-sm text-zinc-600">{playlist.description}</p>
               ) : null}

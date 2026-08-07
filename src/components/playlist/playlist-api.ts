@@ -18,6 +18,8 @@ export interface PlaylistListItemDto {
   isPublic: boolean;
   coverImageUrl: string | null;
   trackCount: number;
+  likeCount: number;
+  commentCount: number;
   genres?: PlaylistGenreDto[];
   createdAt: string;
   updatedAt: string;

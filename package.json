@@ -17,6 +17,7 @@
     "db:migrate:genres": "node scripts/run-genre-migration.mjs",
     "db:migrate:comments": "node scripts/run-comment-replies-migration.mjs",
     "db:migrate:review-views": "node scripts/run-review-views-migration.mjs",
+    "db:migrate:playlist-likes-comments": "node scripts/run-playlist-likes-comments-migration.mjs",
     "db:seed:genres": "node scripts/seed-genres.mjs"
   },
   "dependencies": {

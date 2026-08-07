@@ -41,6 +41,7 @@ export async function POST(request: Request) {
       commentId: String(commentId),
       postId: null,
       reviewId: null,
+      playlistId: null,
     });
     await likeRepository.save(newLike);
 

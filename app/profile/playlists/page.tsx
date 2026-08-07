@@ -1,11 +1,12 @@
 "use client";
 /** 내 플레이리스트 목록/관리 페이지 */
 
-import Image from "next/image";
-import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { CreatePlaylistModal } from "@/src/components/playlist/create-playlist-modal";
-import { GenreTags } from "@/src/components/playlist/genre-tags";
+import {
+  PlaylistListCard,
+  PlaylistListCardGrid,
+} from "@/src/components/playlist/playlist-list-card";
 import { ProfilePrivacyToggle } from "@/src/components/profile/ProfilePrivacyToggle";
 import { ProfileListPageLayout } from "@/src/components/profile/profile-list-page-layout";
 import {
@@ -81,59 +82,35 @@ export default function ProfilePlaylistsPage() {
             <div className="rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 px-4 py-10 text-center text-sm text-zinc-500">
               아직 만든 플레이리스트가 없습니다.
             </div>
-          ) : null}
-
-          {sorted.map((item) => (
-            <Link
-              key={item.id}
-              href={profilePlaylist(item.id)}
-              className="flex items-center gap-4 rounded-2xl border border-zinc-200 bg-white px-4 py-3 shadow-sm transition hover:border-zinc-300"
-            >
-              <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-zinc-100">
-                {item.coverImageUrl ? (
-                  <Image
-                    src={item.coverImageUrl}
-                    alt={item.title}
-                    fill
-                    unoptimized
-                    className="object-cover"
+          ) : (
+            <PlaylistListCardGrid size="wide">
+              {sorted.map((item) => (
+                <li key={item.id} className="relative">
+                  <PlaylistListCard
+                    item={item}
+                    href={profilePlaylist(item.id)}
+                    showOwner={false}
+                    showGenres
+                    size="wide"
                   />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center text-[10px] text-zinc-400">
-                    No Cover
+                  <div
+                    className="absolute right-1.5 top-1.5"
+                    onClick={(event) => {
+                      event.preventDefault();
+                      event.stopPropagation();
+                    }}
+                  >
+                    <ProfilePrivacyToggle
+                      isPublic={item.isPublic}
+                      disabled={savingId === item.id}
+                      size="sm"
+                      onChange={(value) => void handleTogglePublic(item, value)}
+                    />
                   </div>
-                )}
-              </div>
-
-              <div className="min-w-0 flex-1">
-                <h3 className="truncate text-sm font-semibold text-zinc-900">
-                  {item.title}
-                </h3>
-                <p className="mt-0.5 text-xs text-zinc-500">{item.trackCount}곡</p>
-                <GenreTags genres={item.genres ?? []} className="mt-1.5" />
-                {item.description ? (
-                  <p className="mt-1 line-clamp-1 text-xs text-zinc-600">
-                    {item.description}
-                  </p>
-                ) : null}
-              </div>
-
-              <div
-                className="shrink-0"
-                onClick={(event) => {
-                  event.preventDefault();
-                  event.stopPropagation();
-                }}
-              >
-                <ProfilePrivacyToggle
-                  isPublic={item.isPublic}
-                  disabled={savingId === item.id}
-                  size="sm"
-                  onChange={(value) => void handleTogglePublic(item, value)}
-                />
-              </div>
-            </Link>
-          ))}
+                </li>
+              ))}
+            </PlaylistListCardGrid>
+          )}
 
           <div className="flex justify-end pt-1">
             <button

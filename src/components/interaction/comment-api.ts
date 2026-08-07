@@ -8,16 +8,26 @@ interface ApiResult<T> {
   error?: string;
 }
 
-function getCommentQuery(postId?: string, reviewId?: string): string {
-  return postId ? `postId=${postId}` : `reviewId=${reviewId ?? ""}`;
+function getCommentQuery(
+  postId?: string,
+  reviewId?: string,
+  playlistId?: string
+): string {
+  if (postId) return `postId=${encodeURIComponent(postId)}`;
+  if (reviewId) return `reviewId=${encodeURIComponent(reviewId)}`;
+  return `playlistId=${encodeURIComponent(playlistId ?? "")}`;
 }
 
 async function parseJson<T>(response: Response): Promise<ApiResult<T>> {
   return (await response.json()) as ApiResult<T>;
 }
 
-export async function fetchCommentsApi(postId?: string, reviewId?: string) {
-  const query = getCommentQuery(postId, reviewId);
+export async function fetchCommentsApi(
+  postId?: string,
+  reviewId?: string,
+  playlistId?: string
+) {
+  const query = getCommentQuery(postId, reviewId, playlistId);
   const response = await fetch(`/api/comments?${query}`);
   return parseJson<{ comments: CommentItemData[]; totalCount: number }>(
     response
@@ -28,12 +38,13 @@ export async function createCommentApi(
   content: string,
   postId?: string,
   reviewId?: string,
-  parentId?: string
+  parentId?: string,
+  playlistId?: string
 ) {
   const response = await fetch("/api/comments", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ content, postId, reviewId, parentId }),
+    body: JSON.stringify({ content, postId, reviewId, playlistId, parentId }),
   });
   return parseJson<{ id?: string }>(response);
 }
@@ -83,6 +94,22 @@ export function updateCommentLikeInTree(
     return {
       ...comment,
       replies: updateCommentLikeInTree(comment.replies, commentId, liked, count),
+    };
+  });
+}
+
+export function updateCommentContentInTree(
+  comments: CommentItemData[],
+  commentId: string,
+  content: string
+): CommentItemData[] {
+  return comments.map((comment) => {
+    if (comment.id === commentId) {
+      return { ...comment, content };
+    }
+    return {
+      ...comment,
+      replies: updateCommentContentInTree(comment.replies, commentId, content),
     };
   });
 }

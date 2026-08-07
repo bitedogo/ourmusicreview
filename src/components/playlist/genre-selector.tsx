@@ -98,10 +98,21 @@ export function GenreSelector({
     return ids;
   }, [tree]);
 
-  const isComprehensiveSelected =
-    rootIds.length > 0 &&
-    value.length === rootIds.length &&
-    rootIds.every((id) => value.includes(id));
+  /** 대분류 종합 — comprehensive 단일, 또는 예전 버그의 대분류 전체 */
+  const isComprehensiveSelected = useMemo(() => {
+    if (
+      value.length === 1 &&
+      value[0] === SPECIAL_GENRE_COMPREHENSIVE
+    ) {
+      return true;
+    }
+    if (rootIds.length === 0) return false;
+    return (
+      value.length === rootIds.length &&
+      rootIds.every((id) => value.includes(id)) &&
+      value.every((id) => rootIds.includes(id))
+    );
+  }, [value, rootIds]);
 
   const isAllSelected =
     allGenreIds.length > 0 &&
@@ -129,28 +140,42 @@ export function GenreSelector({
     [tree]
   );
 
-  const selectedGenres = useMemo(
-    () =>
-      value
-        .map((id) => {
-          const genre = genreById.get(id);
-          if (!genre) return null;
-          const isRoot = genre.parentId == null;
-          return {
-            ...genre,
-            label: isRoot
-              ? (getGenreCircleLabel(id) ?? genre.nameKo)
-              : genre.nameKo,
-          };
-        })
-        .filter((g): g is GenreOption & { label: string } => Boolean(g)),
-    [value, genreById]
-  );
+  const selectedGenres = useMemo(() => {
+    if (isComprehensiveSelected) {
+      return [
+        {
+          id: SPECIAL_GENRE_COMPREHENSIVE,
+          nameKo: "종합",
+          nameEn: "Comprehensive",
+          parentId: null as string | null,
+          label: "종합",
+        },
+      ];
+    }
+
+    return value
+      .map((id) => {
+        const genre = genreById.get(id);
+        if (!genre) return null;
+        const isRoot = genre.parentId == null;
+        return {
+          ...genre,
+          label: isRoot
+            ? (getGenreCircleLabel(id) ?? genre.nameKo)
+            : genre.nameKo,
+        };
+      })
+      .filter((g): g is GenreOption & { label: string } => Boolean(g));
+  }, [value, genreById, isComprehensiveSelected]);
 
   const activeParent = tree.find((g) => g.id === activeParentId) ?? null;
 
   function removeGenre(genreId: string) {
     if (disabled) return;
+    if (genreId === SPECIAL_GENRE_COMPREHENSIVE) {
+      onChange([]);
+      return;
+    }
     onChange(value.filter((id) => id !== genreId));
   }
 
@@ -159,7 +184,9 @@ export function GenreSelector({
 
     if (chipId === SPECIAL_GENRE_COMPREHENSIVE) {
       setActiveParentId(null);
-      onChange(isComprehensiveSelected ? [] : [...rootIds]);
+      onChange(
+        isComprehensiveSelected ? [] : [SPECIAL_GENRE_COMPREHENSIVE]
+      );
       return;
     }
 
@@ -188,6 +215,7 @@ export function GenreSelector({
 
     const isComprehensive = childId === parent.id;
     if (isComprehensive) {
+      /** 소분류 종합 → 대분류 ID만 저장 (표시는 대분류 이름) */
       if (value.length === 1 && value[0] === parent.id) {
         onChange([]);
       } else {
@@ -234,6 +262,7 @@ export function GenreSelector({
                 : null;
             const familySelected =
               parent != null &&
+              !isComprehensiveSelected &&
               value.some((id) => familyIdsOf(parent).includes(id));
             const isActive =
               chip.kind === "genre" && activeParentId === chip.id;
@@ -266,12 +295,12 @@ export function GenreSelector({
         </div>
       </div>
 
-      {activeParent ? (
+      {activeParent && !isComprehensiveSelected ? (
         <div>
           <p className="mb-1.5 text-xs font-medium text-zinc-600">
             {getGenreCircleLabel(activeParent.id) ?? activeParent.nameKo} 소분류
             <span className="ml-1 font-normal text-zinc-400">
-              (같은 대분류 안에서만 선택 · 종합 시 소분류 해제)
+              (같은 대분류 안에서만 선택 · 종합 시 대분류명으로 표시)
             </span>
           </p>
           <div className="flex flex-wrap gap-1.5">
