@@ -1,4 +1,4 @@
-/** 커�??�티 게시글 ?�세 ?�버 ?�이지 */
+/** 커뮤니티 게시글 상세 서버 페이지 */
 
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -43,11 +43,11 @@ export default async function CommunityDetailPage({
   });
 
   const categoryName = {
-    K: "�?��게시??,
-    I: "?�외게시??,
-    M: "?�터게시??,
-    W: "?�크�?,
-    N: "공�??�항",
+    K: "국내게시판",
+    I: "해외게시판",
+    M: "장터게시판",
+    W: "워크룸",
+    N: "공지사항",
   }[post.category];
 
   const categoryPath = {
@@ -74,7 +74,8 @@ export default async function CommunityDetailPage({
           href={`/boards/${categoryPath}`}
           className="text-xs text-[var(--color-text-muted)] hover:text-[var(--color-brand-primary)] transition-colors"
         >
-          ??목록?�로 ?�아가�?        </Link>
+          ← 목록으로 돌아가기
+        </Link>
       </div>
 
       <article className="space-y-8">
@@ -83,7 +84,7 @@ export default async function CommunityDetailPage({
             {categoryName}
           </div>
           
-          <h1 className="text-[30px] font-bold tracking-tight text-[#505050]">
+          <h1 className="text-[30px] font-bold tracking-tight text-[var(--color-text-primary)]">
             {noticeLabel && noticeColor && (
               <span className={`mr-2 text-[30px] font-semibold ${noticeColor}`}>
                 [{noticeLabel}]

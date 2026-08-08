@@ -1,5 +1,5 @@
-"use client";
-/** ��� �� �� (default / detail) */
+﻿"use client";
+/** 댓글 한 줄 (default / detail) */
 
 import { useState } from "react";
 import Link from "next/link";
@@ -132,7 +132,7 @@ function DefaultCommentItem({
       <span className="inline-flex items-center gap-[7px]">
         {isOwner ? (
           <button type="button" onClick={startEdit} className={DEFAULT_ACTION_CLASS}>
-            ����
+            수정
           </button>
         ) : null}
         {canDelete ? (
@@ -141,7 +141,7 @@ function DefaultCommentItem({
             onClick={() => onDelete(comment.id)}
             className={DEFAULT_ACTION_CLASS}
           >
-            ����
+            삭제
           </button>
         ) : null}
       </span>
@@ -197,15 +197,15 @@ function DefaultCommentItem({
               />
               <div className="flex justify-end gap-2">
                 <button type="button" onClick={cancelEdit} className={DEFAULT_ACTION_CLASS}>
-                  ���
+                  취소
                 </button>
                 <button
                   type="button"
                   onClick={saveEdit}
                   disabled={isSaving || !draft.trim()}
-                  className="text-[12px] font-normal leading-[14px] text-[#505050] transition hover:opacity-70 disabled:opacity-40"
+                  className="text-[12px] font-normal leading-[14px] text-[var(--color-text-primary)] transition hover:opacity-70 disabled:opacity-40"
                 >
-                  {isSaving ? "���� ��..." : "����"}
+                  {isSaving ? "저장 중..." : "저장"}
                 </button>
               </div>
             </div>
@@ -220,7 +220,7 @@ function DefaultCommentItem({
                   onClick={handleLikeClick}
                   className={`transition hover:text-[var(--color-text-primary)] ${comment.liked ? "text-[#ED4956]" : ""}`}
                 >
-                  {comment.liked ? "��" : "��"} {comment.likeCount}
+                  {comment.liked ? "♥" : "♡"} {comment.likeCount}
                 </button>
                 {canReply ? (
                   <button
@@ -228,7 +228,7 @@ function DefaultCommentItem({
                     onClick={handleReplyClick}
                     className="transition hover:text-[var(--color-text-primary)]"
                   >
-                    ��� {comment.replyCount}
+                    답글 {comment.replyCount}
                   </button>
                 ) : null}
               </div>
