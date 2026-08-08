@@ -1,8 +1,8 @@
 /** 리뷰 상세 — Frame 117(행) + Frame 268–270(pill) */
 
 export const REVIEW_DETAIL_INTERACTION_CLASS = {
-  /** Frame 117: row · center · pt 18 · gap 14 · h 64 */
-  root: "flex w-full shrink-0 flex-row flex-wrap items-center justify-center gap-2 overflow-visible pt-[10px] sm:h-[64px] sm:gap-[14px] sm:pt-[18px]",
+  /** 위·아래 간격은 페이지 래퍼(pt/pb)에서 제어 */
+  root: "flex w-full shrink-0 flex-row flex-wrap items-center justify-center gap-2 overflow-visible sm:gap-[14px]",
   pill: "box-border inline-flex h-[30px] shrink-0 flex-none items-center justify-center overflow-visible whitespace-nowrap rounded-[23px] border-[1.5px] border-[#D9D9D9] bg-white transition hover:bg-zinc-50 sm:h-[46px] sm:rounded-[175px] sm:border-[1.75px]",
   label:
     "inline-flex shrink-0 items-center text-[10px] font-medium leading-[12px] text-[#515151] sm:h-[19px] sm:text-[16px] sm:leading-[19px]",

@@ -21,8 +21,13 @@ export const COMMENT_DETAIL = {
   cardPaddingBottomDesktop: 36,
   cardPaddingXDesktop: 44,
   cardPaddingTopDesktop: 36,
-  sectionMarginTop: 40,
-  sectionMarginTopDesktop: 30,
+  sectionMarginTop: 0,
+  sectionMarginTopDesktop: 0,
+  /** 버튼 행 기준 — 본문↔버튼 / 버튼↔댓글 */
+  interactionPaddingTop: 16,
+  interactionPaddingTopDesktop: 18,
+  interactionPaddingBottom: 30,
+  interactionPaddingBottomDesktop: 30,
   formAfterTitle: 22,
   formAfterTitleDesktop: 18,
   desktopDateWidth: 100,
@@ -41,7 +46,7 @@ export const COMMENT_DETAIL_FORM_CLASS = {
 } as const;
 
 export const COMMENT_DETAIL_CLASS = {
-  section: "mt-[40px] scroll-mt-8 sm:mt-[30px]",
+  section: "scroll-mt-8",
   card: "w-full rounded-[15px] border border-[#D9D9D9] bg-white px-5 pb-[22px] pt-7 shadow-[0px_2px_4px_rgba(0,0,0,0.25)] sm:px-[44px] sm:pb-[36px] sm:pt-[36px]",
   titleRow: "flex items-end gap-1",
   title:

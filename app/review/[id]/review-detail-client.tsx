@@ -225,11 +225,13 @@ export function ReviewDetailClient({ reviewId }: { reviewId: string }) {
         onDelete={handleDelete}
       />
 
-      <InteractionButtons
-        reviewId={reviewId}
-        authorUserId={review.userId}
-        variant="circle"
-      />
+      <div className="pt-4 pb-[30px] sm:pt-[18px] sm:pb-[30px]">
+        <InteractionButtons
+          reviewId={reviewId}
+          authorUserId={review.userId}
+          variant="circle"
+        />
+      </div>
 
       <CommentSection reviewId={reviewId} variant="detail" />
     </div>
