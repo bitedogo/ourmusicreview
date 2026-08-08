@@ -110,6 +110,10 @@
   --today-album-desc-offset-top: 16px;
   --text-today-album-body-mobile: 11px;
   --today-album-description-max-height: calc(var(--today-album-card-height) - 174px);
+  /* Figma Vector 88/89 — 트랙 420 · 썸 비율 · 두께 6 */
+  --today-album-scrollbar-size: 6px;
+  --today-album-scrollbar-track: #d9d9d9;
+  --today-album-scrollbar-thumb: #505050;
   --text-today-album-empty: 14px;
 
   --hero-search-copy-gap: 48px;
@@ -216,6 +220,18 @@ input,
 textarea,
 select {
   font-family: inherit;
+}
+
+/* 오늘의 앨범 소개글 — 네이티브 스크롤바 숨김 (커스텀 바 사용) */
+.today-album-description-scroll {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.today-album-description-scroll::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 .chart-region-track {

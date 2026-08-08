@@ -3,6 +3,7 @@
 
 import { useState } from "react";
 import { ArtistNameLink } from "@/src/components/app/artist-name-link";
+import { TodayAlbumDescriptionScroll } from "@/src/components/app/today-album/today-album-description-scroll";
 import { StreamingLinkButtons } from "@/src/components/streaming/streaming-link-buttons";
 import { useStreamingLinks } from "@/src/hooks/use-streaming-links";
 import type { TodayAlbumData } from "@/src/lib/today-album/types";
@@ -42,13 +43,13 @@ export function TodayAlbumDescription({ album, resetKey }: TodayAlbumDescription
       </div>
       {description ? (
         <>
-          <p
-            className={`mt-6 max-h-[var(--today-album-description-max-height)] overflow-y-auto whitespace-pre-line break-words text-left text-[11px] font-normal leading-[170%] tracking-[0.03em] text-[#717171] sm:text-[15px] ${
-              isExpanded ? "block" : "hidden sm:block"
-            }`}
+          <div
+            className={`mt-6 ${isExpanded ? "block" : "hidden sm:block"}`}
           >
-            {description}
-          </p>
+            <TodayAlbumDescriptionScroll>
+              {description}
+            </TodayAlbumDescriptionScroll>
+          </div>
           <div className="mt-[var(--featured-card-inner-gap)] flex justify-end sm:hidden">
             <button
               type="button"
