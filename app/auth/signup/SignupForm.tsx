@@ -293,7 +293,7 @@ export function SignupForm() {
         </button>
       </form>
 
-      <p className="mt-6 text-sm text-zinc-600">
+      <p className="mt-6 text-sm text-[var(--color-text-secondary)]">
         이미 계정이 있나요?{" "}
         <Link
           className="font-medium text-[var(--color-brand-primary)] underline"

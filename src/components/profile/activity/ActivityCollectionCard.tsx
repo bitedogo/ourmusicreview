@@ -129,7 +129,7 @@ export function ActivityCollectionCard({
       <ActivityFolderShape />
 
       <p
-        className="absolute z-20 flex items-center text-[15px] font-normal leading-[145%] tracking-[-0.005em] text-black"
+        className="absolute z-20 flex items-center text-[15px] font-normal leading-[145%] tracking-[-0.005em] text-[var(--color-text-primary)]"
         style={{ left: 27, top: 215, width: 120, height: 22 }}
       >
         {title}

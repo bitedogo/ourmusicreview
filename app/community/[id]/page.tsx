@@ -1,4 +1,4 @@
-/** 커뮤니티 게시글 상세 서버 페이지 */
+/** 커�??�티 게시글 ?�세 ?�버 ?�이지 */
 
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -43,11 +43,11 @@ export default async function CommunityDetailPage({
   });
 
   const categoryName = {
-    K: "국내게시판",
-    I: "해외게시판",
-    M: "장터게시판",
-    W: "워크룸",
-    N: "공지사항",
+    K: "�?��게시??,
+    I: "?�외게시??,
+    M: "?�터게시??,
+    W: "?�크�?,
+    N: "공�??�항",
   }[post.category];
 
   const categoryPath = {
@@ -72,19 +72,18 @@ export default async function CommunityDetailPage({
       <div className="flex items-center justify-between shrink-0">
         <Link
           href={`/boards/${categoryPath}`}
-          className="text-xs text-zinc-400 hover:text-[var(--color-brand-primary)] transition-colors"
+          className="text-xs text-[var(--color-text-muted)] hover:text-[var(--color-brand-primary)] transition-colors"
         >
-          ← 목록으로 돌아가기
-        </Link>
+          ??목록?�로 ?�아가�?        </Link>
       </div>
 
       <article className="space-y-8">
         <header className="space-y-4">
-          <div className="text-xs font-medium text-zinc-400">
+          <div className="text-xs font-medium text-[var(--color-text-muted)]">
             {categoryName}
           </div>
           
-          <h1 className="text-[30px] font-bold tracking-tight text-black">
+          <h1 className="text-[30px] font-bold tracking-tight text-[#505050]">
             {noticeLabel && noticeColor && (
               <span className={`mr-2 text-[30px] font-semibold ${noticeColor}`}>
                 [{noticeLabel}]

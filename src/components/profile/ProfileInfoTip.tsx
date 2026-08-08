@@ -101,7 +101,7 @@ export function ProfileInfoTip({
             className="pointer-events-none absolute left-0 top-0 h-full w-full max-w-none select-none"
           />
 
-          <span className="relative z-10 box-border block break-keep px-[18px] pb-[18px] pt-[46px] text-left text-[14px] font-normal leading-[20px] tracking-[-0.01em] text-black">
+          <span className="relative z-10 box-border block break-keep px-[18px] pb-[18px] pt-[46px] text-left text-[14px] font-normal leading-[20px] tracking-[-0.01em] text-[var(--color-text-primary)]">
             {children}
           </span>
         </span>

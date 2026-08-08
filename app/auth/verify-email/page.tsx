@@ -62,7 +62,7 @@ function VerifyEmailForm() {
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-md flex-col justify-center px-6 py-16">
       <h1 className="mb-2 text-2xl font-semibold tracking-tight">이메일 인증</h1>
-      <p className="mb-8 text-sm text-zinc-600">
+      <p className="mb-8 text-sm text-[var(--color-text-secondary)]">
         메일로 받은 인증번호를 입력하면 가입이 완료됩니다.
       </p>
 
@@ -73,7 +73,7 @@ function VerifyEmailForm() {
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
           <label className="block space-y-1.5">
-            <span className="text-sm text-zinc-700">이메일</span>
+            <span className="text-sm text-[var(--color-text-primary)]">이메일</span>
             <input
               type="email"
               value={email}
@@ -84,7 +84,7 @@ function VerifyEmailForm() {
             />
           </label>
           <label className="block space-y-1.5">
-            <span className="text-sm text-zinc-700">인증번호</span>
+            <span className="text-sm text-[var(--color-text-primary)]">인증번호</span>
             <input
               value={code}
               onChange={(event) => setCode(normalizeOtpInput(event.target.value))}
@@ -114,14 +114,14 @@ function VerifyEmailForm() {
             type="button"
             onClick={handleResend}
             disabled={resending || !email.trim()}
-            className="w-full text-sm font-medium text-[#43A7B2] underline disabled:text-zinc-400"
+            className="w-full text-sm font-medium text-[#43A7B2] underline disabled:text-[var(--color-text-muted)]"
           >
             {resending ? "재발송 중..." : "인증번호 다시 받기"}
           </button>
         </form>
       )}
 
-      <p className="mt-6 text-sm text-zinc-600">
+      <p className="mt-6 text-sm text-[var(--color-text-secondary)]">
         <Link
           className="font-medium text-[var(--color-brand-primary)] underline"
           href="/auth/signin"
@@ -137,7 +137,7 @@ export default function VerifyEmailPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-screen items-center justify-center text-sm text-zinc-500">
+        <div className="flex min-h-screen items-center justify-center text-sm text-[var(--color-text-secondary)]">
           불러오는 중...
         </div>
       }

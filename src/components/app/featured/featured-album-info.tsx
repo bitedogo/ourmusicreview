@@ -15,16 +15,16 @@ export function FeaturedAlbumInfo({ album }: FeaturedAlbumInfoProps) {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col justify-center overflow-hidden px-[var(--featured-card-padding)] py-1.5">
-      <h3 className="truncate text-left text-[16px] font-bold leading-[145%] tracking-[-0.005em] text-[#464646]">
+      <h3 className="truncate text-left text-[16px] font-bold leading-[145%] tracking-[-0.005em] text-[#505050]">
         {album.title}
       </h3>
 
       <ArtistNameLink
         name={album.artist}
-        className="mt-0.5 truncate text-left text-[11px] font-bold leading-[145%] tracking-[-0.005em] text-[#939393] transition hover:text-[#43A7B2] hover:underline disabled:cursor-wait disabled:no-underline"
+        className="mt-0.5 truncate text-left text-[11px] font-bold leading-[145%] tracking-[-0.005em] text-[#949494] transition hover:text-[#43A7B2] hover:underline disabled:cursor-wait disabled:no-underline"
       />
 
-      <div className="mt-1 flex items-center justify-between gap-[var(--featured-card-inner-gap)] text-[10px] font-bold leading-[145%] tracking-[-0.005em] text-[#939393]">
+      <div className="mt-1 flex items-center justify-between gap-[var(--featured-card-inner-gap)] text-[10px] font-bold leading-[145%] tracking-[-0.005em] text-[#949494]">
         <span className="min-w-0 truncate">{album.genre || ""}</span>
         {releaseYear ? (
           <span className="shrink-0 text-right">{releaseYear}</span>

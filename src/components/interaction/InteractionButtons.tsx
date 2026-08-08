@@ -159,7 +159,7 @@ export function InteractionButtons({
         className={`flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-xs font-bold transition ${
           likeInfo.liked
             ? "border-red-500 bg-red-50 text-red-500"
-            : "border-zinc-200 bg-white text-zinc-600 hover:border-zinc-300"
+            : "border-zinc-200 bg-white text-[var(--color-text-secondary)] hover:border-zinc-300"
         }`}
       >
         <span>{likeInfo.liked ? "❤️" : "♡"}</span>
@@ -169,7 +169,7 @@ export function InteractionButtons({
       {!isNotice && !isOwnContent && (
         <button
           onClick={handleOpenReportModal}
-          className="flex items-center gap-1.5 rounded-full border border-zinc-200 bg-white px-4 py-1.5 text-xs font-bold text-zinc-400 transition hover:border-red-200 hover:text-red-400"
+          className="flex items-center gap-1.5 rounded-full border border-zinc-200 bg-white px-4 py-1.5 text-xs font-bold text-[var(--color-text-muted)] transition hover:border-red-200 hover:text-red-400"
         >
           🚨 신고
         </button>

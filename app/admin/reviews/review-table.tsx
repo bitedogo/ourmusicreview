@@ -19,7 +19,7 @@ export function ReviewTable({ reviews, processingIds, onView, onApprove, onRejec
       <div className="overflow-x-auto">
         <table className="min-w-full border-collapse text-xs">
           <thead>
-            <tr className="bg-zinc-50 text-[11px] font-semibold text-zinc-500">
+            <tr className="bg-zinc-50 text-[11px] font-semibold text-[var(--color-text-secondary)]">
               <th className="px-3 py-2 text-left">앨범</th>
               <th className="px-3 py-2 text-left">작성자</th>
               <th className="px-3 py-2 text-center">평점</th>
@@ -35,36 +35,36 @@ export function ReviewTable({ reviews, processingIds, onView, onApprove, onRejec
                 <tr key={review.id} className="hover:bg-zinc-50">
                   <td className="max-w-[220px] px-3 py-2 align-middle">
                     <div className="flex flex-col gap-0.5">
-                      <span className="truncate text-xs font-semibold text-zinc-900">
+                      <span className="truncate text-xs font-semibold text-[var(--color-text-primary)]">
                         {review.album.title}
                       </span>
-                      <span className="truncate text-[11px] text-zinc-500">
+                      <span className="truncate text-[11px] text-[var(--color-text-secondary)]">
                         <ArtistNameLink
                           name={review.album.artist}
-                          className="max-w-full truncate text-left text-[11px] text-zinc-500 transition hover:text-[var(--color-brand-primary)] hover:underline disabled:cursor-wait disabled:no-underline"
+                          className="max-w-full truncate text-left text-[11px] text-[var(--color-text-secondary)] transition hover:text-[var(--color-brand-primary)] hover:underline disabled:cursor-wait disabled:no-underline"
                         />
                       </span>
                     </div>
                   </td>
                   <td className="px-3 py-2 align-middle">
                     <div className="flex flex-col items-start gap-0.5">
-                      <span className="text-xs font-semibold text-zinc-900">
+                      <span className="text-xs font-semibold text-[var(--color-text-primary)]">
                         {review.user.nickname}
                       </span>
-                      <span className="text-[10px] text-zinc-500">
+                      <span className="text-[10px] text-[var(--color-text-secondary)]">
                         {review.user.id}
                       </span>
                     </div>
                   </td>
                   <td className="px-3 py-2 text-center align-middle">
                     <span
-                      className={`text-xs font-bold ${review.rating >= 9 ? "text-red-600" : "text-zinc-900"}`}
+                      className={`text-xs font-bold ${review.rating >= 9 ? "text-red-600" : "text-[var(--color-text-primary)]"}`}
                     >
                       {review.rating.toFixed(1)}
                     </span>
                   </td>
                   <td className="px-3 py-2 text-left align-middle">
-                    <span className="text-[11px] text-zinc-500">
+                    <span className="text-[11px] text-[var(--color-text-secondary)]">
                       {formatReviewDate(review.createdAt)}
                     </span>
                   </td>
@@ -72,7 +72,7 @@ export function ReviewTable({ reviews, processingIds, onView, onApprove, onRejec
                     <button
                       type="button"
                       onClick={() => onView(review)}
-                      className="text-[11px] font-medium text-zinc-700 underline underline-offset-2 hover:text-[var(--color-brand-primary)]"
+                      className="text-[11px] font-medium text-[var(--color-text-primary)] underline underline-offset-2 hover:text-[var(--color-brand-primary)]"
                     >
                       보기
                     </button>
@@ -88,7 +88,7 @@ export function ReviewTable({ reviews, processingIds, onView, onApprove, onRejec
                         e.target.value = "";
                       }}
                       disabled={isProcessing}
-                      className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-[11px] font-medium text-zinc-700 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-[11px] font-medium text-[var(--color-text-primary)] disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       <option value="">처리 선택</option>
                       <option value="approve">승인</option>

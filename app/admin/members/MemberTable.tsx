@@ -44,7 +44,7 @@ export function MemberTable({
       <div className="overflow-x-auto">
         <table className="min-w-full border-collapse text-left text-xs">
           <thead>
-            <tr className="border-b border-zinc-200 bg-zinc-50 text-[11px] font-semibold text-zinc-500">
+            <tr className="border-b border-zinc-200 bg-zinc-50 text-[11px] font-semibold text-[var(--color-text-secondary)]">
               {COLUMNS.map((col) => {
                 const isActive = sortColumn === col;
                 const isCreatedAt = col === "createdAt";
@@ -100,7 +100,7 @@ export function MemberTable({
                           className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold ${
                             isSelected
                               ? "bg-white/20 text-white"
-                              : "bg-zinc-200 text-zinc-600"
+                              : "bg-zinc-200 text-[var(--color-text-secondary)]"
                           }`}
                         >
                           {member.nickname?.charAt(0)?.toUpperCase() ?? "?"}
@@ -112,7 +112,7 @@ export function MemberTable({
                           {isCurrentUser && (
                             <span
                               className={
-                                isSelected ? "text-white/80" : "text-zinc-400"
+                                isSelected ? "text-white/80" : "text-[var(--color-text-muted)]"
                               }
                             >
                               {" "}
@@ -126,10 +126,10 @@ export function MemberTable({
                   <td className="whitespace-nowrap px-4 py-3">
                     {member.role === "ADMIN" ? "관리자" : "일반"}
                   </td>
-                  <td className="hidden whitespace-nowrap px-4 py-3 text-zinc-500 sm:table-cell">
+                  <td className="hidden whitespace-nowrap px-4 py-3 text-[var(--color-text-secondary)] sm:table-cell">
                     {formatMemberDate(member.createdAt)}
                   </td>
-                  <td className="max-w-[120px] truncate whitespace-nowrap px-4 py-3 text-zinc-500 sm:max-w-[180px]">
+                  <td className="max-w-[120px] truncate whitespace-nowrap px-4 py-3 text-[var(--color-text-secondary)] sm:max-w-[180px]">
                     {member.email}
                   </td>
                 </tr>

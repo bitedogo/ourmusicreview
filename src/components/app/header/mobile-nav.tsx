@@ -22,7 +22,7 @@ export function MobileNav({ isAdmin, onNavigate }: MobileNavProps) {
               <Link
                 href={href}
                 onClick={onNavigate}
-                className="block rounded-lg px-3 py-3 text-base font-medium text-zinc-800 transition-colors hover:bg-zinc-50 hover:text-[var(--color-accent)]"
+                className="block rounded-lg px-3 py-3 text-base font-medium text-[var(--color-text-primary)] transition-colors hover:bg-zinc-50 hover:text-[var(--color-accent)]"
               >
                 {label}
               </Link>
@@ -31,7 +31,7 @@ export function MobileNav({ isAdmin, onNavigate }: MobileNavProps) {
           {isAdmin && (
             <>
               <li className="mt-2 border-t border-zinc-100 pt-2">
-                <span className="block px-3 py-1.5 text-sm font-bold uppercase tracking-wider text-zinc-400">
+                <span className="block px-3 py-1.5 text-sm font-bold uppercase tracking-wider text-[var(--color-text-muted)]">
                   관리자
                 </span>
               </li>
@@ -40,7 +40,7 @@ export function MobileNav({ isAdmin, onNavigate }: MobileNavProps) {
                   <Link
                     href={href}
                     onClick={onNavigate}
-                    className="block rounded-lg px-3 py-3 text-base font-medium text-zinc-800 transition-colors hover:bg-zinc-50 hover:text-[var(--color-accent)]"
+                    className="block rounded-lg px-3 py-3 text-base font-medium text-[var(--color-text-primary)] transition-colors hover:bg-zinc-50 hover:text-[var(--color-accent)]"
                   >
                     {label}
                   </Link>

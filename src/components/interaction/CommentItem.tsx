@@ -1,5 +1,5 @@
-﻿"use client";
-/** 댓글 한 줄 (default / detail) */
+"use client";
+/** ��� �� �� (default / detail) */
 
 import { useState } from "react";
 import Link from "next/link";
@@ -12,7 +12,7 @@ import { useCommentEdit } from "@/src/hooks/use-comment-edit";
 import { ensureLoggedIn } from "@/src/lib/interaction/require-login";
 
 const DEFAULT_ACTION_CLASS =
-  "shrink-0 text-[12px] font-normal leading-[14px] text-[#D9D9D9] transition hover:text-zinc-500";
+  "shrink-0 text-[12px] font-normal leading-[14px] text-[#D9D9D9] transition hover:text-[var(--color-text-secondary)]";
 
 interface CommentItemProps {
   comment: CommentItemData;
@@ -132,7 +132,7 @@ function DefaultCommentItem({
       <span className="inline-flex items-center gap-[7px]">
         {isOwner ? (
           <button type="button" onClick={startEdit} className={DEFAULT_ACTION_CLASS}>
-            수정
+            ����
           </button>
         ) : null}
         {canDelete ? (
@@ -141,7 +141,7 @@ function DefaultCommentItem({
             onClick={() => onDelete(comment.id)}
             className={DEFAULT_ACTION_CLASS}
           >
-            삭제
+            ����
           </button>
         ) : null}
       </span>
@@ -177,7 +177,7 @@ function DefaultCommentItem({
           <div className="flex flex-wrap items-center gap-2">
             <Link
               href={getUserProfilePath(comment.user.id)}
-              className="text-xs font-bold text-zinc-900 hover:underline"
+              className="text-xs font-bold text-[var(--color-text-primary)] hover:underline"
             >
               {comment.user.nickname}
             </Link>
@@ -197,38 +197,38 @@ function DefaultCommentItem({
               />
               <div className="flex justify-end gap-2">
                 <button type="button" onClick={cancelEdit} className={DEFAULT_ACTION_CLASS}>
-                  취소
+                  ���
                 </button>
                 <button
                   type="button"
                   onClick={saveEdit}
                   disabled={isSaving || !draft.trim()}
-                  className="text-[12px] font-normal leading-[14px] text-black transition hover:opacity-70 disabled:opacity-40"
+                  className="text-[12px] font-normal leading-[14px] text-[#505050] transition hover:opacity-70 disabled:opacity-40"
                 >
-                  {isSaving ? "저장 중..." : "저장"}
+                  {isSaving ? "���� ��..." : "����"}
                 </button>
               </div>
             </div>
           ) : (
             <>
-              <p className="whitespace-pre-wrap text-sm leading-relaxed text-zinc-700">
+              <p className="whitespace-pre-wrap text-sm leading-relaxed text-[var(--color-text-primary)]">
                 {comment.content}
               </p>
-              <div className="flex items-center gap-3 pt-1 text-xs text-zinc-500">
+              <div className="flex items-center gap-3 pt-1 text-xs text-[var(--color-text-secondary)]">
                 <button
                   type="button"
                   onClick={handleLikeClick}
-                  className={`transition hover:text-zinc-700 ${comment.liked ? "text-[#ED4956]" : ""}`}
+                  className={`transition hover:text-[var(--color-text-primary)] ${comment.liked ? "text-[#ED4956]" : ""}`}
                 >
-                  {comment.liked ? "♥" : "♡"} {comment.likeCount}
+                  {comment.liked ? "��" : "��"} {comment.likeCount}
                 </button>
                 {canReply ? (
                   <button
                     type="button"
                     onClick={handleReplyClick}
-                    className="transition hover:text-zinc-700"
+                    className="transition hover:text-[var(--color-text-primary)]"
                   >
-                    답글 {comment.replyCount}
+                    ��� {comment.replyCount}
                   </button>
                 ) : null}
               </div>

@@ -39,7 +39,7 @@ export function AlbumFormModal({
         className="w-full max-w-lg rounded-2xl border border-zinc-200 bg-white p-6 shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
+        <h2 className="text-lg font-semibold tracking-tight text-[var(--color-text-primary)]">
           {editingDate ? "오늘의 앨범 수정" : "오늘의 앨범 등록"}
         </h2>
         <form onSubmit={onSubmit} className="mt-6 space-y-4">
@@ -49,7 +49,7 @@ export function AlbumFormModal({
             variant="embedded"
           />
           <div>
-            <label className="mb-1 block text-xs font-semibold text-zinc-600">
+            <label className="mb-1 block text-xs font-semibold text-[var(--color-text-secondary)]">
               노출 날짜
             </label>
             <input
@@ -60,7 +60,7 @@ export function AlbumFormModal({
               }
               required
               disabled={!!editingDate}
-              className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm text-zinc-900 disabled:bg-zinc-100 disabled:text-zinc-500"
+              className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm text-[var(--color-text-primary)] disabled:bg-zinc-100 disabled:text-[var(--color-text-secondary)]"
             />
             {!editingDate && takenDates.includes(form.displayDate) && (
               <p className="mt-1 text-xs text-amber-600">
@@ -69,7 +69,7 @@ export function AlbumFormModal({
             )}
           </div>
           <div>
-            <label className="mb-1 block text-xs font-semibold text-zinc-600">
+            <label className="mb-1 block text-xs font-semibold text-[var(--color-text-secondary)]">
               제목
             </label>
             <input
@@ -80,11 +80,11 @@ export function AlbumFormModal({
               }
               required
               placeholder="앨범 제목"
-              className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm text-zinc-900 outline-none placeholder:text-zinc-400 focus:border-zinc-400 focus:ring-2 focus:ring-zinc-200"
+              className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm text-[var(--color-text-primary)] outline-none placeholder:text-[var(--color-text-muted)] focus:border-zinc-400 focus:ring-2 focus:ring-zinc-200"
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-semibold text-zinc-600">
+            <label className="mb-1 block text-xs font-semibold text-[var(--color-text-secondary)]">
               아티스트
             </label>
             <input
@@ -95,12 +95,12 @@ export function AlbumFormModal({
               }
               required
               placeholder="아티스트명"
-              className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm text-zinc-900 outline-none placeholder:text-zinc-400 focus:border-zinc-400 focus:ring-2 focus:ring-zinc-200"
+              className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm text-[var(--color-text-primary)] outline-none placeholder:text-[var(--color-text-muted)] focus:border-zinc-400 focus:ring-2 focus:ring-zinc-200"
             />
           </div>
           {form.imageUrl && (
             <div>
-              <label className="mb-1 block text-xs font-semibold text-zinc-600">
+              <label className="mb-1 block text-xs font-semibold text-[var(--color-text-secondary)]">
                 앨범 커버
               </label>
               <div className="flex items-center gap-3 rounded-lg border border-zinc-200 bg-zinc-50 p-3">
@@ -112,14 +112,14 @@ export function AlbumFormModal({
                   unoptimized
                   className="h-16 w-16 shrink-0 rounded object-cover"
                 />
-                <p className="text-xs text-zinc-600">
+                <p className="text-xs text-[var(--color-text-secondary)]">
                   선택된 앨범의 커버 이미지입니다.
                 </p>
               </div>
             </div>
           )}
           <div>
-            <label className="mb-1 block text-xs font-semibold text-zinc-600">
+            <label className="mb-1 block text-xs font-semibold text-[var(--color-text-secondary)]">
               추천평
             </label>
             <textarea
@@ -129,14 +129,14 @@ export function AlbumFormModal({
               }
               rows={4}
               placeholder="관리자 추천 한마디"
-              className="w-full resize-none rounded-lg border border-zinc-200 px-3 py-2 text-sm text-zinc-900 outline-none placeholder:text-zinc-400 focus:border-zinc-400 focus:ring-2 focus:ring-zinc-200"
+              className="w-full resize-none rounded-lg border border-zinc-200 px-3 py-2 text-sm text-[var(--color-text-primary)] outline-none placeholder:text-[var(--color-text-muted)] focus:border-zinc-400 focus:ring-2 focus:ring-zinc-200"
             />
           </div>
           <div className="flex justify-end gap-2 pt-4">
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg border border-zinc-200 bg-white px-4 py-2 text-xs font-semibold text-zinc-700 hover:bg-zinc-50"
+              className="rounded-lg border border-zinc-200 bg-white px-4 py-2 text-xs font-semibold text-[var(--color-text-primary)] hover:bg-zinc-50"
             >
               취소
             </button>

@@ -124,7 +124,7 @@ export function PostContentClient({
         commentCount={initialCommentCount}
       />
 
-      <section className="text-[15px] leading-relaxed text-zinc-800">
+      <section className="text-[15px] leading-relaxed text-[var(--color-text-primary)]">
         <HtmlRenderer html={content} />
       </section>
 
@@ -132,13 +132,13 @@ export function PostContentClient({
         <div className="flex justify-end gap-3 pt-4 border-t border-zinc-50">
           <button
             onClick={() => router.push(communityEdit(postId))}
-            className="text-xs font-medium text-zinc-400 hover:text-[var(--color-brand-primary)] transition-colors"
+            className="text-xs font-medium text-[var(--color-text-muted)] hover:text-[var(--color-brand-primary)] transition-colors"
           >
             수정
           </button>
           <button
             onClick={handleDelete}
-            className="text-xs font-medium text-zinc-400 hover:text-[var(--color-brand-primary)] transition-colors"
+            className="text-xs font-medium text-[var(--color-text-muted)] hover:text-[var(--color-brand-primary)] transition-colors"
           >
             삭제
           </button>

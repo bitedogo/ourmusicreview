@@ -18,7 +18,7 @@ export function ArtistSearchSuggestions({
   onSelect,
 }: ArtistSearchSuggestionsProps) {
   if (isLoading) {
-    return <li className="px-4 py-3 text-sm text-zinc-500">검색 중...</li>;
+    return <li className="px-4 py-3 text-sm text-[var(--color-text-secondary)]">검색 중...</li>;
   }
 
   return (
@@ -44,9 +44,9 @@ export function ArtistSearchSuggestions({
               className="h-10 w-10 shrink-0 rounded-lg bg-zinc-200 object-cover"
             />
             <div className="min-w-0 flex-1 text-left">
-              <div className="truncate text-sm font-medium text-black">{artist.artistName}</div>
+              <div className="truncate text-sm font-medium text-[var(--color-text-primary)]">{artist.artistName}</div>
               {artist.primaryGenreName && (
-                <div className="truncate text-xs text-zinc-400">{artist.primaryGenreName}</div>
+                <div className="truncate text-xs text-[var(--color-text-muted)]">{artist.primaryGenreName}</div>
               )}
             </div>
           </button>

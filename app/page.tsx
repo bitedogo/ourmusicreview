@@ -29,7 +29,7 @@ const MusicChart = dynamic(() => import("@/src/components/app/MusicChart"), {
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-white text-zinc-900">
+    <div className="min-h-screen bg-white text-[var(--color-text-primary)]">
       <ContentContainer className={`mx-auto w-full pb-8 sm:pb-10 ${PAGE_PADDING_X}`}>
         <HomeHeroSticky />
         <HomeHeroCopy className="mt-[var(--hero-search-copy-gap)]" />

@@ -92,7 +92,7 @@ export default function RootLayout({
       className={`${pretendard.variable} ${pretendard.className}`}
       suppressHydrationWarning
     >
-      <body className="font-sans flex min-h-screen flex-col antialiased overflow-x-clip bg-white text-zinc-900">
+      <body className="font-sans flex min-h-screen flex-col antialiased overflow-x-clip bg-white text-[var(--color-text-primary)]">
         <Providers>
           <ConditionalAppHeader />
           <main className="flex flex-1 flex-col bg-white">{children}</main>

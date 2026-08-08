@@ -58,20 +58,20 @@ export function AlbumDetailModal({
             >
               <Dialog.Panel className="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-white p-5 text-left shadow-xl transition-all sm:p-6">
                 <div className="flex items-start justify-between gap-3">
-                  <Dialog.Title className="text-lg font-semibold text-zinc-900">
+                  <Dialog.Title className="text-lg font-semibold text-[var(--color-text-primary)]">
                     앨범 상세 정보
                   </Dialog.Title>
                   <button
                     type="button"
                     onClick={onClose}
-                    className="rounded-full px-2 py-1 text-sm text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-800"
+                    className="rounded-full px-2 py-1 text-sm text-[var(--color-text-secondary)] transition hover:bg-zinc-100 hover:text-[var(--color-text-primary)]"
                   >
                     닫기
                   </button>
                 </div>
 
                 {isLoading ? (
-                  <p className="mt-8 text-center text-sm text-zinc-500">앨범 정보를 불러오는 중...</p>
+                  <p className="mt-8 text-center text-sm text-[var(--color-text-secondary)]">앨범 정보를 불러오는 중...</p>
                 ) : error ? (
                   <p className="mt-8 text-center text-sm text-red-600">{error}</p>
                 ) : album ? (
@@ -88,24 +88,24 @@ export function AlbumDetailModal({
                             className="object-cover"
                           />
                         ) : (
-                          <div className="flex h-full w-full items-center justify-center text-xs text-zinc-400">
+                          <div className="flex h-full w-full items-center justify-center text-xs text-[var(--color-text-muted)]">
                             No Image
                           </div>
                         )}
                       </div>
                       <div className="min-w-0 flex-1 pt-0.5">
-                        <p className="text-lg font-bold leading-snug text-zinc-900 sm:text-xl">
+                        <p className="text-lg font-bold leading-snug text-[var(--color-text-primary)] sm:text-xl">
                           {album.name}
                         </p>
-                        <p className="mt-1 text-sm text-zinc-600 sm:text-base">
+                        <p className="mt-1 text-sm text-[var(--color-text-secondary)] sm:text-base">
                           <ArtistNamesLinks
                             artists={album.artists}
-                            linkClassName="truncate text-left text-sm text-zinc-600 transition hover:text-[var(--color-brand-primary)] hover:underline disabled:cursor-wait disabled:no-underline sm:text-base"
+                            linkClassName="truncate text-left text-sm text-[var(--color-text-secondary)] transition hover:text-[var(--color-brand-primary)] hover:underline disabled:cursor-wait disabled:no-underline sm:text-base"
                           />
                         </p>
-                        <dl className="mt-4 grid grid-cols-1 gap-1.5 text-sm text-zinc-500">
+                        <dl className="mt-4 grid grid-cols-1 gap-1.5 text-sm text-[var(--color-text-secondary)]">
                           <div>
-                            <dt className="inline text-zinc-400">발매일: </dt>
+                            <dt className="inline text-[var(--color-text-muted)]">발매일: </dt>
                             <dd className="inline">
                               {formatAlbumReleaseDate(
                                 album.releaseDate,
@@ -114,7 +114,7 @@ export function AlbumDetailModal({
                             </dd>
                           </div>
                           <div>
-                            <dt className="inline text-zinc-400">장르: </dt>
+                            <dt className="inline text-[var(--color-text-muted)]">장르: </dt>
                             <dd className="inline">{album.genre || "-"}</dd>
                           </div>
                         </dl>

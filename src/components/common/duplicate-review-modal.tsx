@@ -15,8 +15,8 @@ export function DuplicateReviewModal({ onClose }: DuplicateReviewModalProps) {
         className="w-full max-w-sm rounded-2xl bg-white p-5 shadow-xl"
         onClick={(event) => event.stopPropagation()}
       >
-        <h3 className="text-base font-semibold text-zinc-900">리뷰 작성 불가</h3>
-        <p className="mt-2 text-sm text-zinc-600">
+        <h3 className="text-base font-semibold text-[var(--color-text-primary)]">리뷰 작성 불가</h3>
+        <p className="mt-2 text-sm text-[var(--color-text-secondary)]">
           동일한 앨범에는 리뷰를 1개만 작성할 수 있습니다.
         </p>
         <div className="mt-5 flex justify-end">

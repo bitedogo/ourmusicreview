@@ -141,7 +141,7 @@ export function ReportManagementClient() {
     return (
       <div className="mx-auto flex min-h-screen w-full max-w-4xl flex-col gap-6 px-6 py-10 sm:px-16">
         <div className="flex items-center justify-center py-12">
-          <div className="text-sm text-zinc-500">신고 목록을 불러오는 중...</div>
+          <div className="text-sm text-[var(--color-text-secondary)]">신고 목록을 불러오는 중...</div>
         </div>
       </div>
     );
@@ -155,7 +155,7 @@ export function ReportManagementClient() {
         </div>
         <button
           onClick={() => router.back()}
-          className="rounded-full border border-zinc-200 bg-white px-4 py-2 text-xs font-semibold text-zinc-700 hover:bg-zinc-50"
+          className="rounded-full border border-zinc-200 bg-white px-4 py-2 text-xs font-semibold text-[var(--color-text-primary)] hover:bg-zinc-50"
         >
           뒤로 가기
         </button>
@@ -170,7 +170,7 @@ export function ReportManagementClient() {
       </section>
 
       {reports.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 px-4 py-8 text-center text-sm text-zinc-500">
+        <div className="rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 px-4 py-8 text-center text-sm text-[var(--color-text-secondary)]">
           처리 대기 중인 신고가 없습니다.
         </div>
       ) : (
@@ -178,7 +178,7 @@ export function ReportManagementClient() {
           <div className="overflow-x-auto">
             <table className="min-w-full border-collapse text-xs">
               <thead>
-                <tr className="bg-zinc-50 text-[11px] font-semibold text-zinc-500">
+                <tr className="bg-zinc-50 text-[11px] font-semibold text-[var(--color-text-secondary)]">
                   <th className="px-3 py-2 text-left">신고 대상</th>
                   <th className="px-3 py-2 text-left">신고 사유</th>
                   <th className="px-3 py-2 text-left">신고자</th>
@@ -201,22 +201,22 @@ export function ReportManagementClient() {
                       className="hover:bg-zinc-50"
                     >
                       <td className="max-w-[220px] px-3 py-2 align-middle">
-                        <span className="text-xs font-semibold text-zinc-900">
+                        <span className="text-xs font-semibold text-[var(--color-text-primary)]">
                           {targetNickname ?? "알 수 없음"}
                         </span>
                       </td>
                       <td className="max-w-[200px] px-3 py-2 align-middle">
-                        <span className="block truncate text-xs text-zinc-700">
+                        <span className="block truncate text-xs text-[var(--color-text-primary)]">
                           {((report.reason?.split("\n")[0] ?? report.reason) || "-").trim()}
                         </span>
                       </td>
                       <td className="px-3 py-2 align-middle">
-                        <span className="text-xs font-semibold text-zinc-900">
+                        <span className="text-xs font-semibold text-[var(--color-text-primary)]">
                           {report.reporter?.nickname ?? "알 수 없음"}
                         </span>
                       </td>
                       <td className="px-3 py-2 text-left align-middle">
-                        <span className="text-[11px] text-zinc-500">
+                        <span className="text-[11px] text-[var(--color-text-secondary)]">
                           {formatDate(report.createdAt)}
                         </span>
                       </td>
@@ -226,7 +226,7 @@ export function ReportManagementClient() {
                             href={`/community/${report.post!.id}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-[11px] font-medium text-zinc-700 underline underline-offset-2 hover:text-[var(--color-brand-primary)]"
+                            className="text-[11px] font-medium text-[var(--color-text-primary)] underline underline-offset-2 hover:text-[var(--color-brand-primary)]"
                           >
                             보기
                           </Link>
@@ -236,13 +236,13 @@ export function ReportManagementClient() {
                             href={`/review/${report.review.id}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-[11px] font-medium text-zinc-700 underline underline-offset-2 hover:text-[var(--color-brand-primary)]"
+                            className="text-[11px] font-medium text-[var(--color-text-primary)] underline underline-offset-2 hover:text-[var(--color-brand-primary)]"
                           >
                             보기
                           </Link>
                         )}
                         {!report.post && !report.review && (
-                          <span className="text-[11px] text-zinc-400">삭제됨</span>
+                          <span className="text-[11px] text-[var(--color-text-muted)]">삭제됨</span>
                         )}
                       </td>
                       <td className="px-3 py-2 text-left align-middle">
@@ -257,7 +257,7 @@ export function ReportManagementClient() {
                             e.target.value = "";
                           }}
                           disabled={isProcessing}
-                          className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-[11px] font-medium text-zinc-700 disabled:cursor-not-allowed disabled:opacity-50"
+                          className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-[11px] font-medium text-[var(--color-text-primary)] disabled:cursor-not-allowed disabled:opacity-50"
                         >
                           <option value="">처리 선택</option>
                           <option value="dismiss">무시</option>

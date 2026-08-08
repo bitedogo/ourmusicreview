@@ -43,7 +43,7 @@ export function ProfileMasterpieceSection({
     <section className={`${PROFILE_SECTION_CARD} pb-10 pt-10 ${PROFILE_SECTION_INSET}`}>
       <ProfileSectionHeader title="나의 Masterpiece" />
       {isLoadingMasterpieces ? (
-        <p className="py-16 text-center text-sm text-zinc-500">불러오는 중...</p>
+        <p className="py-16 text-center text-sm text-[var(--color-text-secondary)]">불러오는 중...</p>
       ) : (
         <div className={PROFILE_CLUSTER_BAND_CLASS}>
           <MasterpiecesReadOnlyGrid albums={visibleMasterpieces} />

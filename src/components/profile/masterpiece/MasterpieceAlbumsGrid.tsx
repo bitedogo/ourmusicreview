@@ -61,7 +61,7 @@ export function MasterpieceAlbumsGrid({
       {error && <p className="mb-3 text-xs text-red-600">{error}</p>}
 
       {isLoading ? (
-        <p className="py-16 text-center text-sm text-zinc-500">불러오는 중...</p>
+        <p className="py-16 text-center text-sm text-[var(--color-text-secondary)]">불러오는 중...</p>
       ) : isEmpty && canAdd ? (
         <div className="flex justify-center">
           <div className={MASTERPIECE_GRID_COL_WIDTH}>

@@ -253,8 +253,8 @@ export function CommentSection({
   return (
     <section className="mt-10 space-y-6">
       <div className="flex items-center gap-2 border-b border-zinc-100 pb-3">
-        <h3 className="text-sm font-bold text-zinc-900">댓글</h3>
-        <span className="text-xs text-zinc-400">{commentCountLabel}</span>
+        <h3 className="text-sm font-bold text-[var(--color-text-primary)]">댓글</h3>
+        <span className="text-xs text-[var(--color-text-muted)]">{commentCountLabel}</span>
       </div>
 
       <CommentList {...listProps} />

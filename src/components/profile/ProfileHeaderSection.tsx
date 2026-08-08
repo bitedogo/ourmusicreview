@@ -226,8 +226,8 @@ function ProfileRatingPanel({
         <span
           className={
             isMobile
-              ? "text-[12px] font-extralight leading-[15px] text-[#8F8F8F]"
-              : "text-[15px] font-extralight leading-[18px] text-[#8F8F8F]"
+              ? "text-[12px] font-extralight leading-[15px] text-[#949494]"
+              : "text-[15px] font-extralight leading-[18px] text-[#949494]"
           }
         >
           Born Hater
@@ -235,8 +235,8 @@ function ProfileRatingPanel({
         <span
           className={
             isMobile
-              ? "text-[12px] font-extralight leading-[15px] text-[#8F8F8F]"
-              : "text-[15px] font-extralight leading-[18px] text-[#8F8F8F]"
+              ? "text-[12px] font-extralight leading-[15px] text-[#949494]"
+              : "text-[15px] font-extralight leading-[18px] text-[#949494]"
           }
         >
           Sound Lover

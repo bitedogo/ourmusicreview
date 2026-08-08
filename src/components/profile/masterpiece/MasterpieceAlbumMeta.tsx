@@ -24,20 +24,20 @@ export function MasterpieceAlbumMeta({
 }: MasterpieceAlbumMetaProps) {
   return (
     <div className="flex min-h-0 flex-col gap-0.5 px-2 pb-2 pt-1.5">
-      <p className="truncate text-[10px] font-bold leading-snug tracking-[-0.005em] text-[#464646] lg:text-[11px]">
+      <p className="truncate text-[10px] font-bold leading-snug tracking-[-0.005em] text-[#505050] lg:text-[11px]">
         {title}
       </p>
       {linkArtist ? (
         <ArtistNameLink
           name={artist}
-          className="truncate text-left text-[8px] font-bold leading-snug tracking-[-0.005em] text-[#939393] transition hover:text-[#43A7B2] hover:underline disabled:cursor-wait disabled:no-underline lg:text-[9px]"
+          className="truncate text-left text-[8px] font-bold leading-snug tracking-[-0.005em] text-[#949494] transition hover:text-[#43A7B2] hover:underline disabled:cursor-wait disabled:no-underline lg:text-[9px]"
         />
       ) : (
-        <p className="truncate text-[8px] font-bold leading-snug tracking-[-0.005em] text-[#939393] lg:text-[9px]">
+        <p className="truncate text-[8px] font-bold leading-snug tracking-[-0.005em] text-[#949494] lg:text-[9px]">
           {artist}
         </p>
       )}
-      <div className="flex items-start justify-between gap-1 text-[7px] font-bold leading-snug tracking-[-0.005em] text-[#939393] lg:text-[8px]">
+      <div className="flex items-start justify-between gap-1 text-[7px] font-bold leading-snug tracking-[-0.005em] text-[#949494] lg:text-[8px]">
         <span className="min-w-0 break-words">{genre}</span>
         <span className="shrink-0">{year}</span>
       </div>

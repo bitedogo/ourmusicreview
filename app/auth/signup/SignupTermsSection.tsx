@@ -6,7 +6,7 @@ import dynamic from "next/dynamic";
 const TermsContent = dynamic(
   () => import("@/src/components/app/TermsContent").then((module) => module.TermsContent),
   {
-    loading: () => <p className="text-xs text-zinc-500">약관을 불러오는 중...</p>,
+    loading: () => <p className="text-xs text-[var(--color-text-secondary)]">약관을 불러오는 중...</p>,
   }
 );
 
@@ -18,7 +18,7 @@ interface SignupTermsSectionProps {
 export function SignupTermsSection({ agreed, onAgreedChange }: SignupTermsSectionProps) {
   return (
     <div className="space-y-3">
-      <h2 className="text-sm font-medium text-zinc-900"><span className="text-red-600">*</span> 이용약관</h2>
+      <h2 className="text-sm font-medium text-[var(--color-text-primary)]"><span className="text-red-600">*</span> 이용약관</h2>
       <div className="max-h-64 overflow-y-auto rounded border border-zinc-200 bg-zinc-50 p-4">
         <TermsContent />
       </div>
@@ -29,7 +29,7 @@ export function SignupTermsSection({ agreed, onAgreedChange }: SignupTermsSectio
           onChange={(e) => onAgreedChange(e.target.checked)}
           className="h-4 w-4 rounded border-zinc-300"
         />
-        <span className="text-sm font-medium text-zinc-900">
+        <span className="text-sm font-medium text-[var(--color-text-primary)]">
           이용약관에 동의합니다
         </span>
       </label>

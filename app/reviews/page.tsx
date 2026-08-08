@@ -16,7 +16,7 @@ export default function ReviewsPage() {
             <section>
               <h1 className={REVIEW_PAGE_TITLE_CLASS}>앨범 리뷰</h1>
             </section>
-            <div className="mt-5 py-12 text-center text-sm text-zinc-500">
+            <div className="mt-5 py-12 text-center text-sm text-[var(--color-text-secondary)]">
               리뷰를 불러오는 중...
             </div>
           </div>

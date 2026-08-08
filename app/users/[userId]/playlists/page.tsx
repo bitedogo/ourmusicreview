@@ -47,7 +47,7 @@ export default function UserPlaylistsPage() {
         <button
           type="button"
           onClick={() => router.push(`/users/${encodeURIComponent(userId)}`)}
-          className="mb-4 flex w-fit items-center gap-2 text-sm text-zinc-600 hover:text-[var(--color-brand-primary)]"
+          className="mb-4 flex w-fit items-center gap-2 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-brand-primary)]"
         >
           프로필로
         </button>
@@ -55,7 +55,7 @@ export default function UserPlaylistsPage() {
       </section>
 
       {isLoading ? (
-        <div className="py-12 text-center text-sm text-zinc-500">
+        <div className="py-12 text-center text-sm text-[var(--color-text-secondary)]">
           플레이리스트를 불러오는 중...
         </div>
       ) : error ? (
@@ -63,7 +63,7 @@ export default function UserPlaylistsPage() {
           {error}
         </div>
       ) : playlists.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 px-4 py-12 text-center text-sm text-zinc-500">
+        <div className="rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 px-4 py-12 text-center text-sm text-[var(--color-text-secondary)]">
           공개된 플레이리스트가 없습니다.
         </div>
       ) : (
@@ -73,8 +73,8 @@ export default function UserPlaylistsPage() {
               key={item.id}
               className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm"
             >
-              <h2 className="truncate text-sm font-semibold text-zinc-900">{item.title}</h2>
-              <p className="mt-1 text-xs text-zinc-500">{item.trackCount}곡</p>
+              <h2 className="truncate text-sm font-semibold text-[var(--color-text-primary)]">{item.title}</h2>
+              <p className="mt-1 text-xs text-[var(--color-text-secondary)]">{item.trackCount}곡</p>
               <PlaylistEngagementCounts
                 likeCount={item.likeCount ?? 0}
                 commentCount={item.commentCount ?? 0}
@@ -82,7 +82,7 @@ export default function UserPlaylistsPage() {
                 size="mobile"
               />
               {item.description ? (
-                <p className="mt-2 line-clamp-2 text-xs text-zinc-600">{item.description}</p>
+                <p className="mt-2 line-clamp-2 text-xs text-[var(--color-text-secondary)]">{item.description}</p>
               ) : null}
             </div>
           ))}

@@ -45,7 +45,7 @@ export function ProfileIdentityBlock({
       />
 
       <p
-        className={`text-[24px] font-normal leading-[29px] text-black ${
+        className={`text-[24px] font-normal leading-[29px] text-[var(--color-text-primary)] ${
           isDesktop ? "mt-4" : ""
         }`}
       >
@@ -57,16 +57,16 @@ export function ProfileIdentityBlock({
           {isOwner && (
             <div className="grid grid-cols-[55px_1fr] gap-x-[20px]">
               <dt className="text-[#7F7F7F]">이름</dt>
-              <dd className="truncate text-black">{name ?? "-"}</dd>
+              <dd className="truncate text-[var(--color-text-primary)]">{name ?? "-"}</dd>
             </div>
           )}
           <div className="grid grid-cols-[55px_1fr] gap-x-[20px]">
             <dt className="text-[#7F7F7F]">성별</dt>
-            <dd className="text-black">{genderLabel}</dd>
+            <dd className="text-[var(--color-text-primary)]">{genderLabel}</dd>
           </div>
           <div className="grid grid-cols-[55px_1fr] items-center gap-x-[20px]">
             <dt className="text-[#7F7F7F]">가입일</dt>
-            <dd className="truncate text-black">{createdAtText}</dd>
+            <dd className="truncate text-[var(--color-text-primary)]">{createdAtText}</dd>
           </div>
         </dl>
       ) : (
@@ -74,16 +74,16 @@ export function ProfileIdentityBlock({
           {isOwner && (
             <div className="flex gap-0">
               <dt className="w-[55px] shrink-0 text-[#7F7F7F]">이름</dt>
-              <dd className="min-w-0 truncate text-black">{name ?? "-"}</dd>
+              <dd className="min-w-0 truncate text-[var(--color-text-primary)]">{name ?? "-"}</dd>
             </div>
           )}
           <div className="flex">
             <dt className="w-[55px] shrink-0 text-[#7F7F7F]">성별</dt>
-            <dd className="text-black">{genderLabel}</dd>
+            <dd className="text-[var(--color-text-primary)]">{genderLabel}</dd>
           </div>
           <div className="flex">
             <dt className="w-[55px] shrink-0 text-[#7F7F7F]">가입일</dt>
-            <dd className="min-w-0 truncate text-black">{createdAtText}</dd>
+            <dd className="min-w-0 truncate text-[var(--color-text-primary)]">{createdAtText}</dd>
           </div>
         </dl>
       )}

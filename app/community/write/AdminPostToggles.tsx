@@ -31,7 +31,7 @@ export function AdminPostToggles({
               onIsReleaseChange(false);
             }
           }}
-          className="h-4 w-4 rounded border-zinc-300 text-black focus:ring-black"
+          className="h-4 w-4 rounded border-zinc-300 text-[var(--color-text-primary)] focus:ring-black"
         />
         <span className="text-xs font-bold text-red-600">전체 공지</span>
       </label>

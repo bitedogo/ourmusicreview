@@ -31,7 +31,7 @@ export function AlbumTable({
       <div className="overflow-x-auto">
         <table className="min-w-full border-collapse text-xs">
           <thead>
-            <tr className="bg-zinc-50 text-[11px] font-semibold text-zinc-500">
+            <tr className="bg-zinc-50 text-[11px] font-semibold text-[var(--color-text-secondary)]">
               <th className="px-3 py-2 text-left">날짜</th>
               <th className="px-3 py-2 text-left">제목</th>
               <th className="px-3 py-2 text-left">아티스트</th>
@@ -42,19 +42,19 @@ export function AlbumTable({
             {albums.map((item) => (
               <tr key={item.displayDate} className="hover:bg-zinc-50">
                 <td className="px-3 py-2 align-middle">
-                  <span className="text-xs font-medium text-zinc-900">
+                  <span className="text-xs font-medium text-[var(--color-text-primary)]">
                     {item.displayDate}
                   </span>
                 </td>
                 <td className="max-w-[220px] px-3 py-2 align-middle">
-                  <span className="truncate text-xs font-semibold text-zinc-900">
+                  <span className="truncate text-xs font-semibold text-[var(--color-text-primary)]">
                     {item.title}
                   </span>
                 </td>
                 <td className="px-3 py-2 align-middle">
                   <ArtistNameLink
                     name={item.artist}
-                    className="max-w-full truncate text-left text-xs text-zinc-700 transition hover:text-[var(--color-brand-primary)] hover:underline disabled:cursor-wait disabled:no-underline"
+                    className="max-w-full truncate text-left text-xs text-[var(--color-text-primary)] transition hover:text-[var(--color-brand-primary)] hover:underline disabled:cursor-wait disabled:no-underline"
                   />
                 </td>
                 <td className="px-3 py-2 text-left align-middle">
@@ -63,7 +63,7 @@ export function AlbumTable({
                       type="button"
                       onClick={() => onEdit(item)}
                       disabled={processingIds.has(item.displayDate) || isPastDate(item.displayDate)}
-                      className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-[11px] font-medium text-zinc-700 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-[11px] font-medium text-[var(--color-text-primary)] hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       수정
                     </button>

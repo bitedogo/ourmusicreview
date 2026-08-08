@@ -46,7 +46,7 @@ export function BoardPostTable({ posts, isNoticeBoard }: BoardPostTableProps) {
     <div className="overflow-hidden border border-zinc-200 bg-white text-xs shadow-sm">
       <table className="min-w-full table-fixed border-collapse">
         <thead className="bg-zinc-50">
-          <tr className="border-b border-zinc-200 text-zinc-700">
+          <tr className="border-b border-zinc-200 text-[var(--color-text-primary)]">
             <th className="w-[60px] px-3 py-2 text-center font-semibold">
               번호
             </th>
@@ -65,7 +65,7 @@ export function BoardPostTable({ posts, isNoticeBoard }: BoardPostTableProps) {
               key={post.id}
               className={`hover:bg-zinc-50 ${post.isPinned ? "bg-zinc-50/50" : ""}`}
             >
-              <td className="px-3 py-2 text-center text-[11px] text-zinc-400">
+              <td className="px-3 py-2 text-center text-[11px] text-[var(--color-text-muted)]">
                 {post.isPinned || post.isReleasePinned || isNoticeBoard ? (
                   <span
                     className="inline-flex items-center justify-center"
@@ -101,7 +101,7 @@ export function BoardPostTable({ posts, isNoticeBoard }: BoardPostTableProps) {
               <td className="px-3 py-2 text-sm">
                 <Link
                   href={`/community/${encodeURIComponent(post.id)}`}
-                  className={`flex items-center gap-1.5 hover:underline ${isNoticeBoard ? "font-bold text-black" : ""} ${post.isPinned ? "text-red-600 font-bold" : ""} ${post.isReleasePinned && !post.isPinned ? "text-emerald-600 font-bold" : ""}`}
+                  className={`flex items-center gap-1.5 hover:underline ${isNoticeBoard ? "font-bold text-[var(--color-text-primary)]" : ""} ${post.isPinned ? "text-red-600 font-bold" : ""} ${post.isReleasePinned && !post.isPinned ? "text-emerald-600 font-bold" : ""}`}
                 >
                   {isNoticeBoard &&
                     (() => {
@@ -114,7 +114,7 @@ export function BoardPostTable({ posts, isNoticeBoard }: BoardPostTableProps) {
                       ) : null;
                     })()}
                   <span
-                    className={`line-clamp-1 ${isNoticeBoard ? "font-bold text-black" : ""}`}
+                    className={`line-clamp-1 ${isNoticeBoard ? "font-bold text-[var(--color-text-primary)]" : ""}`}
                   >
                     {post.title}
                   </span>
@@ -125,14 +125,14 @@ export function BoardPostTable({ posts, isNoticeBoard }: BoardPostTableProps) {
                   )}
                 </Link>
               </td>
-              <td className="px-3 py-2 text-center text-[11px] text-zinc-700">
+              <td className="px-3 py-2 text-center text-[11px] text-[var(--color-text-primary)]">
                 <span
                   className={`line-clamp-1 ${post.isPinned ? "font-black" : ""}`}
                 >
                   {post.nickname}
                 </span>
               </td>
-              <td className="px-3 py-2 text-center text-[11px] text-zinc-500">
+              <td className="px-3 py-2 text-center text-[11px] text-[var(--color-text-secondary)]">
                 {post.createdAt
                   ? new Date(post.createdAt).toLocaleDateString("ko-KR", {
                       month: "2-digit",

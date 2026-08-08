@@ -12,7 +12,7 @@ export function HamburgerButton({ isOpen, onToggle }: HamburgerButtonProps) {
       aria-label="메뉴 열기"
       aria-expanded={isOpen}
       onClick={onToggle}
-      className="flex flex-col justify-center gap-1.5 rounded p-2 text-zinc-700 hover:bg-zinc-100"
+      className="flex flex-col justify-center gap-1.5 rounded p-2 text-[var(--color-text-primary)] hover:bg-zinc-100"
     >
       <span className="block h-0.5 w-5 rounded-full bg-current" />
       <span className="block h-0.5 w-5 rounded-full bg-current" />

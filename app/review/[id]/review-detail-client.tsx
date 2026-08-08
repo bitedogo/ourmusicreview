@@ -158,7 +158,7 @@ export function ReviewDetailClient({ reviewId }: { reviewId: string }) {
     return (
       <div className="mx-auto flex min-h-screen w-full max-w-[800px] flex-col gap-6 px-4 py-10 sm:w-[800px] sm:max-w-none sm:px-0">
         <div className="flex items-center justify-center py-12">
-          <div className="text-sm text-zinc-500">리뷰를 불러오는 중...</div>
+          <div className="text-sm text-[var(--color-text-secondary)]">리뷰를 불러오는 중...</div>
         </div>
       </div>
     );

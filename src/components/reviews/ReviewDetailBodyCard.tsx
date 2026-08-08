@@ -62,7 +62,7 @@ function AuthorAvatar({
           className="h-full w-full object-cover"
         />
       ) : (
-        <div className="flex h-full w-full items-center justify-center text-[10px] font-semibold text-zinc-600 sm:text-xs">
+        <div className="flex h-full w-full items-center justify-center text-[10px] font-semibold text-[var(--color-text-secondary)] sm:text-xs">
           {user.nickname.charAt(0).toUpperCase()}
         </div>
       )}

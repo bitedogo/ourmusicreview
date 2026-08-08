@@ -24,7 +24,7 @@ export default function PublicPlaylistDetailPage() {
       <button
         type="button"
         onClick={() => router.push(playlistList())}
-        className="mb-2 flex w-fit items-center gap-2 text-sm text-zinc-600 hover:text-[var(--color-brand-primary)]"
+        className="mb-2 flex w-fit items-center gap-2 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-brand-primary)]"
       >
         <svg
           width="16"
@@ -46,7 +46,7 @@ export default function PublicPlaylistDetailPage() {
       </button>
 
       {isLoading ? (
-        <div className="py-12 text-center text-sm text-zinc-500">
+        <div className="py-12 text-center text-sm text-[var(--color-text-secondary)]">
           플레이리스트를 불러오는 중...
         </div>
       ) : error || !playlist ? (
@@ -65,10 +65,10 @@ export default function PublicPlaylistDetailPage() {
                   interactive
                 />
                 <div className="min-w-0 flex-1">
-                  <h1 className="truncate text-xl font-semibold tracking-tight text-zinc-900">
+                  <h1 className="truncate text-xl font-semibold tracking-tight text-[var(--color-text-primary)]">
                     {playlist.title}
                   </h1>
-                  <p className="mt-1 text-xs text-zinc-500">
+                  <p className="mt-1 text-xs text-[var(--color-text-secondary)]">
                     {playlist.trackCount}곡 ·{" "}
                     <Link
                       href={getUserProfilePath(playlist.userId)}
@@ -84,7 +84,7 @@ export default function PublicPlaylistDetailPage() {
                     size="desktop"
                   />
                   {playlist.description ? (
-                    <p className="mt-2 text-sm text-zinc-600">
+                    <p className="mt-2 text-sm text-[var(--color-text-secondary)]">
                       {playlist.description}
                     </p>
                   ) : null}

@@ -29,8 +29,8 @@ export function PlaylistTrackList({
   if (tracks.length === 0) {
     return (
       <section>
-        <h2 className="mb-3 text-sm font-semibold text-zinc-800">트랙 목록</h2>
-        <div className="rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 px-4 py-12 text-center text-sm text-zinc-500">
+        <h2 className="mb-3 text-sm font-semibold text-[var(--color-text-primary)]">트랙 목록</h2>
+        <div className="rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 px-4 py-12 text-center text-sm text-[var(--color-text-secondary)]">
           아직 담긴 트랙이 없습니다.
         </div>
       </section>
@@ -39,7 +39,7 @@ export function PlaylistTrackList({
 
   return (
     <section>
-      <h2 className="mb-3 text-sm font-semibold text-zinc-800">트랙 목록</h2>
+      <h2 className="mb-3 text-sm font-semibold text-[var(--color-text-primary)]">트랙 목록</h2>
       <ul className="w-full overflow-hidden rounded-2xl bg-white shadow-[0_0_0_1px_#D9D9D9,0px_2px_4px_rgba(0,0,0,0.25)]">
         {tracks.map((track, index) => {
           const resolved = streamingLinksByTrackId[track.trackId];
@@ -55,7 +55,7 @@ export function PlaylistTrackList({
               className="border-b border-zinc-100 px-3 py-3 last:border-b-0"
             >
               <div className="flex items-start gap-3">
-                <span className="mt-5 w-6 shrink-0 text-center text-xs text-zinc-400">
+                <span className="mt-5 w-6 shrink-0 text-center text-xs text-[var(--color-text-muted)]">
                   {index + 1}
                 </span>
                 <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-zinc-100 sm:h-20 sm:w-20">
@@ -72,17 +72,17 @@ export function PlaylistTrackList({
                   )}
                 </div>
                 <div className="min-w-0 flex-1 pt-1">
-                  <p className="truncate text-sm font-medium text-zinc-900 sm:text-base">
+                  <p className="truncate text-sm font-medium text-[var(--color-text-primary)] sm:text-base">
                     {track.trackName}
                   </p>
-                  <p className="mt-0.5 truncate text-xs text-zinc-500">
+                  <p className="mt-0.5 truncate text-xs text-[var(--color-text-secondary)]">
                     <ArtistNameLink
                       name={track.artistName}
-                      className="truncate text-left text-xs text-zinc-500 transition hover:text-[var(--color-brand-primary)] hover:underline disabled:cursor-wait disabled:no-underline"
+                      className="truncate text-left text-xs text-[var(--color-text-secondary)] transition hover:text-[var(--color-brand-primary)] hover:underline disabled:cursor-wait disabled:no-underline"
                     />
                     {track.collectionName ? ` · ${track.collectionName}` : ""}
                   </p>
-                  <p className="mt-1 text-xs text-zinc-400">
+                  <p className="mt-1 text-xs text-[var(--color-text-muted)]">
                     {formatTrackDuration(track.durationMs)}
                   </p>
                 </div>
@@ -96,7 +96,7 @@ export function PlaylistTrackList({
                             prev === track.id ? null : track.id
                           )
                         }
-                        className="shrink-0 rounded-full border border-zinc-300 px-2.5 py-1 text-[11px] text-zinc-700 hover:bg-zinc-50"
+                        className="shrink-0 rounded-full border border-zinc-300 px-2.5 py-1 text-[11px] text-[var(--color-text-primary)] hover:bg-zinc-50"
                       >
                         {playingTrackId === track.id ? "정지" : "미리듣기"}
                       </button>
@@ -104,7 +104,7 @@ export function PlaylistTrackList({
                     {track.collectionId ? (
                       <Link
                         href={`/review/album/${encodeURIComponent(track.collectionId)}`}
-                        className="shrink-0 rounded-full border border-zinc-300 px-2.5 py-1 text-[11px] text-zinc-700 hover:bg-zinc-50"
+                        className="shrink-0 rounded-full border border-zinc-300 px-2.5 py-1 text-[11px] text-[var(--color-text-primary)] hover:bg-zinc-50"
                       >
                         앨범
                       </Link>

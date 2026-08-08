@@ -78,7 +78,7 @@ export function HtmlRenderer({ html, className = "" }: HtmlRendererProps) {
 
   if (!html || html.trim() === "" || html.trim() === "<p><br></p>") {
     return (
-      <div className={`text-sm text-zinc-400 ${className}`}>
+      <div className={`text-sm text-[var(--color-text-muted)] ${className}`}>
         내용이 없습니다.
       </div>
     );

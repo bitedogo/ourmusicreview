@@ -117,7 +117,7 @@ export function UserProfileClient({ userId, showAllReviews = false }: UserProfil
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <p className="text-sm text-zinc-500">프로필을 불러오는 중...</p>
+        <p className="text-sm text-[var(--color-text-secondary)]">프로필을 불러오는 중...</p>
       </div>
     );
   }
@@ -128,7 +128,7 @@ export function UserProfileClient({ userId, showAllReviews = false }: UserProfil
         <button
           type="button"
           onClick={() => router.back()}
-          className="flex w-fit items-center gap-2 text-sm text-zinc-600 hover:text-[var(--color-brand-primary)]"
+          className="flex w-fit items-center gap-2 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-brand-primary)]"
         >
           이전으로
         </button>
@@ -145,7 +145,7 @@ export function UserProfileClient({ userId, showAllReviews = false }: UserProfil
         <section className="space-y-2">
           <Link
             href={getUserProfilePath(userId)}
-            className="mb-4 flex w-fit items-center gap-2 text-sm text-zinc-600 hover:text-[var(--color-brand-primary)]"
+            className="mb-4 flex w-fit items-center gap-2 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-brand-primary)]"
           >
             프로필로
           </Link>
@@ -155,11 +155,11 @@ export function UserProfileClient({ userId, showAllReviews = false }: UserProfil
         </section>
 
         {data.reviewsHidden ? (
-          <div className="rounded-xl border border-dashed border-zinc-200 bg-zinc-50 px-4 py-12 text-center text-sm text-zinc-500">
+          <div className="rounded-xl border border-dashed border-zinc-200 bg-zinc-50 px-4 py-12 text-center text-sm text-[var(--color-text-secondary)]">
             비공개로 설정된 정보입니다.
           </div>
         ) : data.reviews.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-zinc-200 bg-zinc-50 px-4 py-12 text-center text-sm text-zinc-500">
+          <div className="rounded-xl border border-dashed border-zinc-200 bg-zinc-50 px-4 py-12 text-center text-sm text-[var(--color-text-secondary)]">
             작성한 리뷰가 없습니다.
           </div>
         ) : (
@@ -172,18 +172,18 @@ export function UserProfileClient({ userId, showAllReviews = false }: UserProfil
               >
                 <div className="flex items-center gap-3">
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-[10px] font-medium uppercase text-zinc-500">
+                    <p className="truncate text-[10px] font-medium uppercase text-[var(--color-text-secondary)]">
                       {review.album?.artist ? (
                         <ArtistNameLink
                           name={review.album.artist}
-                          className="max-w-full truncate text-left text-[10px] font-medium uppercase text-zinc-500 transition hover:text-[var(--color-brand-primary)] hover:underline disabled:cursor-wait disabled:no-underline"
+                          className="max-w-full truncate text-left text-[10px] font-medium uppercase text-[var(--color-text-secondary)] transition hover:text-[var(--color-brand-primary)] hover:underline disabled:cursor-wait disabled:no-underline"
                         />
                       ) : null}
                     </p>
-                    <p className="truncate text-sm font-semibold text-zinc-900">{review.album?.title}</p>
+                    <p className="truncate text-sm font-semibold text-[var(--color-text-primary)]">{review.album?.title}</p>
                   </div>
                   <span
-                    className={`shrink-0 text-sm font-bold ${review.rating >= 9 ? "text-red-600" : "text-zinc-900"}`}
+                    className={`shrink-0 text-sm font-bold ${review.rating >= 9 ? "text-red-600" : "text-[var(--color-text-primary)]"}`}
                   >
                     {review.rating.toFixed(1)}
                   </span>
@@ -205,14 +205,14 @@ export function UserProfileClient({ userId, showAllReviews = false }: UserProfil
           <button
             type="button"
             onClick={() => router.back()}
-            className="text-xs font-medium text-zinc-600 hover:text-[var(--color-brand-primary)]"
+            className="text-xs font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-brand-primary)]"
           >
             이전으로
           </button>
         ) : (
           <Link
             href="/profile"
-            className="text-xs font-medium text-zinc-600 hover:text-[var(--color-brand-primary)]"
+            className="text-xs font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-brand-primary)]"
           >
             마이페이지로
           </Link>

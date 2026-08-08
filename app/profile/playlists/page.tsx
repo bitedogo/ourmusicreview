@@ -79,7 +79,7 @@ export default function ProfilePlaylistsPage() {
       >
         <div className="space-y-3">
           {sorted.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 px-4 py-10 text-center text-sm text-zinc-500">
+            <div className="rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 px-4 py-10 text-center text-sm text-[var(--color-text-secondary)]">
               아직 만든 플레이리스트가 없습니다.
             </div>
           ) : (

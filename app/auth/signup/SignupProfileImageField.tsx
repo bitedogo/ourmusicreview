@@ -43,11 +43,11 @@ export function SignupProfileImageField({
             }}
           />
         </label>
-        <span className="text-xs text-zinc-500">
+        <span className="text-xs text-[var(--color-text-secondary)]">
           {profileImage ? profileImage.name : "선택된 파일 없음"}
         </span>
       </div>
-      <div className="space-y-0.5 text-xs text-zinc-500">
+      <div className="space-y-0.5 text-xs text-[var(--color-text-secondary)]">
         <p>파일 선택 후 크롭하여 프로필 이미지를 설정할 수 있습니다.</p>
       </div>
 

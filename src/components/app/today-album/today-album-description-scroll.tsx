@@ -100,7 +100,7 @@ export function TodayAlbumDescriptionScroll({
       <div
         ref={viewportRef}
         onScroll={syncMetrics}
-        className="today-album-description-scroll max-h-[var(--today-album-description-max-height)] overflow-y-auto whitespace-pre-line break-words pr-[14px] text-left text-[11px] font-normal leading-[170%] tracking-[0.03em] text-[#717171] sm:text-[15px]"
+        className="today-album-description-scroll max-h-[var(--today-album-description-max-height)] overflow-y-auto whitespace-pre-line break-words pr-[14px] text-left text-[11px] font-normal leading-[170%] tracking-[0.03em] text-[#C4C4C4] sm:text-[15px]"
       >
         {children}
       </div>

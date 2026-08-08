@@ -247,7 +247,7 @@ export function PlaylistListClient() {
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-[832px] flex-col bg-white px-4 pb-14 pt-[72px] sm:px-6">
       <div className="flex items-center justify-between gap-3">
-        <h1 className="text-[28px] font-semibold leading-tight tracking-tight text-zinc-900">
+        <h1 className="text-[28px] font-semibold leading-tight tracking-tight text-[var(--color-text-primary)]">
           플레이리스트
         </h1>
       </div>
@@ -301,7 +301,7 @@ export function PlaylistListClient() {
                 </span>
                 <span
                   className={`w-full truncate text-center text-[11px] font-medium sm:text-[14px] ${
-                    isActive ? "text-zinc-900" : "text-zinc-600"
+                    isActive ? "text-[var(--color-text-primary)]" : "text-[var(--color-text-secondary)]"
                   }`}
                 >
                   {circle.label}
@@ -315,7 +315,7 @@ export function PlaylistListClient() {
       {/* 3. 플레이리스트 목록 */}
       <section className="mt-9">
         <div className="flex items-center justify-between gap-3">
-          <h2 className="text-[20px] font-bold tracking-tight text-zinc-900">
+          <h2 className="text-[20px] font-bold tracking-tight text-[var(--color-text-primary)]">
             {selectedGenreLabel
               ? `${selectedGenreLabel} 플레이리스트`
               : "전체 플레이리스트"}
@@ -325,7 +325,7 @@ export function PlaylistListClient() {
               <button
                 type="button"
                 onClick={removeSearch}
-                className="text-xs font-medium text-zinc-500 hover:text-zinc-800"
+                className="text-xs font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
               >
                 검색 해제
               </button>
@@ -350,7 +350,7 @@ export function PlaylistListClient() {
                   className={`rounded-full px-3 py-1 text-[11px] transition ${
                     genreFromUrl === child.id
                       ? "bg-zinc-900 text-white"
-                      : "bg-white text-zinc-600 shadow-sm ring-1 ring-[#D9D9D9] hover:bg-zinc-50"
+                      : "bg-white text-[var(--color-text-secondary)] shadow-sm ring-1 ring-[#D9D9D9] hover:bg-zinc-50"
                   }`}
                 >
                   {child.nameKo}
@@ -361,7 +361,7 @@ export function PlaylistListClient() {
         ) : null}
 
         {!!searchQueryFromUrl && (
-          <p className="mt-2 text-xs text-zinc-500">
+          <p className="mt-2 text-xs text-[var(--color-text-secondary)]">
             {
               SEARCH_FIELD_OPTIONS.find(
                 (opt) => opt.value === searchFieldFromUrl
@@ -373,7 +373,7 @@ export function PlaylistListClient() {
 
         <div className="mt-3">
           {isLoading ? (
-            <div className="rounded-2xl bg-white px-4 py-14 text-center text-sm text-zinc-500 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+            <div className="rounded-2xl bg-white px-4 py-14 text-center text-sm text-[var(--color-text-secondary)] shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
               플레이리스트를 불러오는 중...
             </div>
           ) : error ? (
@@ -381,7 +381,7 @@ export function PlaylistListClient() {
               {error}
             </div>
           ) : playlists.length === 0 ? (
-            <div className="rounded-2xl bg-white px-4 py-14 text-center text-sm text-zinc-500 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+            <div className="rounded-2xl bg-white px-4 py-14 text-center text-sm text-[var(--color-text-secondary)] shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
               {searchQueryFromUrl || genreFromUrl
                 ? "조건에 맞는 플레이리스트가 없습니다."
                 : "공개된 플레이리스트가 없습니다."}
@@ -428,10 +428,10 @@ export function PlaylistListClient() {
             className="w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-5 shadow-xl"
             onClick={(event) => event.stopPropagation()}
           >
-            <h2 className="text-base font-semibold text-zinc-900">
+            <h2 className="text-base font-semibold text-[var(--color-text-primary)]">
               플레이리스트 검색
             </h2>
-            <p className="mt-1 text-xs text-zinc-500">
+            <p className="mt-1 text-xs text-[var(--color-text-secondary)]">
               검색 기준을 선택하고 키워드를 입력해주세요.
             </p>
 
@@ -445,7 +445,7 @@ export function PlaylistListClient() {
                     className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
                       searchField === option.value
                         ? "bg-[var(--color-brand-primary)] text-white"
-                        : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200"
+                        : "bg-zinc-100 text-[var(--color-text-primary)] hover:bg-zinc-200"
                     }`}
                   >
                     {option.label}
@@ -464,7 +464,7 @@ export function PlaylistListClient() {
                 <button
                   type="button"
                   onClick={() => setIsSearchModalOpen(false)}
-                  className="rounded-full border border-zinc-300 px-3 py-1.5 text-xs text-zinc-700 hover:bg-zinc-50"
+                  className="rounded-full border border-zinc-300 px-3 py-1.5 text-xs text-[var(--color-text-primary)] hover:bg-zinc-50"
                 >
                   취소
                 </button>

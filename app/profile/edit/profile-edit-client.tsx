@@ -202,7 +202,7 @@ export function ProfileEditClient({
           <input
             value={id}
             readOnly
-            className={`w-full max-w-xs ${PROFILE_EDIT_INPUT} bg-zinc-100 text-zinc-800`}
+            className={`w-full max-w-xs ${PROFILE_EDIT_INPUT} bg-zinc-100 text-[var(--color-text-primary)]`}
           />
         </ProfileEditFormRow>
 
@@ -210,7 +210,7 @@ export function ProfileEditClient({
           <input
             value={email}
             readOnly
-            className={`w-full max-w-xs ${PROFILE_EDIT_INPUT} bg-zinc-100 text-zinc-800`}
+            className={`w-full max-w-xs ${PROFILE_EDIT_INPUT} bg-zinc-100 text-[var(--color-text-primary)]`}
           />
         </ProfileEditFormRow>
 
@@ -229,7 +229,7 @@ export function ProfileEditClient({
                   />
                 </div>
               )}
-              <label className="inline-flex cursor-pointer items-center justify-center rounded border border-zinc-300 bg-white px-3 py-2 text-xs font-medium text-zinc-700 hover:bg-zinc-50">
+              <label className="inline-flex cursor-pointer items-center justify-center rounded border border-zinc-300 bg-white px-3 py-2 text-xs font-medium text-[var(--color-text-primary)] hover:bg-zinc-50">
                 이미지 선택
                 <input
                   type="file"
@@ -274,7 +274,7 @@ export function ProfileEditClient({
                 {isUpdating ? "수정 중..." : "저장"}
               </button>
             </div>
-            <div className="space-y-1 text-xs text-zinc-600">
+            <div className="space-y-1 text-xs text-[var(--color-text-secondary)]">
               <p>* 특수문자 및 띄어쓰기 사용불가</p>
               <p>* 닉네임 최대 글자 수: 영문 14자 또는 한글 7자 이내</p>
             </div>
@@ -284,7 +284,7 @@ export function ProfileEditClient({
             {successMessage && (
               <p className="text-xs text-emerald-600">{successMessage}</p>
             )}
-            <p className="text-[11px] text-zinc-500">
+            <p className="text-[11px] text-[var(--color-text-secondary)]">
               현재 닉네임: {displayNickname} · 권한: {role} · 가입일:{" "}
               {createdAtText}
             </p>

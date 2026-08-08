@@ -238,7 +238,7 @@ export function GenreSelector({
 
   if (isLoading) {
     return (
-      <p className="text-xs text-zinc-500">장르 목록을 불러오는 중...</p>
+      <p className="text-xs text-[var(--color-text-secondary)]">장르 목록을 불러오는 중...</p>
     );
   }
 
@@ -253,7 +253,7 @@ export function GenreSelector({
   return (
     <div className="space-y-3">
       <div>
-        <p className="mb-1.5 text-xs font-medium text-zinc-600">대분류</p>
+        <p className="mb-1.5 text-xs font-medium text-[var(--color-text-secondary)]">대분류</p>
         <div className="flex flex-wrap gap-1.5">
           {parentChips.map((chip) => {
             const parent =
@@ -283,8 +283,8 @@ export function GenreSelector({
                   isSelected
                     ? "border-[var(--color-brand-primary)] bg-[var(--color-brand-primary)] text-white"
                     : isActive
-                      ? "border-zinc-400 bg-zinc-100 text-zinc-800"
-                      : "border-zinc-300 bg-white text-zinc-700 hover:bg-zinc-50",
+                      ? "border-zinc-400 bg-zinc-100 text-[var(--color-text-primary)]"
+                      : "border-zinc-300 bg-white text-[var(--color-text-primary)] hover:bg-zinc-50",
                   disabled ? "opacity-60" : "",
                 ].join(" ")}
               >
@@ -297,9 +297,9 @@ export function GenreSelector({
 
       {activeParent && !isComprehensiveSelected ? (
         <div>
-          <p className="mb-1.5 text-xs font-medium text-zinc-600">
+          <p className="mb-1.5 text-xs font-medium text-[var(--color-text-secondary)]">
             {getGenreCircleLabel(activeParent.id) ?? activeParent.nameKo} 소분류
-            <span className="ml-1 font-normal text-zinc-400">
+            <span className="ml-1 font-normal text-[var(--color-text-muted)]">
               (같은 대분류 안에서만 선택 · 종합 시 대분류명으로 표시)
             </span>
           </p>
@@ -321,7 +321,7 @@ export function GenreSelector({
                       ? isComprehensive
                         ? "border-[var(--color-brand-primary)] bg-[var(--color-brand-primary)] text-white"
                         : "border-[var(--color-brand-primary)] bg-[var(--color-brand-primary)]/10 text-[var(--color-brand-primary)]"
-                      : "border-zinc-300 bg-white text-zinc-700 hover:bg-zinc-50",
+                      : "border-zinc-300 bg-white text-[var(--color-text-primary)] hover:bg-zinc-50",
                     disabled ? "opacity-60" : "",
                   ].join(" ")}
                 >
@@ -335,7 +335,7 @@ export function GenreSelector({
 
       {selectedGenres.length > 0 ? (
         <div>
-          <p className="mb-1.5 text-xs font-medium text-zinc-600">선택된 장르</p>
+          <p className="mb-1.5 text-xs font-medium text-[var(--color-text-secondary)]">선택된 장르</p>
           <div className="flex flex-wrap gap-1.5">
             {selectedGenres.map((genre) => (
               <button
@@ -343,11 +343,11 @@ export function GenreSelector({
                 type="button"
                 disabled={disabled}
                 onClick={() => removeGenre(genre.id)}
-                className="inline-flex items-center gap-1 rounded-full bg-zinc-100 px-2.5 py-1 text-[11px] text-zinc-700 hover:bg-zinc-200 disabled:opacity-60"
+                className="inline-flex items-center gap-1 rounded-full bg-zinc-100 px-2.5 py-1 text-[11px] text-[var(--color-text-primary)] hover:bg-zinc-200 disabled:opacity-60"
                 title="클릭하여 제거"
               >
                 {genre.label}
-                <span aria-hidden className="text-zinc-400">
+                <span aria-hidden className="text-[var(--color-text-muted)]">
                   ×
                 </span>
               </button>

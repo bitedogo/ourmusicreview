@@ -31,7 +31,7 @@ export function MemberFilterBar({
           className={`border-b-2 px-4 py-2 text-xs font-medium transition ${
             activeTab === tab.key
               ? "border-[var(--color-brand-primary)] text-[var(--color-brand-primary)]"
-              : "border-transparent text-zinc-500 hover:text-zinc-700"
+              : "border-transparent text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
           }`}
         >
           {tab.label}
@@ -42,7 +42,7 @@ export function MemberFilterBar({
         placeholder="검색..."
         value={searchQuery}
         onChange={(e) => onSearchQueryChange(e.target.value)}
-        className="ml-auto w-32 rounded-lg border border-zinc-200 px-3 py-1.5 text-xs placeholder:text-zinc-400 focus:border-[var(--color-brand-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--color-brand-primary)] sm:w-40"
+        className="ml-auto w-32 rounded-lg border border-zinc-200 px-3 py-1.5 text-xs placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-brand-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--color-brand-primary)] sm:w-40"
       />
     </div>
   );

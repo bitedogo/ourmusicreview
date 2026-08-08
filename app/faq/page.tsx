@@ -56,7 +56,7 @@ export default function FaqPage() {
   if (isLoading) {
     return (
       <div className="mx-auto min-h-screen max-w-4xl px-6 py-16 sm:px-10">
-        <div className="py-12 text-center text-sm text-zinc-500">
+        <div className="py-12 text-center text-sm text-[var(--color-text-secondary)]">
           FAQ를 불러오는 중...
         </div>
       </div>
@@ -67,10 +67,10 @@ export default function FaqPage() {
     <div className="min-h-screen bg-zinc-50/70">
       <div className="mx-auto max-w-4xl px-6 py-16 sm:px-10">
         <header className="mb-10 text-center">
-          <h1 className="text-4xl font-bold tracking-tight text-zinc-900">
+          <h1 className="text-4xl font-bold tracking-tight text-[var(--color-text-primary)]">
             자주 묻는 질문
           </h1>
-          <p className="mt-2 text-sm text-zinc-500">
+          <p className="mt-2 text-sm text-[var(--color-text-secondary)]">
             Frequently asked questions
           </p>
         </header>
@@ -88,7 +88,7 @@ export default function FaqPage() {
                 onClick={() => setExpandedId(isExpanded ? null : faq.id)}
                 className="group flex w-full items-center justify-between gap-4 px-5 py-4 text-left"
               >
-                <span className="flex-1 text-base font-medium text-zinc-900 transition-colors group-hover:text-[var(--color-brand-primary)]">
+                <span className="flex-1 text-base font-medium text-[var(--color-text-primary)] transition-colors group-hover:text-[var(--color-brand-primary)]">
                   {faq.question}
                 </span>
                 <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-[var(--color-brand-primary)] text-white transition-colors group-hover:bg-[var(--color-brand-primary-hover)]">
@@ -97,7 +97,7 @@ export default function FaqPage() {
               </button>
               {isExpanded && (
                 <div className="border-t border-zinc-100 px-5 pb-5 pt-4">
-                  <p className="whitespace-pre-wrap text-sm leading-relaxed text-zinc-500">
+                  <p className="whitespace-pre-wrap text-sm leading-relaxed text-[var(--color-text-secondary)]">
                     {faq.answer}
                   </p>
                 </div>
@@ -120,7 +120,7 @@ export default function FaqPage() {
       )}
 
       {faqs.length === 0 && !isLoading && (
-        <div className="rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 px-4 py-12 text-center text-sm text-zinc-500">
+        <div className="rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 px-4 py-12 text-center text-sm text-[var(--color-text-secondary)]">
           등록된 FAQ가 없습니다.
         </div>
       )}

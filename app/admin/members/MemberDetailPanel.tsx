@@ -36,13 +36,13 @@ export function MemberDetailPanel({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-4 flex items-center justify-between">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">
             {detail?.id ?? selectedId}
           </p>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-2 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700"
+            className="rounded-lg p-2 text-[var(--color-text-secondary)] hover:bg-zinc-100 hover:text-[var(--color-text-primary)]"
             aria-label="닫기"
           >
             <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -53,11 +53,11 @@ export function MemberDetailPanel({
         <div className="flex w-full flex-col gap-6">
           {isLoadingDetail ? (
             <div className="flex flex-1 items-center justify-center">
-              <p className="text-sm text-zinc-500">불러오는 중...</p>
+              <p className="text-sm text-[var(--color-text-secondary)]">불러오는 중...</p>
             </div>
           ) : !detail ? (
             <div className="flex flex-1 flex-col items-center justify-center gap-2 text-center">
-              <p className="text-sm text-zinc-500">멤버 정보를 불러올 수 없습니다.</p>
+              <p className="text-sm text-[var(--color-text-secondary)]">멤버 정보를 불러올 수 없습니다.</p>
               <button
                 type="button"
                 onClick={onClose}
@@ -79,16 +79,16 @@ export function MemberDetailPanel({
                       className="object-cover"
                     />
                   ) : (
-                    <div className="flex h-full w-full items-center justify-center text-2xl font-bold text-zinc-400">
+                    <div className="flex h-full w-full items-center justify-center text-2xl font-bold text-[var(--color-text-muted)]">
                       {detail.nickname?.charAt(0)?.toUpperCase() ?? "?"}
                     </div>
                   )}
                 </div>
                 <div className="text-center">
-                  <h2 className="text-lg font-bold text-zinc-900">
+                  <h2 className="text-lg font-bold text-[var(--color-text-primary)]">
                     {detail.nickname}
                   </h2>
-                  <p className="text-xs text-zinc-500">
+                  <p className="text-xs text-[var(--color-text-secondary)]">
                     {detail.role === "ADMIN" ? "관리자" : "일반 회원"}
                   </p>
                 </div>
@@ -96,80 +96,80 @@ export function MemberDetailPanel({
 
               <div className="grid w-full grid-cols-2 gap-4 rounded-xl border border-zinc-100 bg-zinc-50/50 p-4 sm:grid-cols-4">
                 <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">
                     나만의 명반
                   </p>
-                  <p className="mt-1 text-sm font-semibold text-zinc-900">
+                  <p className="mt-1 text-sm font-semibold text-[var(--color-text-primary)]">
                     {detail.slideCount}개
                   </p>
                 </div>
                 <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">
                     리뷰
                   </p>
-                  <p className="mt-1 text-sm font-semibold text-zinc-900">
+                  <p className="mt-1 text-sm font-semibold text-[var(--color-text-primary)]">
                     {detail.reviewCount}개
                   </p>
                 </div>
                 <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">
                     좋아요
                   </p>
-                  <p className="mt-1 text-sm font-semibold text-zinc-900">
+                  <p className="mt-1 text-sm font-semibold text-[var(--color-text-primary)]">
                     {detail.favoriteCount}개
                   </p>
                 </div>
                 <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">
                     슬라이드 표시
                   </p>
-                  <p className="mt-1 text-sm font-semibold text-zinc-900">
+                  <p className="mt-1 text-sm font-semibold text-[var(--color-text-primary)]">
                     {detail.hasUserSlide ? "표시됨" : "미표시"}
                   </p>
                 </div>
               </div>
 
               <div className="w-full space-y-3">
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">
                   정보
                 </p>
                 <div className="grid grid-cols-1 gap-x-4 gap-y-3 text-sm sm:grid-cols-2">
                   <div className="sm:col-span-2">
-                    <p className="text-[10px] font-medium text-zinc-400">
+                    <p className="text-[10px] font-medium text-[var(--color-text-muted)]">
                       이름
                     </p>
-                    <p className="break-words text-zinc-900">{detail.name ?? "-"}</p>
+                    <p className="break-words text-[var(--color-text-primary)]">{detail.name ?? "-"}</p>
                   </div>
                   <div>
-                    <p className="text-[10px] font-medium text-zinc-400">
+                    <p className="text-[10px] font-medium text-[var(--color-text-muted)]">
                       성별
                     </p>
-                    <p className="text-zinc-900">
+                    <p className="text-[var(--color-text-primary)]">
                       {detail.gender
                         ? GENDER_LABEL[detail.gender] ?? detail.gender
                         : "-"}
                     </p>
                   </div>
                   <div className="sm:col-span-2">
-                    <p className="text-[10px] font-medium text-zinc-400">
+                    <p className="text-[10px] font-medium text-[var(--color-text-muted)]">
                       가입일
                     </p>
-                    <p className="text-zinc-900">
+                    <p className="text-[var(--color-text-primary)]">
                       {formatMemberDate(detail.createdAt)}
                     </p>
                   </div>
                   <div className="sm:col-span-2">
-                    <p className="text-[10px] font-medium text-zinc-400">
+                    <p className="text-[10px] font-medium text-[var(--color-text-muted)]">
                       이메일
                     </p>
-                    <p className="truncate text-zinc-900">{detail.email}</p>
+                    <p className="truncate text-[var(--color-text-primary)]">{detail.email}</p>
                   </div>
                 </div>
               </div>
 
               {detail.slideAlbums.length > 0 && (
                 <div className="w-full space-y-3">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">
                     나만의 명반 ({detail.slideAlbums.length}개)
                   </p>
                   <div className="grid max-h-64 grid-cols-3 gap-2 overflow-y-auto sm:grid-cols-4 lg:grid-cols-6">
@@ -191,7 +191,7 @@ export function MemberDetailPanel({
                         ) : (
                           <div className="aspect-square bg-zinc-200" />
                         )}
-                        <p className="truncate px-2 py-1 text-[10px] font-medium text-zinc-900">
+                        <p className="truncate px-2 py-1 text-[10px] font-medium text-[var(--color-text-primary)]">
                           {album.title}
                         </p>
                       </div>
@@ -203,7 +203,7 @@ export function MemberDetailPanel({
               {detail.id !== currentUserId && (
                 <div className="mt-auto space-y-3 border-t border-zinc-100 pt-4">
                   <div className="flex items-center gap-2">
-                    <label className="text-[10px] font-medium text-zinc-500">
+                    <label className="text-[10px] font-medium text-[var(--color-text-secondary)]">
                       역할:
                     </label>
                     <select
@@ -215,7 +215,7 @@ export function MemberDetailPanel({
                         )
                       }
                       disabled={processingIds.has(detail.id)}
-                      className="rounded-lg border border-zinc-200 px-3 py-1.5 text-xs font-medium text-zinc-700 disabled:opacity-50"
+                      className="rounded-lg border border-zinc-200 px-3 py-1.5 text-xs font-medium text-[var(--color-text-primary)] disabled:opacity-50"
                     >
                       <option value="USER">일반 사용자</option>
                       <option value="ADMIN">관리자</option>

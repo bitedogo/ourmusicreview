@@ -33,10 +33,10 @@ export function ReportModal({
         className="w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-6 shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <h3 className="mb-4 text-lg font-semibold text-zinc-900">{title}</h3>
+        <h3 className="mb-4 text-lg font-semibold text-[var(--color-text-primary)]">{title}</h3>
         <div className="space-y-4">
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-zinc-700">
+            <label className="mb-1.5 block text-sm font-medium text-[var(--color-text-primary)]">
               신고 사유
             </label>
             <select
@@ -53,7 +53,7 @@ export function ReportModal({
             </select>
           </div>
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-zinc-700">
+            <label className="mb-1.5 block text-sm font-medium text-[var(--color-text-primary)]">
               상세 내용 (선택)
             </label>
             <textarea
@@ -69,7 +69,7 @@ export function ReportModal({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full border border-zinc-200 px-4 py-2 text-xs font-semibold text-zinc-700 hover:bg-zinc-50"
+            className="rounded-full border border-zinc-200 px-4 py-2 text-xs font-semibold text-[var(--color-text-primary)] hover:bg-zinc-50"
           >
             취소
           </button>

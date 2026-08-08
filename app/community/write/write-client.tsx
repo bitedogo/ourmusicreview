@@ -227,7 +227,7 @@ export function CommunityWriteClient() {
   if (isLoading) {
     return (
       <div className="mx-auto flex min-h-screen w-full max-w-3xl items-center justify-center">
-        <p className="text-zinc-500">데이터를 불러오는 중...</p>
+        <p className="text-[var(--color-text-secondary)]">데이터를 불러오는 중...</p>
       </div>
     );
   }
@@ -249,7 +249,7 @@ export function CommunityWriteClient() {
         </div>
 
         <div className="space-y-1">
-          <label className="text-xs font-medium text-zinc-600">
+          <label className="text-xs font-medium text-[var(--color-text-secondary)]">
             제목
           </label>
           <div className="flex gap-3">
@@ -272,7 +272,7 @@ export function CommunityWriteClient() {
         </div>
 
         <div className="space-y-1">
-          <label className="text-xs font-medium text-zinc-600">
+          <label className="text-xs font-medium text-[var(--color-text-secondary)]">
             내용
           </label>
           <input
@@ -294,7 +294,7 @@ export function CommunityWriteClient() {
             onReady={handleEditorReady}
           />
           {category === "W" && isUploadingAudio && (
-            <p className="text-xs text-zinc-500">음원 업로드 중...</p>
+            <p className="text-xs text-[var(--color-text-secondary)]">음원 업로드 중...</p>
           )}
         </div>
 
@@ -308,7 +308,7 @@ export function CommunityWriteClient() {
           <button
             type="button"
             onClick={() => router.back()}
-            className="rounded-full border border-zinc-200 px-4 py-2 text-xs font-semibold text-zinc-700 hover:bg-zinc-50"
+            className="rounded-full border border-zinc-200 px-4 py-2 text-xs font-semibold text-[var(--color-text-primary)] hover:bg-zinc-50"
           >
             취소
           </button>

@@ -96,7 +96,7 @@ export const COMMENT_DETAIL_CLASS = {
     "inline-flex h-[15px] min-h-[15px] items-center gap-[12px] overflow-visible",
   interactionButton:
     "inline-flex h-[15px] min-h-[15px] items-center gap-[4px] overflow-visible p-0 transition hover:opacity-70",
-  interactionCount: "text-[12px] font-medium leading-[15px] text-[#515151]",
+  interactionCount: "text-[12px] font-medium leading-[15px] text-[#505050]",
   reportButton:
     "inline-flex h-[15px] min-h-[15px] w-[15.6px] shrink-0 items-center justify-center overflow-visible p-0 transition hover:opacity-70",
 } as const;

@@ -62,21 +62,21 @@ export default function FavoriteAlbumsPage() {
                   className="h-full w-full object-contain"
                 />
               ) : (
-                <div className="flex h-full w-full items-center justify-center text-xs text-zinc-400">
+                <div className="flex h-full w-full items-center justify-center text-xs text-[var(--color-text-muted)]">
                   이미지 없음
                 </div>
               )}
             </div>
             <div className="min-h-[60px] space-y-1">
-              <p className="truncate text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
+              <p className="truncate text-[10px] font-semibold uppercase tracking-wide text-[var(--color-text-secondary)]">
                 {fav.album?.artist ? (
                   <ArtistNameLink
                     name={fav.album.artist}
-                    className="max-w-full truncate text-left text-[10px] font-semibold uppercase tracking-wide text-zinc-500 transition hover:text-[var(--color-brand-primary)] hover:underline disabled:cursor-wait disabled:no-underline"
+                    className="max-w-full truncate text-left text-[10px] font-semibold uppercase tracking-wide text-[var(--color-text-secondary)] transition hover:text-[var(--color-brand-primary)] hover:underline disabled:cursor-wait disabled:no-underline"
                   />
                 ) : null}
               </p>
-              <h3 className="line-clamp-2 text-sm font-bold text-zinc-900">{fav.album?.title}</h3>
+              <h3 className="line-clamp-2 text-sm font-bold text-[var(--color-text-primary)]">{fav.album?.title}</h3>
             </div>
           </Link>
         ))}

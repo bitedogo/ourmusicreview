@@ -77,7 +77,7 @@ export function PlaylistCoverEditor({
   return (
     <>
       <div className="mt-4 space-y-2 rounded-xl border border-zinc-200 bg-zinc-50 p-3">
-        <p className="text-xs font-medium text-zinc-600">대표사진 변경</p>
+        <p className="text-xs font-medium text-[var(--color-text-secondary)]">대표사진 변경</p>
         <div className="flex items-center gap-3">
           <div className="relative h-14 w-14 overflow-hidden rounded-lg bg-zinc-200">
             {coverPreviewUrl || currentCoverUrl ? (
@@ -89,7 +89,7 @@ export function PlaylistCoverEditor({
                 className="object-cover"
               />
             ) : (
-              <div className="flex h-full w-full items-center justify-center text-[10px] text-zinc-400">
+              <div className="flex h-full w-full items-center justify-center text-[10px] text-[var(--color-text-muted)]">
                 No Cover
               </div>
             )}
@@ -110,7 +110,7 @@ export function PlaylistCoverEditor({
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="rounded-full border border-zinc-300 bg-white px-3 py-1 text-[11px] text-zinc-700"
+              className="rounded-full border border-zinc-300 bg-white px-3 py-1 text-[11px] text-[var(--color-text-primary)]"
             >
               사진 선택
             </button>
@@ -138,7 +138,7 @@ export function PlaylistCoverEditor({
                 resetLocalCover();
                 onClose();
               }}
-              className="rounded-full border border-zinc-300 bg-white px-3 py-1 text-[11px] text-zinc-700"
+              className="rounded-full border border-zinc-300 bg-white px-3 py-1 text-[11px] text-[var(--color-text-primary)]"
             >
               취소
             </button>

@@ -73,28 +73,28 @@ export default function MyReviewsPage() {
               <div className="min-w-0 flex-1 space-y-1">
                 <div className="flex items-center justify-between gap-2">
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-[var(--color-text-secondary)]">
                       {review.album?.artist ? (
                         <ArtistNameLink
                           name={review.album.artist}
-                          className="max-w-full truncate text-left text-xs font-semibold uppercase tracking-wide text-zinc-500 transition hover:text-[var(--color-brand-primary)] hover:underline disabled:cursor-wait disabled:no-underline"
+                          className="max-w-full truncate text-left text-xs font-semibold uppercase tracking-wide text-[var(--color-text-secondary)] transition hover:text-[var(--color-brand-primary)] hover:underline disabled:cursor-wait disabled:no-underline"
                         />
                       ) : null}
                     </p>
-                    <h3 className="truncate text-sm font-bold text-zinc-900">
+                    <h3 className="truncate text-sm font-bold text-[var(--color-text-primary)]">
                       {review.album?.title}
                     </h3>
                   </div>
                   <div className="shrink-0 whitespace-nowrap text-right">
                     <span
-                      className={`text-sm font-bold ${review.rating >= 9 ? "text-red-600" : "text-zinc-900"}`}
+                      className={`text-sm font-bold ${review.rating >= 9 ? "text-red-600" : "text-[var(--color-text-primary)]"}`}
                     >
                       {review.rating.toFixed(1)}
                     </span>
-                    <span className="ml-1 text-[10px] text-zinc-500">/ 10.0</span>
+                    <span className="ml-1 text-[10px] text-[var(--color-text-secondary)]">/ 10.0</span>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 text-[11px] text-zinc-500">
+                <div className="flex items-center gap-2 text-[11px] text-[var(--color-text-secondary)]">
                   <span>{formatDateYYYYMMDD(review.createdAt)}</span>
                   {review.rejectReason && (
                     <span className="rounded-full bg-rose-100 px-2 py-0.5 font-medium text-rose-700">
@@ -107,7 +107,7 @@ export default function MyReviewsPage() {
                     반려 사유: {review.rejectReason}
                   </div>
                 )}
-                <p className="mt-2 line-clamp-2 text-sm text-zinc-700">
+                <p className="mt-2 line-clamp-2 text-sm text-[var(--color-text-primary)]">
                   {getHtmlPlainText(review.content ?? "") || "내용 없음"}
                 </p>
               </div>

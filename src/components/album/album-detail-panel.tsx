@@ -44,7 +44,7 @@ export function AlbumDetailPanel({ album }: AlbumDetailPanelProps) {
     <div className="space-y-3">
       {album.tracks.length > 0 ? (
         <div>
-          <h4 className="text-sm font-semibold text-zinc-800">트랙리스트</h4>
+          <h4 className="text-sm font-semibold text-[var(--color-text-primary)]">트랙리스트</h4>
           <div className="mt-2 max-h-64 overflow-y-auto">
             <AlbumTrackList
               tracks={album.tracks}
@@ -53,7 +53,7 @@ export function AlbumDetailPanel({ album }: AlbumDetailPanelProps) {
                 <button
                   type="button"
                   onClick={() => handleOpenAddModal(track)}
-                  className="shrink-0 rounded-full border border-zinc-300 bg-white px-2.5 py-1 text-[11px] font-semibold text-zinc-700 hover:bg-zinc-100"
+                  className="shrink-0 rounded-full border border-zinc-300 bg-white px-2.5 py-1 text-[11px] font-semibold text-[var(--color-text-primary)] hover:bg-zinc-100"
                 >
                   담기
                 </button>
@@ -64,7 +64,7 @@ export function AlbumDetailPanel({ album }: AlbumDetailPanelProps) {
       ) : null}
 
       {album.copyrights.length > 0 ? (
-        <p className="text-[11px] leading-relaxed text-zinc-400">
+        <p className="text-[11px] leading-relaxed text-[var(--color-text-muted)]">
           {album.copyrights.join(" · ")}
         </p>
       ) : null}

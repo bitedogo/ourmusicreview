@@ -138,8 +138,8 @@ export function ImageCropModal({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="max-h-[70vh] overflow-auto p-4">
-          <h2 className="mb-4 text-lg font-semibold text-zinc-900">{title}</h2>
-          <p className="mb-4 text-sm text-zinc-600">{description}</p>
+          <h2 className="mb-4 text-lg font-semibold text-[var(--color-text-primary)]">{title}</h2>
+          <p className="mb-4 text-sm text-[var(--color-text-secondary)]">{description}</p>
           <div className="flex justify-center">
             <ReactCrop
               crop={crop}
@@ -164,7 +164,7 @@ export function ImageCropModal({
           <button
             type="button"
             onClick={onCancel}
-            className="flex-1 rounded-full border border-zinc-200 py-2.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
+            className="flex-1 rounded-full border border-zinc-200 py-2.5 text-sm font-medium text-[var(--color-text-primary)] hover:bg-zinc-50"
           >
             취소
           </button>

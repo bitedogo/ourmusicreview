@@ -9,7 +9,7 @@ import { PlaylistEngagementCounts } from "@/src/components/playlist/playlist-eng
 import { PlaylistVinylCover } from "@/src/components/playlist/playlist-vinyl-cover";
 
 const actionButtonClass =
-  "rounded-full border border-zinc-300 px-3 py-1 text-[11px] text-zinc-700 hover:bg-zinc-50 disabled:opacity-60";
+  "rounded-full border border-zinc-300 px-3 py-1 text-[11px] text-[var(--color-text-primary)] hover:bg-zinc-50 disabled:opacity-60";
 
 interface PlaylistDetailHeaderProps {
   playlist: PlaylistDetailDto;
@@ -56,10 +56,10 @@ export function PlaylistDetailHeader({
         <div className="flex min-w-0 flex-1 flex-col">
           <div className="flex items-start gap-3">
             <div className="min-w-0 flex-1">
-              <h1 className="truncate text-xl font-semibold tracking-tight text-zinc-900">
+              <h1 className="truncate text-xl font-semibold tracking-tight text-[var(--color-text-primary)]">
                 {playlist.title}
               </h1>
-              <p className="mt-1 text-xs text-zinc-500">
+              <p className="mt-1 text-xs text-[var(--color-text-secondary)]">
                 {playlist.trackCount}곡 · {playlist.isPublic ? "공개" : "비공개"}
               </p>
               <PlaylistEngagementCounts
@@ -69,7 +69,7 @@ export function PlaylistDetailHeader({
                 size="desktop"
               />
               {playlist.description ? (
-                <p className="mt-2 text-sm text-zinc-600">{playlist.description}</p>
+                <p className="mt-2 text-sm text-[var(--color-text-secondary)]">{playlist.description}</p>
               ) : null}
               {!isGenreEditorOpen ? (
                 <GenreTags

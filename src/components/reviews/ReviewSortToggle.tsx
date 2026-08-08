@@ -89,7 +89,7 @@ export function ReviewSortToggle({
             key={opt.value}
             href={buildHref(opt.value)}
             className={`flex h-6 w-[51px] shrink-0 items-center justify-center text-center text-[12px] font-semibold leading-[145%] tracking-[-0.005em] transition-colors ${
-              sort === opt.value ? "text-[#43A7B2]" : "text-[#A9A9A9]"
+              sort === opt.value ? "text-[#43A7B2]" : "text-[var(--color-text-muted)]"
             }`}
           >
             {opt.label}

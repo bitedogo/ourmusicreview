@@ -63,7 +63,7 @@ export function PaginationNav({
   function renderPage(page: number) {
     const isActive = page === currentPage;
     const btnClass = `${pageBtnClass} ${
-      isActive ? "bg-[#43A7B2] text-white" : "bg-white text-black hover:bg-zinc-50"
+      isActive ? "bg-[#43A7B2] text-white" : "bg-white text-[var(--color-text-primary)] hover:bg-zinc-50"
     }`;
 
     if (buildHref) {
@@ -144,7 +144,7 @@ export function PaginationNav({
         item === "ellipsis" ? (
           <span
             key={`e-${idx}`}
-            className="inline-flex h-[30px] w-[30px] shrink-0 items-end justify-center text-[24px] font-normal leading-[145%] tracking-[-0.005em] text-black"
+            className="inline-flex h-[30px] w-[30px] shrink-0 items-end justify-center text-[24px] font-normal leading-[145%] tracking-[-0.005em] text-[var(--color-text-primary)]"
             aria-hidden
           >
             ...

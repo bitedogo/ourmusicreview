@@ -56,11 +56,11 @@ export function AddTracksFromAlbumModal({
         <div className="shrink-0 border-b border-zinc-100 px-5 py-4">
           <h3
             id="add-tracks-from-album-title"
-            className="text-lg font-semibold text-zinc-900"
+            className="text-lg font-semibold text-[var(--color-text-primary)]"
           >
             곡 추가
           </h3>
-          <p className="mt-1 text-sm text-zinc-500">
+          <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
             아티스트를 검색해 앨범/싱글을 고른 뒤, 트랙을 담으세요.
           </p>
         </div>
@@ -71,7 +71,7 @@ export function AddTracksFromAlbumModal({
               <button
                 type="button"
                 onClick={clearAlbum}
-                className="text-sm text-zinc-600 hover:underline"
+                className="text-sm text-[var(--color-text-secondary)] hover:underline"
               >
                 ← 앨범 다시 선택
               </button>
@@ -89,10 +89,10 @@ export function AddTracksFromAlbumModal({
                   ) : null}
                 </div>
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold text-zinc-900">
+                  <p className="truncate text-sm font-semibold text-[var(--color-text-primary)]">
                     {album.name}
                   </p>
-                  <p className="truncate text-xs text-zinc-500">
+                  <p className="truncate text-xs text-[var(--color-text-secondary)]">
                     {album.artists.join(", ")}
                   </p>
                 </div>
@@ -105,7 +105,7 @@ export function AddTracksFromAlbumModal({
                     type="button"
                     disabled={isTrackActionDisabled(track.id)}
                     onClick={() => void addTrack(track)}
-                    className="shrink-0 rounded-full border border-zinc-300 bg-white px-2.5 py-1 text-[11px] font-semibold text-zinc-700 hover:bg-zinc-100 disabled:cursor-default disabled:opacity-60"
+                    className="shrink-0 rounded-full border border-zinc-300 bg-white px-2.5 py-1 text-[11px] font-semibold text-[var(--color-text-primary)] hover:bg-zinc-100 disabled:cursor-default disabled:opacity-60"
                   >
                     {trackActionLabel(track.id)}
                   </button>
@@ -123,7 +123,7 @@ export function AddTracksFromAlbumModal({
                 searchPlaceholder="아티스트 검색"
               />
               {isLoadingAlbum ? (
-                <p className="mt-3 text-center text-sm text-zinc-500">
+                <p className="mt-3 text-center text-sm text-[var(--color-text-secondary)]">
                   트랙리스트를 불러오는 중...
                 </p>
               ) : null}
@@ -131,7 +131,7 @@ export function AddTracksFromAlbumModal({
           )}
 
           {actionMessage ? (
-            <p className="mt-3 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs text-zinc-700">
+            <p className="mt-3 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs text-[var(--color-text-primary)]">
               {actionMessage}
             </p>
           ) : null}
@@ -142,7 +142,7 @@ export function AddTracksFromAlbumModal({
             <button
               type="button"
               onClick={onClose}
-              className="rounded-full border border-zinc-300 px-4 py-2 text-xs font-semibold text-zinc-700 hover:bg-zinc-50"
+              className="rounded-full border border-zinc-300 px-4 py-2 text-xs font-semibold text-[var(--color-text-primary)] hover:bg-zinc-50"
             >
               닫기
             </button>

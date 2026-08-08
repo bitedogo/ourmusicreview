@@ -74,7 +74,7 @@ export default function MyCommentsPage() {
               <div className="mb-2 flex flex-wrap items-center gap-2">
                 {comment.targetType === "BOARD" && comment.post ? (
                   <>
-                    <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-[10px] font-semibold text-zinc-700">
+                    <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-[10px] font-semibold text-[var(--color-text-primary)]">
                       게시판 댓글
                     </span>
                     <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-semibold text-blue-700">
@@ -86,18 +86,18 @@ export default function MyCommentsPage() {
                     리뷰 댓글
                   </span>
                 ) : (
-                  <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-[10px] font-semibold text-zinc-700">
+                  <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-[10px] font-semibold text-[var(--color-text-primary)]">
                     기타
                   </span>
                 )}
-                <span className="text-[11px] text-zinc-500">
+                <span className="text-[11px] text-[var(--color-text-secondary)]">
                   {new Date(comment.createdAt).toLocaleDateString("ko-KR")}
                 </span>
               </div>
 
-              <p className="line-clamp-2 text-sm text-zinc-800">{comment.content}</p>
+              <p className="line-clamp-2 text-sm text-[var(--color-text-primary)]">{comment.content}</p>
 
-              <div className="mt-2 text-xs text-zinc-500">
+              <div className="mt-2 text-xs text-[var(--color-text-secondary)]">
                 {comment.targetType === "BOARD" && comment.post ? (
                   <span className="line-clamp-1">게시글: {comment.post.title}</span>
                 ) : comment.targetType === "REVIEW" && comment.review ? (
@@ -113,7 +113,7 @@ export default function MyCommentsPage() {
               {href && (
                 <Link
                   href={href}
-                  className="mt-3 inline-flex text-xs font-medium text-zinc-700 underline underline-offset-4 hover:text-[var(--color-brand-primary)]"
+                  className="mt-3 inline-flex text-xs font-medium text-[var(--color-text-primary)] underline underline-offset-4 hover:text-[var(--color-brand-primary)]"
                 >
                   원문 보러가기
                 </Link>

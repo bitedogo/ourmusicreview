@@ -59,7 +59,7 @@ export function BoardSearchControls({
         <button
           type="button"
           onClick={handleResetSearch}
-          className="hidden rounded-full border border-zinc-300 px-2.5 py-1 text-[11px] text-zinc-600 hover:bg-zinc-100 sm:inline"
+          className="hidden rounded-full border border-zinc-300 px-2.5 py-1 text-[11px] text-[var(--color-text-secondary)] hover:bg-zinc-100 sm:inline"
         >
           검색 해제
         </button>
@@ -71,7 +71,7 @@ export function BoardSearchControls({
           setQuery(initialQuery);
           setIsModalOpen(true);
         }}
-        className="rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-100"
+        className="rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium text-[var(--color-text-primary)] transition hover:bg-zinc-100"
       >
         검색
       </button>
@@ -85,8 +85,8 @@ export function BoardSearchControls({
             className="w-full max-w-sm rounded-2xl border border-zinc-200 bg-white p-5 shadow-xl"
             onClick={(event) => event.stopPropagation()}
           >
-            <h2 className="text-sm font-semibold text-zinc-900">게시글 검색</h2>
-            <p className="mt-1 text-xs text-zinc-500">
+            <h2 className="text-sm font-semibold text-[var(--color-text-primary)]">게시글 검색</h2>
+            <p className="mt-1 text-xs text-[var(--color-text-secondary)]">
               검색 기준을 선택하고 키워드를 입력해주세요.
             </p>
 
@@ -100,7 +100,7 @@ export function BoardSearchControls({
                     className={`rounded-full px-3 py-1.5 text-xs font-medium ${
                       searchField === option.value
                         ? "bg-[var(--color-brand-primary)] text-white"
-                        : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200"
+                        : "bg-zinc-100 text-[var(--color-text-primary)] hover:bg-zinc-200"
                     }`}
                   >
                     {option.label}
@@ -119,7 +119,7 @@ export function BoardSearchControls({
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="rounded-lg border border-zinc-300 px-3 py-2 text-xs font-medium text-zinc-700 hover:bg-zinc-100"
+                  className="rounded-lg border border-zinc-300 px-3 py-2 text-xs font-medium text-[var(--color-text-primary)] hover:bg-zinc-100"
                 >
                   닫기
                 </button>

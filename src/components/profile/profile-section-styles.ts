@@ -9,7 +9,7 @@ export const PROFILE_SECTION_CARD =
 export const PROFILE_SECTION_INSET = "px-4 sm:px-6 lg:px-[27px]";
 
 export const PROFILE_SECTION_TITLE =
-  "text-[15px] font-normal leading-[18px] text-black";
+  "text-[15px] font-normal leading-[18px] text-[var(--color-text-primary)]";
 
 /** 제목·i — 구분선보다 안쪽으로 */
 export const PROFILE_SECTION_TITLE_INSET = "pl-3 lg:pl-4";

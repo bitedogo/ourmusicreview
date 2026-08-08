@@ -8,7 +8,7 @@ export default function PlaylistPage() {
     <Suspense
       fallback={
         <div className="mx-auto flex min-h-screen w-full max-w-[860px] flex-col bg-white px-4 pb-14 pt-[72px] sm:px-6">
-          <h1 className="text-[28px] font-semibold tracking-tight text-zinc-900">
+          <h1 className="text-[28px] font-semibold tracking-tight text-[var(--color-text-primary)]">
             플레이리스트
           </h1>
           <div className="mt-6 flex min-h-[168px] items-center justify-center rounded-[28px] bg-gradient-to-br from-[#C45C2A] to-[#7A2E12] text-sm text-white/80 sm:min-h-[200px]">

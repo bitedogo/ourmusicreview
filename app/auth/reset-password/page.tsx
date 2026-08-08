@@ -102,7 +102,7 @@ function ResetPasswordForm() {
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-md flex-col justify-center px-6 py-16">
       <h1 className="mb-2 text-2xl font-semibold tracking-tight">비밀번호 재설정</h1>
-      <p className="mb-8 text-sm text-zinc-600">
+      <p className="mb-8 text-sm text-[var(--color-text-secondary)]">
         {step === "verify"
           ? "메일로 받은 인증번호를 입력한 뒤 확인해 주세요."
           : step === "reset"
@@ -117,7 +117,7 @@ function ResetPasswordForm() {
       ) : step === "verify" ? (
         <div className="space-y-4">
           <label className="block space-y-1.5">
-            <span className="text-sm text-zinc-700">이메일</span>
+            <span className="text-sm text-[var(--color-text-primary)]">이메일</span>
             <input
               type="email"
               value={email}
@@ -127,7 +127,7 @@ function ResetPasswordForm() {
             />
           </label>
           <label className="block space-y-1.5">
-            <span className="text-sm text-zinc-700">아이디</span>
+            <span className="text-sm text-[var(--color-text-primary)]">아이디</span>
             <input
               value={id}
               onChange={(event) => setId(event.target.value)}
@@ -136,7 +136,7 @@ function ResetPasswordForm() {
             />
           </label>
           <div className="space-y-1.5">
-            <span className="text-sm text-zinc-700">인증번호</span>
+            <span className="text-sm text-[var(--color-text-primary)]">인증번호</span>
             <div className="flex gap-2">
               <input
                 value={code}
@@ -152,7 +152,7 @@ function ResetPasswordForm() {
                 type="button"
                 onClick={handleVerifyCode}
                 disabled={verifying || code.length !== OTP_CODE_LENGTH}
-                className="h-11 shrink-0 rounded-xl border border-[var(--color-brand-primary)] px-4 text-sm font-medium text-[var(--color-brand-primary)] transition hover:bg-[#EAF6F7] disabled:cursor-not-allowed disabled:border-zinc-300 disabled:text-zinc-400"
+                className="h-11 shrink-0 rounded-xl border border-[var(--color-brand-primary)] px-4 text-sm font-medium text-[var(--color-brand-primary)] transition hover:bg-[#EAF6F7] disabled:cursor-not-allowed disabled:border-zinc-300 disabled:text-[var(--color-text-muted)]"
               >
                 {verifying ? "확인 중..." : "확인"}
               </button>
@@ -167,7 +167,7 @@ function ResetPasswordForm() {
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
           <label className="block space-y-1.5">
-            <span className="text-sm text-zinc-700">새 비밀번호</span>
+            <span className="text-sm text-[var(--color-text-primary)]">새 비밀번호</span>
             <input
               type="password"
               value={password}
@@ -178,7 +178,7 @@ function ResetPasswordForm() {
             />
           </label>
           <label className="block space-y-1.5">
-            <span className="text-sm text-zinc-700">새 비밀번호 확인</span>
+            <span className="text-sm text-[var(--color-text-primary)]">새 비밀번호 확인</span>
             <input
               type="password"
               value={passwordConfirm}
@@ -203,7 +203,7 @@ function ResetPasswordForm() {
         </form>
       )}
 
-      <p className="mt-6 text-sm text-zinc-600">
+      <p className="mt-6 text-sm text-[var(--color-text-secondary)]">
         <Link
           className="font-medium text-[var(--color-brand-primary)] underline"
           href="/auth/signin"
@@ -219,7 +219,7 @@ export default function ResetPasswordPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-screen items-center justify-center text-sm text-zinc-500">
+        <div className="flex min-h-screen items-center justify-center text-sm text-[var(--color-text-secondary)]">
           불러오는 중...
         </div>
       }

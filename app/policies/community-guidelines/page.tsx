@@ -4,28 +4,28 @@ export default function CommunityGuidelinesPage() {
   return (
     <div className="mx-auto min-h-screen max-w-3xl px-6 py-16">
       <header className="mb-10 text-center">
-        <h1 className="text-4xl font-bold tracking-tight text-zinc-900">
+        <h1 className="text-4xl font-bold tracking-tight text-[var(--color-text-primary)]">
           커뮤니티 가이드라인
         </h1>
-        <p className="mt-2 text-sm text-zinc-500">
+        <p className="mt-2 text-sm text-[var(--color-text-secondary)]">
           ORU Community Guidelines
         </p>
       </header>
 
       <div className="rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm sm:p-12">
         <article
-          className="space-y-10 leading-relaxed text-zinc-700"
+          className="space-y-10 leading-relaxed text-[var(--color-text-primary)]"
           style={{ letterSpacing: "0.01em", lineHeight: 1.9 }}
         >
           <section>
-            <h2 className="mb-3 text-base font-bold text-zinc-900">序. 목적 및 비전</h2>
+            <h2 className="mb-3 text-base font-bold text-[var(--color-text-primary)]">序. 목적 및 비전</h2>
             <p className="text-sm sm:text-base">
               본 가이드라인은 음악 평론과 담론의 장 ORU(이하 &apos;사이트&apos;) 내에서 회원들이 상호 존중을 바탕으로 건강한 비평 문화를 형성하고, 고품격 커뮤니티 환경을 유지하는 것을 목적으로 합니다. 모든 회원은 본 가이드라인을 준수함으로써 음악적 가치를 공유하는 전문적인 평론가로서 활동하게 됩니다.
             </p>
           </section>
 
           <section>
-            <h2 className="mb-3 text-base font-bold text-zinc-900">1. 보편적 운영 원칙 (General Rules)</h2>
+            <h2 className="mb-3 text-base font-bold text-[var(--color-text-primary)]">1. 보편적 운영 원칙 (General Rules)</h2>
             <p className="mb-4 text-sm sm:text-base">
               사이트의 품격을 저해하는 다음 각 호의 행위는 발견 즉시 운영진의 재량에 따라 게시물 삭제 및 이용 권한 제한(경고 또는 영구 제명) 조치가 취해질 수 있습니다.
             </p>
@@ -46,11 +46,11 @@ export default function CommunityGuidelinesPage() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-base font-bold text-zinc-900">2. 게시판별 세부 운용 지침 (Specific Guidelines)</h2>
+            <h2 className="mb-3 text-base font-bold text-[var(--color-text-primary)]">2. 게시판별 세부 운용 지침 (Specific Guidelines)</h2>
 
             <div className="space-y-6">
               <div>
-                <h3 className="mb-2 text-sm font-bold text-zinc-800">A. [KR/Global] 담론 게시판</h3>
+                <h3 className="mb-2 text-sm font-bold text-[var(--color-text-primary)]">A. [KR/Global] 담론 게시판</h3>
                 <ul className="space-y-3 text-sm sm:text-base">
                   <li>
                     <span className="font-semibold">논리적 견해의 견지:</span> 단순한 호불호의 표현을 넘어, 반드시 본인만의 음악적 근거가 포함된 비평적 서술을 지향해 주십시오.
@@ -65,7 +65,7 @@ export default function CommunityGuidelinesPage() {
               </div>
 
               <div>
-                <h3 className="mb-2 text-sm font-bold text-zinc-800">B. [Market] 장터 게시판</h3>
+                <h3 className="mb-2 text-sm font-bold text-[var(--color-text-primary)]">B. [Market] 장터 게시판</h3>
                 <ul className="space-y-3 text-sm sm:text-base">
                   <li>
                     <span className="font-semibold">투명한 인증 절차:</span> 실물 사진 내에 본인의 닉네임과 날짜가 기재된 메모가 포함되지 않은 게시물은 사전 통보 없이 삭제됩니다.
@@ -80,7 +80,7 @@ export default function CommunityGuidelinesPage() {
               </div>
 
               <div>
-                <h3 className="mb-2 text-sm font-bold text-zinc-800">C. [Workroom] 워크룸</h3>
+                <h3 className="mb-2 text-sm font-bold text-[var(--color-text-primary)]">C. [Workroom] 워크룸</h3>
                 <ul className="space-y-3 text-sm sm:text-base">
                   <li>
                     <span className="font-semibold">저작권 윤리 준수:</span> 타인의 창작물을 무단 도용하거나 샘플링 클리어런스 등 권리 관계가 불분명한 작업물을 본인의 독자적 창작물로 사칭하는 행위는 엄격히 금지됩니다.
@@ -94,7 +94,7 @@ export default function CommunityGuidelinesPage() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-base font-bold text-zinc-900">3. 신고 및 보호 시스템 (Reports &amp; Protection)</h2>
+            <h2 className="mb-3 text-base font-bold text-[var(--color-text-primary)]">3. 신고 및 보호 시스템 (Reports &amp; Protection)</h2>
             <ul className="space-y-3 text-sm sm:text-base">
               <li>
                 <span className="font-semibold">제보자 익명성:</span> 모든 신고 내용은 암호화되어 관리자에게만 전달되며, 신고자의 신원은 철저히 보호됩니다.
@@ -118,7 +118,7 @@ export default function CommunityGuidelinesPage() {
         <div className="mt-12 pt-6 border-t border-zinc-200">
           <Link
             href="/"
-            className="text-sm font-medium text-zinc-600 underline hover:text-[var(--color-brand-primary)]"
+            className="text-sm font-medium text-[var(--color-text-secondary)] underline hover:text-[var(--color-brand-primary)]"
           >
             ← 홈으로 돌아가기
           </Link>

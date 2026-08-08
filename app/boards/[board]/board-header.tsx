@@ -20,7 +20,7 @@ export function BoardHeader({
       <div>
         <h1 className="text-xl font-semibold tracking-tight">{title}</h1>
         <p
-          className="mt-1 text-xs text-zinc-500"
+          className="mt-1 text-xs text-[var(--color-text-secondary)]"
           dangerouslySetInnerHTML={{ __html: descriptionHtml }}
         />
       </div>

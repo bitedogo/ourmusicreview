@@ -154,9 +154,9 @@ export function FeaturedSlideClient() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
       <div className="mb-6 flex items-center justify-between gap-4">
-        <h1 className="text-xl font-bold text-zinc-900">명반 슬라이드바 관리</h1>
+        <h1 className="text-xl font-bold text-[var(--color-text-primary)]">명반 슬라이드바 관리</h1>
         <div className="flex items-center gap-3 text-sm">
-          <span className="text-zinc-600">
+          <span className="text-[var(--color-text-secondary)]">
             현재 <strong>{albums.length}</strong>개 / {MAX_COUNT}개
           </span>
           {albums.length < MIN_COUNT && (
@@ -174,7 +174,7 @@ export function FeaturedSlideClient() {
           </button>
         </div>
       </div>
-      <p className="mb-3 text-xs text-zinc-500">
+      <p className="mb-3 text-xs text-[var(--color-text-secondary)]">
         항목을 드래그해서 순서를 변경할 수 있습니다.
       </p>
 
@@ -185,11 +185,11 @@ export function FeaturedSlideClient() {
       )}
 
       {isLoading ? (
-        <div className="py-12 text-center text-sm text-zinc-500">
+        <div className="py-12 text-center text-sm text-[var(--color-text-secondary)]">
           목록을 불러오는 중...
         </div>
       ) : albums.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-zinc-300 bg-zinc-50 py-12 text-center text-sm text-zinc-600">
+        <div className="rounded-lg border border-dashed border-zinc-300 bg-zinc-50 py-12 text-center text-sm text-[var(--color-text-secondary)]">
           등록된 앨범이 없습니다. 앨범 추가로 최소 {MIN_COUNT}개를 등록해 주세요.
         </div>
       ) : (
@@ -206,8 +206,8 @@ export function FeaturedSlideClient() {
                 draggingId === album.id ? "opacity-60" : ""
               }`}
             >
-              <span className="shrink-0 text-zinc-400">⋮⋮</span>
-              <span className="w-6 shrink-0 text-right text-sm text-zinc-400">
+              <span className="shrink-0 text-[var(--color-text-muted)]">⋮⋮</span>
+              <span className="w-6 shrink-0 text-right text-sm text-[var(--color-text-muted)]">
                 {index + 1}
               </span>
               {album.imageUrl ? (
@@ -223,10 +223,10 @@ export function FeaturedSlideClient() {
                 <div className="h-12 w-12 shrink-0 rounded bg-zinc-200" />
               )}
               <div className="min-w-0 flex-1">
-                <p className="truncate font-medium text-zinc-900">{album.title}</p>
+                <p className="truncate font-medium text-[var(--color-text-primary)]">{album.title}</p>
                 <ArtistNameLink
                   name={album.artist}
-                  className="truncate text-left text-sm text-zinc-600 transition hover:text-[var(--color-brand-primary)] hover:underline disabled:cursor-wait disabled:no-underline"
+                  className="truncate text-left text-sm text-[var(--color-text-secondary)] transition hover:text-[var(--color-brand-primary)] hover:underline disabled:cursor-wait disabled:no-underline"
                 />
               </div>
               <button

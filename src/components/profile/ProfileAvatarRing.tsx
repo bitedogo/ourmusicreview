@@ -36,7 +36,7 @@ export function ProfileAvatarRing({
         </Link>
       ) : (
         <div
-          className={`flex h-full w-full items-center justify-center font-bold text-zinc-300 ${
+          className={`flex h-full w-full items-center justify-center font-bold text-[var(--color-text-muted)] ${
             size === 180 ? "text-sm" : "text-[10px]"
           }`}
         >

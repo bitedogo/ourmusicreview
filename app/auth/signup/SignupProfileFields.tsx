@@ -34,7 +34,7 @@ export function SignupProfileFields({
           placeholder="닉네임을 입력하세요"
           autoComplete="nickname"
         />
-        <div className="space-y-0.5 text-xs text-zinc-500">
+        <div className="space-y-0.5 text-xs text-[var(--color-text-secondary)]">
           <p>* 특수문자 및 공백 사용불가</p>
           <p>* 최대 글자 수: 영문 12자 또는 한글 6자</p>
         </div>
@@ -70,7 +70,7 @@ export function SignupProfileFields({
                 onChange={() => onGenderChange(value)}
                 className="h-4 w-4 border-zinc-300"
               />
-              <span className="text-sm text-zinc-700">
+              <span className="text-sm text-[var(--color-text-primary)]">
                 {value === "MALE" ? "남성" : value === "FEMALE" ? "여성" : "무응답"}
               </span>
             </label>

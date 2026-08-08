@@ -76,7 +76,7 @@ export function PlaylistVinylCover({
             sizes={isFixed75 ? `${FIXED_COVER_PX}px` : "(max-width: 640px) 30vw, 180px"}
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-zinc-100 text-[10px] text-zinc-400 sm:text-xs">
+          <div className="flex h-full w-full items-center justify-center bg-zinc-100 text-[10px] text-[var(--color-text-muted)] sm:text-xs">
             No Cover
           </div>
         )}

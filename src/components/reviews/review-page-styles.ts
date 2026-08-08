@@ -4,7 +4,7 @@
 export const REVIEW_LIST_CONTENT_CLASS = "mx-auto w-full max-w-[800px]";
 
 export const REVIEW_PAGE_TITLE_CLASS =
-  "h-[30px] text-[28px] font-semibold leading-[33px] text-black";
+  "h-[30px] text-[28px] font-semibold leading-[33px] text-[var(--color-text-primary)]";
 
 /**
  * 바깥 셸 — 테두리·그림자는 여기에만.
@@ -81,7 +81,7 @@ export const REVIEW_DETAIL_BODY = {
     identity: "flex min-w-0 items-center gap-[6px]",
     meta: "min-w-0",
     nickname:
-      "block truncate text-[12px] font-medium leading-[14px] text-black hover:underline",
+      "block truncate text-[12px] font-medium leading-[14px] text-[var(--color-text-primary)] hover:underline",
     metaLine:
       "mt-[2px] flex items-center gap-[7px] text-[10px] font-normal leading-[12px] text-[#C4C4C4]",
     actions: "flex shrink-0 items-center gap-0",
@@ -98,7 +98,7 @@ export const REVIEW_DETAIL_BODY = {
     identity: "flex min-w-0 items-center gap-[10px]",
     meta: "min-w-0",
     nickname:
-      "block truncate text-[20px] font-medium leading-[24px] text-black hover:underline",
+      "block truncate text-[20px] font-medium leading-[24px] text-[var(--color-text-primary)] hover:underline",
     metaLine:
       "mt-[2px] flex items-center gap-[11px] text-[11px] font-normal leading-[13px] text-[#C4C4C4]",
     actions: "flex shrink-0 items-center gap-0",
@@ -107,7 +107,7 @@ export const REVIEW_DETAIL_BODY = {
   },
 
   content:
-    "px-[28px] pb-6 pt-5 text-[14px] font-normal leading-[200%] text-black sm:px-[50px] sm:pb-[40px] sm:pt-[157px]",
+    "px-[28px] pb-6 pt-5 text-[14px] font-normal leading-[200%] text-[var(--color-text-primary)] sm:px-[50px] sm:pb-[40px] sm:pt-[157px]",
   reject:
     "mx-4 mb-6 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-900 sm:mx-[50px]",
 

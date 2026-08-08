@@ -125,10 +125,10 @@ export function CreatePlaylistModal({
           className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border border-zinc-200 bg-white p-5 shadow-xl"
           onClick={(event) => event.stopPropagation()}
         >
-          <h3 className="text-lg font-semibold text-zinc-900">
+          <h3 className="text-lg font-semibold text-[var(--color-text-primary)]">
             새 플레이리스트 생성
           </h3>
-          <p className="mt-1 text-xs text-zinc-500">
+          <p className="mt-1 text-xs text-[var(--color-text-secondary)]">
             제목과 대표사진을 설정한 뒤 생성할 수 있습니다.
           </p>
 
@@ -148,7 +148,7 @@ export function CreatePlaylistModal({
             />
 
             <div>
-              <p className="mb-1.5 text-xs font-medium text-zinc-600">
+              <p className="mb-1.5 text-xs font-medium text-[var(--color-text-secondary)]">
                 장르 (선택)
               </p>
               <GenreSelector
@@ -159,7 +159,7 @@ export function CreatePlaylistModal({
             </div>
 
             <div>
-              <p className="mb-1.5 text-xs font-medium text-zinc-600">
+              <p className="mb-1.5 text-xs font-medium text-[var(--color-text-secondary)]">
                 대표사진 (선택)
               </p>
               <div className="flex items-center gap-3">
@@ -173,7 +173,7 @@ export function CreatePlaylistModal({
                       className="object-cover"
                     />
                   ) : (
-                    <div className="flex h-full w-full items-center justify-center text-[10px] text-zinc-400">
+                    <div className="flex h-full w-full items-center justify-center text-[10px] text-[var(--color-text-muted)]">
                       No Cover
                     </div>
                   )}
@@ -194,7 +194,7 @@ export function CreatePlaylistModal({
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="rounded-full border border-zinc-300 px-3 py-1.5 text-[11px] font-semibold text-zinc-700 hover:bg-zinc-50"
+                    className="rounded-full border border-zinc-300 px-3 py-1.5 text-[11px] font-semibold text-[var(--color-text-primary)] hover:bg-zinc-50"
                   >
                     사진 선택
                   </button>
@@ -206,7 +206,7 @@ export function CreatePlaylistModal({
                         if (coverPreviewUrl) URL.revokeObjectURL(coverPreviewUrl);
                         setCoverPreviewUrl(null);
                       }}
-                      className="rounded-full border border-zinc-200 px-3 py-1.5 text-[11px] text-zinc-500 hover:bg-zinc-50"
+                      className="rounded-full border border-zinc-200 px-3 py-1.5 text-[11px] text-[var(--color-text-secondary)] hover:bg-zinc-50"
                     >
                       선택 취소
                     </button>
@@ -227,7 +227,7 @@ export function CreatePlaylistModal({
               type="button"
               onClick={onClose}
               disabled={isSaving}
-              className="rounded-full border border-zinc-300 px-4 py-2 text-xs font-semibold text-zinc-700 hover:bg-zinc-50 disabled:opacity-60"
+              className="rounded-full border border-zinc-300 px-4 py-2 text-xs font-semibold text-[var(--color-text-primary)] hover:bg-zinc-50 disabled:opacity-60"
             >
               취소
             </button>

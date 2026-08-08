@@ -4,14 +4,14 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #505050;
   --color-brand-primary: #43A7B2;
   --color-brand-primary-hover: #3796A0;
   --color-accent: #43A7B2;
   --color-accent-hover: #3796A0;
   --color-hero-title: #35909A;
   --color-hero-subtitle: rgba(67, 167, 178, 0.55);
-  --color-nav-menu: #272727;
+  --color-nav-menu: #505050;
   /* high(≥9) 빨강 · midHigh(≥6) 주황 · mid(≥3) 노랑 · low 청록 */
   --color-rating-score-high: #F82512;
   --color-rating-score-mid-high: #FFA310;
@@ -20,9 +20,9 @@
   --color-today-album-tab-today: #FBFBFB;
   --color-today-album-tab-yesterday: #F4F4F4;
   --color-today-album-tab-previous: #E3E3E3;
-  --color-text-primary: #18181b;
-  --color-text-secondary: #71717a;
-  --color-text-muted: #a1a1aa;
+  --color-text-primary: #505050;
+  --color-text-secondary: #949494;
+  --color-text-muted: #C4C4C4;
   --color-border: #e4e4e7;
   --color-divider: #71717a;
 
@@ -206,12 +206,12 @@ html,
 body {
   overflow-x: clip;
   background-color: #ffffff !important;
-  color: #171717 !important;
+  color: #505050 !important;
 }
 
 body {
   background: #ffffff !important;
-  color: #171717 !important;
+  color: #505050 !important;
   font-family: inherit;
 }
 

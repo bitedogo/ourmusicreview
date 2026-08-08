@@ -109,7 +109,7 @@ export function PlaylistCoverFlow({
 
   if (!active) {
     return (
-      <div className="flex min-h-[220px] items-center justify-center rounded-[28px] px-6 text-sm text-zinc-500 sm:min-h-[260px]">
+      <div className="flex min-h-[220px] items-center justify-center rounded-[28px] px-6 text-sm text-[var(--color-text-secondary)] sm:min-h-[260px]">
         아직 추천할 공개 플레이리스트가 없습니다.
       </div>
     );
@@ -133,7 +133,7 @@ export function PlaylistCoverFlow({
       }}
     >
       <div className="px-1 pb-1 pt-1 sm:px-2">
-        <p className="text-center text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-400">
+        <p className="text-center text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--color-text-muted)]">
           Recommended Playlist
         </p>
 
@@ -164,7 +164,7 @@ export function PlaylistCoverFlow({
                       priority={isCenter}
                     />
                   ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-zinc-100 text-xs text-zinc-400">
+                    <div className="flex h-full w-full items-center justify-center bg-zinc-100 text-xs text-[var(--color-text-muted)]">
                       No Cover
                     </div>
                   )}
@@ -210,7 +210,7 @@ export function PlaylistCoverFlow({
                 type="button"
                 aria-label="이전 추천"
                 onClick={() => go(-1)}
-                className="absolute left-0 top-1/2 z-30 flex h-10 w-10 -translate-y-1/2 items-center justify-center text-zinc-900 transition hover:opacity-70 sm:left-1"
+                className="absolute left-0 top-1/2 z-30 flex h-10 w-10 -translate-y-1/2 items-center justify-center text-[var(--color-text-primary)] transition hover:opacity-70 sm:left-1"
               >
                 <Image
                   src="/icons/chevron-left.png"
@@ -225,7 +225,7 @@ export function PlaylistCoverFlow({
                 type="button"
                 aria-label="다음 추천"
                 onClick={() => go(1)}
-                className="absolute right-0 top-1/2 z-30 flex h-10 w-10 -translate-y-1/2 items-center justify-center text-zinc-900 transition hover:opacity-70 sm:right-1"
+                className="absolute right-0 top-1/2 z-30 flex h-10 w-10 -translate-y-1/2 items-center justify-center text-[var(--color-text-primary)] transition hover:opacity-70 sm:right-1"
               >
                 <Image
                   src="/icons/chevron-right.png"
@@ -246,17 +246,17 @@ export function PlaylistCoverFlow({
         >
           <Link
             href={playlistDetail(active.id)}
-            className="block truncate text-[16px] font-semibold tracking-tight text-zinc-900 transition hover:text-zinc-700 sm:text-[18px]"
+            className="block truncate text-[16px] font-semibold tracking-tight text-[var(--color-text-primary)] transition hover:text-[var(--color-text-primary)] sm:text-[18px]"
           >
             {active.title}
           </Link>
-          <p className="mt-1 truncate text-[12px] text-zinc-500">
+          <p className="mt-1 truncate text-[12px] text-[var(--color-text-secondary)]">
             {active.ownerNickname}
-            <span className="mx-1.5 text-zinc-300">·</span>
+            <span className="mx-1.5 text-[var(--color-text-muted)]">·</span>
             {active.trackCount}곡
             {(active.genres?.length ?? 0) > 0 ? (
               <>
-                <span className="mx-1.5 text-zinc-300">·</span>
+                <span className="mx-1.5 text-[var(--color-text-muted)]">·</span>
                 {active.genres!
                   .slice(0, 2)
                   .map((g) => g.nameKo)
@@ -264,9 +264,9 @@ export function PlaylistCoverFlow({
               </>
             ) : null}
           </p>
-          <p className="mt-1 text-[11px] text-zinc-400">
+          <p className="mt-1 text-[11px] text-[var(--color-text-muted)]">
             좋아요 {active.likeCount ?? 0}
-            <span className="mx-1.5 text-zinc-300">·</span>
+            <span className="mx-1.5 text-[var(--color-text-muted)]">·</span>
             댓글 {active.commentCount ?? 0}
           </p>
         </div>

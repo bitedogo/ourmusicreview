@@ -51,7 +51,7 @@ export function CommentForm({
   if (!isLoggedIn) {
     return (
       <div className="rounded-xl border border-zinc-100 bg-zinc-50 p-6 text-center">
-        <p className="text-xs text-zinc-500">로그인 후 댓글을 남길 수 있습니다.</p>
+        <p className="text-xs text-[var(--color-text-secondary)]">로그인 후 댓글을 남길 수 있습니다.</p>
       </div>
     );
   }

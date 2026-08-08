@@ -138,7 +138,7 @@ export function FaqManagementClient() {
 
   if (isLoading) {
     return (
-      <div className="py-12 text-center text-sm text-zinc-500">
+      <div className="py-12 text-center text-sm text-[var(--color-text-secondary)]">
         FAQ를 불러오는 중...
       </div>
     );
@@ -151,7 +151,7 @@ export function FaqManagementClient() {
         <div className="flex gap-2">
           <Link
             href="/faq"
-            className="rounded-full border border-zinc-200 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
+            className="rounded-full border border-zinc-200 px-4 py-2 text-sm font-medium text-[var(--color-text-primary)] hover:bg-zinc-50"
           >
             FAQ 목록 보기
           </Link>
@@ -164,7 +164,7 @@ export function FaqManagementClient() {
           </button>
         </div>
       </div>
-      <p className="text-xs text-zinc-500">
+      <p className="text-xs text-[var(--color-text-secondary)]">
         FAQ 항목을 드래그해서 표시 순서를 변경할 수 있습니다.
       </p>
 
@@ -207,7 +207,7 @@ export function FaqManagementClient() {
       />
 
       {faqs.length === 0 && !showAddForm && (
-        <div className="rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 px-4 py-12 text-center text-sm text-zinc-500">
+        <div className="rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 px-4 py-12 text-center text-sm text-[var(--color-text-secondary)]">
           등록된 FAQ가 없습니다. FAQ 추가 버튼을 눌러 등록해주세요.
         </div>
       )}

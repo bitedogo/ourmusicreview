@@ -88,7 +88,7 @@ export function ReviewWriteClient() {
         </div>
         <button
           onClick={() => router.push("/search")}
-          className="rounded-full border border-zinc-200 bg-white px-4 py-2 text-xs font-semibold text-zinc-700 hover:bg-zinc-50"
+          className="rounded-full border border-zinc-200 bg-white px-4 py-2 text-xs font-semibold text-[var(--color-text-primary)] hover:bg-zinc-50"
         >
           검색 페이지로 이동
         </button>
@@ -100,7 +100,7 @@ export function ReviewWriteClient() {
     <div className="mx-auto flex min-h-screen w-full max-w-3xl flex-col gap-6 px-6 py-10 sm:px-16">
       <section className="space-y-2">
         <h1 className="text-xl font-semibold tracking-tight">리뷰 작성</h1>
-        <p className="text-xs text-zinc-500">
+        <p className="text-xs text-[var(--color-text-secondary)]">
           앨범에 대한 감상을 자유롭게 남겨보세요.
         </p>
       </section>
@@ -121,14 +121,14 @@ export function ReviewWriteClient() {
               </div>
             )}
             <div className="flex-1 min-w-0">
-              <h3 className="text-sm font-semibold text-zinc-900 truncate">
+              <h3 className="text-sm font-semibold text-[var(--color-text-primary)] truncate">
                 {albumTitle}
               </h3>
               {albumArtist && (
-                <p className="mt-1 truncate text-xs text-zinc-600">
+                <p className="mt-1 truncate text-xs text-[var(--color-text-secondary)]">
                   <ArtistNameLink
                     name={albumArtist}
-                    className="max-w-full truncate text-left text-xs text-zinc-600 transition hover:text-[var(--color-brand-primary)] hover:underline disabled:cursor-wait disabled:no-underline"
+                    className="max-w-full truncate text-left text-xs text-[var(--color-text-secondary)] transition hover:text-[var(--color-brand-primary)] hover:underline disabled:cursor-wait disabled:no-underline"
                   />
                 </p>
               )}
@@ -142,7 +142,7 @@ export function ReviewWriteClient() {
         className="space-y-4 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm"
       >
         <div className="space-y-1">
-          <label className="text-xs font-medium text-zinc-600">
+          <label className="text-xs font-medium text-[var(--color-text-secondary)]">
             평점 (0-10)
           </label>
           <div className="flex items-center gap-3">
@@ -181,7 +181,7 @@ export function ReviewWriteClient() {
           <button
             type="button"
             onClick={() => router.back()}
-            className="rounded-full border border-zinc-200 px-4 py-2 text-xs font-semibold text-zinc-700 hover:bg-zinc-50"
+            className="rounded-full border border-zinc-200 px-4 py-2 text-xs font-semibold text-[var(--color-text-primary)] hover:bg-zinc-50"
           >
             취소
           </button>

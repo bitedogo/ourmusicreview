@@ -48,10 +48,10 @@ export function ItunesAlbumPickerModal({
       aria-labelledby={titleId}
     >
       <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl">
-        <h2 id={titleId} className="text-lg font-bold text-zinc-900">
+        <h2 id={titleId} className="text-lg font-bold text-[var(--color-text-primary)]">
           {title}
         </h2>
-        <p className="mt-1 text-sm text-zinc-500">{description}</p>
+        <p className="mt-1 text-sm text-[var(--color-text-secondary)]">{description}</p>
 
         <ItunesAlbumSearchPanel
           picker={picker}

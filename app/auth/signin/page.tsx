@@ -17,10 +17,10 @@ const fieldShellClass =
   "w-full overflow-hidden rounded-[10px] border-[0.71px] border-[#E3E3E3] bg-white shadow-[0px_1.41573px_2.83146px_rgba(0,0,0,0.25)] transition-[border-color,box-shadow] focus-within:border-[#43A7B2] sm:rounded-[15px] sm:border sm:shadow-[0px_2px_4px_rgba(0,0,0,0.25)]";
 
 const fieldInputClass =
-  "auth-input h-[44px] w-full bg-transparent pl-[18px] pr-4 text-[15px] font-normal leading-[145%] tracking-[-0.005em] text-black outline-none placeholder:font-normal placeholder:text-[#B1B1B1] sm:h-[50px] sm:pl-[20px] sm:text-[18px]";
+  "auth-input h-[44px] w-full bg-transparent pl-[18px] pr-4 text-[15px] font-normal leading-[145%] tracking-[-0.005em] text-[var(--color-text-primary)] outline-none placeholder:font-normal placeholder:text-[#C4C4C4] sm:h-[50px] sm:pl-[20px] sm:text-[18px]";
 
 const linkTextClass =
-  "whitespace-nowrap text-[11px] font-extralight leading-[145%] tracking-[-0.005em] text-black transition hover:text-[#43A7B2] sm:text-[16px]";
+  "whitespace-nowrap text-[11px] font-extralight leading-[145%] tracking-[-0.005em] text-[var(--color-text-primary)] transition hover:text-[#43A7B2] sm:text-[16px]";
 
 function SigninPageContent() {
   const router = useRouter();
@@ -218,7 +218,7 @@ function SigninPageContent() {
               인증번호 다시 받기
             </button>
           )}
-          {resendStatus && <p className="mt-2 text-sm text-zinc-600">{resendStatus}</p>}
+          {resendStatus && <p className="mt-2 text-sm text-[var(--color-text-secondary)]">{resendStatus}</p>}
 
           <button
             type="submit"
@@ -292,7 +292,7 @@ export default function SigninPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-[50vh] items-center justify-center text-sm text-zinc-500">
+        <div className="flex min-h-[50vh] items-center justify-center text-sm text-[var(--color-text-secondary)]">
           불러오는 중...
         </div>
       }

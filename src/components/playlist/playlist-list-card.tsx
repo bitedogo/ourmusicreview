@@ -71,14 +71,14 @@ export function PlaylistListCard({
         <div className="min-w-0">
           <div className="flex min-w-0 items-baseline gap-1">
             <h3
-              className={`min-w-0 flex-1 truncate font-semibold leading-tight text-zinc-900 ${
+              className={`min-w-0 flex-1 truncate font-semibold leading-tight text-[var(--color-text-primary)] ${
                 isWide ? "text-[13px]" : "text-[11px]"
               }`}
             >
               {item.title}
             </h3>
             <span
-              className={`shrink-0 tabular-nums text-zinc-400 ${
+              className={`shrink-0 tabular-nums text-[var(--color-text-muted)] ${
                 isWide ? "text-[11px]" : "text-[10px]"
               }`}
             >
@@ -87,7 +87,7 @@ export function PlaylistListCard({
           </div>
           {showGenres && (item.genres?.length ?? 0) > 0 ? (
             <p
-              className={`mt-0.5 truncate leading-tight text-zinc-400 ${
+              className={`mt-0.5 truncate leading-tight text-[var(--color-text-muted)] ${
                 isWide ? "text-[10px]" : "text-[9px]"
               }`}
             >
@@ -103,7 +103,7 @@ export function PlaylistListCard({
           />
           {showOwner && item.ownerNickname ? (
             <span
-              className={`min-w-0 flex-1 truncate text-right text-zinc-400 ${
+              className={`min-w-0 flex-1 truncate text-right text-[var(--color-text-muted)] ${
                 isWide ? "text-[10px]" : "text-[9px]"
               }`}
             >

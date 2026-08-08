@@ -126,14 +126,14 @@ export function FindPasswordModal({ onClose }: FindPasswordModalProps) {
         className={`relative flex w-full max-w-[446px] flex-col rounded-[15px] border border-zinc-200 bg-white px-5 py-5 shadow-xl sm:px-8 sm:py-6 ${modalSizeByStep[step]}`}
         onClick={(event) => event.stopPropagation()}
       >
-        <h3 className="shrink-0 text-[16px] font-semibold text-zinc-900 sm:text-[18px]">
+        <h3 className="shrink-0 text-[16px] font-semibold text-[var(--color-text-primary)] sm:text-[18px]">
           비밀번호 재설정
         </h3>
 
         {step === "done" ? (
           <>
             <div className="absolute inset-x-5 top-[48%] -translate-y-1/2 sm:inset-x-8">
-              <p className="text-[13px] leading-5 text-zinc-600 sm:text-sm sm:leading-6">
+              <p className="text-[13px] leading-5 text-[var(--color-text-secondary)] sm:text-sm sm:leading-6">
                 비밀번호가 변경되었습니다.
                 <br />
                 새 비밀번호로 로그인해 주세요.
@@ -154,7 +154,7 @@ export function FindPasswordModal({ onClose }: FindPasswordModalProps) {
             <div className="absolute inset-x-5 top-[48%] -translate-y-1/2 sm:inset-x-8">
               <div className="space-y-3 sm:space-y-4">
                 <label className="flex min-w-0 items-center gap-2 sm:gap-4">
-                  <span className="w-10 shrink-0 text-[12px] text-[#000000] sm:text-[13px]">
+                  <span className="w-10 shrink-0 text-[12px] text-[var(--color-text-primary)] sm:text-[13px]">
                     E-mail
                   </span>
                   <input
@@ -166,7 +166,7 @@ export function FindPasswordModal({ onClose }: FindPasswordModalProps) {
                   />
                 </label>
                 <label className="flex min-w-0 items-center gap-2 sm:gap-4">
-                  <span className="w-10 shrink-0 text-[12px] text-[#000000] sm:text-[13px]">
+                  <span className="w-10 shrink-0 text-[12px] text-[var(--color-text-primary)] sm:text-[13px]">
                     ID
                   </span>
                   <input
@@ -183,7 +183,7 @@ export function FindPasswordModal({ onClose }: FindPasswordModalProps) {
               <button
                 type="button"
                 onClick={onClose}
-                className="text-[13px] font-semibold text-zinc-900"
+                className="text-[13px] font-semibold text-[var(--color-text-primary)]"
               >
                 취소
               </button>
@@ -199,13 +199,13 @@ export function FindPasswordModal({ onClose }: FindPasswordModalProps) {
         ) : step === "verify" ? (
           <form onSubmit={handleVerify} className="flex min-h-0 flex-1 flex-col">
             <div className="absolute inset-x-5 top-[48%] -translate-y-1/2 sm:inset-x-8">
-              <p className="mb-3 text-[12px] leading-5 text-zinc-600 sm:text-[13px] sm:leading-6">
+              <p className="mb-3 text-[12px] leading-5 text-[var(--color-text-secondary)] sm:text-[13px] sm:leading-6">
                 등록된 이메일로 인증번호를 보냈습니다.
                 <br />
                 메일함을 확인한 뒤 인증번호를 입력해 주세요.
               </p>
               <label className="flex min-w-0 items-center gap-2 sm:gap-4">
-                <span className="w-10 shrink-0 text-[12px] text-[#000000] sm:text-[13px]">
+                <span className="w-10 shrink-0 text-[12px] text-[var(--color-text-primary)] sm:text-[13px]">
                   인증
                 </span>
                 <input
@@ -228,7 +228,7 @@ export function FindPasswordModal({ onClose }: FindPasswordModalProps) {
                   setError(null);
                   setStep("request");
                 }}
-                className="text-[13px] font-semibold text-zinc-900"
+                className="text-[13px] font-semibold text-[var(--color-text-primary)]"
               >
                 이전
               </button>
@@ -246,7 +246,7 @@ export function FindPasswordModal({ onClose }: FindPasswordModalProps) {
             <div className="absolute inset-x-5 top-[48%] -translate-y-1/2 sm:inset-x-8">
               <div className="space-y-3 sm:space-y-4">
                 <label className="flex min-w-0 items-center gap-2 sm:gap-4">
-                  <span className="w-[52px] shrink-0 text-[12px] text-[#000000] sm:text-[13px]">
+                  <span className="w-[52px] shrink-0 text-[12px] text-[var(--color-text-primary)] sm:text-[13px]">
                     새 비밀번호
                   </span>
                   <input
@@ -259,7 +259,7 @@ export function FindPasswordModal({ onClose }: FindPasswordModalProps) {
                   />
                 </label>
                 <label className="flex min-w-0 items-center gap-2 sm:gap-4">
-                  <span className="w-[52px] shrink-0 text-[12px] text-[#000000] sm:text-[13px]">
+                  <span className="w-[52px] shrink-0 text-[12px] text-[var(--color-text-primary)] sm:text-[13px]">
                     비밀번호 확인
                   </span>
                   <input
@@ -281,7 +281,7 @@ export function FindPasswordModal({ onClose }: FindPasswordModalProps) {
                   setError(null);
                   setStep("verify");
                 }}
-                className="text-[13px] font-semibold text-zinc-900"
+                className="text-[13px] font-semibold text-[var(--color-text-primary)]"
               >
                 이전
               </button>

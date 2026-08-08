@@ -121,7 +121,7 @@ export function AlbumReviewsClient({ albumId }: { albumId: string }) {
     return (
       <div className="mx-auto flex min-h-screen w-full max-w-3xl flex-col gap-6 px-6 py-10 sm:px-16">
         <div className="flex items-center justify-center py-12">
-          <div className="text-sm text-zinc-500">리뷰를 불러오는 중...</div>
+          <div className="text-sm text-[var(--color-text-secondary)]">리뷰를 불러오는 중...</div>
         </div>
       </div>
     );
@@ -135,7 +135,7 @@ export function AlbumReviewsClient({ albumId }: { albumId: string }) {
         </div>
         <button
           onClick={() => router.back()}
-          className="rounded-full border border-zinc-200 bg-white px-4 py-2 text-xs font-semibold text-zinc-700 hover:bg-zinc-50"
+          className="rounded-full border border-zinc-200 bg-white px-4 py-2 text-xs font-semibold text-[var(--color-text-primary)] hover:bg-zinc-50"
         >
           뒤로 가기
         </button>
@@ -183,7 +183,7 @@ export function AlbumReviewsClient({ albumId }: { albumId: string }) {
           <button
             type="button"
             onClick={() => router.back()}
-            className="mb-4 flex w-fit items-center gap-2 text-sm text-zinc-600 hover:text-[var(--color-brand-primary)]"
+            className="mb-4 flex w-fit items-center gap-2 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-brand-primary)]"
           >
             <svg
               width="16"
@@ -205,7 +205,7 @@ export function AlbumReviewsClient({ albumId }: { albumId: string }) {
         ) : (
           <button
             onClick={() => router.back()}
-            className="mb-4 flex w-fit items-center gap-2 text-sm text-zinc-600 hover:text-[var(--color-brand-primary)]"
+            className="mb-4 flex w-fit items-center gap-2 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-brand-primary)]"
           >
             <svg
               width="16"
@@ -263,10 +263,10 @@ export function AlbumReviewsClient({ albumId }: { albumId: string }) {
 
       {reviews.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 px-4 py-10 text-center">
-          <p className="text-sm font-medium text-zinc-700">
+          <p className="text-sm font-medium text-[var(--color-text-primary)]">
             이 앨범에 대한 리뷰가 아직 없습니다.
           </p>
-          <p className="mt-1 text-sm text-zinc-500">
+          <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
             첫 리뷰를 작성해 주세요.
           </p>
         </div>
@@ -302,7 +302,7 @@ export function AlbumReviewsClient({ albumId }: { albumId: string }) {
                         className="h-10 w-10 rounded-full object-cover"
                       />
                     ) : (
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-200 text-xs font-semibold text-zinc-600">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-200 text-xs font-semibold text-[var(--color-text-secondary)]">
                         {review.user.nickname.charAt(0).toUpperCase()}
                       </div>
                     )}
@@ -311,11 +311,11 @@ export function AlbumReviewsClient({ albumId }: { albumId: string }) {
                     <Link
                       href={getUserProfilePath(review.user.id)}
                       onClick={(event) => event.stopPropagation()}
-                      className="text-sm font-semibold text-zinc-900 hover:underline"
+                      className="text-sm font-semibold text-[var(--color-text-primary)] hover:underline"
                     >
                       {review.user.nickname}
                     </Link>
-                    <p className="text-xs text-zinc-500">
+                    <p className="text-xs text-[var(--color-text-secondary)]">
                       {formatDateYYYYMMDD(review.createdAt)}
                     </p>
                   </div>
@@ -327,11 +327,11 @@ export function AlbumReviewsClient({ albumId }: { albumId: string }) {
                   >
                     {formatRating(review.rating)}
                   </span>
-                  <span className="text-sm text-zinc-500">/ 10.0</span>
+                  <span className="text-sm text-[var(--color-text-secondary)]">/ 10.0</span>
                 </div>
               </div>
 
-              <p className="line-clamp-3 text-sm text-zinc-700">
+              <p className="line-clamp-3 text-sm text-[var(--color-text-primary)]">
                 {getHtmlPlainText(review.content) || "내용 없음"}
               </p>
 

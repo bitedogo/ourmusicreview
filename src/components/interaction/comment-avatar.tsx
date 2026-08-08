@@ -45,7 +45,7 @@ export function CommentAvatar({
         />
       ) : (
         <div
-          className={`flex h-full w-full items-center justify-center rounded-full font-semibold text-zinc-500 ${size === "detail" ? "text-[9px] sm:text-[11px]" : "text-[10px] font-bold text-zinc-400"}`}
+          className={`flex h-full w-full items-center justify-center rounded-full font-semibold text-[var(--color-text-secondary)] ${size === "detail" ? "text-[9px] sm:text-[11px]" : "text-[10px] font-bold text-[var(--color-text-muted)]"}`}
         >
           {user.nickname.charAt(0).toUpperCase()}
         </div>

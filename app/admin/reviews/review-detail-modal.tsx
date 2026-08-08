@@ -23,14 +23,14 @@ export function ReviewDetailModal({ review, onClose }: ReviewDetailModalProps) {
       >
         <div className="flex items-center justify-between border-b border-zinc-200 px-5 py-4">
           <div className="flex flex-col gap-1">
-            <h2 className="text-base font-semibold text-zinc-900">
+            <h2 className="text-base font-semibold text-[var(--color-text-primary)]">
               {review.album.title} —{" "}
               <ArtistNameLink
                 name={review.album.artist}
-                className="inline text-left text-base font-semibold text-zinc-900 transition hover:text-[var(--color-brand-primary)] hover:underline disabled:cursor-wait disabled:no-underline"
+                className="inline text-left text-base font-semibold text-[var(--color-text-primary)] transition hover:text-[var(--color-brand-primary)] hover:underline disabled:cursor-wait disabled:no-underline"
               />
             </h2>
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-[var(--color-text-secondary)]">
               {review.user.nickname} ·{" "}
               <span className={review.rating >= 9 ? "font-semibold text-red-600" : ""}>
                 {review.rating.toFixed(1)}점
@@ -42,7 +42,7 @@ export function ReviewDetailModal({ review, onClose }: ReviewDetailModalProps) {
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg px-3 py-1.5 text-xs font-medium text-zinc-600 hover:bg-zinc-100"
+            className="rounded-lg px-3 py-1.5 text-xs font-medium text-[var(--color-text-secondary)] hover:bg-zinc-100"
           >
             닫기
           </button>

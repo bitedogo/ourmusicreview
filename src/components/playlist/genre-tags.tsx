@@ -21,8 +21,8 @@ export function GenreTags({
 
   const chipClass =
     size === "md"
-      ? "rounded-full bg-zinc-100 px-2.5 py-1 text-xs text-zinc-700"
-      : "rounded-full bg-zinc-100 px-2 py-0.5 text-[11px] text-zinc-600";
+      ? "rounded-full bg-zinc-100 px-2.5 py-1 text-xs text-[var(--color-text-primary)]"
+      : "rounded-full bg-zinc-100 px-2 py-0.5 text-[11px] text-[var(--color-text-secondary)]";
 
   return (
     <div className={`flex flex-wrap gap-1.5 ${className}`.trim()}>

@@ -168,7 +168,7 @@ export function AlbumReviewsClient() {
         </section>
 
         {!!searchQuery && (
-          <div className="mt-4 flex items-center gap-2 text-xs text-zinc-600">
+          <div className="mt-4 flex items-center gap-2 text-xs text-[var(--color-text-secondary)]">
             <span className="rounded-full bg-zinc-100 px-2 py-1">
               {SEARCH_FIELD_OPTIONS.find((opt) => opt.value === searchField)?.label}:{" "}
               {searchQuery}
@@ -176,7 +176,7 @@ export function AlbumReviewsClient() {
             <button
               type="button"
               onClick={removeSearch}
-              className="rounded-full border border-zinc-300 px-2 py-1 text-[11px] text-zinc-600 hover:bg-zinc-100"
+              className="rounded-full border border-zinc-300 px-2 py-1 text-[11px] text-[var(--color-text-secondary)] hover:bg-zinc-100"
             >
               검색 해제
             </button>
@@ -184,7 +184,7 @@ export function AlbumReviewsClient() {
         )}
 
         {isLoading ? (
-          <div className="mt-5 py-12 text-center text-sm text-zinc-500">
+          <div className="mt-5 py-12 text-center text-sm text-[var(--color-text-secondary)]">
             리뷰를 불러오는 중...
           </div>
         ) : error ? (
@@ -192,7 +192,7 @@ export function AlbumReviewsClient() {
             {error}
           </div>
         ) : reviews.length === 0 ? (
-          <div className="mt-5 rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 px-4 py-12 text-center text-sm text-zinc-500">
+          <div className="mt-5 rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 px-4 py-12 text-center text-sm text-[var(--color-text-secondary)]">
             아직 승인된 앨범 리뷰가 없습니다.
           </div>
         ) : (
@@ -235,8 +235,8 @@ export function AlbumReviewsClient() {
             className="w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-5 shadow-xl"
             onClick={(event) => event.stopPropagation()}
           >
-            <h2 className="text-base font-semibold text-zinc-900">리뷰 검색</h2>
-            <p className="mt-1 text-xs text-zinc-500">
+            <h2 className="text-base font-semibold text-[var(--color-text-primary)]">리뷰 검색</h2>
+            <p className="mt-1 text-xs text-[var(--color-text-secondary)]">
               검색 기준을 선택하고 키워드를 입력해주세요.
             </p>
 
@@ -250,7 +250,7 @@ export function AlbumReviewsClient() {
                     className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
                       searchField === option.value
                         ? "bg-[var(--color-brand-primary)] text-white"
-                        : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200"
+                        : "bg-zinc-100 text-[var(--color-text-primary)] hover:bg-zinc-200"
                     }`}
                   >
                     {option.label}
@@ -269,7 +269,7 @@ export function AlbumReviewsClient() {
                 <button
                   type="button"
                   onClick={() => setIsSearchModalOpen(false)}
-                  className="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100"
+                  className="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium text-[var(--color-text-primary)] hover:bg-zinc-100"
                 >
                   닫기
                 </button>

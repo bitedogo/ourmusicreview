@@ -107,16 +107,16 @@ export function AddTrackToPlaylistModal({
         className="w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-5 shadow-xl"
         onClick={(event) => event.stopPropagation()}
       >
-        <h3 className="text-lg font-semibold text-zinc-900">플레이리스트에 담기</h3>
-        <p className="mt-1 truncate text-sm text-zinc-600">{track.title}</p>
-        <p className="mt-0.5 truncate text-xs text-zinc-400">{album.name}</p>
+        <h3 className="text-lg font-semibold text-[var(--color-text-primary)]">플레이리스트에 담기</h3>
+        <p className="mt-1 truncate text-sm text-[var(--color-text-secondary)]">{track.title}</p>
+        <p className="mt-0.5 truncate text-xs text-[var(--color-text-muted)]">{album.name}</p>
 
         {isLoading ? (
-          <p className="mt-6 text-center text-sm text-zinc-500">불러오는 중...</p>
+          <p className="mt-6 text-center text-sm text-[var(--color-text-secondary)]">불러오는 중...</p>
         ) : (
           <div className="mt-4 space-y-3">
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-zinc-600">
+              <label className="mb-1.5 block text-xs font-medium text-[var(--color-text-secondary)]">
                 기존 플레이리스트
               </label>
               <select
@@ -133,7 +133,7 @@ export function AddTrackToPlaylistModal({
               </select>
             </div>
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-zinc-600">
+              <label className="mb-1.5 block text-xs font-medium text-[var(--color-text-secondary)]">
                 새 플레이리스트 만들기
               </label>
               <input
@@ -153,7 +153,7 @@ export function AddTrackToPlaylistModal({
                       className="object-cover"
                     />
                   </div>
-                  <p className="text-[11px] leading-snug text-zinc-500">
+                  <p className="text-[11px] leading-snug text-[var(--color-text-secondary)]">
                     이 앨범 커버가 새 플레이리스트 대표사진으로 저장됩니다.
                   </p>
                 </div>
@@ -171,7 +171,7 @@ export function AddTrackToPlaylistModal({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full border border-zinc-300 px-4 py-2 text-xs font-semibold text-zinc-700 hover:bg-zinc-50"
+            className="rounded-full border border-zinc-300 px-4 py-2 text-xs font-semibold text-[var(--color-text-primary)] hover:bg-zinc-50"
           >
             취소
           </button>

@@ -47,11 +47,11 @@ export function CategorySelector({
             : ""
         }
       >
-        <p className="text-lg font-semibold text-zinc-900">
+        <p className="text-lg font-semibold text-[var(--color-text-primary)]">
           {CATEGORY_LABELS[category]}
         </p>
         {category === "N" && (
-          <div className="inline-flex flex-wrap justify-end gap-1 text-xs text-zinc-600">
+          <div className="inline-flex flex-wrap justify-end gap-1 text-xs text-[var(--color-text-secondary)]">
             {NOTICE_CATEGORY_OPTIONS.map(({ value, label }) => (
               <button
                 key={value}
@@ -61,7 +61,7 @@ export function CategorySelector({
                   "rounded-full px-3 py-1.5 font-semibold border",
                   noticeCategory === value
                     ? "bg-[var(--color-brand-primary)] text-white border-[var(--color-brand-primary)]"
-                    : "border-zinc-200 text-zinc-500 hover:text-[var(--color-brand-primary)]",
+                    : "border-zinc-200 text-[var(--color-text-secondary)] hover:text-[var(--color-brand-primary)]",
                 ].join(" ")}
               >
                 {label}
@@ -75,8 +75,8 @@ export function CategorySelector({
 
   return (
     <>
-      <label className="text-xs font-medium text-zinc-600">카테고리</label>
-      <div className="inline-flex flex-wrap gap-1 text-xs text-zinc-600">
+      <label className="text-xs font-medium text-[var(--color-text-secondary)]">카테고리</label>
+      <div className="inline-flex flex-wrap gap-1 text-xs text-[var(--color-text-secondary)]">
         {SELECTABLE_CATEGORIES.map((key) => (
           <button
             key={key}
@@ -86,7 +86,7 @@ export function CategorySelector({
               "rounded-full px-3 py-1.5 font-semibold border",
               category === key
                 ? CATEGORY_BUTTON_COLORS[key]
-                : "border-zinc-200 text-zinc-500 hover:text-[var(--color-brand-primary)]",
+                : "border-zinc-200 text-[var(--color-text-secondary)] hover:text-[var(--color-brand-primary)]",
             ].join(" ")}
           >
             {CATEGORY_LABELS[key]}

@@ -21,7 +21,7 @@ export function FaqAddForm({ value, onChange, onSubmit, isSubmitting }: FaqAddFo
     >
       <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-zinc-700">질문</label>
+          <label className="block text-sm font-medium text-[var(--color-text-primary)]">질문</label>
           <input
             value={value.question}
             onChange={(e) => onChange({ ...value, question: e.target.value })}
@@ -30,7 +30,7 @@ export function FaqAddForm({ value, onChange, onSubmit, isSubmitting }: FaqAddFo
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-zinc-700">답변</label>
+          <label className="block text-sm font-medium text-[var(--color-text-primary)]">답변</label>
           <textarea
             value={value.answer}
             onChange={(e) => onChange({ ...value, answer: e.target.value })}
@@ -86,7 +86,7 @@ export function FaqEditForm({ value, onChange, onSubmit, onCancel, isSubmitting 
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-full border border-zinc-200 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
+          className="rounded-full border border-zinc-200 px-4 py-2 text-sm font-medium text-[var(--color-text-primary)] hover:bg-zinc-50"
         >
           취소
         </button>

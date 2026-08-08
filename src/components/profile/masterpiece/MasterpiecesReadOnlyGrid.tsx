@@ -13,7 +13,7 @@ export function MasterpiecesReadOnlyGrid({
   albums: ProfileMasterpieceItem[];
 }) {
   if (albums.length === 0) {
-    return <p className="py-16 text-center text-sm text-zinc-500">등록된 앨범이 없습니다.</p>;
+    return <p className="py-16 text-center text-sm text-[var(--color-text-secondary)]">등록된 앨범이 없습니다.</p>;
   }
 
   return (

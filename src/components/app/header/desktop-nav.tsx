@@ -35,7 +35,7 @@ export function DesktopNav({ isAdmin, className }: DesktopNavProps) {
                 <Link
                   key={href}
                   href={href}
-                  className="block w-full px-4 py-3 text-sm font-medium text-zinc-800 transition-colors hover:bg-zinc-50 hover:text-[var(--color-accent)]"
+                  className="block w-full px-4 py-3 text-sm font-medium text-[var(--color-text-primary)] transition-colors hover:bg-zinc-50 hover:text-[var(--color-accent)]"
                 >
                   {label}
                 </Link>

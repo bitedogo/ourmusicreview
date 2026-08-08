@@ -58,12 +58,12 @@ export function FindIdModal({ onClose, onOpenFindPassword }: FindIdModalProps) {
         className={`relative flex w-full max-w-[446px] flex-col rounded-[15px] border border-zinc-200 bg-white px-5 py-5 shadow-xl sm:px-8 sm:py-6 ${modalSizeClass}`}
         onClick={(event) => event.stopPropagation()}
       >
-        <h3 className="shrink-0 text-[16px] font-semibold text-zinc-900 sm:text-[18px]">아이디 찾기</h3>
+        <h3 className="shrink-0 text-[16px] font-semibold text-[var(--color-text-primary)] sm:text-[18px]">아이디 찾기</h3>
 
         {sent ? (
           <>
             <div className="absolute inset-x-5 top-[48%] -translate-y-1/2 sm:inset-x-8">
-              <p className="text-[13px] leading-5 text-zinc-600 sm:text-sm sm:leading-6">
+              <p className="text-[13px] leading-5 text-[var(--color-text-secondary)] sm:text-sm sm:leading-6">
                 등록된 이메일로 아이디 안내 메일을 보냈습니다.
                 <br />
                 메일함을 확인해 주세요.
@@ -73,7 +73,7 @@ export function FindIdModal({ onClose, onOpenFindPassword }: FindIdModalProps) {
               <button
                 type="button"
                 onClick={onOpenFindPassword}
-                className="text-[13px] font-semibold text-zinc-900"
+                className="text-[13px] font-semibold text-[var(--color-text-primary)]"
               >
                 비밀번호 재설정
               </button>
@@ -91,7 +91,7 @@ export function FindIdModal({ onClose, onOpenFindPassword }: FindIdModalProps) {
             <div className="absolute inset-x-5 top-[48%] -translate-y-1/2 sm:inset-x-8">
               <div className="space-y-3 sm:space-y-4">
                 <label className="flex min-w-0 items-center gap-2 sm:gap-4">
-                  <span className="w-10 shrink-0 text-[12px] text-[#000000] sm:text-[13px]">
+                  <span className="w-10 shrink-0 text-[12px] text-[var(--color-text-primary)] sm:text-[13px]">
                     이름
                   </span>
                   <input
@@ -103,7 +103,7 @@ export function FindIdModal({ onClose, onOpenFindPassword }: FindIdModalProps) {
                   />
                 </label>
                 <label className="flex min-w-0 items-center gap-2 sm:gap-4">
-                  <span className="w-10 shrink-0 text-[12px] text-[#000000] sm:text-[13px]">
+                  <span className="w-10 shrink-0 text-[12px] text-[var(--color-text-primary)] sm:text-[13px]">
                     E-mail
                   </span>
                   <input
@@ -118,7 +118,7 @@ export function FindIdModal({ onClose, onOpenFindPassword }: FindIdModalProps) {
               {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
             </div>
             <div className="mt-auto flex shrink-0 items-center justify-between">
-              <button type="button" onClick={onClose} className="text-[13px] font-semibold text-zinc-900">
+              <button type="button" onClick={onClose} className="text-[13px] font-semibold text-[var(--color-text-primary)]">
                 취소
               </button>
               <button

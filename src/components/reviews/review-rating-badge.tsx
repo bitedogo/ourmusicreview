@@ -36,8 +36,8 @@ export function ReviewRatingBadge({
         <span
           className={
             size === "mobile"
-              ? "text-[7px] leading-[10px] tracking-normal text-[#C0C0C0]"
-              : "text-[11px] tracking-normal text-[#C0C0C0]"
+              ? "text-[7px] leading-[10px] tracking-normal text-[#C4C4C4]"
+              : "text-[11px] tracking-normal text-[#C4C4C4]"
           }
         >
           {"\u00A0/\u00A0"}10
@@ -87,7 +87,7 @@ export function ReviewAlbumCover({
             className="h-full w-full object-cover"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-zinc-100 text-[10px] text-zinc-400 sm:text-xs">
+          <div className="flex h-full w-full items-center justify-center bg-zinc-100 text-[10px] text-[var(--color-text-muted)] sm:text-xs">
             No Image
           </div>
         )}

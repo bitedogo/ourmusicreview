@@ -32,7 +32,7 @@ export function ProfileListPageLayout({
         <button
           type="button"
           onClick={() => router.push("/profile")}
-          className="mb-4 flex items-center gap-2 text-sm text-zinc-600 hover:text-[var(--color-brand-primary)]"
+          className="mb-4 flex items-center gap-2 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-brand-primary)]"
         >
           <svg
             width="16"
@@ -53,18 +53,18 @@ export function ProfileListPageLayout({
         </button>
         <h1 className="text-xl font-semibold tracking-tight">{title}</h1>
         {description ? (
-          <p className="text-xs text-zinc-500">{description}</p>
+          <p className="text-xs text-[var(--color-text-secondary)]">{description}</p>
         ) : null}
       </section>
 
       {isLoading ? (
-        <div className="py-12 text-center text-sm text-zinc-500">{loadingMessage}</div>
+        <div className="py-12 text-center text-sm text-[var(--color-text-secondary)]">{loadingMessage}</div>
       ) : error ? (
         <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900">
           {error}
         </div>
       ) : isEmpty ? (
-        <div className="rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 px-4 py-12 text-center text-sm text-zinc-500">
+        <div className="rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 px-4 py-12 text-center text-sm text-[var(--color-text-secondary)]">
           {emptyMessage}
         </div>
       ) : (

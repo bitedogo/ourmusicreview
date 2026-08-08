@@ -63,7 +63,7 @@ export function SignupAccountFields({
           spellCheck={false}
           maxLength={USER_ID_MAX}
         />
-        <p className="text-xs text-zinc-500">
+        <p className="text-xs text-[var(--color-text-secondary)]">
           영문과 숫자만 사용 가능합니다. 4자 이상 50자 이하입니다.
         </p>
       </div>
@@ -81,7 +81,7 @@ export function SignupAccountFields({
           placeholder="비밀번호를 입력하세요"
           autoComplete="new-password"
         />
-        <p className="text-xs text-zinc-500">
+        <p className="text-xs text-[var(--color-text-secondary)]">
           비밀번호는 6자리 이상이어야 하며 영문과 숫자를 반드시 포함해야 합니다.
         </p>
       </div>
@@ -161,12 +161,12 @@ export function SignupAccountFields({
                   emailCode.length !== OTP_CODE_LENGTH ||
                   !email.trim()
                 }
-                className="shrink-0 rounded-lg border border-[var(--color-brand-primary)] px-3 py-2 text-sm font-medium text-[var(--color-brand-primary)] transition hover:bg-[#EAF6F7] disabled:cursor-not-allowed disabled:border-zinc-300 disabled:text-zinc-400"
+                className="shrink-0 rounded-lg border border-[var(--color-brand-primary)] px-3 py-2 text-sm font-medium text-[var(--color-brand-primary)] transition hover:bg-[#EAF6F7] disabled:cursor-not-allowed disabled:border-zinc-300 disabled:text-[var(--color-text-muted)]"
               >
                 {isConfirmingEmailCode ? "확인 중..." : "확인"}
               </button>
             </div>
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-[var(--color-text-secondary)]">
               이메일 인증을 누르면 인증번호가 발송됩니다. 메일 속 영문·숫자
               코드를 입력한 뒤 확인해 주세요.
             </p>

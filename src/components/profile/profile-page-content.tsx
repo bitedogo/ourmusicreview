@@ -125,7 +125,7 @@ export function ProfilePageContent(props: ProfilePageContentProps) {
     <div className="min-h-screen">
       <div className={PROFILE_PAGE_SHELL_CLASS}>
         <div className="mb-[var(--profile-title-section-gap)] flex items-center justify-between gap-4">
-          <h1 className="text-xl font-semibold tracking-tight text-zinc-900 md:text-2xl">
+          <h1 className="text-xl font-semibold tracking-tight text-[var(--color-text-primary)] md:text-2xl">
             {pageTitle}
           </h1>
           {headerAction}

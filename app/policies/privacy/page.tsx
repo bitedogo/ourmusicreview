@@ -4,18 +4,18 @@ export default function PrivacyPage() {
   return (
     <div className="mx-auto min-h-screen max-w-3xl px-6 py-16">
       <header className="mb-10 text-center">
-        <h1 className="text-4xl font-bold tracking-tight text-zinc-900">
+        <h1 className="text-4xl font-bold tracking-tight text-[var(--color-text-primary)]">
           개인정보처리방침
         </h1>
-        <p className="mt-2 text-sm text-zinc-500">
+        <p className="mt-2 text-sm text-[var(--color-text-secondary)]">
           Privacy Policy
         </p>
       </header>
 
       <div className="rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm sm:p-12">
-        <article className="space-y-10 leading-relaxed text-zinc-700" style={{ letterSpacing: "0.01em", lineHeight: 1.9 }}>
+        <article className="space-y-10 leading-relaxed text-[var(--color-text-primary)]" style={{ letterSpacing: "0.01em", lineHeight: 1.9 }}>
           <section>
-            <h2 className="mb-3 text-base font-bold text-zinc-900">
+            <h2 className="mb-3 text-base font-bold text-[var(--color-text-primary)]">
               제1조 (수집하는 개인정보 항목 및 수집방법)
             </h2>
             <p className="mb-3 text-sm sm:text-base">
@@ -27,7 +27,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-base font-bold text-zinc-900">
+            <h2 className="mb-3 text-base font-bold text-[var(--color-text-primary)]">
               제2조 (개인정보의 이용 목적)
             </h2>
             <ul className="space-y-3 text-sm sm:text-base">
@@ -44,7 +44,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-base font-bold text-zinc-900">
+            <h2 className="mb-3 text-base font-bold text-[var(--color-text-primary)]">
               제3조 (개인정보의 보유 및 이용기간)
             </h2>
             <p className="mb-4 text-sm sm:text-base">
@@ -64,7 +64,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-base font-bold text-zinc-900">
+            <h2 className="mb-3 text-base font-bold text-[var(--color-text-primary)]">
               제4조 (개인정보의 파기절차 및 방법)
             </h2>
             <ul className="space-y-3 text-sm sm:text-base">
@@ -78,7 +78,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-base font-bold text-zinc-900">
+            <h2 className="mb-3 text-base font-bold text-[var(--color-text-primary)]">
               제5조 (이용자의 권리와 그 행사방법)
             </h2>
             <ul className="space-y-3 text-sm sm:text-base">
@@ -89,7 +89,7 @@ export default function PrivacyPage() {
                 개인정보 보호와 관련한 문의는 관리자 메일(
                 <a
                   href="mailto:forsix5020@naver.com"
-                  className="font-medium text-zinc-900 underline hover:text-[var(--color-brand-primary)]"
+                  className="font-medium text-[var(--color-text-primary)] underline hover:text-[var(--color-brand-primary)]"
                 >
                   forsix5020@naver.com
                 </a>
@@ -99,7 +99,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-base font-bold text-zinc-900">
+            <h2 className="mb-3 text-base font-bold text-[var(--color-text-primary)]">
               제6조 (개인정보 자동 수집 장치의 설치·운영 및 거부)
             </h2>
             <p className="text-sm sm:text-base">
@@ -111,7 +111,7 @@ export default function PrivacyPage() {
         <div className="mt-12 pt-6 border-t border-zinc-200">
           <Link
             href="/"
-            className="text-sm font-medium text-zinc-600 underline hover:text-[var(--color-brand-primary)]"
+            className="text-sm font-medium text-[var(--color-text-secondary)] underline hover:text-[var(--color-brand-primary)]"
           >
             ← 홈으로 돌아가기
           </Link>

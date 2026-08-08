@@ -33,10 +33,10 @@ export function CommentList({
   const isDetail = variant === "detail";
   const statusClass = isDetail
     ? styles.empty
-    : "py-10 text-center text-xs text-zinc-400";
+    : "py-10 text-center text-xs text-[var(--color-text-muted)]";
   const loadingClass = isDetail
     ? styles.empty
-    : "text-center text-xs text-zinc-400";
+    : "text-center text-xs text-[var(--color-text-muted)]";
 
   if (isLoading) {
     return (

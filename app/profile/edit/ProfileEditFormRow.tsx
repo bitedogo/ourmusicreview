@@ -19,7 +19,7 @@ export function ProfileEditFormRow({
         bordered ? "border-b border-zinc-200" : ""
       }`}
     >
-      <div className="bg-zinc-50 px-4 py-4 text-base font-semibold text-zinc-700">
+      <div className="bg-zinc-50 px-4 py-4 text-base font-semibold text-[var(--color-text-primary)]">
         {label}
       </div>
       <div className="px-5 py-3">{children}</div>

@@ -86,7 +86,7 @@ export function ReviewLikeCount({
         className={
           isMobile
             ? "text-[8px] font-normal leading-[10px] text-[#505050]"
-            : "text-[14px] font-normal leading-[17px] text-black"
+            : "text-[14px] font-normal leading-[17px] text-[var(--color-text-primary)]"
         }
       >
         {count}
@@ -119,7 +119,7 @@ export function ReviewCommentCount({
         className={
           isMobile
             ? "text-[8px] font-normal leading-[10px] text-[#505050]"
-            : "text-[14px] font-normal leading-[17px] text-black"
+            : "text-[14px] font-normal leading-[17px] text-[var(--color-text-primary)]"
         }
       >
         {count}

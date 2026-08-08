@@ -61,15 +61,15 @@ export function FaqList({
             />
           ) : (
             <>
-              <p className="font-semibold text-zinc-900">{faq.question}</p>
-              <p className="mt-1 text-sm text-zinc-600 whitespace-pre-wrap">
+              <p className="font-semibold text-[var(--color-text-primary)]">{faq.question}</p>
+              <p className="mt-1 text-sm text-[var(--color-text-secondary)] whitespace-pre-wrap">
                 {faq.answer}
               </p>
               <div className="mt-3 flex gap-2">
                 <button
                   type="button"
                   onClick={() => onStartEdit(faq)}
-                  className="text-xs font-medium text-zinc-500 hover:text-[var(--color-brand-primary)]"
+                  className="text-xs font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-brand-primary)]"
                 >
                   수정
                 </button>

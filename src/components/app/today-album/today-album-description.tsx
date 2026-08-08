@@ -29,14 +29,14 @@ export function TodayAlbumDescription({ album, resetKey }: TodayAlbumDescription
       <div className="flex flex-col gap-[var(--featured-card-inner-gap)] sm:flex-row sm:items-center sm:gap-[var(--featured-card-gap)]">
         <div className="min-w-0 flex-1 text-left">
           <h3
-            className="truncate text-[14px] font-bold leading-[145%] tracking-[0.03em] text-[#464646] sm:text-[24px]"
+            className="truncate text-[14px] font-bold leading-[145%] tracking-[0.03em] text-[#505050] sm:text-[24px]"
             title={album.title}
           >
             {album.title}
           </h3>
           <ArtistNameLink
             name={album.artist}
-            className="mt-0.5 max-w-full truncate text-left text-[length:var(--text-today-album-artist)] font-bold tracking-[0.03em] text-[#939393] transition hover:text-[#43A7B2] hover:underline disabled:cursor-wait disabled:no-underline"
+            className="mt-0.5 max-w-full truncate text-left text-[length:var(--text-today-album-artist)] font-bold tracking-[0.03em] text-[#949494] transition hover:text-[#43A7B2] hover:underline disabled:cursor-wait disabled:no-underline"
           />
         </div>
         <StreamingLinkButtons links={streamingLinks} className="shrink-0 justify-start" />
@@ -61,7 +61,7 @@ export function TodayAlbumDescription({ album, resetKey }: TodayAlbumDescription
           </div>
         </>
       ) : (
-        <p className="mt-6 hidden text-left text-[15px] text-[#939393] sm:block">
+        <p className="mt-6 hidden text-left text-[15px] text-[#949494] sm:block">
           등록된 소개글이 없습니다.
         </p>
       )}

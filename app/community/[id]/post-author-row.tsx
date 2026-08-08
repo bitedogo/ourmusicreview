@@ -38,23 +38,23 @@ export function PostAuthorRow({
             className="h-full w-full object-cover"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center text-[10px] font-bold text-zinc-400">
+          <div className="flex h-full w-full items-center justify-center text-[10px] font-bold text-[var(--color-text-muted)]">
             {nickname.charAt(0).toUpperCase()}
           </div>
         )}
       </Link>
 
-      <div className="flex flex-wrap items-center gap-2 text-[13px] text-zinc-500">
-        <Link href={profileHref} className="font-semibold text-zinc-900 hover:underline">
+      <div className="flex flex-wrap items-center gap-2 text-[13px] text-[var(--color-text-secondary)]">
+        <Link href={profileHref} className="font-semibold text-[var(--color-text-primary)] hover:underline">
           {nickname}
         </Link>
-        <span className="text-zinc-300">|</span>
+        <span className="text-[var(--color-text-muted)]">|</span>
         <span>{timeAgo}</span>
-        <span className="text-zinc-300">|</span>
+        <span className="text-[var(--color-text-muted)]">|</span>
         <span>
-          조회 수 <span className="text-zinc-900">{views}</span>
+          조회 수 <span className="text-[var(--color-text-primary)]">{views}</span>
         </span>
-        <span className="text-zinc-300">|</span>
+        <span className="text-[var(--color-text-muted)]">|</span>
         <span>
           댓글 <span className="font-medium text-red-500">{commentCount}</span>
         </span>

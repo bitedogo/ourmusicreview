@@ -21,7 +21,7 @@ export function ProfileMenu() {
   useClickOutside(profileRef, () => setProfileOpen(false), profileOpen);
 
   if (status === "loading") {
-    return <span className="text-xs text-zinc-400">...</span>;
+    return <span className="text-xs text-[var(--color-text-muted)]">...</span>;
   }
 
   if (nickname) {
@@ -32,7 +32,7 @@ export function ProfileMenu() {
           aria-label="프로필 메뉴"
           aria-expanded={profileOpen}
           onClick={() => setProfileOpen((prev) => !prev)}
-          className="flex items-center justify-center rounded-full text-zinc-700 transition hover:text-[var(--color-accent)]"
+          className="flex items-center justify-center rounded-full text-[var(--color-text-primary)] transition hover:text-[var(--color-accent)]"
         >
           {profileImage ? (
             <Image
@@ -54,7 +54,7 @@ export function ProfileMenu() {
               <Link
                 href={profileSelf()}
                 onClick={() => setProfileOpen(false)}
-                className="block w-full px-4 py-3 text-sm font-medium text-zinc-800 hover:bg-zinc-50"
+                className="block w-full px-4 py-3 text-sm font-medium text-[var(--color-text-primary)] hover:bg-zinc-50"
               >
                 마이페이지
               </Link>
@@ -64,7 +64,7 @@ export function ProfileMenu() {
                   setProfileOpen(false);
                   signOut({ callbackUrl: "/" });
                 }}
-                className="block w-full px-4 py-3 text-left text-sm font-medium text-zinc-800 hover:bg-zinc-50"
+                className="block w-full px-4 py-3 text-left text-sm font-medium text-[var(--color-text-primary)] hover:bg-zinc-50"
               >
                 로그아웃
               </button>
@@ -79,7 +79,7 @@ export function ProfileMenu() {
     <Link
       href="/auth/signin"
       aria-label="로그인"
-      className="flex items-center justify-center text-zinc-700 transition hover:text-[var(--color-accent)]"
+      className="flex items-center justify-center text-[var(--color-text-primary)] transition hover:text-[var(--color-accent)]"
     >
       <UserOutlineIcon />
     </Link>

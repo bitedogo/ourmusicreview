@@ -43,7 +43,7 @@ export default function ProfilePlaylistDetailPage() {
         <button
           type="button"
           onClick={() => router.push(profileSelf("playlists"))}
-          className="mb-4 flex items-center gap-2 text-sm text-zinc-600 hover:text-[var(--color-brand-primary)]"
+          className="mb-4 flex items-center gap-2 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-brand-primary)]"
         >
           <svg
             width="16"
@@ -65,7 +65,7 @@ export default function ProfilePlaylistDetailPage() {
       </section>
 
       {isLoading ? (
-        <div className="py-12 text-center text-sm text-zinc-500">
+        <div className="py-12 text-center text-sm text-[var(--color-text-secondary)]">
           플레이리스트를 불러오는 중...
         </div>
       ) : error || !playlist ? (

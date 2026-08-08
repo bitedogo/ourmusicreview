@@ -49,7 +49,7 @@ export default function MyPostsPage() {
             <div className="flex items-center justify-between gap-3">
               <div className="min-w-0">
                 <div className="mb-1.5 flex items-center gap-2">
-                  <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-[10px] font-semibold text-zinc-700">
+                  <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-[10px] font-semibold text-[var(--color-text-primary)]">
                     {getBoardCategoryLabel(post.category)}
                   </span>
                   {post.isGlobal === "Y" && (
@@ -58,11 +58,11 @@ export default function MyPostsPage() {
                     </span>
                   )}
                 </div>
-                <p className="line-clamp-1 text-sm font-semibold text-zinc-900">{post.title}</p>
+                <p className="line-clamp-1 text-sm font-semibold text-[var(--color-text-primary)]">{post.title}</p>
               </div>
-              <div className="shrink-0 text-right text-[11px] text-zinc-500">
+              <div className="shrink-0 text-right text-[11px] text-[var(--color-text-secondary)]">
                 <p>
-                  댓글 <span className="font-semibold text-zinc-700">{post.commentCount}</span>
+                  댓글 <span className="font-semibold text-[var(--color-text-primary)]">{post.commentCount}</span>
                 </p>
                 <p className="mt-0.5">{new Date(post.createdAt).toLocaleDateString("ko-KR")}</p>
               </div>
