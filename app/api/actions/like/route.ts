@@ -1,9 +1,10 @@
 /** POST/GET 좋아요 토글·상태 */
 
+import { randomUUID } from "crypto";
+import { IsNull, type FindOptionsWhere } from "typeorm";
 import { getAppSession, requireSessionApi } from "@/src/lib/auth/session";
 import { initializeDatabase } from "@/src/lib/db";
 import { Like } from "@/src/lib/db/entities/Like";
-import { randomUUID } from "crypto";
 import { apiError, apiOk } from "@/src/lib/http/response";
 
 type LikeTarget = {
@@ -25,6 +26,21 @@ function resolveLikeTarget(input: {
   return { postId, reviewId, playlistId };
 }
 
+/** TypeORM where는 null 대신 IsNull() 사용 */
+function buildLikeWhere(
+  target: LikeTarget,
+  userId?: string
+): FindOptionsWhere<Like> {
+  const where: FindOptionsWhere<Like> = {
+    commentId: IsNull(),
+    postId: target.postId ?? IsNull(),
+    reviewId: target.reviewId ?? IsNull(),
+    playlistId: target.playlistId ?? IsNull(),
+  };
+  if (userId) where.userId = userId;
+  return where;
+}
+
 export async function POST(request: Request) {
   try {
     const { session, response } = await requireSessionApi();
@@ -42,13 +58,7 @@ export async function POST(request: Request) {
     const likeRepository = dataSource.getRepository(Like);
 
     const existingLike = await likeRepository.findOne({
-      where: {
-        userId: session.user.id,
-        postId: target.postId,
-        reviewId: target.reviewId,
-        playlistId: target.playlistId,
-        commentId: null,
-      },
+      where: buildLikeWhere(target, session.user.id),
     });
 
     if (existingLike) {
@@ -90,22 +100,13 @@ export async function GET(request: Request) {
     const session = await getAppSession();
     const likeRepository = dataSource.getRepository(Like);
 
-    const where = target.postId
-      ? { postId: target.postId }
-      : target.reviewId
-        ? { reviewId: target.reviewId }
-        : { playlistId: target.playlistId! };
-
-    const count = await likeRepository.count({ where });
+    const countWhere = buildLikeWhere(target);
+    const count = await likeRepository.count({ where: countWhere });
 
     let liked = false;
     if (session?.user?.id) {
       const myLike = await likeRepository.findOne({
-        where: {
-          userId: session.user.id,
-          ...where,
-          commentId: null,
-        },
+        where: buildLikeWhere(target, session.user.id),
       });
       liked = !!myLike;
     }
