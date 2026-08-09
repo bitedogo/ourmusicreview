@@ -2,7 +2,8 @@
 /** 플레이리스트 장르 선택 — 대분류 단일 · 소분류는 같은 대분류 안에서만 */
 
 import { useEffect, useMemo, useState } from "react";
-import { fetchJson, getApiErrorMessage } from "@/src/lib/http/client";
+import { fetchGenreTree } from "@/src/lib/playlists/client-api";
+import { getApiErrorMessage } from "@/src/lib/http/client";
 import {
   GENRE_CIRCLE_LABELS,
   SPECIAL_GENRE_ALL,
@@ -11,17 +12,9 @@ import {
   sortRootGenres,
   withComprehensiveSubgenre,
 } from "@/src/lib/genres/genre-covers";
+import type { GenreOption, GenreTreeNode } from "@/src/lib/genres/types";
 
-export interface GenreOption {
-  id: string;
-  nameKo: string;
-  nameEn: string;
-  parentId: string | null;
-}
-
-export interface GenreTreeNode extends GenreOption {
-  children: GenreOption[];
-}
+export type { GenreOption, GenreTreeNode };
 
 interface GenreSelectorProps {
   value: string[];
@@ -50,10 +43,7 @@ export function GenreSelector({
       setIsLoading(true);
       setLoadError(null);
       try {
-        const response = await fetchJson<{
-          ok: boolean;
-          genres: GenreTreeNode[];
-        }>("/api/genres");
+        const response = await fetchGenreTree();
         if (cancelled) return;
         const genres = sortRootGenres(response.genres ?? []);
         setTree(genres);

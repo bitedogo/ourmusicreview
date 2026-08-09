@@ -10,7 +10,7 @@ import {
   useRef,
   type CSSProperties,
 } from "react";
-import type { PublicPlaylistListItemDto } from "@/src/components/playlist/playlist-api";
+import type { PublicPlaylistListItemDto } from "@/src/lib/playlists/client-api";
 import { playlistDetail } from "@/src/lib/navigation/routes";
 
 const AUTO_ADVANCE_MS = 3000;

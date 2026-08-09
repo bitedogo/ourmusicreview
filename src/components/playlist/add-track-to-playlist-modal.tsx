@@ -10,7 +10,7 @@ import {
   createPlaylistApi,
   fetchMyPlaylists,
   type PlaylistListItemDto,
-} from "./playlist-api";
+} from "@/src/lib/playlists/client-api";
 
 interface AddTrackToPlaylistModalProps {
   isOpen: boolean;

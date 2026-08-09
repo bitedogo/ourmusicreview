@@ -3,7 +3,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { buildAddTrackPayload } from "@/src/components/playlist/build-add-track-payload";
-import { addTrackToPlaylistApi } from "@/src/components/playlist/playlist-api";
+import { addTrackToPlaylistApi } from "@/src/lib/playlists/client-api";
 import { useItunesAlbumPicker } from "@/src/hooks/use-itunes-album-picker";
 import { getApiErrorMessage } from "@/src/lib/http/client";
 import type { AlbumDetail, AlbumDetailTrack } from "@/src/lib/album/detail-types";

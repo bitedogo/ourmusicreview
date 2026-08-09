@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { ArtistNameLink } from "@/src/components/app/artist-name-link";
-import type { PlaylistTrackDto } from "@/src/components/playlist/playlist-api";
+import type { PlaylistTrackDto } from "@/src/lib/playlists/client-api";
 import { StreamingLinkButtons } from "@/src/components/streaming/streaming-link-buttons";
 import { formatTrackDuration } from "@/src/lib/album/track-utils";
 import type { AlbumStreamingLinks } from "@/src/lib/streaming/types";
@@ -15,21 +15,29 @@ interface PlaylistTrackListProps {
   tracks: PlaylistTrackDto[];
   streamingLinksByTrackId: Record<string, AlbumStreamingLinks>;
   removingTrackId?: string | null;
+  isReordering?: boolean;
   onRemoveTrack?: (trackRowId: string, trackName: string) => void;
+  onReorderTrack?: (sourceId: string, targetId: string) => void;
 }
 
 export function PlaylistTrackList({
   tracks,
   streamingLinksByTrackId,
   removingTrackId = null,
+  isReordering = false,
   onRemoveTrack,
+  onReorderTrack,
 }: PlaylistTrackListProps) {
   const [playingTrackId, setPlayingTrackId] = useState<string | null>(null);
+  const [draggingId, setDraggingId] = useState<string | null>(null);
+  const canReorder = Boolean(onReorderTrack) && tracks.length > 1;
 
   if (tracks.length === 0) {
     return (
       <section>
-        <h2 className="mb-3 text-sm font-semibold text-[var(--color-text-primary)]">트랙 목록</h2>
+        <h2 className="mb-3 text-sm font-semibold text-[var(--color-text-primary)]">
+          트랙 목록
+        </h2>
         <div className="rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 px-4 py-12 text-center text-sm text-[var(--color-text-secondary)]">
           아직 담긴 트랙이 없습니다.
         </div>
@@ -39,7 +47,16 @@ export function PlaylistTrackList({
 
   return (
     <section>
-      <h2 className="mb-3 text-sm font-semibold text-[var(--color-text-primary)]">트랙 목록</h2>
+      <div className="mb-3 flex items-end justify-between gap-3">
+        <h2 className="text-sm font-semibold text-[var(--color-text-primary)]">
+          트랙 목록
+        </h2>
+        {canReorder ? (
+          <p className="text-[11px] text-[var(--color-text-muted)]">
+            드래그하거나 ↑↓로 순서를 변경할 수 있습니다.
+          </p>
+        ) : null}
+      </div>
       <ul className="w-full overflow-hidden rounded-2xl bg-white shadow-[0_0_0_1px_#D9D9D9,0px_2px_4px_rgba(0,0,0,0.25)]">
         {tracks.map((track, index) => {
           const resolved = streamingLinksByTrackId[track.trackId];
@@ -48,13 +65,68 @@ export function PlaylistTrackList({
             (resolved.appleMusic || resolved.spotify || resolved.deezer)
               ? resolved
               : buildTrackStreamingLinks(track.artistName, track.trackName);
+          const prevTrack = tracks[index - 1];
+          const nextTrack = tracks[index + 1];
 
           return (
             <li
               key={track.id}
-              className="border-b border-zinc-100 px-3 py-3 last:border-b-0"
+              draggable={canReorder && !isReordering}
+              onDragStart={() => {
+                if (!canReorder || isReordering) return;
+                setDraggingId(track.id);
+              }}
+              onDragOver={(event) => {
+                if (!canReorder || isReordering) return;
+                event.preventDefault();
+              }}
+              onDrop={() => {
+                if (!canReorder || !draggingId || !onReorderTrack) return;
+                onReorderTrack(draggingId, track.id);
+                setDraggingId(null);
+              }}
+              onDragEnd={() => setDraggingId(null)}
+              className={`border-b border-zinc-100 px-3 py-3 last:border-b-0 ${
+                canReorder ? "cursor-grab active:cursor-grabbing" : ""
+              } ${draggingId === track.id ? "bg-zinc-50 opacity-60" : ""}`}
             >
               <div className="flex items-start gap-3">
+                {canReorder ? (
+                  <div className="mt-4 flex shrink-0 flex-col items-center gap-1">
+                    <span
+                      className="text-[var(--color-text-muted)]"
+                      aria-hidden
+                    >
+                      ⋮⋮
+                    </span>
+                    <div className="flex flex-col gap-0.5">
+                      <button
+                        type="button"
+                        disabled={isReordering || !prevTrack}
+                        onClick={() =>
+                          prevTrack &&
+                          onReorderTrack?.(track.id, prevTrack.id)
+                        }
+                        aria-label="한 칸 위로"
+                        className="rounded px-1 text-[10px] text-[var(--color-text-secondary)] hover:bg-zinc-100 disabled:opacity-30"
+                      >
+                        ↑
+                      </button>
+                      <button
+                        type="button"
+                        disabled={isReordering || !nextTrack}
+                        onClick={() =>
+                          nextTrack &&
+                          onReorderTrack?.(track.id, nextTrack.id)
+                        }
+                        aria-label="한 칸 아래로"
+                        className="rounded px-1 text-[10px] text-[var(--color-text-secondary)] hover:bg-zinc-100 disabled:opacity-30"
+                      >
+                        ↓
+                      </button>
+                    </div>
+                  </div>
+                ) : null}
                 <span className="mt-5 w-6 shrink-0 text-center text-xs text-[var(--color-text-muted)]">
                   {index + 1}
                 </span>

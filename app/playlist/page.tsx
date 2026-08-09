@@ -1,4 +1,4 @@
-/** 공개 플레이리스트 목록 페이지 (내비 미노출 · URL 직접 진입) */
+/** 공개 플레이리스트 목록 페이지 */
 
 import { Suspense } from "react";
 import { PlaylistListClient } from "./PlaylistListClient";

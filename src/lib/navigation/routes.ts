@@ -40,7 +40,7 @@ export function profilePlaylist(playlistId: string): string {
   return `/profile/playlists/${encodeURIComponent(playlistId)}`;
 }
 
-/** 공개 플레이리스트 목록 (내비 미노출 · URL 직접 진입) */
+/** 공개 플레이리스트 목록 */
 export function playlistList(params?: {
   page?: number;
   searchField?: string;

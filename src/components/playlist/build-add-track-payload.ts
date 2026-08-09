@@ -1,7 +1,7 @@
 /** 앨범 트랙 → 플레이리스트 추가 payload */
 
 import type { AlbumDetail, AlbumDetailTrack } from "@/src/lib/album/detail-types";
-import type { AddPlaylistTrackInput } from "@/src/components/playlist/playlist-api";
+import type { AddPlaylistTrackInput } from "@/src/lib/playlists/client-api";
 
 export function buildAddTrackPayload(
   album: AlbumDetail,

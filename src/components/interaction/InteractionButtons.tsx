@@ -11,15 +11,30 @@ import { useReportModal } from "@/src/hooks/use-report-modal";
 interface InteractionButtonsProps {
   postId?: string;
   reviewId?: string;
+  playlistId?: string;
   isNotice?: boolean;
   authorUserId?: string;
   /** circle: 리뷰 상세 Figma 원형 버튼 */
   variant?: "default" | "circle";
 }
 
+function buildLikeQuery(input: {
+  postId?: string;
+  reviewId?: string;
+  playlistId?: string;
+}): string | null {
+  if (input.postId) return `postId=${encodeURIComponent(input.postId)}`;
+  if (input.reviewId) return `reviewId=${encodeURIComponent(input.reviewId)}`;
+  if (input.playlistId) {
+    return `playlistId=${encodeURIComponent(input.playlistId)}`;
+  }
+  return null;
+}
+
 export function InteractionButtons({
   postId,
   reviewId,
+  playlistId,
   isNotice,
   authorUserId,
   variant = "default",
@@ -29,10 +44,13 @@ export function InteractionButtons({
   const [likeInfo, setLikeInfo] = useState({ count: 0, liked: false });
 
   const isOwnContent = authorUserId && session?.user?.id === authorUserId;
+  const canReport = Boolean((postId || reviewId) && !isNotice && !isOwnContent);
 
   const fetchLikeInfo = useCallback(async () => {
+    const query = buildLikeQuery({ postId, reviewId, playlistId });
+    if (!query) return;
+
     try {
-      const query = postId ? `postId=${postId}` : `reviewId=${reviewId}`;
       const response = await fetch(`/api/actions/like?${query}`);
       const data = await response.json();
       if (data.ok) {
@@ -44,7 +62,7 @@ export function InteractionButtons({
     } catch {
       /* ignore */
     }
-  }, [postId, reviewId]);
+  }, [postId, reviewId, playlistId]);
 
   useEffect(() => {
     fetchLikeInfo();
@@ -62,7 +80,7 @@ export function InteractionButtons({
       const response = await fetch("/api/actions/like", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ postId, reviewId }),
+        body: JSON.stringify({ postId, reviewId, playlistId }),
       });
       const data = await response.json();
       if (data.ok) {
@@ -105,7 +123,7 @@ export function InteractionButtons({
       alert("로그인이 필요합니다.");
       return;
     }
-    if (isOwnContent) return;
+    if (!canReport) return;
     reportModal.open();
   };
 
@@ -142,7 +160,7 @@ export function InteractionButtons({
         <ReviewDetailCircleButtons
           liked={likeInfo.liked}
           likeCount={likeInfo.count}
-          showReport={Boolean(!isNotice && !isOwnContent)}
+          showReport={canReport}
           onLike={handleLike}
           onShare={() => void handleShare()}
           onReport={handleOpenReportModal}
@@ -166,7 +184,7 @@ export function InteractionButtons({
         <span>추천 {likeInfo.count}</span>
       </button>
 
-      {!isNotice && !isOwnContent && (
+      {canReport && (
         <button
           onClick={handleOpenReportModal}
           className="flex items-center gap-1.5 rounded-full border border-zinc-200 bg-white px-4 py-1.5 text-xs font-bold text-[var(--color-text-muted)] transition hover:border-red-200 hover:text-red-400"

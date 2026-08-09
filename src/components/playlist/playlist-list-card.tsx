@@ -30,15 +30,15 @@ interface PlaylistListCardProps {
   href: string;
   showOwner?: boolean;
   showGenres?: boolean;
-  /** compact: 공개 목록 2열 / wide: 내 플레이리스트 */
+  /** compact: 공개 목록 / wide: 내 플레이리스트 2열 */
   size?: PlaylistListCardSize;
   className?: string;
 }
 
 const CARD_CLASS: Record<PlaylistListCardSize, string> = {
   compact:
-    "h-[100px] w-[240px] gap-2.5 px-2.5",
-  wide: "h-[100px] w-[400px] gap-3 px-3",
+    "h-[100px] w-full min-w-0 gap-2 px-2 sm:w-[240px] sm:gap-2.5 sm:px-2.5",
+  wide: "h-[100px] w-full min-w-0 gap-2.5 px-2.5 sm:gap-3 sm:px-3",
 };
 
 export function PlaylistListCard({
@@ -127,8 +127,8 @@ export function PlaylistListCardGrid({
 }) {
   const gridClass =
     size === "wide"
-      ? "grid grid-cols-1 justify-items-stretch gap-y-3 sm:grid-cols-[repeat(auto-fill,400px)] sm:justify-start sm:gap-x-4 sm:gap-y-4"
-      : "grid grid-cols-2 justify-items-center gap-x-3 gap-y-3 sm:grid-cols-[repeat(auto-fill,240px)] sm:justify-center";
+      ? "grid grid-cols-2 justify-items-stretch gap-x-3 gap-y-3 sm:gap-x-4 sm:gap-y-4"
+      : "grid grid-cols-2 justify-items-stretch gap-x-3 gap-y-3 sm:grid-cols-[repeat(auto-fill,240px)] sm:justify-items-center sm:justify-center";
 
   return <ul className={`${gridClass} ${className}`}>{children}</ul>;
 }

@@ -145,10 +145,16 @@ export function PostContentClient({
         </div>
       )}
 
-      <div className="pt-6 border-t border-zinc-50">
-        <InteractionButtons postId={postId} isNotice={isNotice} authorUserId={userId} />
-        <CommentSection postId={postId} />
+      <div className="border-t border-zinc-50 pt-4 pb-[30px] sm:pt-[18px] sm:pb-[30px]">
+        <InteractionButtons
+          postId={postId}
+          isNotice={isNotice}
+          authorUserId={userId}
+          variant="circle"
+        />
       </div>
+
+      <CommentSection postId={postId} variant="detail" />
     </div>
   );
 }

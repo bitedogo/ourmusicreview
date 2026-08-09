@@ -231,7 +231,7 @@ export function CommentSection({
 
   if (variant === "detail") {
     return (
-      <section id="review-comments" className={styles.section}>
+      <section id="comments" className={styles.section}>
         <div className={styles.card}>
           <div className={styles.titleRow}>
             <h3 className={styles.title}>댓글</h3>

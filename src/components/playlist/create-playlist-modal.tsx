@@ -1,18 +1,20 @@
 "use client";
 /** 새 플레이리스트 생성 모달 */
 
-import Image from "next/image";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { fetchJson, getApiErrorMessage } from "@/src/lib/http/client";
+import { useCallback, useEffect, useState } from "react";
+import { getApiErrorMessage } from "@/src/lib/http/client";
 import {
   PLAYLIST_COVER_CROP_OPTIONS,
   useImageCropFlow,
 } from "@/src/hooks/use-image-crop-flow";
+import { ProfilePrivacyToggle } from "@/src/components/profile/ProfilePrivacyToggle";
 import {
   createPlaylistApi,
+  uploadPlaylistCoverApi,
   type PlaylistListItemDto,
-} from "./playlist-api";
+} from "@/src/lib/playlists/client-api";
 import { GenreSelector } from "./genre-selector";
+import { PlaylistCoverPicker } from "./playlist-cover-picker";
 
 interface CreatePlaylistModalProps {
   isOpen: boolean;
@@ -25,11 +27,10 @@ export function CreatePlaylistModal({
   onClose,
   onCreated,
 }: CreatePlaylistModalProps) {
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [genreIds, setGenreIds] = useState<string[]>([]);
+  const [isPublic, setIsPublic] = useState(false);
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreviewUrl, setCoverPreviewUrl] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -52,6 +53,7 @@ export function CreatePlaylistModal({
     setTitle("");
     setDescription("");
     setGenreIds([]);
+    setIsPublic(false);
     setCoverFile(null);
     setError(null);
     setIsSaving(false);
@@ -85,22 +87,14 @@ export function CreatePlaylistModal({
     try {
       let coverImageUrl: string | null = null;
       if (coverFile) {
-        const formData = new FormData();
-        formData.append("coverImage", coverFile);
-        const uploaded = await fetchJson<{
-          ok: boolean;
-          data: { coverImageUrl: string };
-        }>("/api/playlists/cover-upload", {
-          method: "POST",
-          body: formData,
-        });
+        const uploaded = await uploadPlaylistCoverApi(coverFile);
         coverImageUrl = uploaded.data.coverImageUrl;
       }
 
       const response = await createPlaylistApi({
         title: trimmedTitle,
         description: description.trim() || "",
-        isPublic: false,
+        isPublic,
         coverImageUrl,
         genreIds,
       });
@@ -149,6 +143,18 @@ export function CreatePlaylistModal({
 
             <div>
               <p className="mb-1.5 text-xs font-medium text-[var(--color-text-secondary)]">
+                공개 설정
+              </p>
+              <ProfilePrivacyToggle
+                isPublic={isPublic}
+                disabled={isSaving}
+                size="sm"
+                onChange={setIsPublic}
+              />
+            </div>
+
+            <div>
+              <p className="mb-1.5 text-xs font-medium text-[var(--color-text-secondary)]">
                 장르 (선택)
               </p>
               <GenreSelector
@@ -162,43 +168,11 @@ export function CreatePlaylistModal({
               <p className="mb-1.5 text-xs font-medium text-[var(--color-text-secondary)]">
                 대표사진 (선택)
               </p>
-              <div className="flex items-center gap-3">
-                <div className="relative h-16 w-16 overflow-hidden rounded-lg bg-zinc-100">
-                  {coverPreviewUrl ? (
-                    <Image
-                      src={coverPreviewUrl}
-                      alt="대표사진 미리보기"
-                      fill
-                      unoptimized
-                      className="object-cover"
-                    />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center text-[10px] text-[var(--color-text-muted)]">
-                      No Cover
-                    </div>
-                  )}
-                </div>
-                <div className="flex flex-col gap-1">
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/jpeg,image/png,image/gif,image/webp"
-                    className="hidden"
-                    onChange={(event) => {
-                      const file = event.target.files?.[0];
-                      event.target.value = "";
-                      if (!file) return;
-                      openWithFile(file);
-                    }}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="rounded-full border border-zinc-300 px-3 py-1.5 text-[11px] font-semibold text-[var(--color-text-primary)] hover:bg-zinc-50"
-                  >
-                    사진 선택
-                  </button>
-                  {coverFile ? (
+              <PlaylistCoverPicker
+                previewUrl={coverPreviewUrl}
+                onPickFile={openWithFile}
+                actions={
+                  coverFile ? (
                     <button
                       type="button"
                       onClick={() => {
@@ -210,9 +184,9 @@ export function CreatePlaylistModal({
                     >
                       선택 취소
                     </button>
-                  ) : null}
-                </div>
-              </div>
+                  ) : null
+                }
+              />
             </div>
 
             {error ? (

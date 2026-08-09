@@ -1,6 +1,8 @@
 "use client";
 /** 내 플레이리스트 목록/관리 페이지 */
 
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { CreatePlaylistModal } from "@/src/components/playlist/create-playlist-modal";
 import {
@@ -13,10 +15,11 @@ import {
   fetchMyPlaylists,
   type PlaylistListItemDto,
   updatePlaylistApi,
-} from "@/src/components/playlist/playlist-api";
-import { profilePlaylist } from "@/src/lib/navigation/routes";
+} from "@/src/lib/playlists/client-api";
+import { playlistList, profilePlaylist } from "@/src/lib/navigation/routes";
 
 export default function ProfilePlaylistsPage() {
+  const router = useRouter();
   const [playlists, setPlaylists] = useState<PlaylistListItemDto[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -78,9 +81,27 @@ export default function ProfilePlaylistsPage() {
         loadingMessage="플레이리스트를 불러오는 중..."
       >
         <div className="space-y-3">
+          <div className="flex justify-end">
+            <Link
+              href={playlistList()}
+              className="text-xs font-medium text-[var(--color-text-secondary)] transition hover:text-[var(--color-brand-primary)]"
+            >
+              공개 플레이리스트 둘러보기
+            </Link>
+          </div>
+
           {sorted.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 px-4 py-10 text-center text-sm text-[var(--color-text-secondary)]">
-              아직 만든 플레이리스트가 없습니다.
+            <div className="rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 px-4 py-10 text-center">
+              <p className="text-sm text-[var(--color-text-secondary)]">
+                아직 만든 플레이리스트가 없습니다.
+              </p>
+              <button
+                type="button"
+                onClick={() => setIsCreateOpen(true)}
+                className="mt-4 rounded-full bg-[var(--color-brand-primary)] px-4 py-2 text-xs font-semibold text-white hover:bg-[var(--color-brand-primary-hover)]"
+              >
+                새 플레이리스트 생성
+              </button>
             </div>
           ) : (
             <PlaylistListCardGrid size="wide">
@@ -112,15 +133,17 @@ export default function ProfilePlaylistsPage() {
             </PlaylistListCardGrid>
           )}
 
-          <div className="flex justify-end pt-1">
-            <button
-              type="button"
-              onClick={() => setIsCreateOpen(true)}
-              className="rounded-full bg-[var(--color-brand-primary)] px-4 py-2 text-xs font-semibold text-white hover:bg-[var(--color-brand-primary-hover)]"
-            >
-              새 플레이리스트 생성
-            </button>
-          </div>
+          {sorted.length > 0 ? (
+            <div className="flex justify-end pt-1">
+              <button
+                type="button"
+                onClick={() => setIsCreateOpen(true)}
+                className="rounded-full bg-[var(--color-brand-primary)] px-4 py-2 text-xs font-semibold text-white hover:bg-[var(--color-brand-primary-hover)]"
+              >
+                새 플레이리스트 생성
+              </button>
+            </div>
+          ) : null}
         </div>
       </ProfileListPageLayout>
 
@@ -129,6 +152,7 @@ export default function ProfilePlaylistsPage() {
         onClose={() => setIsCreateOpen(false)}
         onCreated={(playlist) => {
           setPlaylists((prev) => [playlist, ...prev]);
+          router.push(profilePlaylist(playlist.id));
         }}
       />
     </>

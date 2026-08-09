@@ -4,10 +4,14 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
+  PlaylistListCard,
+  PlaylistListCardGrid,
+} from "@/src/components/playlist/playlist-list-card";
+import {
   fetchPublicPlaylistsByUser,
   type PlaylistListItemDto,
-} from "@/src/components/playlist/playlist-api";
-import { PlaylistEngagementCounts } from "@/src/components/playlist/playlist-engagement-counts";
+} from "@/src/lib/playlists/client-api";
+import { playlistDetail, userProfile } from "@/src/lib/navigation/routes";
 
 export default function UserPlaylistsPage() {
   const params = useParams<{ userId: string }>();
@@ -35,7 +39,7 @@ export default function UserPlaylistsPage() {
       }
     }
 
-    if (userId) load();
+    if (userId) void load();
     return () => {
       cancelled = true;
     };
@@ -46,7 +50,7 @@ export default function UserPlaylistsPage() {
       <section className="space-y-2">
         <button
           type="button"
-          onClick={() => router.push(`/users/${encodeURIComponent(userId)}`)}
+          onClick={() => router.push(userProfile(userId))}
           className="mb-4 flex w-fit items-center gap-2 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-brand-primary)]"
         >
           프로필로
@@ -67,26 +71,18 @@ export default function UserPlaylistsPage() {
           공개된 플레이리스트가 없습니다.
         </div>
       ) : (
-        <div className="space-y-3">
+        <PlaylistListCardGrid size="wide">
           {playlists.map((item) => (
-            <div
-              key={item.id}
-              className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm"
-            >
-              <h2 className="truncate text-sm font-semibold text-[var(--color-text-primary)]">{item.title}</h2>
-              <p className="mt-1 text-xs text-[var(--color-text-secondary)]">{item.trackCount}곡</p>
-              <PlaylistEngagementCounts
-                likeCount={item.likeCount ?? 0}
-                commentCount={item.commentCount ?? 0}
-                className="mt-1.5"
-                size="mobile"
+            <li key={item.id}>
+              <PlaylistListCard
+                item={item}
+                href={playlistDetail(item.id)}
+                showOwner={false}
+                size="wide"
               />
-              {item.description ? (
-                <p className="mt-2 line-clamp-2 text-xs text-[var(--color-text-secondary)]">{item.description}</p>
-              ) : null}
-            </div>
+            </li>
           ))}
-        </div>
+        </PlaylistListCardGrid>
       )}
     </div>
   );

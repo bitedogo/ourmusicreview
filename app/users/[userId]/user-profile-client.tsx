@@ -1,6 +1,7 @@
 "use client";
 /** 타인 유저 프로필 클라이언트 */
 
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLayoutEffect, useState } from "react";
@@ -16,6 +17,7 @@ import {
 } from "@/src/components/profile/profile-types";
 import { getUserProfilePath, getUserProfileReviewsPath } from "@/src/components/profile/user-profile-view";
 import { getOwnerProfileRedirectPath } from "@/src/components/profile/profile-routes";
+import { formatRating, getRatingScoreColor } from "@/src/lib/utils/rating";
 
 interface UserProfileClientProps {
   userId: string;
@@ -171,6 +173,18 @@ export function UserProfileClient({ userId, showAllReviews = false }: UserProfil
                 className="block rounded-xl border border-zinc-100 bg-white p-4 transition hover:bg-zinc-50"
               >
                 <div className="flex items-center gap-3">
+                  <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-zinc-100">
+                    {review.album?.imageUrl ? (
+                      <Image
+                        src={review.album.imageUrl}
+                        alt={review.album.title}
+                        width={56}
+                        height={56}
+                        unoptimized
+                        className="h-full w-full object-cover"
+                      />
+                    ) : null}
+                  </div>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-[10px] font-medium uppercase text-[var(--color-text-secondary)]">
                       {review.album?.artist ? (
@@ -180,12 +194,15 @@ export function UserProfileClient({ userId, showAllReviews = false }: UserProfil
                         />
                       ) : null}
                     </p>
-                    <p className="truncate text-sm font-semibold text-[var(--color-text-primary)]">{review.album?.title}</p>
+                    <p className="truncate text-sm font-semibold text-[var(--color-text-primary)]">
+                      {review.album?.title}
+                    </p>
                   </div>
                   <span
-                    className={`shrink-0 text-sm font-bold ${review.rating >= 9 ? "text-red-600" : "text-[var(--color-text-primary)]"}`}
+                    className="shrink-0 text-sm font-bold"
+                    style={{ color: getRatingScoreColor(review.rating) }}
                   >
-                    {review.rating.toFixed(1)}
+                    {formatRating(review.rating)}
                   </span>
                 </div>
               </Link>

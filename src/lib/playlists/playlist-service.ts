@@ -7,6 +7,7 @@ import { Like } from "@/src/lib/db/entities/Like";
 import { Playlist } from "@/src/lib/db/entities/Playlist";
 import { PlaylistTrack } from "@/src/lib/db/entities/PlaylistTrack";
 import { PlaylistGenre } from "@/src/lib/db/entities/PlaylistGenre";
+import { User } from "@/src/lib/db/entities/User";
 import {
   assertValidGenreIds,
   resolveGenreFilterIds,
@@ -33,6 +34,7 @@ export interface PlaylistListItem {
 }
 
 export interface PlaylistDetail extends PlaylistListItem {
+  ownerNickname: string;
   tracks: Array<{
     id: string;
     trackId: string;
@@ -486,7 +488,10 @@ export async function getPlaylistDetail(
 ): Promise<PlaylistDetail> {
   const playlistRepository = dataSource.getRepository(Playlist);
   const trackRepository = dataSource.getRepository(PlaylistTrack);
-  const playlist = await playlistRepository.findOne({ where: { id: playlistId } });
+  const userRepository = dataSource.getRepository(User);
+  const playlist = await playlistRepository.findOne({
+    where: { id: playlistId },
+  });
 
   if (!playlist) {
     throw new ServiceError("플레이리스트를 찾을 수 없습니다.", 404);
@@ -497,15 +502,20 @@ export async function getPlaylistDetail(
     throw new ServiceError("비공개 플레이리스트입니다.", 403);
   }
 
-  const tracks = await trackRepository.find({
-    where: { playlistId: playlist.id },
-    order: { position: "ASC", createdAt: "ASC" },
-  });
-
-  const genresMap = await getGenresByPlaylistIds(dataSource, [playlist.id]);
-  const engagement = await getPlaylistEngagementCounts(dataSource, [
-    playlist.id,
+  const [tracks, genresMap, engagement, owner] = await Promise.all([
+    trackRepository.find({
+      where: { playlistId: playlist.id },
+      order: { position: "ASC", createdAt: "ASC" },
+    }),
+    getGenresByPlaylistIds(dataSource, [playlist.id]),
+    getPlaylistEngagementCounts(dataSource, [playlist.id]),
+    userRepository.findOne({
+      where: { id: playlist.userId },
+      select: ["id", "nickname"],
+    }),
   ]);
+
+  const ownerNickname = owner?.nickname?.trim() || playlist.userId;
 
   return {
     ...toListItem(
@@ -515,6 +525,7 @@ export async function getPlaylistDetail(
       engagement.likeCounts.get(playlist.id) ?? 0,
       engagement.commentCounts.get(playlist.id) ?? 0
     ),
+    ownerNickname,
     tracks: tracks.map((track) => ({
       id: track.id,
       trackId: track.trackId,

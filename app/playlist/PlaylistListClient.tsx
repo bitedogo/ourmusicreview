@@ -1,248 +1,50 @@
 "use client";
 /** 공개 플레이리스트 탐색 — 추천 / 장르 / 목록 */
 
-import Image from "next/image";
-import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
 import { PaginationNav } from "@/src/components/common/PaginationNav";
-import type { PublicPlaylistListItemDto } from "@/src/components/playlist/playlist-api";
-import type { GenreTreeNode } from "@/src/components/playlist/genre-selector";
 import { PlaylistCoverFlow } from "@/src/components/playlist/playlist-cover-flow";
+import { PlaylistGenreCircles } from "@/src/components/playlist/playlist-genre-circles";
 import {
   PlaylistListCard,
   PlaylistListCardGrid,
 } from "@/src/components/playlist/playlist-list-card";
-import { ReviewSearchButton } from "@/src/components/reviews/ReviewSearchButton";
-import { playlistDetail, playlistList } from "@/src/lib/navigation/routes";
 import {
-  buildGenreCircles,
-  getGenreCircleLabel,
-  SPECIAL_GENRE_ALL,
-  SPECIAL_GENRE_COMPREHENSIVE,
-  withComprehensiveSubgenre,
-} from "@/src/lib/genres/genre-covers";
-
-type SearchField = "title" | "author";
-
-const SEARCH_FIELD_OPTIONS: { value: SearchField; label: string }[] = [
-  { value: "title", label: "플레이리스트명" },
-  { value: "author", label: "작성자명" },
-];
-
-const GENRE_CIRCLE_TONES = [
-  "from-[#C45C2A] to-[#8B3A18]",
-  "from-[#2F6B7A] to-[#1A4450]",
-  "from-[#6B4C7A] to-[#3D2A4A]",
-  "from-[#4A6B4A] to-[#2A402A]",
-  "from-[#7A5A2F] to-[#4A3518]",
-  "from-[#5A5A6B] to-[#2E2E3A]",
-] as const;
-
-function genreTone(id: string): string {
-  let hash = 0;
-  for (let i = 0; i < id.length; i += 1) {
-    hash = (hash + id.charCodeAt(i) * (i + 1)) % GENRE_CIRCLE_TONES.length;
-  }
-  return GENRE_CIRCLE_TONES[hash] ?? GENRE_CIRCLE_TONES[0];
-}
+  PLAYLIST_SEARCH_FIELD_OPTIONS,
+  PlaylistSearchModal,
+} from "@/src/components/playlist/playlist-search-modal";
+import { ReviewSearchButton } from "@/src/components/reviews/ReviewSearchButton";
+import { usePublicPlaylistList } from "@/src/hooks/use-public-playlist-list";
+import { playlistDetail } from "@/src/lib/navigation/routes";
 
 export function PlaylistListClient() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const pageFromUrl = Math.max(
-    1,
-    parseInt(searchParams.get("page") ?? "1", 10) || 1
-  );
-  const searchFieldFromUrl =
-    (searchParams.get("searchField") as SearchField) || "title";
-  const searchQueryFromUrl = (searchParams.get("q") ?? "").trim();
-  const genreFromUrl = (searchParams.get("genre") ?? "").trim();
-
-  const [playlists, setPlaylists] = useState<PublicPlaylistListItemDto[]>([]);
-  const [featured, setFeatured] = useState<PublicPlaylistListItemDto[]>([]);
-  const [genreTree, setGenreTree] = useState<GenreTreeNode[]>([]);
-  const [page, setPage] = useState(pageFromUrl);
-  const [totalPages, setTotalPages] = useState(1);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
-  const [searchField, setSearchField] =
-    useState<SearchField>(searchFieldFromUrl);
-  const [searchQuery, setSearchQuery] = useState(searchQueryFromUrl);
-  const [featuredIndex, setFeaturedIndex] = useState(0);
-
-  const buildHref = useCallback(
-    (nextPage: number, field: SearchField, query: string, genre: string) =>
-      playlistList({
-        page: nextPage,
-        searchField: field,
-        q: query,
-        genre: genre || undefined,
-      }),
-    []
-  );
-
-  function applySearch(event: React.FormEvent) {
-    event.preventDefault();
-    router.push(buildHref(1, searchField, searchQuery, genreFromUrl));
-    setIsSearchModalOpen(false);
-  }
-
-  function removeSearch() {
-    setSearchQuery("");
-    router.push(buildHref(1, searchField, "", genreFromUrl));
-  }
-
-  function selectGenre(genreId: string, options?: { sticky?: boolean }) {
-    if (genreId === SPECIAL_GENRE_ALL) {
-      router.push(buildHref(1, searchFieldFromUrl, searchQueryFromUrl, ""));
-      return;
-    }
-    if (options?.sticky) {
-      if (genreFromUrl === genreId) return;
-      router.push(
-        buildHref(1, searchFieldFromUrl, searchQueryFromUrl, genreId)
-      );
-      return;
-    }
-    const next = genreFromUrl === genreId ? "" : genreId;
-    router.push(buildHref(1, searchFieldFromUrl, searchQueryFromUrl, next));
-  }
-
-  useEffect(() => {
-    setPage(pageFromUrl);
-    setSearchField(searchFieldFromUrl);
-    setSearchQuery(searchQueryFromUrl);
-  }, [pageFromUrl, searchFieldFromUrl, searchQueryFromUrl]);
-
-  useEffect(() => {
-    const controller = new AbortController();
-
-    async function loadGenres() {
-      try {
-        const response = await fetch("/api/genres", {
-          signal: controller.signal,
-        });
-        const data = await response.json().catch(() => null);
-        if (response.ok && data?.ok) {
-          setGenreTree(data.genres ?? []);
-        }
-      } catch {
-        // ignore
-      }
-    }
-
-    void loadGenres();
-    return () => controller.abort();
-  }, []);
-
-  useEffect(() => {
-    const controller = new AbortController();
-
-    async function loadFeatured() {
-      try {
-        const response = await fetch("/api/playlists/list?page=1", {
-          signal: controller.signal,
-        });
-        const data = await response.json().catch(() => null);
-        if (response.ok && data?.ok) {
-          setFeatured((data.playlists ?? []).slice(0, 5));
-          setFeaturedIndex(0);
-        }
-      } catch {
-        // ignore
-      }
-    }
-
-    void loadFeatured();
-    return () => controller.abort();
-  }, []);
-
-  useEffect(() => {
-    const controller = new AbortController();
-
-    async function load() {
-      try {
-        setIsLoading(true);
-        setError(null);
-        const currentPage = Math.max(
-          1,
-          parseInt(searchParams.get("page") ?? "1", 10) || 1
-        );
-        const currentField =
-          (searchParams.get("searchField") as SearchField) || "title";
-        const currentQuery = (searchParams.get("q") ?? "").trim();
-        const currentGenre = (searchParams.get("genre") ?? "").trim();
-        const params = new URLSearchParams({ page: String(currentPage) });
-        if (currentQuery) {
-          params.set("searchField", currentField);
-          params.set("q", currentQuery);
-        }
-        if (currentGenre) {
-          params.set("genre", currentGenre);
-        }
-        const response = await fetch(`/api/playlists/list?${params}`, {
-          signal: controller.signal,
-        });
-        const data = await response.json().catch(() => null);
-
-        if (!response.ok || !data?.ok) {
-          setError(data?.error ?? "플레이리스트를 불러오지 못했습니다.");
-          setPlaylists([]);
-          return;
-        }
-
-        setPlaylists(data.playlists ?? []);
-        setTotalPages(Math.max(1, data.totalPages ?? 1));
-        setPage(data.page ?? 1);
-      } catch (err) {
-        if (controller.signal.aborted) return;
-        setError(
-          err instanceof Error
-            ? err.message
-            : "플레이리스트를 불러오는 중 오류가 발생했습니다."
-        );
-        setPlaylists([]);
-      } finally {
-        if (!controller.signal.aborted) {
-          setIsLoading(false);
-        }
-      }
-    }
-
-    void load();
-    return () => controller.abort();
-  }, [searchParams]);
-
-  const activeRoot = genreTree.find((g) => g.id === genreFromUrl);
-  const activeChildParent = genreTree.find((g) =>
-    g.children.some((c) => c.id === genreFromUrl)
-  );
-  const filterParent = activeRoot ?? activeChildParent ?? null;
-  const childOptions = filterParent
-    ? withComprehensiveSubgenre(filterParent)
-    : [];
-
-  const selectedGenreLabel = useMemo(() => {
-    if (!genreFromUrl || genreFromUrl === SPECIAL_GENRE_ALL) return null;
-    const circleLabel = getGenreCircleLabel(genreFromUrl);
-    if (circleLabel) return circleLabel;
-    if (activeRoot) return getGenreCircleLabel(activeRoot.id) ?? activeRoot.nameKo;
-    for (const root of genreTree) {
-      const child = root.children.find((c) => c.id === genreFromUrl);
-      if (child) return child.nameKo;
-    }
-    return genreFromUrl;
-  }, [genreFromUrl, activeRoot, genreTree]);
-
-  const genreCircles = useMemo(
-    () => buildGenreCircles(genreTree),
-    [genreTree]
-  );
-
-  const isAllActive =
-    !genreFromUrl || genreFromUrl === SPECIAL_GENRE_ALL;
+  const {
+    playlists,
+    featured,
+    featuredIndex,
+    setFeaturedIndex,
+    genreTree,
+    genreCircles,
+    page,
+    totalPages,
+    isLoading,
+    error,
+    isSearchModalOpen,
+    setIsSearchModalOpen,
+    searchField,
+    setSearchField,
+    searchQuery,
+    setSearchQuery,
+    searchFieldFromUrl,
+    searchQueryFromUrl,
+    genreFromUrl,
+    filterParent,
+    childOptions,
+    selectedGenreLabel,
+    buildHref,
+    applySearch,
+    removeSearch,
+    selectGenre,
+  } = usePublicPlaylistList();
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-[832px] flex-col bg-white px-4 pb-14 pt-[72px] sm:px-6">
@@ -252,7 +54,6 @@ export function PlaylistListClient() {
         </h1>
       </div>
 
-      {/* 1. 추천 플레이리스트 */}
       <section className="mt-6">
         <PlaylistCoverFlow
           playlists={featured}
@@ -261,58 +62,13 @@ export function PlaylistListClient() {
         />
       </section>
 
-      {/* 2. 장르 원형 — 최대 1200px (페이지 832보다 넓게 중앙 정렬) */}
-      <section className="mt-9 w-[min(1200px,calc(100vw-2rem))] self-center sm:w-[min(1200px,calc(100vw-3rem))]">
-        <div className="grid grid-cols-8 gap-x-3 gap-y-5 sm:gap-x-5 sm:gap-y-6">
-          {genreCircles.map((circle) => {
-            const isActive =
-              circle.id === SPECIAL_GENRE_ALL
-                ? isAllActive
-                : genreFromUrl === circle.id ||
-                  (circle.kind === "genre" &&
-                    genreTree
-                      .find((g) => g.id === circle.id)
-                      ?.children.some((c) => c.id === genreFromUrl) === true);
-            return (
-              <button
-                key={circle.id}
-                type="button"
-                onClick={() => selectGenre(circle.id)}
-                className="group flex w-full flex-col items-center gap-2.5 sm:gap-3"
-              >
-                <span
-                  className={`relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-full bg-gradient-to-br ${genreTone(circle.id)} text-base font-semibold text-white shadow-[0_10px_24px_rgba(0,0,0,0.12)] transition sm:text-xl ${
-                    isActive
-                      ? "ring-2 ring-[var(--color-brand-primary)] ring-offset-2 ring-offset-white sm:ring-offset-4"
-                      : "group-hover:scale-[1.03]"
-                  }`}
-                >
-                  {circle.imageUrl ? (
-                    <Image
-                      src={circle.imageUrl}
-                      alt={circle.label}
-                      fill
-                      sizes="(max-width: 640px) 12vw, 140px"
-                      className="object-cover"
-                    />
-                  ) : (
-                    circle.label.slice(0, 1)
-                  )}
-                </span>
-                <span
-                  className={`w-full truncate text-center text-[11px] font-medium sm:text-[14px] ${
-                    isActive ? "text-[var(--color-text-primary)]" : "text-[var(--color-text-secondary)]"
-                  }`}
-                >
-                  {circle.label}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      </section>
+      <PlaylistGenreCircles
+        circles={genreCircles}
+        genreTree={genreTree}
+        genreFromUrl={genreFromUrl}
+        onSelect={selectGenre}
+      />
 
-      {/* 3. 플레이리스트 목록 */}
       <section className="mt-9">
         <div className="flex items-center justify-between gap-3">
           <h2 className="text-[20px] font-bold tracking-tight text-[var(--color-text-primary)]">
@@ -363,7 +119,7 @@ export function PlaylistListClient() {
         {!!searchQueryFromUrl && (
           <p className="mt-2 text-xs text-[var(--color-text-secondary)]">
             {
-              SEARCH_FIELD_OPTIONS.find(
+              PLAYLIST_SEARCH_FIELD_OPTIONS.find(
                 (opt) => opt.value === searchFieldFromUrl
               )?.label
             }
@@ -419,66 +175,16 @@ export function PlaylistListClient() {
         ) : null}
       </section>
 
-      {isSearchModalOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-4 backdrop-blur-sm"
-          onClick={() => setIsSearchModalOpen(false)}
-        >
-          <div
-            className="w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-5 shadow-xl"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <h2 className="text-base font-semibold text-[var(--color-text-primary)]">
-              플레이리스트 검색
-            </h2>
-            <p className="mt-1 text-xs text-[var(--color-text-secondary)]">
-              검색 기준을 선택하고 키워드를 입력해주세요.
-            </p>
-
-            <form onSubmit={applySearch} className="mt-4 space-y-4">
-              <div className="flex gap-2">
-                {SEARCH_FIELD_OPTIONS.map((option) => (
-                  <button
-                    key={option.value}
-                    type="button"
-                    onClick={() => setSearchField(option.value)}
-                    className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
-                      searchField === option.value
-                        ? "bg-[var(--color-brand-primary)] text-white"
-                        : "bg-zinc-100 text-[var(--color-text-primary)] hover:bg-zinc-200"
-                    }`}
-                  >
-                    {option.label}
-                  </button>
-                ))}
-              </div>
-
-              <input
-                value={searchQuery}
-                onChange={(event) => setSearchQuery(event.target.value)}
-                placeholder="검색어를 입력하세요"
-                className="w-full rounded-xl border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500"
-              />
-
-              <div className="flex justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setIsSearchModalOpen(false)}
-                  className="rounded-full border border-zinc-300 px-3 py-1.5 text-xs text-[var(--color-text-primary)] hover:bg-zinc-50"
-                >
-                  취소
-                </button>
-                <button
-                  type="submit"
-                  className="rounded-full bg-[var(--color-brand-primary)] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[var(--color-brand-primary-hover)]"
-                >
-                  검색
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      {isSearchModalOpen ? (
+        <PlaylistSearchModal
+          searchField={searchField}
+          searchQuery={searchQuery}
+          onSearchFieldChange={setSearchField}
+          onSearchQueryChange={setSearchQuery}
+          onSubmit={applySearch}
+          onClose={() => setIsSearchModalOpen(false)}
+        />
+      ) : null}
     </div>
   );
 }
