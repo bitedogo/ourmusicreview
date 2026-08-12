@@ -136,8 +136,8 @@ export function PlaylistTrackList({
                       src={track.artworkUrl100}
                       alt=""
                       fill
-                      unoptimized
                       className="object-cover"
+                      sizes="80px"
                     />
                   ) : (
                     <div className="h-full w-full bg-zinc-200" />

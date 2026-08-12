@@ -13,10 +13,23 @@ function getSupabaseStorageHostname(): string {
   return "zdggogbgkvgjkjngvxwn.supabase.co";
 }
 
+function getR2PublicHostname(): string | null {
+  const base = process.env.R2_PUBLIC_BASE_URL;
+  if (!base) return null;
+  try {
+    return new URL(base).hostname;
+  } catch {
+    return null;
+  }
+}
+
+const r2Hostname = getR2PublicHostname();
+
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   images: {
+    // Vercel Image Optimization 캐시 — 원본 Storage Egress 감소
     minimumCacheTTL: 60 * 60 * 24 * 30,
     remotePatterns: [
       {
@@ -25,6 +38,16 @@ const nextConfig: NextConfig = {
         port: "",
         pathname: "/storage/v1/object/public/profiles/**",
       },
+      ...(r2Hostname
+        ? [
+            {
+              protocol: "https" as const,
+              hostname: r2Hostname,
+              port: "",
+              pathname: "/**",
+            },
+          ]
+        : []),
       {
         protocol: "https",
         hostname: "*.googleusercontent.com",
@@ -33,7 +56,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "is1-ssl.mzstatic.com",
+        hostname: "*.mzstatic.com",
         port: "",
         pathname: "/**",
       },

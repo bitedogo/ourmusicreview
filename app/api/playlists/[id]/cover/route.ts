@@ -5,7 +5,7 @@ import { initializeDatabase } from "@/src/lib/db";
 import { apiError, apiOk } from "@/src/lib/http/response";
 import { ServiceError } from "@/src/lib/http/service-error";
 import { updatePlaylist } from "@/src/lib/playlists/playlist-service";
-import { uploadPlaylistCoverImage } from "@/src/lib/supabase";
+import { uploadPlaylistCoverImage } from "@/src/lib/storage";
 
 const ALLOWED_TYPES = [
   "image/jpeg",

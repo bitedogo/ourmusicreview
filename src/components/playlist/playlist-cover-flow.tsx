@@ -158,7 +158,6 @@ export function PlaylistCoverFlow({
                       src={playlist.coverImageUrl}
                       alt={playlist.title}
                       fill
-                      unoptimized
                       className="object-cover"
                       sizes="280px"
                       priority={isCenter}

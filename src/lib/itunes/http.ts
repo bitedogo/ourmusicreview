@@ -16,7 +16,14 @@ interface LookupParams {
 
 export function getLargeImageUrl(artworkUrl100: string | undefined): string | null {
   if (!artworkUrl100) return null;
-  return artworkUrl100.replace(/100x100bb\.jpg$/, "600x600bb.jpg");
+  // http://isN.mzstatic.com → https://isN-ssl.mzstatic.com (mixed content·호스트 통일)
+  const httpsUrl = artworkUrl100
+    .replace(/^http:\/\//i, "https://")
+    .replace(
+      /^https:\/\/is(\d+)\.mzstatic\.com/i,
+      "https://is$1-ssl.mzstatic.com"
+    );
+  return httpsUrl.replace(/100x100bb\.jpg$/i, "600x600bb.jpg");
 }
 
 export function itunesLookupUrls(

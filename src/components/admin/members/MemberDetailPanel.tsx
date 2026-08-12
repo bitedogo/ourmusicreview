@@ -265,7 +265,6 @@ export function MemberDetailPanel({
                               src={album.imageUrl}
                               alt={album.title}
                               fill
-                              unoptimized
                               className="object-cover"
                             />
                           </div>

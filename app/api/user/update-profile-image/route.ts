@@ -3,7 +3,7 @@
 import { requireSessionApi } from "@/src/lib/auth/session";
 import { initializeDatabase } from "@/src/lib/db";
 import { User } from "@/src/lib/db/entities/User";
-import { uploadProfileImage } from "@/src/lib/supabase";
+import { uploadProfileImage } from "@/src/lib/storage";
 import { apiError, apiOk } from "@/src/lib/http/response";
 
 export async function POST(request: Request) {

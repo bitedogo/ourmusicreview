@@ -64,12 +64,3 @@ export async function incrementPostView(postId: string) {
     { method: "POST" }
   );
 }
-
-export async function uploadCommunityAudio(file: File) {
-  const formData = new FormData();
-  formData.append("audioFile", file);
-  return fetchJson<{ ok: true; data: { url: string } }>("/api/upload/audio", {
-    method: "POST",
-    body: formData,
-  });
-}

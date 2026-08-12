@@ -40,7 +40,6 @@ export function ArtistSearchSuggestions({
               alt={`${artist.artistName} 프로필`}
               width={40}
               height={40}
-              unoptimized
               className="h-10 w-10 shrink-0 rounded-lg bg-zinc-200 object-cover"
             />
             <div className="min-w-0 flex-1 text-left">

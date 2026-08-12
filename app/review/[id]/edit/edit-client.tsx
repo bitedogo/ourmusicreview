@@ -181,7 +181,6 @@ export function ReviewEditClient({ reviewId }: { reviewId: string }) {
                 alt={review.album.title}
                 width={96}
                 height={96}
-                unoptimized
                 className="h-24 w-24 rounded-xl object-contain"
               />
             </div>

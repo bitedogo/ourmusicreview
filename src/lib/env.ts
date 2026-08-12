@@ -4,8 +4,6 @@ interface ServerEnv {
   databaseUrl: string;
   nextAuthSecret: string;
   nextAuthUrl?: string;
-  supabaseUrl: string;
-  supabaseServiceRoleKey: string;
   nodeEnv: "development" | "production" | "test";
   googleClientId: string;
   googleClientSecret: string;
@@ -19,6 +17,14 @@ interface EmailEnv {
 interface ClientEnv {
   nextPublicSupabaseUrl: string;
   nextPublicSupabaseAnonKey: string;
+}
+
+interface R2Env {
+  accountId: string;
+  accessKeyId: string;
+  secretAccessKey: string;
+  bucket: string;
+  publicBaseUrl: string;
 }
 
 function requireEnv(name: string, value: string | undefined): string {
@@ -41,11 +47,6 @@ export function getServerEnv(): ServerEnv {
     databaseUrl: requireEnv("DATABASE_URL", process.env.DATABASE_URL),
     nextAuthSecret: requireEnv("NEXTAUTH_SECRET", process.env.NEXTAUTH_SECRET),
     nextAuthUrl: process.env.NEXTAUTH_URL,
-    supabaseUrl: requireEnv("SUPABASE_URL", process.env.SUPABASE_URL),
-    supabaseServiceRoleKey: requireEnv(
-      "SUPABASE_SERVICE_ROLE_KEY",
-      process.env.SUPABASE_SERVICE_ROLE_KEY
-    ),
     googleClientId: requireEnv("GOOGLE_CLIENT_ID", process.env.GOOGLE_CLIENT_ID),
     googleClientSecret: requireEnv(
       "GOOGLE_CLIENT_SECRET",
@@ -74,5 +75,24 @@ export function getClientEnv(): ClientEnv {
       "NEXT_PUBLIC_SUPABASE_ANON_KEY",
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
     ),
+  };
+}
+
+/** 미디어 업로드(R2) 시에만 필요 — 인증/DB 부팅과 분리 */
+export function getR2Env(): R2Env {
+  const publicBaseUrl = requireEnv(
+    "R2_PUBLIC_BASE_URL",
+    process.env.R2_PUBLIC_BASE_URL
+  ).replace(/\/$/, "");
+
+  return {
+    accountId: requireEnv("R2_ACCOUNT_ID", process.env.R2_ACCOUNT_ID),
+    accessKeyId: requireEnv("R2_ACCESS_KEY_ID", process.env.R2_ACCESS_KEY_ID),
+    secretAccessKey: requireEnv(
+      "R2_SECRET_ACCESS_KEY",
+      process.env.R2_SECRET_ACCESS_KEY
+    ),
+    bucket: requireEnv("R2_BUCKET", process.env.R2_BUCKET),
+    publicBaseUrl,
   };
 }

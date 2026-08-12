@@ -16,7 +16,6 @@ export function FeaturedAlbumCover({ title, imageUrl }: FeaturedAlbumCoverProps)
           src={imageUrl}
           alt={`${title} cover`}
           fill
-          unoptimized
           sizes="224px"
           className="h-full w-full object-cover"
         />

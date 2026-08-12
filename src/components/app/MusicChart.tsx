@@ -62,7 +62,6 @@ export default function MusicChart() {
                       src={album.imageUrl}
                       alt={`${album.title} cover`}
                       fill
-                      unoptimized
                       sizes="(max-width: 640px) 50vw, 20vw"
                       className="h-full w-full object-cover"
                     />

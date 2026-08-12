@@ -2,7 +2,7 @@
 
 import { requireSessionApi } from "@/src/lib/auth/session";
 import { apiError, apiOk } from "@/src/lib/http/response";
-import { uploadPlaylistCoverImage } from "@/src/lib/supabase";
+import { uploadPlaylistCoverImage } from "@/src/lib/storage";
 
 const ALLOWED_TYPES = [
   "image/jpeg",

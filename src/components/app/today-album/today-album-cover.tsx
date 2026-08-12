@@ -37,7 +37,6 @@ export function TodayAlbumCover({
           src={album.imageUrl}
           alt={`${album.title} cover`}
           fill
-          unoptimized
           sizes="(max-width: 640px) 100vw, 320px"
           className="h-full w-full object-cover"
           onError={onImageError}

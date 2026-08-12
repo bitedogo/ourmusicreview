@@ -125,7 +125,6 @@ function AlbumCoverImage({
           alt={title}
           width={size}
           height={size}
-          unoptimized
           className="h-full w-full object-cover"
         />
       ) : (

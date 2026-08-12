@@ -149,8 +149,8 @@ export function AddTrackToPlaylistModal({
                       src={album.imageUrl}
                       alt=""
                       fill
-                      unoptimized
                       className="object-cover"
+                      sizes="40px"
                     />
                   </div>
                   <p className="text-[11px] leading-snug text-[var(--color-text-secondary)]">

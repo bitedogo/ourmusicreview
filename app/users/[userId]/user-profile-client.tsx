@@ -180,7 +180,6 @@ export function UserProfileClient({ userId, showAllReviews = false }: UserProfil
                         alt={review.album.title}
                         width={56}
                         height={56}
-                        unoptimized
                         className="h-full w-full object-cover"
                       />
                     ) : null}

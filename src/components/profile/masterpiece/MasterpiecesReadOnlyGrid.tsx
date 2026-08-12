@@ -35,7 +35,6 @@ export function MasterpiecesReadOnlyGrid({
                     alt={album.title}
                     width={200}
                     height={200}
-                    unoptimized
                     className="h-full w-full object-cover"
                   />
                 ) : null}

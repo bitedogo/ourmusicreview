@@ -119,7 +119,6 @@ export function ActivityCollectionCard({
               alt=""
               width={167}
               height={167}
-              unoptimized
               className="h-full w-full object-cover"
             />
           ) : null}

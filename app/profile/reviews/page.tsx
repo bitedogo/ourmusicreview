@@ -37,7 +37,6 @@ export default async function MyReviewsPage() {
                     alt={review.album.title}
                     width={80}
                     height={80}
-                    unoptimized
                     className="h-full w-full object-contain"
                   />
                 </div>

@@ -54,7 +54,6 @@ export function SearchAlbumCard({
                 src={album.imageUrl600}
                 alt={album.collectionName}
                 fill
-                unoptimized
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                 className="h-full w-full object-contain transition group-hover:scale-[1.02]"
               />

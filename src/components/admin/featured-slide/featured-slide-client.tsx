@@ -216,7 +216,6 @@ export function FeaturedSlideClient() {
                   alt={album.title ?? "앨범 커버"}
                   width={48}
                   height={48}
-                  unoptimized
                   className="h-12 w-12 shrink-0 rounded object-cover"
                 />
               ) : (

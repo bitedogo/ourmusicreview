@@ -83,8 +83,8 @@ export function AddTracksFromAlbumModal({
                       src={album.imageUrl}
                       alt=""
                       fill
-                      unoptimized
                       className="object-cover"
+                      sizes="56px"
                     />
                   ) : null}
                 </div>

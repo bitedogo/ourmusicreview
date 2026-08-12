@@ -5,7 +5,8 @@
 - **Next.js** App Router + Route Handlers
 - **TypeORM** + **pg** (Supabase PostgreSQL, `synchronize: false`)
 - **next-auth** (JWT 세션)
-- **@supabase/supabase-js** (Storage: 프로필·플레이리스트 커버 등)
+- **Cloudflare R2** (미디어: 프로필·플레이리스트 커버)
+- **@supabase/supabase-js** (Auth 연동용 클라이언트)
 - **bcryptjs**, **resend**, **reflect-metadata**
 
 ## 디렉터리 개요
@@ -23,6 +24,7 @@ src/
     auth/              # NextAuth·세션 가드
     db/                # DataSource + entities
     http/              # apiOk, apiError, fetchJson, handleRouteError, ServiceError
+    storage/           # Cloudflare R2 업로드 (media.ts, r2.ts)
     <domain>/          # *-service.ts, client-api.ts (reviews, playlists, …)
 scripts/               # 수동 SQL 마이그레이션 (`npm run db:migrate:*`)
 ```
@@ -61,7 +63,17 @@ EmailOtpChallenge, UserSanction, BlockedEmail
 - 로그인: `/auth/signin`, API: `/api/auth/[...nextauth]`
 - DB: Supabase PostgreSQL (`public` 스키마)
 - 비밀번호: bcrypt 해싱
-- 프로필 이미지: Supabase Storage `profiles` 버킷
+- **미디어: Cloudflare R2** (`src/lib/storage/media.ts` → `r2.ts`)
+  - 프로필 / 플레이리스트 커스텀 커버
+  - 플레이리스트 **자동** 커버는 iTunes(mzstatic) URL만 DB에 저장
+- 필수 env (미디어 업로드):
+  - `R2_ACCOUNT_ID`
+  - `R2_ACCESS_KEY_ID`
+  - `R2_SECRET_ACCESS_KEY`
+  - `R2_BUCKET`
+  - `R2_PUBLIC_BASE_URL` (공개 읽기 URL, trailing slash 없이)
+- Auth용: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- Vercel에 R2 변수 등록 후 재배포. `next.config`가 `R2_PUBLIC_BASE_URL` 호스트를 `images.remotePatterns`에 넣음.
 
 ## API 에러 패턴
 

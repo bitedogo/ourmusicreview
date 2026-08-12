@@ -232,7 +232,6 @@ export function MasterpieceAlbumCard({
               alt={album.title}
               width={200}
               height={200}
-              unoptimized
               draggable={false}
               className="h-full w-full object-cover"
             />

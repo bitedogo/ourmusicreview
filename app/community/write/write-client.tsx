@@ -5,12 +5,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { TuiEditor, TuiEditorRef } from "@/src/components/common/TuiEditor";
-import { isAllowedAudioFile, MAX_AUDIO_SIZE_BYTES } from "@/src/lib/audio";
 import {
   createCommunityPost,
   fetchCommunityPost,
   updateCommunityPost,
-  uploadCommunityAudio,
 } from "@/src/lib/community/client-api";
 import { NOTICE_CATEGORY_OPTIONS } from "@/src/lib/community/notice-category";
 import type { NoticeCategory } from "@/src/lib/community/types";
@@ -45,11 +43,9 @@ export function CommunityWriteClient() {
   const [isGlobal, setIsGlobal] = useState(false);
   const [isRelease, setIsRelease] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isUploadingAudio, setIsUploadingAudio] = useState(false);
   const [isLoading, setIsLoading] = useState(!!editPostId);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const editorRef = useRef<TuiEditorRef>(null);
-  const audioInputRef = useRef<HTMLInputElement>(null);
   const contentToLoadRef = useRef<string | null>(null);
 
   const handleEditorReady = useCallback(() => {
@@ -157,53 +153,6 @@ export function CommunityWriteClient() {
     }
   }
 
-  const handleAudioUpload = useCallback(async (file: File | null) => {
-    if (!file) {
-      return;
-    }
-
-    if (!isAllowedAudioFile(file)) {
-      setErrorMessage("음원 파일은 MP3, WAV만 업로드할 수 있습니다.");
-      if (audioInputRef.current) {
-        audioInputRef.current.value = "";
-      }
-      return;
-    }
-
-    if (file.size > MAX_AUDIO_SIZE_BYTES) {
-      setErrorMessage("음원 파일 용량은 20MB 이하여야 합니다.");
-      if (audioInputRef.current) {
-        audioInputRef.current.value = "";
-      }
-      return;
-    }
-
-    setErrorMessage(null);
-    setIsUploadingAudio(true);
-    try {
-      const data = await uploadCommunityAudio(file);
-      const currentHtml = editorRef.current?.getHTML() ?? "";
-      const audioHtml = `<p><audio controls preload="metadata" src="${data.data.url}"></audio></p>`;
-      editorRef.current?.setHTML(`${currentHtml}${audioHtml}`);
-    } catch (error) {
-      setErrorMessage(
-        getApiErrorMessage(error, "음원 업로드 중 오류가 발생했습니다.")
-      );
-    } finally {
-      setIsUploadingAudio(false);
-      if (audioInputRef.current) {
-        audioInputRef.current.value = "";
-      }
-    }
-  }, []);
-
-  const handleAudioToolClick = useCallback(() => {
-    if (isUploadingAudio) {
-      return;
-    }
-    audioInputRef.current?.click();
-  }, [isUploadingAudio]);
-
   if (isLoading) {
     return (
       <div className="mx-auto flex min-h-screen w-full max-w-3xl items-center justify-center">
@@ -255,27 +204,11 @@ export function CommunityWriteClient() {
           <label className="text-xs font-medium text-[var(--color-text-secondary)]">
             내용
           </label>
-          <input
-            ref={audioInputRef}
-            type="file"
-            accept=".mp3,.wav,audio/mpeg,audio/wav"
-            className="hidden"
-            onChange={(event) => {
-              const selectedFile = event.target.files?.[0] ?? null;
-              void handleAudioUpload(selectedFile);
-            }}
-          />
           <TuiEditor
             ref={editorRef}
             height="400px"
-            showAudioTool={category === "W"}
-            isAudioUploading={isUploadingAudio}
-            onAudioToolClick={handleAudioToolClick}
             onReady={handleEditorReady}
           />
-          {category === "W" && isUploadingAudio && (
-            <p className="text-xs text-[var(--color-text-secondary)]">음원 업로드 중...</p>
-          )}
         </div>
 
         {errorMessage && (

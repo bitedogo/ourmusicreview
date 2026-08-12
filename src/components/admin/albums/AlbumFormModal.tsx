@@ -109,7 +109,6 @@ export function AlbumFormModal({
                   alt={form.title || "앨범 커버"}
                   width={64}
                   height={64}
-                  unoptimized
                   className="h-16 w-16 shrink-0 rounded object-cover"
                 />
                 <p className="text-xs text-[var(--color-text-secondary)]">

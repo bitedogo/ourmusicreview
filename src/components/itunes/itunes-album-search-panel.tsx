@@ -132,7 +132,6 @@ export function ItunesAlbumSearchPanel({
                           alt={album.collectionName}
                           width={40}
                           height={40}
-                          unoptimized
                           className="h-full w-full object-cover"
                         />
                       ) : null}
@@ -233,7 +232,6 @@ export function ItunesAlbumSearchPanel({
                         alt={album.collectionName}
                         width={40}
                         height={40}
-                        unoptimized
                         className="h-10 w-10 shrink-0 rounded object-cover"
                       />
                     ) : (

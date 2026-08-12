@@ -83,7 +83,6 @@ export function ReviewAlbumCover({
             alt={alt}
             width={width}
             height={height}
-            unoptimized
             className="h-full w-full object-cover"
           />
         ) : (

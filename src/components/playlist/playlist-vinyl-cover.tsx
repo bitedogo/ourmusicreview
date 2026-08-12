@@ -71,7 +71,6 @@ export function PlaylistVinylCover({
             src={coverImageUrl}
             alt={alt}
             fill
-            unoptimized
             className="object-cover"
             sizes={isFixed75 ? `${FIXED_COVER_PX}px` : "(max-width: 640px) 30vw, 180px"}
           />

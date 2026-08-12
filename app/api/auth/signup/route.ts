@@ -17,7 +17,7 @@ import {
 } from "@/src/lib/auth/validation";
 import { apiError, apiOk } from "@/src/lib/http/response";
 import { initializeDatabase } from "@/src/lib/db";
-import { uploadProfileImage } from "@/src/lib/supabase";
+import { uploadProfileImage } from "@/src/lib/storage";
 import {
   BLOCKED_EMAIL_MESSAGE,
   isEmailBlocked,

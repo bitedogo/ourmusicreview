@@ -5,6 +5,7 @@ import type { DataSource } from "typeorm";
 import { Playlist } from "@/src/lib/db/entities/Playlist";
 import { PlaylistTrack } from "@/src/lib/db/entities/PlaylistTrack";
 import { ServiceError } from "@/src/lib/http/service-error";
+import { getLargeImageUrl } from "@/src/lib/itunes/http";
 import { applyPositionOrder, reindexPositions } from "@/src/lib/utils/reorder";
 
 export interface AddPlaylistTrackInput {
@@ -102,6 +103,9 @@ export async function addTrackToPlaylist(
   });
 
   const artworkUrl100 = normalizeNullableString(input.artworkUrl100, 1000);
+  // 자동 커버·트랙 아트는 iTunes CDN URL만 저장 (Storage Egress 회피)
+  const normalizedArtwork =
+    getLargeImageUrl(artworkUrl100 ?? undefined) ?? artworkUrl100;
 
   const track = trackRepository.create({
     id: randomUUID().replace(/-/g, "").slice(0, 255),
@@ -111,7 +115,7 @@ export async function addTrackToPlaylist(
     artistName,
     collectionId: normalizeNullableString(input.collectionId, 255),
     collectionName: normalizeNullableString(input.collectionName, 500),
-    artworkUrl100,
+    artworkUrl100: normalizedArtwork,
     previewUrl: normalizeNullableString(input.previewUrl, 1000),
     trackNumber: normalizeNullableNumber(input.trackNumber),
     discNumber: normalizeNullableNumber(input.discNumber),
@@ -121,10 +125,10 @@ export async function addTrackToPlaylist(
 
   await trackRepository.save(track);
 
-  // 대표사진이 비어 있으면 처음 담은 트랙 앨범 커버로 자동 설정
-  if (!playlist.coverImageUrl && artworkUrl100) {
+  // 대표사진이 비어 있으면 처음 담은 트랙 앨범 커버(외부 CDN)로 자동 설정
+  if (!playlist.coverImageUrl && normalizedArtwork) {
     const playlistRepository = dataSource.getRepository(Playlist);
-    playlist.coverImageUrl = artworkUrl100;
+    playlist.coverImageUrl = normalizedArtwork;
     playlist.updatedAt = new Date();
     await playlistRepository.save(playlist);
   } else {

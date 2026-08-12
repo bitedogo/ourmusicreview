@@ -83,7 +83,6 @@ export function AlbumDetailModal({
                             src={album.imageUrl}
                             alt={album.name}
                             fill
-                            unoptimized
                             sizes="192px"
                             className="object-cover"
                           />

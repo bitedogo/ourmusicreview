@@ -33,10 +33,6 @@ const TOOLBAR_BASIC: string[][] = [
   ["ul"],
 ];
 
-const TOOLBAR_SELECTOR = ".toastui-editor-defaultUI-toolbar, .toastui-editor-toolbar";
-const LINK_BUTTON_SELECTOR =
-  "button[aria-label*='link' i], button[title*='link' i], button[aria-label*='링크'], button[title*='링크']";
-
 const editorOverrideStyles = `
   .toastui-editor-tabs {
     display: none !important;
@@ -58,23 +54,6 @@ const editorOverrideStyles = `
   .toastui-editor-toolbar {
     height: auto !important;
     min-height: 46px !important;
-  }
-  .tui-audio-tool-button {
-    width: 28px;
-    min-width: 28px;
-    height: 28px;
-    margin: 8px 2px;
-    border: 0;
-    background: transparent;
-    color: #52525b;
-    font-size: 40px;
-    font-weight: 600;
-    line-height: 1;
-    cursor: pointer;
-  }
-  .tui-audio-tool-button:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
   }
   .toastui-editor-popup,
   .toastui-editor-popup.toastui-editor-popup-add-image,
@@ -165,27 +144,8 @@ interface TuiEditorProps {
   height?: string;
   onChange?: (html: string) => void;
   showMediaTools?: boolean;
-  showAudioTool?: boolean;
-  isAudioUploading?: boolean;
-  onAudioToolClick?: () => void;
   onReady?: () => void;
 }
-
-const customHTMLRenderer = {
-  htmlBlock: {
-    audio(node: { attrs?: Record<string, string> }) {
-      return [
-        {
-          type: "openTag",
-          tagName: "audio",
-          outerNewLine: true,
-          attributes: node.attrs ?? {},
-        },
-        { type: "closeTag", tagName: "audio", outerNewLine: true },
-      ];
-    },
-  },
-};
 
 export const TuiEditor = forwardRef<TuiEditorRef, TuiEditorProps>(
   (
@@ -194,9 +154,6 @@ export const TuiEditor = forwardRef<TuiEditorRef, TuiEditorProps>(
       height = "400px",
       onChange,
       showMediaTools = true,
-      showAudioTool = false,
-      isAudioUploading = false,
-      onAudioToolClick,
       onReady,
     },
     ref
@@ -252,46 +209,6 @@ export const TuiEditor = forwardRef<TuiEditorRef, TuiEditorProps>(
       });
     }, [initialValue, editorReady, getEditorInstance, blurEditorBeforeUpdate]);
 
-    useEffect(() => {
-      const rootEl = containerRef.current;
-      if (!rootEl) {
-        return;
-      }
-
-      const existingButton = rootEl.querySelector(
-        "[data-audio-tool='true']"
-      ) as HTMLButtonElement | null;
-
-      if (!showAudioTool || !onAudioToolClick) {
-        existingButton?.remove();
-        return;
-      }
-
-      const button = existingButton ?? document.createElement("button");
-      button.type = "button";
-      button.className = "tui-audio-tool-button";
-      button.setAttribute("data-audio-tool", "true");
-      button.setAttribute("title", "음원 삽입");
-      button.setAttribute("aria-label", "음원 삽입");
-      button.textContent = "🎵";
-      button.onclick = onAudioToolClick;
-      button.disabled = isAudioUploading;
-
-      const toolbar = rootEl.querySelector(TOOLBAR_SELECTOR) as HTMLElement | null;
-      if (!toolbar) {
-        return;
-      }
-
-      if (!existingButton) {
-        const linkButton = toolbar.querySelector(LINK_BUTTON_SELECTOR) as HTMLElement | null;
-        if (linkButton) {
-          linkButton.insertAdjacentElement("afterend", button);
-        } else {
-          toolbar.appendChild(button);
-        }
-      }
-    }, [showAudioTool, onAudioToolClick, isAudioUploading, editorReady]);
-
     const handleEditorChange = useCallback(() => {
       if (onChange) {
         const html = normalizeHtml(getEditorInstance()?.getHTML() || "");
@@ -321,7 +238,6 @@ export const TuiEditor = forwardRef<TuiEditorRef, TuiEditorProps>(
           hideModeSwitch={true}
           usageStatistics={false}
           autofocus={false}
-          customHTMLRenderer={customHTMLRenderer as never}
           onChange={handleEditorChange}
           toolbarItems={toolbarItems}
         />

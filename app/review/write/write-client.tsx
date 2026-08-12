@@ -115,7 +115,6 @@ export function ReviewWriteClient() {
                   alt={albumTitle}
                   width={80}
                   height={80}
-                  unoptimized
                   className="h-20 w-20 rounded-xl object-contain"
                 />
               </div>
