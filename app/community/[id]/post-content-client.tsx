@@ -7,8 +7,17 @@ import { useEffect, useState } from "react";
 import { HtmlRenderer } from "@/src/components/common/HtmlRenderer";
 import { InteractionButtons } from "@/src/components/interaction/InteractionButtons";
 import { CommentSection } from "@/src/components/interaction/CommentSection";
+import {
+  deleteCommunityPost,
+  incrementPostView,
+} from "@/src/lib/community/client-api";
+import { getApiErrorMessage } from "@/src/lib/http/client";
+import {
+  boardPath,
+  communityEdit,
+  type BoardSlug,
+} from "@/src/lib/navigation/routes";
 import { PostAuthorRow } from "./post-author-row";
-import { boardPath, communityEdit, type BoardSlug } from "@/src/lib/navigation/routes";
 
 interface PostContentClientProps {
   content: string;
@@ -58,15 +67,11 @@ export function PostContentClient({
     if (!hasIncremented) {
       sessionStorage.setItem(`post-${postId}-view-incremented`, "true");
 
-      fetch(`/api/posts/${postId}/view`, {
-        method: "POST",
-      })
-      .then(response => {
-        if (response.ok) {
-          setDisplayedViews(prev => prev + 1);
-        }
-      })
-      .catch(() => {});
+      void incrementPostView(postId)
+        .then(() => {
+          setDisplayedViews((prev) => prev + 1);
+        })
+        .catch(() => {});
     }
   }, [postId]);
   const isOwner = session?.user?.id === userId || (session?.user as { role?: string })?.role === "ADMIN";
@@ -74,42 +79,24 @@ export function PostContentClient({
   const handleDelete = async () => {
     if (!confirm("정말로 이 게시글을 삭제하시겠습니까?")) return;
 
-    try {
-      const response = await fetch(`/api/community/posts/${postId}`, {
-        method: "DELETE",
-      });
-      
-      let data;
-      try {
-        data = await response.json();
-      } catch {
-        data = { ok: response.ok };
-      }
-
-      if (data.ok) {
-        alert("게시글이 삭제되었습니다.");
-        const categoryPath: BoardSlug = ({
+    const categoryPath: BoardSlug =
+      (
+        {
           K: "domestic",
           I: "overseas",
           M: "market",
           W: "workroom",
           N: "notice",
-        } satisfies Record<string, BoardSlug>)[category as "K" | "I" | "M" | "W" | "N"] || "domestic";
+        } satisfies Record<string, BoardSlug>
+      )[category as "K" | "I" | "M" | "W" | "N"] || "domestic";
 
-        router.push(boardPath(categoryPath));
-        router.refresh();
-      } else {
-        alert(data.error || "삭제에 실패했습니다.");
-      }
-    } catch {
-      const categoryPath: BoardSlug = ({
-        K: "domestic",
-        I: "overseas",
-        M: "market",
-        W: "workroom",
-        N: "notice",
-      } satisfies Record<string, BoardSlug>)[category as "K" | "I" | "M" | "W" | "N"] || "domestic";
+    try {
+      await deleteCommunityPost(postId);
+      alert("게시글이 삭제되었습니다.");
       router.push(boardPath(categoryPath));
+      router.refresh();
+    } catch (error) {
+      alert(getApiErrorMessage(error, "삭제에 실패했습니다."));
     }
   };
 

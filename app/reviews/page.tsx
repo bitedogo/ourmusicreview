@@ -1,7 +1,7 @@
 /** 전체 리뷰 목록 페이지 */
 
 import { Suspense } from "react";
-import { AlbumReviewsClient } from "./AlbumReviewsClient";
+import { ReviewListClient } from "@/src/components/reviews/review-list-client";
 import {
   REVIEW_LIST_CONTENT_CLASS,
   REVIEW_PAGE_TITLE_CLASS,
@@ -23,7 +23,7 @@ export default function ReviewsPage() {
         </div>
       }
     >
-      <AlbumReviewsClient />
+      <ReviewListClient />
     </Suspense>
   );
 }

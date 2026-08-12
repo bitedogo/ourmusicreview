@@ -5,10 +5,17 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { TuiEditor, TuiEditorRef } from "@/src/components/common/TuiEditor";
-import type { NoticeCategory } from "@/src/lib/community/types";
-import { NOTICE_CATEGORY_OPTIONS } from "@/src/lib/community/notice-category";
-import { isEditorContentEmpty } from "@/src/lib/utils/editor";
 import { isAllowedAudioFile, MAX_AUDIO_SIZE_BYTES } from "@/src/lib/audio";
+import {
+  createCommunityPost,
+  fetchCommunityPost,
+  updateCommunityPost,
+  uploadCommunityAudio,
+} from "@/src/lib/community/client-api";
+import { NOTICE_CATEGORY_OPTIONS } from "@/src/lib/community/notice-category";
+import type { NoticeCategory } from "@/src/lib/community/types";
+import { getApiErrorMessage } from "@/src/lib/http/client";
+import { isEditorContentEmpty } from "@/src/lib/utils/editor";
 import { CategorySelector, type WriteCategory } from "./CategorySelector";
 import { AdminPostToggles } from "./AdminPostToggles";
 
@@ -58,30 +65,27 @@ export function CommunityWriteClient() {
     if (!editPostId) return;
 
     async function fetchPost() {
+      if (!editPostId) return;
       try {
-        const response = await fetch(`/api/community/posts/${editPostId}`);
-        const data = await response.json();
-
-        if (data.ok && data.data?.post) {
-          setTitle(data.data.post.title);
-          setCategory(data.data.post.category);
-          setNoticeCategory(
-            NOTICE_CATEGORY_OPTIONS.some((o) => o.value === data.data.post.noticeCategory)
-              ? data.data.post.noticeCategory
-              : "RELEASE_NOTE"
-          );
-          setIsGlobal(data.data.post.isGlobal === "Y");
-          setIsRelease(
-            data.data.post.category !== "N" &&
-              data.data.post.noticeCategory === "RELEASE_NOTE"
-          );
-          contentToLoadRef.current = data.data.post.content;
-          handleEditorReady();
-        } else {
-          setErrorMessage("게시글을 불러올 수 없습니다.");
-        }
-      } catch {
-        setErrorMessage("게시글을 불러오는 중 오류가 발생했습니다.");
+        const data = await fetchCommunityPost(editPostId);
+        const post = data.data.post;
+        setTitle(post.title);
+        setCategory(post.category);
+        setNoticeCategory(
+          NOTICE_CATEGORY_OPTIONS.some((o) => o.value === post.noticeCategory)
+            ? (post.noticeCategory as NoticeCategory)
+            : "RELEASE_NOTE"
+        );
+        setIsGlobal(post.isGlobal === "Y");
+        setIsRelease(
+          post.category !== "N" && post.noticeCategory === "RELEASE_NOTE"
+        );
+        contentToLoadRef.current = post.content;
+        handleEditorReady();
+      } catch (error) {
+        setErrorMessage(
+          getApiErrorMessage(error, "게시글을 불러오는 중 오류가 발생했습니다.")
+        );
       } finally {
         setIsLoading(false);
       }
@@ -112,56 +116,42 @@ export function CommunityWriteClient() {
     }
 
     try {
-      const url = editPostId 
-        ? `/api/community/posts/${editPostId}` 
-        : "/api/community/posts";
-      const method = editPostId ? "PATCH" : "POST";
+      const payload = {
+        title: trimmedTitle,
+        content: trimmedContent,
+        category,
+        isGlobal,
+        ...(isAdmin && (category === "K" || category === "I")
+          ? { isRelease }
+          : {}),
+        ...(category === "N" && { noticeCategory }),
+      };
 
-      const response = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: trimmedTitle,
-          content: trimmedContent,
-          category,
-          isGlobal,
-          ...(isAdmin && (category === "K" || category === "I")
-            ? { isRelease }
-            : {}),
-          ...(category === "N" && { noticeCategory }),
-        }),
-      });
+      const data = editPostId
+        ? await updateCommunityPost(editPostId, payload)
+        : await createCommunityPost(payload);
 
-      const data = await response.json().catch(() => null);
-
-      if (!response.ok || !data?.ok) {
-        setErrorMessage(
-          data?.error ??
-            `글 ${editPostId ? "수정" : "작성"}에 실패했습니다. (status: ${response.status})`
-        );
-        setIsSubmitting(false);
-        return;
-      }
-
-      const postId = editPostId || data?.data?.id;
+      const postId = editPostId || data.data.id;
       if (postId) {
         router.push(`/community/${encodeURIComponent(postId)}`);
         router.refresh();
       } else {
-        const categoryPath = {
-          K: "domestic",
-          I: "overseas",
-          M: "market",
-          W: "workroom",
-          N: "notice",
-        }[category] || "domestic";
+        const categoryPath =
+          {
+            K: "domestic",
+            I: "overseas",
+            M: "market",
+            W: "workroom",
+            N: "notice",
+          }[category] || "domestic";
         router.push(`/boards/${categoryPath}`);
       }
     } catch (error) {
       setErrorMessage(
-        error instanceof Error
-          ? `요청 중 오류가 발생했습니다: ${error.message}`
-          : "요청 중 알 수 없는 오류가 발생했습니다."
+        getApiErrorMessage(
+          error,
+          `글 ${editPostId ? "수정" : "작성"}에 실패했습니다.`
+        )
       );
       setIsSubmitting(false);
     }
@@ -191,24 +181,14 @@ export function CommunityWriteClient() {
     setErrorMessage(null);
     setIsUploadingAudio(true);
     try {
-      const formData = new FormData();
-      formData.append("audioFile", file);
-
-      const response = await fetch("/api/upload/audio", {
-        method: "POST",
-        body: formData,
-      });
-      const data = await response.json().catch(() => null);
-      if (!response.ok || !data?.ok || !data?.data?.url) {
-        setErrorMessage(data?.error ?? "음원 업로드에 실패했습니다.");
-        return;
-      }
-
+      const data = await uploadCommunityAudio(file);
       const currentHtml = editorRef.current?.getHTML() ?? "";
       const audioHtml = `<p><audio controls preload="metadata" src="${data.data.url}"></audio></p>`;
       editorRef.current?.setHTML(`${currentHtml}${audioHtml}`);
-    } catch {
-      setErrorMessage("음원 업로드 중 오류가 발생했습니다.");
+    } catch (error) {
+      setErrorMessage(
+        getApiErrorMessage(error, "음원 업로드 중 오류가 발생했습니다.")
+      );
     } finally {
       setIsUploadingAudio(false);
       if (audioInputRef.current) {

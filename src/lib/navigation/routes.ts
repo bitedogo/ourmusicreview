@@ -1,5 +1,14 @@
 export type BoardSlug = "domestic" | "overseas" | "market" | "workroom" | "notice";
 
+/**
+ * 페이지 경로 규칙 (URL 변경 없음)
+ * - `/reviews` : 전체 승인 리뷰 목록
+ * - `/review/[id]` : 리뷰 상세/수정
+ * - `/review/album/[albumId]` : 앨범별 리뷰 목록
+ * - `/profile/*` : 내 프로필
+ * - `/users/[userId]/*` : 타인 공개 프로필
+ */
+
 export function reviewDetail(reviewId: string): string {
   return `/review/${encodeURIComponent(reviewId)}`;
 }

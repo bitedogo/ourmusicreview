@@ -1,9 +1,9 @@
 /** POST/GET 리뷰 작성·목록 */
 
-import { requireSessionApi } from "@/src/lib/auth/session";
+import { requireSessionApi, requireWritableSessionApi } from "@/src/lib/auth/session";
 import { initializeDatabase } from "@/src/lib/db";
-import { apiError, apiOk } from "@/src/lib/http/response";
-import { ServiceError } from "@/src/lib/http/service-error";
+import { handleRouteError } from "@/src/lib/http/handle-route-error";
+import { apiOk } from "@/src/lib/http/response";
 import {
   createReview,
   getUserReviews,
@@ -12,7 +12,7 @@ import {
 
 export async function POST(request: Request) {
   try {
-    const { session, response } = await requireSessionApi();
+    const { session, response } = await requireWritableSessionApi();
     if (response) return response;
 
     const body = (await request.json()) as CreateReviewInput;
@@ -22,13 +22,7 @@ export async function POST(request: Request) {
 
     return apiOk(result, { status: 201 });
   } catch (error) {
-    if (error instanceof ServiceError) {
-      return apiError(error.message, { status: error.status });
-    }
-    return apiError(
-      error instanceof Error ? error.message : "리뷰 작성 중 오류가 발생했습니다.",
-      { status: 500 }
-    );
+    return handleRouteError(error, "리뷰 작성 중 오류가 발생했습니다.");
   }
 }
 
@@ -42,9 +36,6 @@ export async function GET() {
 
     return apiOk({ reviews });
   } catch (error) {
-    return apiError(
-      error instanceof Error ? error.message : "리뷰 목록 조회 중 오류가 발생했습니다.",
-      { status: 500 }
-    );
+    return handleRouteError(error, "리뷰 목록 조회 중 오류가 발생했습니다.");
   }
 }

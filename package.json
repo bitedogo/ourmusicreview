@@ -18,6 +18,8 @@
     "db:migrate:comments": "node scripts/run-comment-replies-migration.mjs",
     "db:migrate:review-views": "node scripts/run-review-views-migration.mjs",
     "db:migrate:playlist-likes-comments": "node scripts/run-playlist-likes-comments-migration.mjs",
+    "db:migrate:user-sanctions": "node scripts/run-user-sanctions-migration.mjs",
+    "db:migrate:blocked-emails": "node scripts/run-blocked-emails-migration.mjs",
     "db:seed:genres": "node scripts/seed-genres.mjs"
   },
   "dependencies": {

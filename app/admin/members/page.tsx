@@ -1,6 +1,6 @@
 /** 관리자 회원 관리 페이지 */
 
-import { MemberManagementClient } from "./member-management-client";
+import { MemberManagementClient } from "@/src/components/admin/members/member-management-client";
 
 export default function MemberManagementPage() {
   return <MemberManagementClient />;

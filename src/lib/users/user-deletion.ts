@@ -7,6 +7,14 @@ import { Like } from "@/src/lib/db/entities/Like";
 import { Report } from "@/src/lib/db/entities/Report";
 import { Comment } from "@/src/lib/db/entities/Comment";
 import { Review } from "@/src/lib/db/entities/Review";
+import { blockEmail } from "@/src/lib/users/blocked-email";
+
+export interface DeleteUserAccountOptions {
+  /** true면 해당 이메일 재가입 차단 (관리자 강제 탈퇴) */
+  blockEmail?: boolean;
+  blockedByAdminId?: string | null;
+  blockReason?: string | null;
+}
 
 /**
  * 유저와 연관된 즐겨찾기·좋아요·신고·댓글·리뷰를 모두 삭제한 뒤 유저를 제거한다.
@@ -14,7 +22,8 @@ import { Review } from "@/src/lib/db/entities/Review";
  */
 export async function deleteUserAccount(
   dataSource: DataSource,
-  userId: string
+  userId: string,
+  options: DeleteUserAccountOptions = {}
 ): Promise<boolean> {
   const userRepo = dataSource.getRepository(User);
   const user = await userRepo.findOne({ where: { id: userId } });
@@ -23,6 +32,8 @@ export async function deleteUserAccount(
     return false;
   }
 
+  const emailToBlock = user.email;
+
   await dataSource.getRepository(UserFavoriteAlbum).delete({ userId });
   await dataSource.getRepository(Like).delete({ userId });
   await dataSource.getRepository(Report).delete({ userId });
@@ -30,6 +41,15 @@ export async function deleteUserAccount(
   await dataSource.getRepository(Review).delete({ userId });
 
   await userRepo.remove(user);
+
+  if (options.blockEmail && emailToBlock) {
+    await blockEmail(dataSource, {
+      email: emailToBlock,
+      previousUserId: userId,
+      blockedByAdminId: options.blockedByAdminId ?? null,
+      reason: options.blockReason ?? "관리자에 의한 계정 삭제",
+    });
+  }
 
   return true;
 }

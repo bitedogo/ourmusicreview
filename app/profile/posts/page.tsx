@@ -1,43 +1,23 @@
-"use client";
 /** 내 게시글 목록 페이지 */
 
 import Link from "next/link";
-import { getBoardCategoryLabel } from "@/src/lib/community/board-config";
 import { ProfileListPageLayout } from "@/src/components/profile/profile-list-page-layout";
-import { useAuthenticatedFetch } from "@/src/hooks/use-authenticated-fetch";
+import { requireAuthPage } from "@/src/lib/auth/session";
+import { getBoardCategoryLabel } from "@/src/lib/community/board-config";
+import { initializeDatabase } from "@/src/lib/db";
+import { listMyProfilePosts } from "@/src/lib/profile/profile-content-service";
 
-interface MyPost {
-  id: string;
-  title: string;
-  category: "K" | "I" | "M" | "W" | "N";
-  isGlobal: "Y" | "N";
-  createdAt: string;
-  commentCount: number;
-}
-
-interface MyPostsResponse {
-  ok: boolean;
-  data: {
-    posts: MyPost[];
-  };
-}
-
-export default function MyPostsPage() {
-  const { data, isLoading, error } = useAuthenticatedFetch<MyPostsResponse>(
-    "/api/profile/posts",
-    "/profile/posts"
-  );
-  const posts = data?.data.posts ?? [];
+export default async function MyPostsPage() {
+  const session = await requireAuthPage("/profile/posts");
+  const dataSource = await initializeDatabase();
+  const posts = await listMyProfilePosts(dataSource, session.user.id);
 
   return (
     <ProfileListPageLayout
       title="내가 작성한 게시글"
       description="국내/해외/장터/워크룸/공지사항 게시글을 확인할 수 있습니다."
-      isLoading={isLoading}
-      error={error}
       emptyMessage="아직 작성한 게시글이 없습니다."
       isEmpty={posts.length === 0}
-      loadingMessage="게시글을 불러오는 중..."
     >
       <div className="space-y-3">
         {posts.map((post) => (
@@ -58,13 +38,20 @@ export default function MyPostsPage() {
                     </span>
                   )}
                 </div>
-                <p className="line-clamp-1 text-sm font-semibold text-[var(--color-text-primary)]">{post.title}</p>
+                <p className="line-clamp-1 text-sm font-semibold text-[var(--color-text-primary)]">
+                  {post.title}
+                </p>
               </div>
               <div className="shrink-0 text-right text-[11px] text-[var(--color-text-secondary)]">
                 <p>
-                  댓글 <span className="font-semibold text-[var(--color-text-primary)]">{post.commentCount}</span>
+                  댓글{" "}
+                  <span className="font-semibold text-[var(--color-text-primary)]">
+                    {post.commentCount}
+                  </span>
                 </p>
-                <p className="mt-0.5">{new Date(post.createdAt).toLocaleDateString("ko-KR")}</p>
+                <p className="mt-0.5">
+                  {new Date(post.createdAt).toLocaleDateString("ko-KR")}
+                </p>
               </div>
             </div>
           </Link>

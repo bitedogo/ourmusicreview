@@ -2,8 +2,8 @@
 
 import { requireSessionApi } from "@/src/lib/auth/session";
 import { initializeDatabase } from "@/src/lib/db";
-import { apiError, apiOk } from "@/src/lib/http/response";
-import { ServiceError } from "@/src/lib/http/service-error";
+import { handleRouteError } from "@/src/lib/http/handle-route-error";
+import { apiOk } from "@/src/lib/http/response";
 import {
   addFavoriteAlbum,
   getUserFavoriteAlbums,
@@ -26,13 +26,7 @@ export async function POST(request: Request) {
       { status: result.created ? 201 : 200 }
     );
   } catch (error) {
-    if (error instanceof ServiceError) {
-      return apiError(error.message, { status: error.status });
-    }
-    return apiError(
-      error instanceof Error ? error.message : "좋아요 추가 중 오류가 발생했습니다.",
-      { status: 500 }
-    );
+    return handleRouteError(error, "좋아요 추가 중 오류가 발생했습니다.");
   }
 }
 
@@ -48,13 +42,7 @@ export async function DELETE(request: Request) {
 
     return apiOk({});
   } catch (error) {
-    if (error instanceof ServiceError) {
-      return apiError(error.message, { status: error.status });
-    }
-    return apiError(
-      error instanceof Error ? error.message : "좋아요 취소 중 오류가 발생했습니다.",
-      { status: 500 }
-    );
+    return handleRouteError(error, "좋아요 취소 중 오류가 발생했습니다.");
   }
 }
 
@@ -68,11 +56,9 @@ export async function GET() {
 
     return apiOk({ favorites });
   } catch (error) {
-    return apiError(
-      error instanceof Error
-        ? error.message
-        : "좋아요한 앨범 목록 조회 중 오류가 발생했습니다.",
-      { status: 500 }
+    return handleRouteError(
+      error,
+      "좋아요한 앨범 목록 조회 중 오류가 발생했습니다."
     );
   }
 }

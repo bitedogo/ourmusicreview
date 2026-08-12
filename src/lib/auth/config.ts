@@ -29,6 +29,12 @@ export const authOptions: NextAuthOptions = {
           const picture = profile.picture || null;
 
           if (!dbUser) {
+            const { isEmailBlocked } = await import(
+              "@/src/lib/users/blocked-email"
+            );
+            if (await isEmailBlocked(dataSource, profile.email!)) {
+              return { id: "", name: "", email: "", image: "", role: "" };
+            }
             dbUser = userRepository.create({
               id: profile.sub,
               email: profile.email!,
@@ -58,6 +64,15 @@ export const authOptions: NextAuthOptions = {
 
           const profileImage = dbUser.profileImage || null;
 
+          const { assertUserNotSuspended } = await import(
+            "@/src/lib/users/user-sanction-service"
+          );
+          try {
+            await assertUserNotSuspended(dataSource, dbUser);
+          } catch {
+            return { id: "", name: "", email: "", image: "", role: "" };
+          }
+
           return {
             id: dbUser.id,
             name: dbUser.nickname,
@@ -73,6 +88,23 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
+    async signIn({ user }) {
+      if (!user?.id) return false;
+      try {
+        const dataSource = await initializeDatabase();
+        const dbUser = await dataSource.getRepository(User).findOne({
+          where: { id: user.id },
+        });
+        if (!dbUser) return true;
+        const { assertUserNotSuspended } = await import(
+          "@/src/lib/users/user-sanction-service"
+        );
+        await assertUserNotSuspended(dataSource, dbUser);
+        return true;
+      } catch {
+        return "/auth/signin?error=suspended";
+      }
+    },
     async jwt({ token, user, trigger, session }) {
       if (user) {
         const userWithProfile = user as {

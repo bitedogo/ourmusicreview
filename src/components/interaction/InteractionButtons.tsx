@@ -7,6 +7,12 @@ import { useRouter } from "next/navigation";
 import { ReportModal } from "@/src/components/interaction/ReportModal";
 import { ReviewDetailCircleButtons } from "@/src/components/interaction/ReviewDetailCircleButtons";
 import { useReportModal } from "@/src/hooks/use-report-modal";
+import {
+  fetchContentLikeStatus,
+  submitReportApi,
+  toggleContentLikeApi,
+} from "@/src/lib/engagement/client-api";
+import { getApiErrorMessage } from "@/src/lib/http/client";
 
 interface InteractionButtonsProps {
   postId?: string;
@@ -16,19 +22,6 @@ interface InteractionButtonsProps {
   authorUserId?: string;
   /** circle: 리뷰 상세 Figma 원형 버튼 */
   variant?: "default" | "circle";
-}
-
-function buildLikeQuery(input: {
-  postId?: string;
-  reviewId?: string;
-  playlistId?: string;
-}): string | null {
-  if (input.postId) return `postId=${encodeURIComponent(input.postId)}`;
-  if (input.reviewId) return `reviewId=${encodeURIComponent(input.reviewId)}`;
-  if (input.playlistId) {
-    return `playlistId=${encodeURIComponent(input.playlistId)}`;
-  }
-  return null;
 }
 
 export function InteractionButtons({
@@ -45,27 +38,22 @@ export function InteractionButtons({
 
   const isOwnContent = authorUserId && session?.user?.id === authorUserId;
   const canReport = Boolean((postId || reviewId) && !isNotice && !isOwnContent);
-
   const fetchLikeInfo = useCallback(async () => {
-    const query = buildLikeQuery({ postId, reviewId, playlistId });
-    if (!query) return;
+    if (!postId && !reviewId && !playlistId) return;
 
     try {
-      const response = await fetch(`/api/actions/like?${query}`);
-      const data = await response.json();
-      if (data.ok) {
-        setLikeInfo({
-          count: data.data?.count ?? 0,
-          liked: data.data?.liked ?? false,
-        });
-      }
+      const data = await fetchContentLikeStatus({ postId, reviewId, playlistId });
+      setLikeInfo({
+        count: data.data.count ?? 0,
+        liked: data.data.liked ?? false,
+      });
     } catch {
       /* ignore */
     }
   }, [postId, reviewId, playlistId]);
 
   useEffect(() => {
-    fetchLikeInfo();
+    void fetchLikeInfo();
   }, [fetchLikeInfo]);
 
   const handleLike = async () => {
@@ -77,18 +65,11 @@ export function InteractionButtons({
     }
 
     try {
-      const response = await fetch("/api/actions/like", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ postId, reviewId, playlistId }),
-      });
-      const data = await response.json();
-      if (data.ok) {
-        setLikeInfo((prev) => ({
-          count: data.data?.liked ? prev.count + 1 : prev.count - 1,
-          liked: data.data?.liked ?? prev.liked,
-        }));
-      }
+      const data = await toggleContentLikeApi({ postId, reviewId, playlistId });
+      setLikeInfo((prev) => ({
+        count: data.data.liked ? prev.count + 1 : prev.count - 1,
+        liked: data.data.liked ?? prev.liked,
+      }));
     } catch {
       /* ignore */
     }
@@ -98,20 +79,15 @@ export function InteractionButtons({
     const reasonText = detail ? `${reason}\n\n[상세 내용]\n${detail}` : reason;
 
     try {
-      const response = await fetch("/api/actions/report", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ reason: reasonText, postId, reviewId }),
+      const data = await submitReportApi({
+        reason: reasonText,
+        postId,
+        reviewId,
       });
-      const data = await response.json();
-      if (data.ok) {
-        alert(data.message || "신고가 접수되었습니다.");
-        return true;
-      }
-      alert(data.error || "신고 처리에 실패했습니다.");
-      return false;
-    } catch {
-      alert("신고 처리 중 오류가 발생했습니다.");
+      alert(data.message || "신고가 접수되었습니다.");
+      return true;
+    } catch (error) {
+      alert(getApiErrorMessage(error, "신고 처리 중 오류가 발생했습니다."));
       return false;
     }
   };

@@ -2,11 +2,9 @@
 
 import { notFound } from "next/navigation";
 import { getServerSession } from "next-auth";
-import { In } from "typeorm";
 import { authOptions } from "@/src/lib/auth/config";
+import { listBoardPosts } from "@/src/lib/community/board-post-service";
 import { initializeDatabase } from "@/src/lib/db";
-import { Post } from "@/src/lib/db/entities/Post";
-import { Comment } from "@/src/lib/db/entities/Comment";
 import { PaginationNav } from "@/src/components/common/PaginationNav";
 import { BoardSearchControls } from "./board-search-controls";
 import {
@@ -17,7 +15,7 @@ import {
 } from "./board-config";
 import { BoardHeader } from "./board-header";
 import { BoardEmptyState } from "./board-empty-state";
-import { BoardPostTable, type BoardPostRow } from "./board-post-table";
+import { BoardPostTable } from "./board-post-table";
 
 export default async function BoardPage(props: {
   params: Promise<{ board: BoardType }>;
@@ -43,116 +41,13 @@ export default async function BoardPage(props: {
   const isSignedIn = Boolean(session?.user?.id);
 
   const dataSource = await initializeDatabase();
-  const postRepository = dataSource.getRepository(Post);
-  const commentRepository = dataSource.getRepository(Comment);
-
-  const postsQueryBuilder = postRepository
-    .createQueryBuilder("post")
-    .orderBy("post.created_at", "DESC");
-
-  if (config.category === "N") {
-    postsQueryBuilder.where("post.category = :category", { category: "N" });
-  } else {
-    postsQueryBuilder.where(
-      "(post.category = :category OR post.is_global = :isGlobal)",
-      {
-        category: config.category,
-        isGlobal: "Y",
-      }
-    );
-  }
-
-  if (searchQuery) {
-    if (searchField === "title") {
-      postsQueryBuilder.andWhere("post.title ILIKE :keyword", {
-        keyword: `%${searchQuery}%`,
-      });
-    } else {
-      postsQueryBuilder.andWhere("post.nickname ILIKE :keyword", {
-        keyword: `%${searchQuery}%`,
-      });
-    }
-  }
-
-  const allPosts = await postsQueryBuilder.getMany();
-
-  const postIds = allPosts.map((post) => post.id);
-  const commentCountRows =
-    postIds.length > 0
-      ? await commentRepository
-          .createQueryBuilder("comment")
-          .select("comment.post_id", "postId")
-          .addSelect("COUNT(comment.id)", "count")
-          .where({
-            postId: In(postIds),
-          })
-          .groupBy("comment.post_id")
-          .getRawMany<{ postId: string; count: string }>()
-      : [];
-
-  const commentCountMap = new Map<string, number>(
-    commentCountRows.map((row) => [row.postId, Number(row.count)])
-  );
-
-  const postsWithMeta = allPosts.map((post) => {
-    const isReleasePinned =
-      post.category !== "N" && post.noticeCategory === "RELEASE_NOTE";
-    return {
-      ...post,
-      commentCount: commentCountMap.get(post.id) ?? 0,
-      isPinned: post.isGlobal === "Y",
-      isReleasePinned,
-    };
+  const list = await listBoardPosts(dataSource, {
+    category: config.category,
+    page,
+    pageSize: PAGE_SIZE_BOARD,
+    searchField,
+    searchQuery,
   });
-
-  const globalPinnedPosts = postsWithMeta.filter((post) => post.isPinned);
-  const releasePinnedPosts = postsWithMeta
-    .filter((post) => !post.isPinned && post.isReleasePinned)
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    .slice(0, 3);
-
-  const otherPosts = postsWithMeta.filter(
-    (post) => !post.isPinned && !post.isReleasePinned
-  );
-
-  const totalOtherPosts = otherPosts.length;
-  const totalPages = Math.max(1, Math.ceil(totalOtherPosts / PAGE_SIZE_BOARD));
-  const currentPage = Math.min(page, totalPages);
-  const paginatedOtherPosts = otherPosts.slice(
-    (currentPage - 1) * PAGE_SIZE_BOARD,
-    currentPage * PAGE_SIZE_BOARD
-  );
-
-  const rowNumberByPostId = new Map<string, number>(
-    paginatedOtherPosts.map((post, index) => [
-      post.id,
-      totalOtherPosts - (currentPage - 1) * PAGE_SIZE_BOARD - index,
-    ])
-  );
-
-  const finalPostsToRender: BoardPostRow[] = [
-    ...globalPinnedPosts,
-    ...releasePinnedPosts,
-    ...paginatedOtherPosts,
-  ]
-    .sort((a, b) => {
-      if (a.isPinned && !b.isPinned) return -1;
-      if (!a.isPinned && b.isPinned) return 1;
-      if (a.isReleasePinned && !a.isPinned && !b.isReleasePinned) return -1;
-      if (!a.isReleasePinned && b.isReleasePinned && !b.isPinned) return 1;
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-    })
-    .map((post) => ({
-      id: post.id,
-      title: post.title,
-      nickname: post.nickname,
-      createdAt: post.createdAt,
-      commentCount: post.commentCount,
-      isPinned: post.isPinned,
-      isReleasePinned: post.isReleasePinned,
-      noticeCategory: post.noticeCategory,
-      rowNumber: rowNumberByPostId.get(post.id) ?? null,
-    }));
 
   const canWrite = Boolean(
     config.adminOnlyWrite
@@ -177,11 +72,6 @@ export default async function BoardPage(props: {
     return `/boards/${board}?${params.toString()}`;
   }
 
-  const isEmpty =
-    totalOtherPosts === 0 &&
-    globalPinnedPosts.length === 0 &&
-    releasePinnedPosts.length === 0;
-
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-4xl flex-col gap-6 px-4 py-10 sm:px-10">
       <BoardHeader
@@ -192,12 +82,12 @@ export default async function BoardPage(props: {
       />
 
       <section>
-        {isEmpty ? (
+        {list.isEmpty ? (
           <BoardEmptyState searchQuery={searchQuery} />
         ) : (
           <>
             <BoardPostTable
-              posts={finalPostsToRender}
+              posts={list.posts}
               isNoticeBoard={config.category === "N"}
             />
             <div className="mt-4">
@@ -210,11 +100,11 @@ export default async function BoardPage(props: {
                   />
                 </div>
               )}
-              {totalPages > 1 && (
+              {list.totalPages > 1 && (
                 <div className="flex justify-center">
                   <PaginationNav
-                    currentPage={currentPage}
-                    totalPages={totalPages}
+                    currentPage={list.currentPage}
+                    totalPages={list.totalPages}
                     buildHref={buildBoardHref}
                   />
                 </div>

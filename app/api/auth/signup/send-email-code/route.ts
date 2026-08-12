@@ -22,6 +22,9 @@ export async function POST(request: Request) {
       if (message === EMAIL_AUTH_MESSAGES.emailAlreadyUsed) {
         return apiError(message, { status: 409 });
       }
+      if (message === EMAIL_AUTH_MESSAGES.emailBlocked) {
+        return apiError(message, { status: 403 });
+      }
       return apiError(EMAIL_AUTH_MESSAGES.verificationMailFailed, {
         status: 502,
       });

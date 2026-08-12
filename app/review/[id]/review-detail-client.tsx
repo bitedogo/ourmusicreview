@@ -15,7 +15,12 @@ import {
 } from "@/src/components/reviews/review-detail-nav-icons";
 import { REVIEW_PAGE_TITLE_CLASS } from "@/src/components/reviews/review-page-styles";
 import { useReviewViewIncrement } from "@/src/hooks/use-review-view-increment";
-import { fetchJson, getApiErrorMessage } from "@/src/lib/http/client";
+import { getApiErrorMessage } from "@/src/lib/http/client";
+import {
+  deleteReviewApi,
+  fetchAlbumRating,
+  fetchReviewDetail,
+} from "@/src/lib/reviews/client-api";
 
 interface ReviewDetail {
   id: string;
@@ -44,19 +49,9 @@ interface ReviewDetail {
   };
 }
 
-interface ReviewDetailResponse {
-  ok: boolean;
-  data: {
-    review: ReviewDetail;
-    nextReviewId: string | null;
-  };
-}
-
-interface AlbumRatingResponse {
-  ok: boolean;
-  data: {
-    averageRating: number | null;
-  };
+interface ReviewDetailResponseData {
+  review: ReviewDetail;
+  nextReviewId: string | null;
 }
 
 export function ReviewDetailClient({ reviewId }: { reviewId: string }) {
@@ -114,9 +109,7 @@ export function ReviewDetailClient({ reviewId }: { reviewId: string }) {
       getBackHref() ?? `/review/album/${encodeURIComponent(review.albumId)}`;
 
     try {
-      await fetchJson<{ ok: boolean }>(`/api/reviews/${reviewId}`, {
-        method: "DELETE",
-      });
+      await deleteReviewApi(reviewId);
       alert("리뷰가 삭제되었습니다.");
       router.push(redirectPath);
       router.refresh();
@@ -128,15 +121,15 @@ export function ReviewDetailClient({ reviewId }: { reviewId: string }) {
   useEffect(() => {
     async function fetchReview() {
       try {
-        const detailData = await fetchJson<ReviewDetailResponse>(
-          `/api/reviews/${encodeURIComponent(reviewId)}`,
+        const detailData = await fetchReviewDetail<ReviewDetailResponseData>(
+          reviewId
         );
         setReview(detailData.data.review);
         setNextReviewId(detailData.data.nextReviewId ?? null);
 
         try {
-          const ratingData = await fetchJson<AlbumRatingResponse>(
-            `/api/albums/${encodeURIComponent(detailData.data.review.albumId)}/rating`,
+          const ratingData = await fetchAlbumRating(
+            detailData.data.review.albumId
           );
           setAverageRating(ratingData.data.averageRating ?? null);
         } catch {
@@ -144,14 +137,14 @@ export function ReviewDetailClient({ reviewId }: { reviewId: string }) {
         }
       } catch (err) {
         setError(
-          getApiErrorMessage(err, "리뷰를 불러오는 중 오류가 발생했습니다."),
+          getApiErrorMessage(err, "리뷰를 불러오는 중 오류가 발생했습니다.")
         );
       } finally {
         setIsLoading(false);
       }
     }
 
-    fetchReview();
+    void fetchReview();
   }, [reviewId]);
 
   if (isLoading) {

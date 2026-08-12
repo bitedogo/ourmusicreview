@@ -8,6 +8,11 @@ import { UserSlideAlbum } from "@/src/lib/db/entities/UserSlideAlbum";
 import { Review } from "@/src/lib/db/entities/Review";
 import { deleteUserAccount } from "@/src/lib/users/user-deletion";
 import { apiError, apiOk } from "@/src/lib/http/response";
+import {
+  listUserSanctions,
+  refreshExpiredSuspension,
+  toSanctionPublicFields,
+} from "@/src/lib/users/user-sanction-service";
 
 export async function GET(
   _request: Request,
@@ -29,7 +34,10 @@ export async function GET(
     const user = await userRepo.findOne({ where: { id } });
     if (!user) return apiError("멤버를 찾을 수 없습니다.", { status: 404 });
 
-    const [slideCount, reviewCount, favoriteCount, slideAlbums] = await Promise.all([
+    await refreshExpiredSuspension(userRepo, user);
+
+    const [slideCount, reviewCount, favoriteCount, slideAlbums, sanctions] =
+      await Promise.all([
       slideRepo.count({ where: { userId: id } }),
       reviewRepo.count({ where: { userId: id } }),
       favoriteRepo.count({ where: { userId: id } }),
@@ -37,6 +45,7 @@ export async function GET(
         where: { userId: id },
         order: { position: "ASC" },
       }),
+      listUserSanctions(dataSource, id),
     ]);
 
     return apiOk({
@@ -60,6 +69,8 @@ export async function GET(
           artist: a.artist,
           imageUrl: a.imageUrl,
         })),
+        ...toSanctionPublicFields(user),
+        sanctions,
       },
     });
   } catch (error) {
@@ -147,7 +158,11 @@ export async function DELETE(
     }
 
     const dataSource = await initializeDatabase();
-    const deleted = await deleteUserAccount(dataSource, id);
+    const deleted = await deleteUserAccount(dataSource, id, {
+      blockEmail: true,
+      blockedByAdminId: session.user.id,
+      blockReason: "관리자에 의한 계정 삭제",
+    });
 
     if (!deleted) {
       return apiError("멤버를 찾을 수 없습니다.", { status: 404 });

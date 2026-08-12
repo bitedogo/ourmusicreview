@@ -1,9 +1,13 @@
 /** 검색 결과 서버 페이지 */
 
+import dynamic from "next/dynamic";
 import { Suspense } from "react";
 import { ContentContainer } from "@/src/lib/layout/content-container";
 import { PAGE_PADDING_X } from "@/src/lib/layout";
-import { SearchClient } from "./search-client";
+
+const SearchClient = dynamic(() =>
+  import("./search-client").then((mod) => mod.SearchClient)
+);
 
 export default function SearchPage() {
   return (

@@ -11,7 +11,7 @@ import {
 } from "typeorm";
 import { User } from "./User";
 import { Album } from "./Album";
-import { ReviewRejectionReason } from "@/src/lib/review/rejection-reasons";
+import { ReviewRejectionReason } from "@/src/lib/reviews/rejection-reasons";
 
 @Entity({ name: "reviews", schema: "public" })
 export class Review {

@@ -1,54 +1,26 @@
-"use client";
 /** 내 리뷰 목록 페이지 */
 
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
 import { ArtistNameLink } from "@/src/components/app/artist-name-link";
 import { ProfileListPageLayout } from "@/src/components/profile/profile-list-page-layout";
-import { useAuthenticatedFetch } from "@/src/hooks/use-authenticated-fetch";
-import { getHtmlPlainText } from "@/src/lib/utils/editor";
+import { requireAuthPage } from "@/src/lib/auth/session";
+import { initializeDatabase } from "@/src/lib/db";
+import { getUserReviews } from "@/src/lib/reviews/review-service";
 import { formatDateYYYYMMDD } from "@/src/lib/utils/date";
+import { getHtmlPlainText } from "@/src/lib/utils/editor";
 
-interface MyReview {
-  id: string;
-  content: string;
-  rating: number;
-  isApproved: "Y" | "N";
-  rejectReason: string | null;
-  albumId: string;
-  createdAt: string;
-  updatedAt: string;
-  album: {
-    albumId: string;
-    title: string;
-    artist: string;
-    imageUrl: string | null;
-  } | null;
-}
-
-interface MyReviewsResponse {
-  ok: boolean;
-  data: {
-    reviews: MyReview[];
-  };
-}
-
-export default function MyReviewsPage() {
-  const { data, isLoading, error } = useAuthenticatedFetch<MyReviewsResponse>(
-    "/api/reviews",
-    "/profile/reviews"
-  );
-  const reviews = data?.data.reviews ?? [];
+export default async function MyReviewsPage() {
+  const session = await requireAuthPage("/profile/reviews");
+  const dataSource = await initializeDatabase();
+  const reviews = await getUserReviews(dataSource, session.user.id);
 
   return (
     <ProfileListPageLayout
       title="나의 리뷰 전체보기"
       description="내가 작성한 모든 리뷰 목록입니다."
-      isLoading={isLoading}
-      error={error}
       emptyMessage="아직 작성한 리뷰가 없습니다."
       isEmpty={reviews.length === 0}
-      loadingMessage="리뷰를 불러오는 중..."
     >
       <div className="space-y-4">
         {reviews.map((review) => (
@@ -91,7 +63,9 @@ export default function MyReviewsPage() {
                     >
                       {review.rating.toFixed(1)}
                     </span>
-                    <span className="ml-1 text-[10px] text-[var(--color-text-secondary)]">/ 10.0</span>
+                    <span className="ml-1 text-[10px] text-[var(--color-text-secondary)]">
+                      / 10.0
+                    </span>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 text-[11px] text-[var(--color-text-secondary)]">

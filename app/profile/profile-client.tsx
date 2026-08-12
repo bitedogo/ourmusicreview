@@ -2,6 +2,10 @@
 /** 마이페이지 클라이언트(프로필·공개설정) */
 
 import { useEffect, useState } from "react";
+import { fetchMyPlaylists } from "@/src/lib/playlists/client-api";
+import { fetchFavoritesApi } from "@/src/lib/favorites/client-api";
+import { fetchActivityStats as fetchActivityStatsApi } from "@/src/lib/profile/client-api";
+import { fetchMyReviews as fetchMyReviewsApi } from "@/src/lib/reviews/client-api";
 import { fetchJson } from "@/src/lib/http/client";
 import { MyPicksSection } from "./my-picks-section";
 import { ProfilePageContent } from "@/src/components/profile/profile-page-content";
@@ -24,39 +28,13 @@ interface ProfileClientProps {
 }
 
 interface MyReviewsResponse {
-  ok: boolean;
-  data: {
-    reviews: ProfileReviewItem[];
-  };
-}
-
-interface FavoriteAlbumsResponse {
-  ok: boolean;
-  data: {
-    favorites: ProfileFavoriteItem[];
-  };
-}
-
-interface PlaylistResponse {
-  ok: boolean;
-  data: {
-    playlists: ProfilePlaylistItem[];
-  };
+  reviews: ProfileReviewItem[];
 }
 
 interface PrivacyResponse {
   ok: boolean;
   data: {
     privacy: ProfilePrivacySettings;
-  };
-}
-
-interface ActivityStatsResponse {
-  ok: boolean;
-  data: {
-    postCount: number;
-    commentCount: number;
-    likedPostCount: number;
   };
 }
 
@@ -87,7 +65,7 @@ export function ProfileClient({
   async function fetchMyReviews() {
     try {
       setIsLoadingReviews(true);
-      const data = await fetchJson<MyReviewsResponse>("/api/reviews");
+      const data = await fetchMyReviewsApi<MyReviewsResponse>();
       setMyReviews(data.data.reviews || []);
     } catch {
       setMyReviews([]);
@@ -99,7 +77,9 @@ export function ProfileClient({
   async function fetchFavorites() {
     try {
       setIsLoadingFavorites(true);
-      const data = await fetchJson<FavoriteAlbumsResponse>("/api/favorites");
+      const data = await fetchFavoritesApi<{
+        favorites: ProfileFavoriteItem[];
+      }>();
       setFavoriteAlbums(data.data.favorites || []);
     } catch {
       setFavoriteAlbums([]);
@@ -111,7 +91,7 @@ export function ProfileClient({
   async function fetchPlaylists() {
     try {
       setIsLoadingPlaylists(true);
-      const data = await fetchJson<PlaylistResponse>("/api/playlists");
+      const data = await fetchMyPlaylists();
       setPlaylists(data.data.playlists || []);
     } catch {
       setPlaylists([]);
@@ -120,9 +100,9 @@ export function ProfileClient({
     }
   }
 
-  async function fetchActivityStats() {
+  async function loadActivityStats() {
     try {
-      const data = await fetchJson<ActivityStatsResponse>("/api/profile/activity-stats");
+      const data = await fetchActivityStatsApi();
       setActivityStats({
         postCount: data.data.postCount ?? 0,
         commentCount: data.data.commentCount ?? 0,
@@ -153,7 +133,7 @@ export function ProfileClient({
     fetchMyReviews();
     fetchFavorites();
     fetchPlaylists();
-    fetchActivityStats();
+    loadActivityStats();
   }, []);
 
   useEffect(() => {
@@ -162,7 +142,7 @@ export function ProfileClient({
         fetchMyReviews();
         fetchFavorites();
         fetchPlaylists();
-        fetchActivityStats();
+        loadActivityStats();
       }
     }
 

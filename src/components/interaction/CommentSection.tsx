@@ -4,6 +4,11 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { CommentForm } from "@/src/components/interaction/CommentForm";
+import { CommentList } from "@/src/components/interaction/CommentList";
+import { COMMENT_DETAIL_CLASS as styles } from "@/src/components/interaction/comment-detail-styles";
+import type { CommentItemData } from "@/src/components/interaction/comment-types";
+import { useCommentCompose } from "@/src/hooks/use-comment-compose";
 import {
   createCommentApi,
   deleteCommentApi,
@@ -12,12 +17,8 @@ import {
   toggleCommentLikeApi,
   updateCommentContentInTree,
   updateCommentLikeInTree,
-} from "@/src/components/interaction/comment-api";
-import { CommentForm } from "@/src/components/interaction/CommentForm";
-import { CommentList } from "@/src/components/interaction/CommentList";
-import { COMMENT_DETAIL_CLASS as styles } from "@/src/components/interaction/comment-detail-styles";
-import type { CommentItemData } from "@/src/components/interaction/comment-types";
-import { useCommentCompose } from "@/src/hooks/use-comment-compose";
+} from "@/src/lib/comments/client-api";
+import { getApiErrorMessage } from "@/src/lib/http/client";
 
 const COMMENTS_PER_PAGE = 10;
 
@@ -81,10 +82,8 @@ export function CommentSection({
     setIsLoading(true);
     try {
       const data = await fetchCommentsApi(postId, reviewId, playlistId);
-      if (data.ok) {
-        setComments(data.data?.comments ?? []);
-        setTotalCount(data.data?.totalCount ?? data.data?.comments?.length ?? 0);
-      }
+      setComments(data.data.comments ?? []);
+      setTotalCount(data.data.totalCount ?? data.data.comments?.length ?? 0);
     } catch {
       /* ignore */
     } finally {
@@ -117,34 +116,26 @@ export function CommentSection({
     if (!confirm("댓글을 삭제하시겠습니까?")) return;
 
     try {
-      const data = await deleteCommentApi(commentId);
-      if (data.ok) {
-        await fetchComments();
-      } else {
-        alert(data.error || "댓글 삭제에 실패했습니다.");
-      }
-    } catch {
-      /* ignore */
+      await deleteCommentApi(commentId);
+      await fetchComments();
+    } catch (error) {
+      alert(getApiErrorMessage(error, "댓글 삭제에 실패했습니다."));
     }
   };
 
   const handleEdit = async (commentId: string, nextContent: string) => {
     try {
       const data = await editCommentApi(commentId, nextContent);
-      if (data.ok) {
-        setComments((prev) =>
-          updateCommentContentInTree(
-            prev,
-            commentId,
-            data.data?.content ?? nextContent
-          )
-        );
-        return true;
-      }
-      alert(data.error || "댓글 수정에 실패했습니다.");
-      return false;
-    } catch {
-      alert("댓글 수정 중 오류가 발생했습니다.");
+      setComments((prev) =>
+        updateCommentContentInTree(
+          prev,
+          commentId,
+          data.data.content ?? nextContent
+        )
+      );
+      return true;
+    } catch (error) {
+      alert(getApiErrorMessage(error, "댓글 수정 중 오류가 발생했습니다."));
       return false;
     }
   };
@@ -157,16 +148,14 @@ export function CommentSection({
 
     try {
       const data = await toggleCommentLikeApi(commentId);
-      if (data.ok) {
-        setComments((prev) =>
-          updateCommentLikeInTree(
-            prev,
-            commentId,
-            data.data?.liked ?? false,
-            data.data?.count ?? 0
-          )
-        );
-      }
+      setComments((prev) =>
+        updateCommentLikeInTree(
+          prev,
+          commentId,
+          data.data.liked ?? false,
+          data.data.count ?? 0
+        )
+      );
     } catch {
       /* ignore */
     }
@@ -179,21 +168,11 @@ export function CommentSection({
     }
 
     try {
-      const data = await createCommentApi(
-        content,
-        postId,
-        reviewId,
-        parentId,
-        playlistId
-      );
-      if (data.ok) {
-        await fetchComments();
-        return true;
-      }
-      alert(data.error || "답글 작성에 실패했습니다.");
-      return false;
-    } catch {
-      alert("답글 작성 중 오류가 발생했습니다.");
+      await createCommentApi(content, postId, reviewId, parentId, playlistId);
+      await fetchComments();
+      return true;
+    } catch (error) {
+      alert(getApiErrorMessage(error, "답글 작성 중 오류가 발생했습니다."));
       return false;
     }
   };

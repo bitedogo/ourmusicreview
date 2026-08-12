@@ -1,7 +1,7 @@
 /** 앨범별 리뷰 목록 서버 페이지 */
 
 import { notFound } from "next/navigation";
-import { AlbumReviewsClient } from "./album-reviews-client";
+import { AlbumReviewListClient } from "@/src/components/reviews/album-review-list-client";
 
 export default async function AlbumReviewsPage(props: {
   params: Promise<{ albumId: string }>;
@@ -12,5 +12,5 @@ export default async function AlbumReviewsPage(props: {
     notFound();
   }
 
-  return <AlbumReviewsClient albumId={albumId} />;
+  return <AlbumReviewListClient albumId={albumId} />;
 }

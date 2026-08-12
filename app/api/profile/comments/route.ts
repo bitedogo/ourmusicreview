@@ -2,8 +2,9 @@
 
 import { requireSessionApi } from "@/src/lib/auth/session";
 import { initializeDatabase } from "@/src/lib/db";
-import { Comment } from "@/src/lib/db/entities/Comment";
-import { apiError, apiOk } from "@/src/lib/http/response";
+import { handleRouteError } from "@/src/lib/http/handle-route-error";
+import { apiOk } from "@/src/lib/http/response";
+import { listMyProfileComments } from "@/src/lib/profile/profile-content-service";
 
 export async function GET() {
   try {
@@ -11,46 +12,9 @@ export async function GET() {
     if (response) return response;
 
     const dataSource = await initializeDatabase();
-    const commentRepository = dataSource.getRepository(Comment);
-
-    const comments = await commentRepository.find({
-      where: { userId: session.user.id },
-      relations: ["post", "review", "review.album"],
-      order: { createdAt: "DESC" },
-    });
-
-    return apiOk({
-      comments: comments.map((comment) => {
-        const hasPost = Boolean(comment.postId && comment.post);
-        const hasReview = Boolean(comment.reviewId && comment.review);
-
-        return {
-          id: comment.id,
-          content: comment.content,
-          createdAt: comment.createdAt,
-          targetType: hasPost ? "BOARD" : hasReview ? "REVIEW" : "UNKNOWN",
-          post: hasPost
-            ? {
-                id: comment.post!.id,
-                title: comment.post!.title,
-                category: comment.post!.category,
-              }
-            : null,
-          review: hasReview
-            ? {
-                id: comment.review!.id,
-                albumId: comment.review!.albumId,
-                albumTitle: comment.review!.album?.title ?? null,
-                albumArtist: comment.review!.album?.artist ?? null,
-              }
-            : null,
-        };
-      }),
-    });
+    const comments = await listMyProfileComments(dataSource, session.user.id);
+    return apiOk({ comments });
   } catch (error) {
-    return apiError(
-      error instanceof Error ? error.message : "내 댓글 조회 중 오류가 발생했습니다.",
-      { status: 500 }
-    );
+    return handleRouteError(error, "내 댓글 조회 중 오류가 발생했습니다.");
   }
 }

@@ -7,6 +7,7 @@ import { UserSlideAlbum } from "@/src/lib/db/entities/UserSlideAlbum";
 import { Review } from "@/src/lib/db/entities/Review";
 import { UserFavoriteAlbum } from "@/src/lib/db/entities/UserFavoriteAlbum";
 import { apiError, apiOk } from "@/src/lib/http/response";
+import { toSanctionPublicFields } from "@/src/lib/users/user-sanction-service";
 
 export async function GET() {
   try {
@@ -65,6 +66,7 @@ export async function GET() {
         slideCount: slideByUser[user.id] ?? 0,
         reviewCount: reviewByUser[user.id] ?? 0,
         favoriteCount: favoriteByUser[user.id] ?? 0,
+        ...toSanctionPublicFields(user),
       })),
     });
   } catch (error) {

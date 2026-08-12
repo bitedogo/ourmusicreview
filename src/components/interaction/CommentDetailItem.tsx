@@ -27,21 +27,21 @@ interface CommentDetailItemProps {
 }
 
 function OwnerActions({
-  isOwner,
+  canEdit,
   canDelete,
   onEdit,
   onDelete,
 }: {
-  isOwner: boolean;
+  canEdit: boolean;
   canDelete: boolean;
   onEdit: () => void;
   onDelete: () => void;
 }) {
-  if (!isOwner && !canDelete) return null;
+  if (!canEdit && !canDelete) return null;
 
   return (
     <span className={styles.ownerActions}>
-      {isOwner ? (
+      {canEdit ? (
         <button type="button" onClick={onEdit} className={styles.action}>
           수정
         </button>
@@ -111,6 +111,7 @@ export function CommentDetailItem({
 
   const isOwner = currentUserId === comment.user.id;
   const canDelete = isOwner || Boolean(isAdmin);
+  const canEdit = isOwner || Boolean(isAdmin);
   const canReply = depth === 0;
 
   const { isEditing, draft, isSaving, setDraft, startEdit, cancelEdit, saveEdit } =
@@ -197,7 +198,7 @@ export function CommentDetailItem({
                   onReplyClick={canReply ? handleReplyClick : undefined}
                 />
                 <OwnerActions
-                  isOwner={isOwner}
+                  canEdit={canEdit}
                   canDelete={canDelete}
                   onEdit={startEdit}
                   onDelete={() => onDelete(comment.id)}

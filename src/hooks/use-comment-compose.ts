@@ -2,7 +2,8 @@
 /** 댓글 작성 상태/제출 공통 훅 */
 
 import { useState } from "react";
-import { createCommentApi } from "@/src/components/interaction/comment-api";
+import { createCommentApi } from "@/src/lib/comments/client-api";
+import { getApiErrorMessage } from "@/src/lib/http/client";
 
 interface UseCommentComposeParams {
   postId?: string;
@@ -26,21 +27,11 @@ export function useCommentCompose({
 
     setIsSubmitting(true);
     try {
-      const data = await createCommentApi(
-        content,
-        postId,
-        reviewId,
-        undefined,
-        playlistId
-      );
-      if (data.ok) {
-        setContent("");
-        await onCreated();
-      } else {
-        alert(data.error || "댓글 작성에 실패했습니다.");
-      }
-    } catch {
-      /* ignore */
+      await createCommentApi(content, postId, reviewId, undefined, playlistId);
+      setContent("");
+      await onCreated();
+    } catch (error) {
+      alert(getApiErrorMessage(error, "댓글 작성에 실패했습니다."));
     } finally {
       setIsSubmitting(false);
     }

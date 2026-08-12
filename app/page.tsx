@@ -1,5 +1,4 @@
-"use client";
-/** 홈: 히어로·오늘의 앨범·차트·Featured */
+/** 홈: 히어로·오늘의 앨범·차트·Featured (RSC 셸) */
 
 import dynamic from "next/dynamic";
 import { HomeHeroCopy } from "@/src/components/app/home-hero-copy";

@@ -2,8 +2,8 @@
 
 import { requireSessionApi } from "@/src/lib/auth/session";
 import { initializeDatabase } from "@/src/lib/db";
-import { apiError, apiOk } from "@/src/lib/http/response";
-import { ServiceError } from "@/src/lib/http/service-error";
+import { handleRouteError } from "@/src/lib/http/handle-route-error";
+import { apiOk } from "@/src/lib/http/response";
 import {
   createPlaylist,
   listMyPlaylists,
@@ -26,14 +26,9 @@ export async function GET(request: Request) {
     );
     return apiOk({ playlists });
   } catch (error) {
-    if (error instanceof ServiceError) {
-      return apiError(error.message, { status: error.status });
-    }
-    return apiError(
-      error instanceof Error
-        ? error.message
-        : "플레이리스트 목록 조회 중 오류가 발생했습니다.",
-      { status: 500 }
+    return handleRouteError(
+      error,
+      "플레이리스트 목록 조회 중 오류가 발생했습니다."
     );
   }
 }
@@ -49,14 +44,9 @@ export async function POST(request: Request) {
 
     return apiOk({ playlist }, { status: 201 });
   } catch (error) {
-    if (error instanceof ServiceError) {
-      return apiError(error.message, { status: error.status });
-    }
-    return apiError(
-      error instanceof Error
-        ? error.message
-        : "플레이리스트 생성 중 오류가 발생했습니다.",
-      { status: 500 }
+    return handleRouteError(
+      error,
+      "플레이리스트 생성 중 오류가 발생했습니다."
     );
   }
 }

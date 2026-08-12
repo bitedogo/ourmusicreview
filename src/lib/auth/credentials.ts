@@ -48,6 +48,18 @@ export const credentialsProvider = CredentialsProvider({
       throw new Error("EMAIL_NOT_VERIFIED");
     }
 
+    const { assertUserNotSuspended } = await import(
+      "@/src/lib/users/user-sanction-service"
+    );
+    try {
+      await assertUserNotSuspended(dataSource, user);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(`ACCOUNT_SUSPENDED:${error.message}`);
+      }
+      throw error;
+    }
+
     if (!isBcryptHash(currentPasswordHash)) {
       try {
         const upgradedHash = await bcrypt.hash(credentials.password, 10);
@@ -100,6 +112,10 @@ export const supabaseCredentialsProvider = CredentialsProvider({
     });
 
     if (!dbUser) {
+      const { isEmailBlocked } = await import("@/src/lib/users/blocked-email");
+      if (await isEmailBlocked(dataSource, user.email!)) {
+        return null;
+      }
       dbUser = userRepository.create({
         id: user.id,
         email: user.email!,
@@ -112,6 +128,18 @@ export const supabaseCredentialsProvider = CredentialsProvider({
     } else if (dbUser.id !== user.id) {
       await userRepository.update({ email: user.email! }, { id: user.id });
       dbUser.id = user.id;
+    }
+
+    const { assertUserNotSuspended } = await import(
+      "@/src/lib/users/user-sanction-service"
+    );
+    try {
+      await assertUserNotSuspended(dataSource, dbUser);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(`ACCOUNT_SUSPENDED:${error.message}`);
+      }
+      throw error;
     }
 
     const profileImage = dbUser.profileImage || null;

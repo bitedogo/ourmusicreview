@@ -1,9 +1,9 @@
 /** GET/PATCH/DELETE 리뷰 상세·수정·삭제 */
 
-import { isAdmin, requireSessionApi } from "@/src/lib/auth/session";
+import { isAdmin, requireSessionApi, requireWritableSessionApi } from "@/src/lib/auth/session";
 import { initializeDatabase } from "@/src/lib/db";
+import { handleRouteError } from "@/src/lib/http/handle-route-error";
 import { apiError, apiOk } from "@/src/lib/http/response";
-import { ServiceError } from "@/src/lib/http/service-error";
 import {
   deleteReview,
   getReviewDetail,
@@ -27,13 +27,7 @@ export async function GET(
 
     return apiOk(result);
   } catch (error) {
-    if (error instanceof ServiceError) {
-      return apiError(error.message, { status: error.status });
-    }
-    return apiError(
-      error instanceof Error ? error.message : "리뷰 조회 중 오류가 발생했습니다.",
-      { status: 500 }
-    );
+    return handleRouteError(error, "리뷰 조회 중 오류가 발생했습니다.");
   }
 }
 
@@ -43,7 +37,7 @@ export async function PATCH(
 ) {
   try {
     const { id } = await params;
-    const { session, response } = await requireSessionApi();
+    const { session, response } = await requireWritableSessionApi();
     if (response) return response;
 
     const body = (await request.json()) as UpdateReviewInput;
@@ -58,18 +52,12 @@ export async function PATCH(
 
     return apiOk({ review: result });
   } catch (error) {
-    if (error instanceof ServiceError) {
-      return apiError(error.message, { status: error.status });
-    }
-    return apiError(
-      error instanceof Error ? error.message : "리뷰 수정 중 오류가 발생했습니다.",
-      { status: 500 }
-    );
+    return handleRouteError(error, "리뷰 수정 중 오류가 발생했습니다.");
   }
 }
 
 export async function DELETE(
-  request: Request,
+  _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -85,12 +73,6 @@ export async function DELETE(
 
     return apiOk({});
   } catch (error) {
-    if (error instanceof ServiceError) {
-      return apiError(error.message, { status: error.status });
-    }
-    return apiError(
-      error instanceof Error ? error.message : "리뷰 삭제 중 오류가 발생했습니다.",
-      { status: 500 }
-    );
+    return handleRouteError(error, "리뷰 삭제 중 오류가 발생했습니다.");
   }
 }

@@ -2,23 +2,31 @@
 /** 즐겨찾기 앨범 ID 목록 훅 */
 
 import { useCallback, useEffect, useState } from "react";
-import { ApiClientError, fetchJson } from "@/src/lib/http/client";
-import type { FavoritesResponse } from "@/src/lib/search/types";
+import {
+  addFavoriteApi,
+  fetchFavoritesApi,
+  removeFavoriteApi,
+} from "@/src/lib/favorites/client-api";
+import { ApiClientError } from "@/src/lib/http/client";
 import type { SearchAlbumResult } from "@/src/lib/search/types";
 
 interface UseFavoriteAlbumIdsOptions {
   onUnauthorized?: () => void;
 }
 
-export function useFavoriteAlbumIds({ onUnauthorized }: UseFavoriteAlbumIdsOptions = {}) {
-  const [favoriteAlbumIds, setFavoriteAlbumIds] = useState<Set<string>>(new Set());
+export function useFavoriteAlbumIds({
+  onUnauthorized,
+}: UseFavoriteAlbumIdsOptions = {}) {
+  const [favoriteAlbumIds, setFavoriteAlbumIds] = useState<Set<string>>(
+    new Set()
+  );
 
   useEffect(() => {
     let isCancelled = false;
 
     async function fetchFavorites() {
       try {
-        const data = await fetchJson<FavoritesResponse>("/api/favorites");
+        const data = await fetchFavoritesApi();
         if (isCancelled) return;
 
         const ids = new Set<string>();
@@ -35,7 +43,7 @@ export function useFavoriteAlbumIds({ onUnauthorized }: UseFavoriteAlbumIdsOptio
       }
     }
 
-    fetchFavorites();
+    void fetchFavorites();
 
     return () => {
       isCancelled = true;
@@ -49,25 +57,17 @@ export function useFavoriteAlbumIds({ onUnauthorized }: UseFavoriteAlbumIdsOptio
 
       try {
         if (!isFavorite) {
-          await fetchJson<{ ok: boolean }>("/api/favorites", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              albumId,
-              albumTitle: album.collectionName,
-              albumArtist: album.artistName,
-              albumImageUrl: album.imageUrl600,
-              albumReleaseDate: album.releaseDate,
-            }),
+          await addFavoriteApi({
+            albumId,
+            albumTitle: album.collectionName,
+            albumArtist: album.artistName,
+            albumImageUrl: album.imageUrl600,
+            albumReleaseDate: album.releaseDate,
           });
 
           setFavoriteAlbumIds((prev) => new Set(prev).add(albumId));
         } else {
-          await fetchJson<{ ok: boolean }>("/api/favorites", {
-            method: "DELETE",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ albumId }),
-          });
+          await removeFavoriteApi(albumId);
 
           setFavoriteAlbumIds((prev) => {
             const next = new Set(prev);

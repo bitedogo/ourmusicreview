@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 /** 댓글 한 줄 (default / detail) */
 
 import { useState } from "react";
@@ -92,6 +92,7 @@ function DefaultCommentItem({
 
   const isOwner = currentUserId === comment.user.id;
   const canDelete = isOwner || Boolean(isAdmin);
+  const canEdit = isOwner || Boolean(isAdmin);
   const canReply = depth === 0;
 
   const { isEditing, draft, isSaving, setDraft, startEdit, cancelEdit, saveEdit } =
@@ -128,9 +129,9 @@ function DefaultCommentItem({
   };
 
   const ownerActions =
-    isOwner || canDelete ? (
+    canEdit || canDelete ? (
       <span className="inline-flex items-center gap-[7px]">
-        {isOwner ? (
+        {canEdit ? (
           <button type="button" onClick={startEdit} className={DEFAULT_ACTION_CLASS}>
             수정
           </button>

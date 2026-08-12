@@ -39,6 +39,8 @@ export const EMAIL_AUTH_MESSAGES = {
   signupEmailNotVerified:
     "이메일 인증을 완료한 뒤 회원가입을 진행해 주세요.",
   emailAlreadyUsed: "이미 사용 중인 이메일입니다.",
+  emailBlocked:
+    "해당 이메일로는 회원가입할 수 없습니다. 관리자에게 문의해 주세요.",
 } as const;
 
 export async function getUserRepository() {
@@ -67,6 +69,12 @@ export function matchesStoredOtp(
 }
 
 export async function sendSignupEmailOtp(email: string): Promise<void> {
+  const dataSource = await initializeDatabase();
+  const { isEmailBlocked } = await import("@/src/lib/users/blocked-email");
+  if (await isEmailBlocked(dataSource, email)) {
+    throw new Error(EMAIL_AUTH_MESSAGES.emailBlocked);
+  }
+
   const userRepo = await getUserRepository();
   const existing = await userRepo.findOne({ where: { email } });
   if (existing) {

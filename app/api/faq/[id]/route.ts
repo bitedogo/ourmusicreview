@@ -2,8 +2,9 @@
 
 import { requireAdminApi } from "@/src/lib/auth/session";
 import { initializeDatabase } from "@/src/lib/db";
-import { Faq } from "@/src/lib/db/entities/Faq";
-import { apiError, apiOk } from "@/src/lib/http/response";
+import { deleteFaq, updateFaq } from "@/src/lib/faq/faq-service";
+import { handleRouteError } from "@/src/lib/http/handle-route-error";
+import { apiOk } from "@/src/lib/http/response";
 
 export async function PATCH(
   request: Request,
@@ -15,27 +16,12 @@ export async function PATCH(
 
     const { id } = await params;
     const body = await request.json();
-    const question = typeof body?.question === "string" ? body.question.trim() : undefined;
-    const answer = typeof body?.answer === "string" ? body.answer.trim() : undefined;
-    const sortOrder = typeof body?.sortOrder === "number" ? body.sortOrder : undefined;
-
     const dataSource = await initializeDatabase();
-    const faqRepository = dataSource.getRepository(Faq);
-
-    const faq = await faqRepository.findOne({ where: { id } });
-    if (!faq) {
-      return apiError("FAQ를 찾을 수 없습니다.", { status: 404 });
-    }
-
-    if (question !== undefined) faq.question = question;
-    if (answer !== undefined) faq.answer = answer;
-    if (sortOrder !== undefined) faq.sortOrder = sortOrder;
-
-    await faqRepository.save(faq);
+    await updateFaq(dataSource, id, body);
 
     return apiOk({});
-  } catch {
-    return apiError("FAQ 수정 중 오류가 발생했습니다.", { status: 500 });
+  } catch (error) {
+    return handleRouteError(error, "FAQ 수정 중 오류가 발생했습니다.");
   }
 }
 
@@ -48,18 +34,11 @@ export async function DELETE(
     if (response) return response;
 
     const { id } = await params;
-
     const dataSource = await initializeDatabase();
-    const faqRepository = dataSource.getRepository(Faq);
-
-    const result = await faqRepository.delete({ id });
-
-    if (result.affected === 0) {
-      return apiError("FAQ를 찾을 수 없습니다.", { status: 404 });
-    }
+    await deleteFaq(dataSource, id);
 
     return apiOk({});
-  } catch {
-    return apiError("FAQ 삭제 중 오류가 발생했습니다.", { status: 500 });
+  } catch (error) {
+    return handleRouteError(error, "FAQ 삭제 중 오류가 발생했습니다.");
   }
 }

@@ -57,6 +57,9 @@ function SigninPageContent() {
       setInfoMessage("이메일 인증이 완료되었습니다. 로그인해 주세요.");
       setNeedsVerification(false);
     }
+    if (searchParams.get("error") === "suspended") {
+      setErrorMessage("계정이 일시 정지되어 로그인할 수 없습니다.");
+    }
   }, [searchParams]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -78,7 +81,10 @@ function SigninPageContent() {
 
     const preflight = await fetchJson<{
       ok: true;
-      data: { status: "invalid" | "unverified" | "ready" };
+      data: {
+        status: "invalid" | "unverified" | "ready" | "suspended";
+        message?: string;
+      };
     }>("/api/auth/preflight-login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -89,6 +95,15 @@ function SigninPageContent() {
       setNeedsVerification(true);
       setErrorMessage(
         "이메일 인증이 필요합니다. 메일로 받은 인증번호를 입력해 주세요."
+      );
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (preflight?.data.status === "suspended") {
+      setErrorMessage(
+        preflight.data.message ??
+          "계정이 일시 정지되어 로그인할 수 없습니다."
       );
       setIsSubmitting(false);
       return;

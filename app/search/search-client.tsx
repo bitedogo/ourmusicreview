@@ -17,10 +17,10 @@ import type { ItunesArtistResult } from "@/src/lib/itunes/types";
 import { buildArtistSearchPath } from "@/src/lib/itunes/search";
 import { ContentContainer } from "@/src/lib/layout/content-container";
 import { PAGE_PADDING_X } from "@/src/lib/layout";
+import { checkReviewExists } from "@/src/lib/reviews/client-api";
 import type {
   ArtistAlbumsResponse,
   ArtistSearchResponse,
-  ReviewDuplicateCheckResponse,
   SearchAlbumResult,
   SearchReleaseType,
 } from "@/src/lib/search/types";
@@ -187,9 +187,7 @@ export function SearchClient() {
     }
     setCheckingReviewAlbumId(albumId);
     try {
-      const check = await fetchJson<ReviewDuplicateCheckResponse>(
-        `/api/reviews/check?albumId=${encodeURIComponent(albumId)}`
-      );
+      const check = await checkReviewExists(albumId);
       if (check.data.exists) {
         setIsDuplicateModalOpen(true);
         return;

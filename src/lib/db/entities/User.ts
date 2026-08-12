@@ -131,4 +131,33 @@ export class User {
     nullable: true,
   })
   passwordResetExpiresAt?: Date | null;
+
+  @Column({
+    name: "account_status",
+    type: "varchar",
+    length: 20,
+    default: () => "'ACTIVE'",
+  })
+  accountStatus!: "ACTIVE" | "WARNED" | "SUSPENDED";
+
+  @Column({
+    name: "warning_count",
+    type: "int",
+    default: () => "0",
+  })
+  warningCount!: number;
+
+  @Column({
+    name: "suspended_until",
+    type: "timestamptz",
+    nullable: true,
+  })
+  suspendedUntil?: Date | null;
+
+  @Column({
+    name: "suspend_reason",
+    type: "text",
+    nullable: true,
+  })
+  suspendReason?: string | null;
 }

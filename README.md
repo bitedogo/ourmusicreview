@@ -115,8 +115,13 @@ npm start
 배포 전 TypeScript 검사는 `next build` 단계에 포함됩니다.
 
 ```bash
-npx tsc --noEmit   # 선택: 별도 타입 검사
+npm run typecheck   # 선택: 별도 타입 검사
 ```
+
+### 문서
+
+- [`CONTRIBUTING.md`](./CONTRIBUTING.md) — API·폴더·레이어 규칙
+- [`BACKEND_SETUP.md`](./BACKEND_SETUP.md) — DB·인증·마이그레이션
 
 ---
 

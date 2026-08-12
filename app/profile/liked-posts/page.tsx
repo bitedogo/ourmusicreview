@@ -1,45 +1,23 @@
-"use client";
 /** 추천(좋아요)한 게시글 목록 페이지 */
 
 import Link from "next/link";
-import { getBoardCategoryLabel } from "@/src/lib/community/board-config";
 import { ProfileListPageLayout } from "@/src/components/profile/profile-list-page-layout";
-import { useAuthenticatedFetch } from "@/src/hooks/use-authenticated-fetch";
+import { requireAuthPage } from "@/src/lib/auth/session";
+import { getBoardCategoryLabel } from "@/src/lib/community/board-config";
+import { initializeDatabase } from "@/src/lib/db";
+import { listMyLikedPosts } from "@/src/lib/profile/profile-content-service";
 
-interface LikedPost {
-  likeId: string;
-  likedAt: string;
-  id: string;
-  title: string;
-  category: "K" | "I" | "M" | "W" | "N";
-  isGlobal: "Y" | "N";
-  createdAt: string;
-  commentCount: number;
-}
-
-interface LikedPostsResponse {
-  ok: boolean;
-  data: {
-    posts: LikedPost[];
-  };
-}
-
-export default function LikedPostsPage() {
-  const { data, isLoading, error } = useAuthenticatedFetch<LikedPostsResponse>(
-    "/api/profile/liked-posts",
-    "/profile/liked-posts"
-  );
-  const posts = data?.data.posts ?? [];
+export default async function LikedPostsPage() {
+  const session = await requireAuthPage("/profile/liked-posts");
+  const dataSource = await initializeDatabase();
+  const posts = await listMyLikedPosts(dataSource, session.user.id);
 
   return (
     <ProfileListPageLayout
       title="추천한 글"
       description="좋아요한 커뮤니티 게시글을 확인할 수 있습니다."
-      isLoading={isLoading}
-      error={error}
       emptyMessage="아직 추천한 글이 없습니다."
       isEmpty={posts.length === 0}
-      loadingMessage="추천한 글을 불러오는 중..."
     >
       <div className="space-y-3">
         {posts.map((post) => (

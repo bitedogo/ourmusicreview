@@ -1,11 +1,7 @@
-/** 관리자 FAQ 관리 페이지 */
+/** 관리자 FAQ 페이지 */
 
-import { FaqManagementClient } from "./faq-management-client";
+import { FaqManagementClient } from "@/src/components/admin/faq/faq-management-client";
 
-export default function AdminFaqPage() {
-  return (
-    <div className="mx-auto min-h-screen max-w-4xl px-6 py-10">
-      <FaqManagementClient />
-    </div>
-  );
+export default function FaqManagementPage() {
+  return <FaqManagementClient />;
 }

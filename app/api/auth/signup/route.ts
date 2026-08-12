@@ -16,7 +16,12 @@ import {
   validatePassword,
 } from "@/src/lib/auth/validation";
 import { apiError, apiOk } from "@/src/lib/http/response";
+import { initializeDatabase } from "@/src/lib/db";
 import { uploadProfileImage } from "@/src/lib/supabase";
+import {
+  BLOCKED_EMAIL_MESSAGE,
+  isEmailBlocked,
+} from "@/src/lib/users/blocked-email";
 
 export async function POST(request: Request) {
   try {
@@ -98,6 +103,10 @@ export async function POST(request: Request) {
     }
 
     const userRepository = await getUserRepository();
+    const dataSource = await initializeDatabase();
+    if (await isEmailBlocked(dataSource, email)) {
+      return apiError(BLOCKED_EMAIL_MESSAGE, { status: 403 });
+    }
 
     if (await userRepository.findOne({ where: { id } })) {
       return apiError("이미 존재하는 아이디입니다.", { status: 409 });

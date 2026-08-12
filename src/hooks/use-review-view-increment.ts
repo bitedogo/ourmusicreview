@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { incrementReviewView } from "@/src/lib/reviews/client-api";
 
 /** 리뷰 상세 진입 시 조회수 1회 증가 (본인 리뷰 제외) */
 
@@ -17,17 +18,8 @@ export function useReviewViewIncrement(reviewId: string, initialViews: number) {
 
     sessionStorage.setItem(storageKey, "true");
 
-    fetch(`/api/reviews/${encodeURIComponent(reviewId)}/view`, {
-      method: "POST",
-    })
-      .then(async (response) => {
-        if (!response.ok) return;
-
-        const payload = (await response.json()) as {
-          ok?: boolean;
-          data?: { skipped?: boolean };
-        };
-
+    void incrementReviewView(reviewId)
+      .then((payload) => {
         if (payload.data?.skipped) return;
         setDisplayedViews((prev) => prev + 1);
       })

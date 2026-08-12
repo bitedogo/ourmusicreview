@@ -1,13 +1,12 @@
-"use client";
 /** 프로필 하위 목록 페이지 레이아웃 */
 
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 interface ProfileListPageLayoutProps {
   title: string;
   description?: string;
-  isLoading: boolean;
-  error: string | null;
+  isLoading?: boolean;
+  error?: string | null;
   emptyMessage: string;
   isEmpty: boolean;
   loadingMessage?: string;
@@ -17,22 +16,19 @@ interface ProfileListPageLayoutProps {
 export function ProfileListPageLayout({
   title,
   description,
-  isLoading,
-  error,
+  isLoading = false,
+  error = null,
   emptyMessage,
   isEmpty,
   loadingMessage = "불러오는 중...",
   children,
 }: ProfileListPageLayoutProps) {
-  const router = useRouter();
-
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-3xl flex-col gap-6 px-6 py-10 sm:px-16">
       <section className="space-y-2">
-        <button
-          type="button"
-          onClick={() => router.push("/profile")}
-          className="mb-4 flex items-center gap-2 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-brand-primary)]"
+        <Link
+          href="/profile"
+          className="mb-4 flex w-fit items-center gap-2 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-brand-primary)]"
         >
           <svg
             width="16"
@@ -50,7 +46,7 @@ export function ProfileListPageLayout({
             />
           </svg>
           마이페이지로
-        </button>
+        </Link>
         <h1 className="text-xl font-semibold tracking-tight">{title}</h1>
         {description ? (
           <p className="text-xs text-[var(--color-text-secondary)]">{description}</p>
@@ -58,7 +54,9 @@ export function ProfileListPageLayout({
       </section>
 
       {isLoading ? (
-        <div className="py-12 text-center text-sm text-[var(--color-text-secondary)]">{loadingMessage}</div>
+        <div className="py-12 text-center text-sm text-[var(--color-text-secondary)]">
+          {loadingMessage}
+        </div>
       ) : error ? (
         <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900">
           {error}
