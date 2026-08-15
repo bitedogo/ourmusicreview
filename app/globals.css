@@ -95,7 +95,7 @@
     inset -2px -2px 5px rgba(0, 0, 0, 0.06);
   --chart-region-active-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 
-  --today-album-card-width: 1099px;
+  --today-album-card-width: 1098px;
   --today-album-card-height: 529px;
   --today-album-cover-size: 449.58px;
   --today-album-section-margin-top: 72px;
@@ -114,11 +114,14 @@
   --today-album-scrollbar-track: #d9d9d9;
   --today-album-scrollbar-thumb: #505050;
   --today-album-previous-padding-top: 30px;
-  --today-album-previous-padding-right: 50px;
   --today-album-previous-padding-bottom: 78px;
   --today-album-previous-padding-left: 35px;
   --today-album-previous-gap: 28px;
   --today-album-previous-cell: 120px;
+  --today-album-previous-cover-scrollbar-gap: 30px;
+  --today-album-previous-scrollbar-right: 17px;
+  --today-album-previous-scrollbar-height: 420px;
+  --today-album-previous-scrollbar-top: 54.5px;
   --text-today-album-empty: 14px;
 
   --hero-search-copy-gap: 48px;

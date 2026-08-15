@@ -36,7 +36,7 @@ export function TodayAlbumTabs({
               isActive
                 ? "relative z-10 border border-[var(--color-border)] border-b-white bg-white text-[var(--color-text-primary)]"
                 : tabHasAlbum
-                  ? "border border-[var(--color-border)] hover:opacity-90 text-[var(--color-text-secondary)]"
+                  ? "border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:opacity-90"
                   : "cursor-not-allowed border border-[var(--color-border)] bg-[var(--color-today-album-tab-today)] text-[var(--color-text-muted)]"
             }`}
             style={

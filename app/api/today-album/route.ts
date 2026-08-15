@@ -28,13 +28,12 @@ function toAlbumPayload(entity: TodayAlbum): TodayAlbumPayload {
 }
 
 function toArchiveItem(entity: TodayAlbum): TodayAlbumArchiveItem {
-  const payload = toAlbumPayload(entity);
   return {
-    displayDate: payload.displayDate,
-    albumId: payload.albumId,
-    title: payload.title,
-    artist: payload.artist,
-    imageUrl: payload.imageUrl,
+    displayDate: formatTodayAlbumIsoDate(entity.displayDate),
+    albumId: entity.albumId ?? null,
+    title: entity.title,
+    artist: entity.artist,
+    imageUrl: entity.imageUrl ?? null,
   };
 }
 

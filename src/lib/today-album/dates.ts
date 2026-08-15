@@ -27,8 +27,3 @@ export function formatTodayAlbumCellDate(isoDate: string): string {
   if (!year || !month || !day) return isoDate;
   return `${year.slice(-2)}.${month}.${day}`;
 }
-
-export const PREVIOUS_SCROLLBAR = {
-  height: 420,
-  top: 54.5,
-} as const;

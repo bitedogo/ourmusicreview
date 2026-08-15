@@ -10,19 +10,12 @@ import type { TodayAlbumData } from "@/src/lib/today-album/types";
 
 interface TodayAlbumDescriptionProps {
   album: TodayAlbumData;
-  resetKey: string;
 }
 
-export function TodayAlbumDescription({ album, resetKey }: TodayAlbumDescriptionProps) {
+export function TodayAlbumDescription({ album }: TodayAlbumDescriptionProps) {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [prevResetKey, setPrevResetKey] = useState(resetKey);
   const description = album.description?.trim() ?? "";
   const streamingLinks = useStreamingLinks(album.albumId);
-
-  if (resetKey !== prevResetKey) {
-    setPrevResetKey(resetKey);
-    setIsExpanded(false);
-  }
 
   return (
     <div className="w-full min-w-0 flex-1 sm:self-start sm:pt-[var(--today-album-desc-offset-top)]">
