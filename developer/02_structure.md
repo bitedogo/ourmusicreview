@@ -256,7 +256,7 @@ src/lib/
 ```
 src/components/
 ├── app/           사이트 공통: 헤더, 푸터, 홈 카드, 검색바
-│                  TodayAlbumCard + today-album/ (탭·커버·소개글)
+│                  TodayAlbumCard + today-album/ (탭·커버·소개글·Previous 그리드·스크롤)
 ├── reviews/       리뷰 카드, 상세 앨범 카드, 평점 뱃지
 ├── interaction/   댓글, 좋아요, 신고 모달 (리뷰/글/플리 공통)
 ├── playlist/      커버, 트랙 리스트, 장르 선택, 생성 모달
@@ -272,8 +272,9 @@ src/components/
 **규칙:** `app/admin/*` 페이지는 화면 로직을 `src/components/admin/`에서 import합니다.  
 페이지 파일은 가급적 **껍데기(RSC)** 로 두고, 클릭·입력은 `"use client"` 컴포넌트에 맡깁니다.
 
-홈 **오늘의 앨범**은 `TodayAlbumCard` + `src/components/app/today-album/` (탭·커버·소개글)입니다.  
+홈 **오늘의 앨범**은 `TodayAlbumCard` + `src/components/app/today-album/` (탭·커버·소개글·Previous 그리드)입니다.  
 탭을 고르면 활성 탭만 흰색이 되고, 고르지 않은 탭은 Today / Yesterday / Previous 종이색을 유지합니다.  
+Today / Yesterday는 커버+소개글, Previous는 그제 이전 날짜의 커버 칸을 스크롤합니다.  
 크기·패딩은 `app/globals.css`의 `--today-album-*` 토큰을 따릅니다.
 
 ---

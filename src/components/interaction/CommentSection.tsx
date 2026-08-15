@@ -26,7 +26,7 @@ interface CommentSectionProps {
   postId?: string;
   reviewId?: string;
   playlistId?: string;
-  /** detail: 리뷰 상세 Figma 스타일 */
+  /** detail: 리뷰 상세 스타일 */
   variant?: "default" | "detail";
 }
 

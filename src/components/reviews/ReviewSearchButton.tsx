@@ -1,4 +1,4 @@
-/** 앨범 리뷰 검색 버튼 (Figma 돋보기) */
+/** 앨범 리뷰 검색 버튼 */
 
 interface ReviewSearchButtonProps {
   onClick: () => void;

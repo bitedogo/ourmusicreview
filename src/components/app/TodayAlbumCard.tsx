@@ -10,25 +10,31 @@ import type { TodayAlbumTab } from "@/src/lib/today-album/types";
 import { TODAY_ALBUM_TABS } from "@/src/lib/today-album/types";
 import { TodayAlbumCover } from "./today-album/today-album-cover";
 import { TodayAlbumDescription } from "./today-album/today-album-description";
+import { TodayAlbumPreviousGrid } from "./today-album/today-album-previous-grid";
+import {
+  TODAY_ALBUM_ARTICLE_BASE,
+  TODAY_ALBUM_ARTICLE_DETAIL,
+  TODAY_ALBUM_ARTICLE_PREVIOUS,
+} from "./today-album/today-album-styles";
 import { TodayAlbumTabs } from "./today-album/today-album-tabs";
 
 export default function TodayAlbumCard() {
-  const { albums, isLoading, imageErrors, markImageError } = useTodayAlbums();
+  const { albums, archive, isLoading, imageErrors, markImageError } =
+    useTodayAlbums();
   const [activeTab, setActiveTab] = useState<TodayAlbumTab>("today");
 
-  if (isLoading || !albums) {
-    return null;
-  }
+  if (isLoading || !albums) return null;
 
-  const hasAnyAlbum = TODAY_ALBUM_TABS.some((tab) => albums[tab.id] != null);
-  if (!hasAnyAlbum) {
-    return null;
-  }
+  const hasArchive = archive.length > 0;
+  const hasAnyAlbum =
+    TODAY_ALBUM_TABS.some((tab) => albums[tab.id] != null) || hasArchive;
+  if (!hasAnyAlbum) return null;
 
   const activeAlbum = albums[activeTab];
   const albumReviewHref = activeAlbum?.albumId
     ? buildAlbumReviewPath(activeAlbum.albumId)
     : null;
+  const isPrevious = activeTab === "previous";
 
   const cover = (
     <TodayAlbumCover
@@ -49,16 +55,29 @@ export default function TodayAlbumCard() {
         </h2>
         <TodayAlbumTabs
           activeTab={activeTab}
-          hasAlbum={(tab) => albums[tab] != null}
+          hasAlbum={(tab) =>
+            tab === "previous" ? hasArchive : albums[tab] != null
+          }
           onTabChange={setActiveTab}
         />
 
-        <article className="relative z-0 -mt-px rounded-b-[var(--featured-cover-radius)] border border-[var(--color-border)] bg-white px-[var(--today-album-content-padding-x-mobile)] py-[var(--today-album-content-padding-y-mobile)] sm:h-[var(--today-album-card-height)] sm:w-[var(--today-album-card-width)] sm:max-w-full sm:rounded-tr-[var(--featured-cover-radius)] sm:px-[var(--today-album-content-padding-x-desktop)] sm:py-[var(--today-album-content-padding-y-desktop)]">
-          {activeAlbum ? (
+        <article
+          className={`${TODAY_ALBUM_ARTICLE_BASE} ${
+            isPrevious
+              ? TODAY_ALBUM_ARTICLE_PREVIOUS
+              : TODAY_ALBUM_ARTICLE_DETAIL
+          }`}
+        >
+          {isPrevious ? (
+            <TodayAlbumPreviousGrid items={archive} />
+          ) : activeAlbum ? (
             <div className="flex flex-col items-center gap-[var(--today-album-layout-gap-mobile)] sm:h-full sm:flex-row sm:items-center sm:gap-[var(--today-album-layout-gap-desktop)]">
               <div
-                className="w-full shrink-0 sm:shrink-0"
-                style={{ width: "100%", maxWidth: "var(--today-album-cover-size)" }}
+                className="w-full shrink-0"
+                style={{
+                  width: "100%",
+                  maxWidth: "var(--today-album-cover-size)",
+                }}
               >
                 {albumReviewHref ? (
                   <Link
@@ -72,7 +91,6 @@ export default function TodayAlbumCard() {
                   cover
                 )}
               </div>
-
               <TodayAlbumDescription album={activeAlbum} resetKey={activeTab} />
             </div>
           ) : (

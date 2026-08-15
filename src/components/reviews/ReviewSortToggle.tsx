@@ -1,6 +1,6 @@
 "use client";
 
-/** 앨범 리뷰 정렬 — 접힘/펼침 토글 (Figma Rectangle 88/89) */
+/** 앨범 리뷰 정렬 토글 */
 
 import Link from "next/link";
 

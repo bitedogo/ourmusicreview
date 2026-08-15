@@ -1,5 +1,5 @@
 "use client";
-/** 리뷰 상세 댓글 — 추천·답글·신고 아이콘 (Frame 273) */
+/** 리뷰 상세 댓글 — 추천·답글·신고 아이콘 */
 
 import { useId } from "react";
 import { COMMENT_DETAIL_CLASS as styles } from "@/src/components/interaction/comment-detail-styles";
@@ -36,7 +36,7 @@ export function CommentDetailLikeIcon({
   );
 }
 
-/** Figma Frame 272 답글 — 말풍선 (37×15 SVG에서 아이콘 영역만) */
+/** 답글 말풍선 아이콘 */
 export function CommentDetailReplyIcon({ className }: { className?: string }) {
   const maskId = useId();
 

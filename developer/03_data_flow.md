@@ -107,12 +107,12 @@ const list = await listBoardPosts(dataSource, {
         ▼
   GET /api/today-album/route.ts
         │  KST 오늘/어제/그저께 날짜 계산
-        │  TodayAlbum 테이블 findOne × 3
+        │  오늘·어제 findOne + 그제 이전 목록
         ▼
-  { ok: true, albums: { today, yesterday, previous } }
+  { ok: true, albums: { today, yesterday, previous }, archive: [...] }
         │
         ▼
-  setAlbums(...) → 카드 다시 그림
+  setAlbums(...) / setArchive(...) → 카드 다시 그림
 ```
 
 훅의 뼈대:

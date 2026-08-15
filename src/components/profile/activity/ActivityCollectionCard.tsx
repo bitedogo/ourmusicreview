@@ -22,10 +22,10 @@ interface ActivityCollectionCardProps {
   onPrivacyChange?: (value: boolean) => void;
 }
 
-/** Figma Union 폴더 실루엣 (viewBox 4 2 261 159) */
+/** 폴더 실루엣 */
 const FOLDER_SHADOW = "drop-shadow(0px 2px 4px rgba(0,0,0,0.25))";
 const COVER_SIZE = 166.68;
-/** covers[0]=맨 앞. emptyBg는 뒤로 갈수록 진함 */
+/** covers[0]이 맨 앞. emptyBg는 뒤로 갈수록 진함 */
 const COVER_LAYER_LAYOUT = [
   { left: 73.88, top: 5, z: 1, emptyBg: "#C4C4C4" },
   { left: 62.91, top: 12, z: 2, emptyBg: "#D0D0D0" },
@@ -34,11 +34,11 @@ const COVER_LAYER_LAYOUT = [
   { left: 30, top: 33, z: 5, emptyBg: "#EFEFEF" },
 ] as const;
 
-/** 데스크톱 — 공개 토글 110×35에 맞춘 갈피 */
+/** 데스크톱 갈피 — 공개 토글 110×35 */
 const FOLDER_PATH_DESKTOP =
   "M121 2C129.284 2 136 8.71573 136 17V40H250C258.284 40 265 46.7157 265 55V146C265 154.284 258.284 161 250 161H19C10.7157 161 4 154.284 4 146V55C4 54.1482 4.0716 53.3131 4.20801 52.5C4.0716 51.6869 4 50.8518 4 50V17C4 8.71573 10.7157 2 19 2H121Z";
 
-/** 모바일 — 공개 토글 90×25에 맞춰 갈피 폭·높이 축소 */
+/** 모바일 갈피 — 공개 토글 90×25 */
 const FOLDER_PATH_MOBILE =
   "M105 2C113.284 2 118 8.71573 118 15V32H250C258.284 32 265 38.7157 265 47V146C265 154.284 258.284 161 250 161H19C10.7157 161 4 154.284 4 146V47C4 46.1482 4.0716 45.3131 4.20801 44.5C4.0716 43.6869 4 42.8518 4 42V15C4 6.71573 10.7157 2 19 2H105Z";
 
@@ -140,7 +140,6 @@ export function ActivityCollectionCard({
         {isLoading ? "..." : `${count} Saved`}
       </p>
 
-      {/* 공개/비공개 — 갈피 안 좌우·상하 패딩 대칭 */}
       {isOwner && onPrivacyChange && (
         <>
           <div

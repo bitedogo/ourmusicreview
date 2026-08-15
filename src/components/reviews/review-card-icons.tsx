@@ -2,7 +2,7 @@
 
 type IconSize = "mobile" | "desktop";
 
-/** 모바일 Figma: 하트 ~12.65×11 / 댓글 ~11.9×11.5 · 데스크톱: 기존 21×18 / 20×20 */
+/** 모바일 하트 13×11 / 댓글 12×12 · 데스크톱 21×18 / 20×20 */
 const LIKE_SIZE = { mobile: { w: 13, h: 11 }, desktop: { w: 21, h: 18 } } as const;
 const COMMENT_SIZE = { mobile: { w: 12, h: 12 }, desktop: { w: 20, h: 20 } } as const;
 

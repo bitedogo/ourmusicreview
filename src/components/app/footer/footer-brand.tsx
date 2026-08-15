@@ -40,7 +40,6 @@ export function FooterBrand() {
 
   return (
     <>
-      {/* 모바일 — 태그라인 + gap 13 + 설명 2줄 */}
       <div className="mx-auto flex w-full max-w-[var(--footer-brand-max-width)] flex-col gap-[var(--footer-gap-one-line)] sm:hidden">
         <p className={MOBILE_TEXT}>{FOOTER_TAGLINE}</p>
         <DescriptionLines {...description} className={MOBILE_TEXT} />

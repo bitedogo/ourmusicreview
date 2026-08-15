@@ -50,7 +50,7 @@ export function PlaylistVinylCover({
           : `aspect-[1.42/1] ${SIZE_CLASS[size]}`
       } ${className}`}
     >
-      {/* 바이닐 — 75×75 */}
+      {/* 바이닐 */}
       <div
         className={`absolute top-0 right-0 z-0 rounded-full shadow-[0_6px_14px_rgba(0,0,0,0.22)] transition-transform duration-500 ease-out ${coverBoxClass} ${
           interactive ? "group-hover/vinyl:translate-x-[6%]" : ""
@@ -62,7 +62,7 @@ export function PlaylistVinylCover({
         <span className="absolute inset-[46%] rounded-full bg-[#1a1a1a]" />
       </div>
 
-      {/* 슬리브 — 75×75 */}
+      {/* 슬리브 */}
       <div
         className={`absolute top-0 left-0 z-10 overflow-hidden bg-white shadow-[0_8px_18px_rgba(0,0,0,0.16)] ${coverBoxClass} relative`}
       >

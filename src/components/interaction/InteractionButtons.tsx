@@ -20,7 +20,7 @@ interface InteractionButtonsProps {
   playlistId?: string;
   isNotice?: boolean;
   authorUserId?: string;
-  /** circle: 리뷰 상세 Figma 원형 버튼 */
+  /** circle: 리뷰 상세 원형 버튼 */
   variant?: "default" | "circle";
 }
 

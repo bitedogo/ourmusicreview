@@ -59,7 +59,6 @@ export function AlbumReviewPreviewCard({
       href={href}
       className="relative block w-full transition hover:opacity-[0.98]"
     >
-      {/* 모바일 — Figma 343×100 */}
       <article
         className={`relative box-border block h-[100px] w-full sm:hidden ${REVIEW_MOBILE_CARD_SHELL_CLASS}`}
       >
@@ -110,7 +109,6 @@ export function AlbumReviewPreviewCard({
         </span>
       </article>
 
-      {/* 데스크톱 — Figma 800×160 */}
       <article
         className={`relative hidden w-full sm:block ${REVIEW_CARD_SHELL_CLASS}`}
       >

@@ -1,4 +1,4 @@
-/** 전역 페이지네이션 (Figma Frame 100) */
+/** 전역 페이지네이션 */
 
 import Link from "next/link";
 import { getPaginationItems } from "@/src/lib/utils/pagination";

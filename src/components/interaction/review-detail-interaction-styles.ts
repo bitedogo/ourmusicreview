@@ -1,4 +1,4 @@
-/** 리뷰 상세 — Frame 117(행) + Frame 268–270(pill) */
+/** 리뷰 상세 — 인터랙션 행·필 */
 
 export const REVIEW_DETAIL_INTERACTION_CLASS = {
   /** 위·아래 간격은 페이지 래퍼(pt/pb)에서 제어 */

@@ -1,5 +1,5 @@
 "use client";
-/** 리뷰 상세 댓글 — Frame 273 (추천·답글·신고) */
+/** 리뷰 상세 댓글 — 추천·답글·신고 */
 
 import {
   CommentDetailLikeIcon,

@@ -10,7 +10,7 @@ const ACTIVITY_DESKTOP_GRID_CLASS = `${PROFILE_CLUSTER_ABSOLUTE_CLASS} lg:grid l
 
 const ACTIVITY_FOLDER_SIZE_CLASS = "h-[282px] w-[266px] shrink-0";
 
-/** 모바일도 Figma 풀사이즈 · 1열 / lg 이상 가로 3열 */
+/** 모바일 풀사이즈 · lg 이상 3열 */
 export const ACTIVITY_FOLDER_SHELL_CLASS = `relative mx-auto block ${ACTIVITY_FOLDER_SIZE_CLASS}`;
 
 export const ACTIVITY_FOLDER_SCALE_CLASS =

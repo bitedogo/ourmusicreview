@@ -1,4 +1,4 @@
-/** 프로필 평점 게이지 SVG 기하 상수 (Figma export) */
+/** 프로필 평점 게이지 SVG 기하 */
 
 export const GAUGE_W = 567;
 export const GAUGE_H = 185;

@@ -110,10 +110,15 @@
   --today-album-desc-offset-top: 16px;
   --text-today-album-body-mobile: 11px;
   --today-album-description-max-height: calc(var(--today-album-card-height) - 174px);
-  /* Figma Vector 88/89 — 트랙 420 · 썸 비율 · 두께 6 */
   --today-album-scrollbar-size: 6px;
   --today-album-scrollbar-track: #d9d9d9;
   --today-album-scrollbar-thumb: #505050;
+  --today-album-previous-padding-top: 30px;
+  --today-album-previous-padding-right: 50px;
+  --today-album-previous-padding-bottom: 78px;
+  --today-album-previous-padding-left: 35px;
+  --today-album-previous-gap: 28px;
+  --today-album-previous-cell: 120px;
   --text-today-album-empty: 14px;
 
   --hero-search-copy-gap: 48px;
@@ -132,12 +137,10 @@
   --safe-area-top: env(safe-area-inset-top, 0px);
 
   --footer-height: auto;
-  /* 차트(24)보다 안쪽 — 좌우 32 */
+  /* 차트보다 안쪽 */
   --footer-padding-x: 32px;
-  /* 모바일 Figma Container: padding 22px 0 · gap 12 · Nav gap 3 */
   --footer-padding-top: 22px;
   --footer-padding-bottom: 32px;
-  /* Header(Policy/Support/Contact) — padding: 11px 0 0 */
   --footer-header-padding-top: 11px;
   --footer-text-brand: #949494;
   --footer-text-menu: #949494;
@@ -222,13 +225,13 @@ select {
   font-family: inherit;
 }
 
-/* 오늘의 앨범 소개글 — 네이티브 스크롤바 숨김 (커스텀 바 사용) */
-.today-album-description-scroll {
+/* 오늘의 앨범 — 네이티브 스크롤바 숨김 */
+.today-album-scroll {
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
 
-.today-album-description-scroll::-webkit-scrollbar {
+.today-album-scroll::-webkit-scrollbar {
   display: none;
   width: 0;
   height: 0;

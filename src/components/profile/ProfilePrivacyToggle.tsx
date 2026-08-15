@@ -1,4 +1,4 @@
-/** 프로필 Figma 스타일 공개/비공개 토글 */
+/** 프로필 공개/비공개 토글 */
 
 interface ProfilePrivacyToggleProps {
   isPublic: boolean;

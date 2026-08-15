@@ -5,7 +5,6 @@ import Image from "next/image";
 export type ReviewRatingBadgeSize = "mobile" | "desktop";
 
 const BADGE_BOX: Record<ReviewRatingBadgeSize, string> = {
-  // 모바일 Figma: 점수 13px + /10 7px · 오버랩용 +1px
   mobile: "h-[22px] w-[42px]",
   desktop: "h-[43px] w-[70px]",
 };
@@ -16,7 +15,7 @@ interface ReviewRatingBadgeProps {
   size?: ReviewRatingBadgeSize;
 }
 
-/** 우상단 R만 있는 단일 흰색 배지 (좌·하단 1px 오버랩) */
+/** 좌하단 배지 — 우상단만 라운드, 1px 오버랩 */
 export function ReviewRatingBadge({
   ratingText,
   ratingColor,
@@ -60,12 +59,7 @@ interface ReviewAlbumCoverProps {
   };
 }
 
-/**
- * 커버 + 배지.
- * 이미지만 안쪽에서 클립하고, 배지는 바깥에서 1px 오버랩해
- * 커버 가장자리 어두운 AA 헤어라인을 흰색으로 덮음.
- * (모바일 inset: 카드 흰 패딩 위로 살짝 나감 → 티 안 남)
- */
+/** 커버는 안쪽 클립, 배지는 1px 오버랩해 가장자리 AA를 덮음 */
 export function ReviewAlbumCover({
   imageUrl,
   alt,

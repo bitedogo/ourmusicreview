@@ -1,4 +1,4 @@
-/** 리뷰 없을 때 Average Rating 빈 상태 (Figma SVG) */
+/** Average Rating 빈 상태 */
 
 interface ProfileRatingEmptyStateProps {
   className?: string;

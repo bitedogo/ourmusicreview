@@ -1,4 +1,4 @@
-/** 활동 통계 박스 (게시글 · 댓글 · 추천) — Figma 320×60 */
+/** 활동 통계 박스 (게시글 · 댓글 · 추천) */
 
 import Link from "next/link";
 import { ACTIVITY_STAT_SHELL_CLASS } from "./activity-folder-styles";

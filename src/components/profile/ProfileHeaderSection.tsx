@@ -44,7 +44,7 @@ export function ProfileHeaderSection(props: ProfileHeaderSectionProps) {
       <ProfileHeaderDesktop {...props} />
       <ProfileHeaderMobile {...props} />
 
-      {/* 데스크톱 토글 — 카드 기준 inset = Masterpiece 구분선 오른쪽 끝 */}
+      {/* 데스크톱 토글 — Masterpiece 구분선 오른쪽 끝과 맞춤 */}
       {isOwner && onRatingPrivacyChange && (
         <div
           className={`absolute top-7 z-10 hidden lg:block ${PROFILE_PRIVACY_TOGGLE_RIGHT_CLASS}`}

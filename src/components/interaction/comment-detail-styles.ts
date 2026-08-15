@@ -1,6 +1,6 @@
-/** 리뷰·플레이리스트 상세 댓글 — Figma 토큰 / Tailwind 클래스 */
+/** 리뷰·플레이리스트 상세 댓글 토큰 */
 
-/** Frame 278 · 댓글 행 수치 (모바일 기준, px) */
+/** 댓글 행 수치 (모바일 px) */
 export const COMMENT_DETAIL = {
   avatar: 22.21,
   avatarDesktop: 34,
@@ -34,7 +34,7 @@ export const COMMENT_DETAIL = {
   desktopContentPadRight: 127,
 } as const;
 
-/** 작성/답글 폼 공통 (모바일 Frame 278) — 클래스는 정적 문자열 유지 (Tailwind 스캔) */
+/** 작성·답글 폼 — 클래스 문자열은 정적 유지 (Tailwind 스캔) */
 export const COMMENT_DETAIL_FORM_CLASS = {
   wrap: "mt-[22px] sm:mt-[18px]",
   replyWrap: "mt-3",

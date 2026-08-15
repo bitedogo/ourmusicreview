@@ -1,5 +1,5 @@
 "use client";
-/** 상세 댓글 작성/답글 입력 박스 (Frame 278) */
+/** 상세 댓글 작성·답글 입력 */
 
 import { COMMENT_DETAIL_FORM_CLASS as form } from "@/src/components/interaction/comment-detail-styles";
 

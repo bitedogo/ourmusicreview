@@ -1,5 +1,5 @@
 "use client";
-/** 리뷰 상세 클라이언트 (Figma Frame 82) */
+/** 리뷰 상세 클라이언트 */
 
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";

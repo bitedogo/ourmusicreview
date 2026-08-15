@@ -23,7 +23,6 @@ export function MasterpieceAddCard({
       aria-label="나의 명반 추가"
       className="relative box-border flex w-full shrink-0 flex-col overflow-hidden rounded-[10px] border-2 border-dashed border-[#43A7B2] bg-[#FEFEFE] shadow-[0px_2px_4px_rgba(0,0,0,0.25)] transition hover:bg-[#F7FCFD] disabled:cursor-not-allowed disabled:opacity-50"
     >
-      {/* 앨범 카드와 동일 — 정사각형 커버 + 메타 영역 */}
       <div className="aspect-square w-full shrink-0" aria-hidden />
       <div className="relative shrink-0">
         <div className="invisible" aria-hidden>
@@ -45,7 +44,6 @@ export function MasterpieceAddCard({
         </p>
       </div>
 
-      {/* 상단 문구 · 원형+ — 카드 전체 기준 배치 */}
       <p className="pointer-events-none absolute inset-x-0 top-3 z-10 px-2 text-center text-[12px] font-normal leading-[14px] text-[#43A7B2]">
         나의 명반을 등록해주세요.
       </p>

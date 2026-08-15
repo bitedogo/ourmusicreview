@@ -1,4 +1,4 @@
-/** 프로필 안내 i 아이콘 (아웃라인 원 + i, Figma Group 116) */
+/** 프로필 안내 i 아이콘 */
 
 export function ProfileInfoIcon() {
   return (

@@ -1,4 +1,4 @@
-/** 프로필 섹션 안내 말풍선 (Figma SVG 꼬리 · hover/tap) */
+/** 프로필 섹션 안내 말풍선 */
 
 "use client";
 

@@ -1,5 +1,5 @@
 "use client";
-/** 오늘의 앨범 설명 문구 */
+/** 오늘의 앨범 소개글 */
 
 import { useState } from "react";
 import { ArtistNameLink } from "@/src/components/app/artist-name-link";

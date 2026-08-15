@@ -1,4 +1,4 @@
-/** 리뷰 상세 — 추천·공유·신고 Figma 아이콘 */
+/** 리뷰 상세 — 추천·공유·신고 아이콘 */
 
 import { REVIEW_DETAIL_INTERACTION_CLASS as styles } from "@/src/components/interaction/review-detail-interaction-styles";
 

@@ -1,35 +1,24 @@
 /** GET 오늘의 앨범 */
 
+import { LessThanOrEqual } from "typeorm";
 import { initializeDatabase } from "@/src/lib/db";
 import { TodayAlbum } from "@/src/lib/db/entities/TodayAlbum";
 import { noStoreJson, publicCachedJson } from "@/src/lib/http/cache";
-import type { TodayAlbumPayload } from "@/src/lib/today-album/types";
+import {
+  formatTodayAlbumIsoDate,
+  getTodayKstDate,
+  shiftUtcDate,
+} from "@/src/lib/today-album/dates";
+import type {
+  TodayAlbumArchiveItem,
+  TodayAlbumPayload,
+} from "@/src/lib/today-album/types";
 
 export type { TodayAlbumPayload };
 
-function getTodayKST(): Date {
-  const kstDateStr = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Seoul" });
-  return new Date(`${kstDateStr}T00:00:00.000Z`);
-}
-
-function shiftDate(base: Date, days: number): Date {
-  const next = new Date(base);
-  next.setUTCDate(next.getUTCDate() + days);
-  return next;
-}
-
-function formatDateForApi(d: Date | string): string {
-  const date = d instanceof Date ? d : new Date(d);
-  if (isNaN(date.getTime())) return String(d);
-  const y = date.getUTCFullYear();
-  const m = String(date.getUTCMonth() + 1).padStart(2, "0");
-  const day = String(date.getUTCDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
-}
-
 function toAlbumPayload(entity: TodayAlbum): TodayAlbumPayload {
   return {
-    displayDate: formatDateForApi(entity.displayDate),
+    displayDate: formatTodayAlbumIsoDate(entity.displayDate),
     albumId: entity.albumId ?? null,
     title: entity.title,
     artist: entity.artist,
@@ -38,20 +27,38 @@ function toAlbumPayload(entity: TodayAlbum): TodayAlbumPayload {
   };
 }
 
+function toArchiveItem(entity: TodayAlbum): TodayAlbumArchiveItem {
+  const payload = toAlbumPayload(entity);
+  return {
+    displayDate: payload.displayDate,
+    albumId: payload.albumId,
+    title: payload.title,
+    artist: payload.artist,
+    imageUrl: payload.imageUrl,
+  };
+}
+
 export async function GET() {
   try {
     const dataSource = await initializeDatabase();
     const repo = dataSource.getRepository(TodayAlbum);
 
-    const today = getTodayKST();
-    const yesterday = shiftDate(today, -1);
-    const twoDaysAgo = shiftDate(today, -2);
+    const today = getTodayKstDate();
+    const yesterday = shiftUtcDate(today, -1);
+    const twoDaysAgo = shiftUtcDate(today, -2);
 
-    const [todayAlbum, yesterdayAlbum, previousAlbum] = await Promise.all([
+    const [todayAlbum, yesterdayAlbum, previousAlbums] = await Promise.all([
       repo.findOne({ where: { displayDate: today } }),
       repo.findOne({ where: { displayDate: yesterday } }),
-      repo.findOne({ where: { displayDate: twoDaysAgo } }),
+      repo.find({
+        where: { displayDate: LessThanOrEqual(twoDaysAgo) },
+        order: { displayDate: "DESC" },
+        select: ["displayDate", "albumId", "title", "artist", "imageUrl"],
+      }),
     ]);
+
+    const archive = previousAlbums.map(toArchiveItem);
+    const latestPrevious = archive[0];
 
     return publicCachedJson(
       {
@@ -59,8 +66,11 @@ export async function GET() {
         albums: {
           today: todayAlbum ? toAlbumPayload(todayAlbum) : null,
           yesterday: yesterdayAlbum ? toAlbumPayload(yesterdayAlbum) : null,
-          previous: previousAlbum ? toAlbumPayload(previousAlbum) : null,
+          previous: latestPrevious
+            ? { ...latestPrevious, description: null }
+            : null,
         },
+        archive,
       },
       60,
       300

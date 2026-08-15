@@ -1,4 +1,4 @@
-/** 리뷰 상세 — Back to List / Next Review Figma SVG */
+/** 리뷰 상세 — 목록으로 / 다음 리뷰 */
 
 export function BackToListIcon() {
   return (

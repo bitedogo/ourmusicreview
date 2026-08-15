@@ -379,6 +379,7 @@ src/lib/comments/comment-service.ts
 | 경로 문자열 | `src/lib/navigation/routes.ts` |
 | 이미지 업로드 | `src/lib/storage/media.ts` |
 | 오늘의 앨범 날짜(KST) | `app/api/today-album/route.ts` |
+| 오늘의 앨범 Previous 그리드 | `today-album-previous-grid.tsx`, 응답 `archive` |
 | 오늘의 앨범 UI 토큰 | `app/globals.css` (`--today-album-*`), `src/components/app/TodayAlbumCard.tsx` |
 | 내부 가이드 비밀번호 | `middleware.ts`, `src/lib/guides/gate.ts` |
 | 관리자 진입 | `app/admin/layout.tsx` → `requireAdminPage()` |

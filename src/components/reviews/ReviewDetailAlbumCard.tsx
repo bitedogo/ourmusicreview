@@ -165,7 +165,6 @@ export function ReviewDetailAlbumCard({
 
   return (
     <>
-      {/* 데스크톱 — Figma 800×160 */}
       <div
         className={`relative hidden h-[160px] w-[800px] max-w-full sm:block ${REVIEW_CARD_SHELL_CLASS}`}
       >
@@ -212,7 +211,6 @@ export function ReviewDetailAlbumCard({
         </div>
       </div>
 
-      {/* 모바일 — Figma 343×100 */}
       <div
         className={`relative block h-[100px] w-full sm:hidden ${REVIEW_MOBILE_CARD_SHELL_CLASS}`}
       >
