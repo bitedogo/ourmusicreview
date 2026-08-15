@@ -3,7 +3,7 @@
 브라우저에서 **[http://localhost:3000/developer](http://localhost:3000/developer)** 로 이 문서를 볼 수 있습니다.  
 처음 열면 비밀번호를 한 번 입력합니다. 통과하면 `/designer`와 `/developer`를 같이 볼 수 있습니다.
 
-이 폴더는 **주니어 개발자가 ORU 코드베이스를 혼자 탐색할 수 있도록** 만든 내부 문서입니다.  
+이 폴더는 **개발자가 ORU 코드베이스를 혼자 탐색할 수 있도록** 만든 내부 문서입니다.  
 공식 사이트 설정·기여 규칙은 저장소 루트의 `README.md`, `CONTRIBUTING.md`, `BACKEND_SETUP.md`를 함께 보세요.
 
 | 순서 | 문서 | 한 줄 요약 |
