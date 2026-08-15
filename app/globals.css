@@ -234,6 +234,7 @@ select {
   height: 0;
 }
 
+
 .chart-region-track {
   box-shadow: var(--chart-region-track-shadow);
 }
@@ -415,4 +416,148 @@ select {
   -webkit-box-shadow: 0 0 0 1000px #ffffff inset;
   transition: background-color 99999s ease-out;
   background-color: transparent !important;
+}
+
+.developer-markdown h1 {
+  margin-top: 0.5rem;
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--color-hero-title);
+}
+
+.developer-markdown h2 {
+  margin-top: 3rem;
+  border-bottom: 1px solid #e4e4e7;
+  padding-bottom: 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.developer-markdown h3 {
+  margin-top: 2rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.developer-markdown h4 {
+  margin-top: 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.developer-markdown p,
+.developer-markdown li {
+  margin-top: 1rem;
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--color-text-primary);
+}
+
+.developer-markdown li {
+  margin-top: 0.5rem;
+}
+
+.developer-markdown ul,
+.developer-markdown ol {
+  margin-top: 1rem;
+  padding-left: 1.5rem;
+}
+
+.developer-markdown ul {
+  list-style: disc;
+}
+
+.developer-markdown ol {
+  list-style: decimal;
+}
+
+.developer-markdown hr {
+  margin: 2.5rem 0;
+  border: 0;
+  border-top: 1px solid #e4e4e7;
+}
+
+.developer-markdown blockquote {
+  margin-top: 1.5rem;
+  border-left: 4px solid var(--color-brand-primary);
+  background: rgba(67, 167, 178, 0.06);
+  padding: 0.75rem 1rem;
+  font-size: 15px;
+  line-height: 1.75;
+}
+
+.developer-markdown blockquote p {
+  margin-top: 0;
+}
+
+.developer-markdown a {
+  font-weight: 500;
+  color: var(--color-brand-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.developer-markdown a:hover {
+  color: var(--color-brand-primary-hover);
+}
+
+.developer-markdown strong {
+  font-weight: 600;
+}
+
+.developer-markdown code {
+  border-radius: 4px;
+  background: #f4f4f5;
+  padding: 0.125rem 0.375rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 13px;
+  color: #2a6f76;
+}
+
+.developer-markdown pre {
+  margin-top: 1.5rem;
+  overflow-x: auto;
+  border-radius: 12px;
+  background: #18181b;
+  padding: 1rem;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #f4f4f5;
+}
+
+.developer-markdown pre code {
+  background: transparent;
+  padding: 0;
+  color: inherit;
+  font-size: inherit;
+}
+
+.developer-markdown table {
+  display: block;
+  width: 100%;
+  margin-top: 1.5rem;
+  overflow-x: auto;
+  border: 1px solid #e4e4e7;
+  border-radius: 12px;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.developer-markdown th,
+.developer-markdown td {
+  border-bottom: 1px solid #f4f4f5;
+  padding: 0.65rem 0.75rem;
+  text-align: left;
+  vertical-align: top;
+  line-height: 1.5;
+  color: var(--color-text-primary);
+}
+
+.developer-markdown th {
+  background: #fafafa;
+  font-weight: 600;
 }

@@ -19,7 +19,8 @@
     "db:migrate:playlist-likes-comments": "node scripts/run-playlist-likes-comments-migration.mjs",
     "db:migrate:user-sanctions": "node scripts/run-user-sanctions-migration.mjs",
     "db:migrate:blocked-emails": "node scripts/run-blocked-emails-migration.mjs",
-    "db:seed:genres": "node scripts/seed-genres.mjs"
+    "db:seed:genres": "node scripts/seed-genres.mjs",
+    "media:rewrite-r2-urls": "node scripts/rewrite-storage-urls-to-r2.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1108.0",
@@ -30,6 +31,7 @@
     "@toast-ui/react-editor": "^3.2.3",
     "bcryptjs": "^3.0.3",
     "dompurify": "^3.3.1",
+    "marked": "^18.0.9",
     "next": "16.1.1",
     "next-auth": "^4.24.13",
     "patch-package": "^8.0.1",
