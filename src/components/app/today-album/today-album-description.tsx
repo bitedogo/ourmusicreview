@@ -6,6 +6,7 @@ import { ArtistNameLink } from "@/src/components/app/artist-name-link";
 import { TodayAlbumDescriptionScroll } from "@/src/components/app/today-album/today-album-description-scroll";
 import { StreamingLinkButtons } from "@/src/components/streaming/streaming-link-buttons";
 import { useStreamingLinks } from "@/src/hooks/use-streaming-links";
+import { buildTrackStreamingLinks } from "@/src/lib/streaming/track-links";
 import type { TodayAlbumData } from "@/src/lib/today-album/types";
 
 interface TodayAlbumDescriptionProps {
@@ -16,6 +17,10 @@ export function TodayAlbumDescription({ album }: TodayAlbumDescriptionProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const description = album.description?.trim() ?? "";
   const streamingLinks = useStreamingLinks(album.albumId);
+  const fallbackLinks = buildTrackStreamingLinks(album.artist, album.title);
+  const resolvedLinks = album.albumId
+    ? streamingLinks
+    : streamingLinks ?? fallbackLinks;
 
   return (
     <div className="w-full min-w-0 flex-1 sm:self-start sm:pt-[var(--today-album-desc-offset-top)]">
@@ -32,7 +37,7 @@ export function TodayAlbumDescription({ album }: TodayAlbumDescriptionProps) {
             className="mt-0.5 max-w-full truncate text-left text-[length:var(--text-today-album-artist)] font-bold tracking-[0.03em] text-[#949494] transition hover:text-[#43A7B2] hover:underline disabled:cursor-wait disabled:no-underline"
           />
         </div>
-        <StreamingLinkButtons links={streamingLinks} className="shrink-0 justify-start" />
+        <StreamingLinkButtons links={resolvedLinks} className="shrink-0 justify-start" />
       </div>
       {description ? (
         <>
