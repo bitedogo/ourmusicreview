@@ -22,9 +22,14 @@ export interface MailNotificationItem {
 }
 
 export async function fetchAnnouncements(limit = 10) {
-  return fetchJson<{ ok: true; data: { items: AnnouncementItem[] } }>(
-    `/api/announcements?limit=${Math.max(1, limit)}`
-  );
+  return fetchJson<{
+    ok: true;
+    data: { items: AnnouncementItem[]; unreadCount: number };
+  }>(`/api/announcements?limit=${Math.max(1, limit)}`);
+}
+
+export async function markAnnouncementsSeen() {
+  return fetchJson<{ ok: true }>(`/api/announcements`, { method: "PATCH" });
 }
 
 export async function fetchMailNotifications(limit = 20, unreadOnly = false) {

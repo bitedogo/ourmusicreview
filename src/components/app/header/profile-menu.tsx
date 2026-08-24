@@ -14,11 +14,15 @@ type HeaderMenu = "announcement" | "mail" | "profile" | null;
 interface ProfileMenuProps {
   unreadCount: number;
   onUnreadCountChange: Dispatch<SetStateAction<number>>;
+  announcementUnreadCount: number;
+  onAnnouncementUnreadCountChange: Dispatch<SetStateAction<number>>;
 }
 
 export function ProfileMenu({
   unreadCount,
   onUnreadCountChange,
+  announcementUnreadCount,
+  onAnnouncementUnreadCountChange,
 }: ProfileMenuProps) {
   const { data: session, status } = useSession();
   const nickname = session?.user?.name ?? null;
@@ -39,6 +43,8 @@ export function ProfileMenu({
       <div className="flex items-center gap-3.5">
         <AnnouncementInbox
           isOpen={openMenu === "announcement"}
+          unreadCount={announcementUnreadCount}
+          onUnreadCountChange={onAnnouncementUnreadCountChange}
           onToggle={() => toggleMenu("announcement")}
           onClose={() => setOpenMenu(null)}
         />

@@ -3,10 +3,16 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useRef, useState } from "react";
+import {
+  useRef,
+  useState,
+  type Dispatch,
+  type SetStateAction,
+} from "react";
 import { useClickOutside } from "@/src/hooks/use-click-outside";
 import {
   fetchAnnouncements,
+  markAnnouncementsSeen,
   type AnnouncementItem,
 } from "@/src/lib/notifications/client-api";
 import { HeaderIconButton } from "./header-icon-button";
@@ -18,12 +24,16 @@ import {
 
 interface AnnouncementInboxProps {
   isOpen: boolean;
+  unreadCount: number;
+  onUnreadCountChange: Dispatch<SetStateAction<number>>;
   onToggle: () => void;
   onClose: () => void;
 }
 
 export function AnnouncementInbox({
   isOpen,
+  unreadCount,
+  onUnreadCountChange,
   onToggle,
   onClose,
 }: AnnouncementInboxProps) {
@@ -36,12 +46,18 @@ export function AnnouncementInbox({
   async function handleToggle() {
     const next = !isOpen;
     onToggle();
-    if (!next || items.length > 0 || isLoading) return;
+    if (!next || isLoading) return;
 
     setIsLoading(true);
     try {
       const data = await fetchAnnouncements(12);
       setItems(data.data.items ?? []);
+      try {
+        await markAnnouncementsSeen();
+        onUnreadCountChange(0);
+      } catch {
+        onUnreadCountChange(data.data.unreadCount ?? 0);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -64,6 +80,11 @@ export function AnnouncementInbox({
           height={30}
           className="h-[30px] w-[30px] shrink-0 object-contain"
         />
+        {unreadCount > 0 ? (
+          <span className="absolute -right-1 -top-1 inline-flex min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-semibold leading-4 text-white">
+            {unreadCount > 99 ? "99+" : unreadCount}
+          </span>
+        ) : null}
       </HeaderIconButton>
 
       {isOpen ? (

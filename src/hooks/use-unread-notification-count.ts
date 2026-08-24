@@ -1,25 +1,35 @@
-/** 헤더용 안 읽은 알림 개수 */
+/** 헤더용 안 읽은 메일·공지 개수 */
 
 import { useCallback, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import { fetchMailNotifications } from "@/src/lib/notifications/client-api";
+import {
+  fetchAnnouncements,
+  fetchMailNotifications,
+} from "@/src/lib/notifications/client-api";
 
 export function useUnreadNotificationCount() {
   const { data: session, status } = useSession();
   const [unreadCount, setUnreadCount] = useState(0);
+  const [announcementUnreadCount, setAnnouncementUnreadCount] = useState(0);
   const isLoggedIn = status === "authenticated" && !!session?.user?.name;
 
   const refreshUnreadCount = useCallback(async () => {
     if (!isLoggedIn) {
       setUnreadCount(0);
+      setAnnouncementUnreadCount(0);
       return;
     }
 
     try {
-      const data = await fetchMailNotifications(1);
-      setUnreadCount(data.data.unreadCount ?? 0);
+      const [mail, announcements] = await Promise.all([
+        fetchMailNotifications(1),
+        fetchAnnouncements(1),
+      ]);
+      setUnreadCount(mail.data.unreadCount ?? 0);
+      setAnnouncementUnreadCount(announcements.data.unreadCount ?? 0);
     } catch {
       setUnreadCount(0);
+      setAnnouncementUnreadCount(0);
     }
   }, [isLoggedIn]);
 
@@ -47,5 +57,12 @@ export function useUnreadNotificationCount() {
     };
   }, [isLoggedIn, refreshUnreadCount]);
 
-  return { unreadCount, setUnreadCount, refreshUnreadCount, isLoggedIn };
+  return {
+    unreadCount,
+    setUnreadCount,
+    announcementUnreadCount,
+    setAnnouncementUnreadCount,
+    refreshUnreadCount,
+    isLoggedIn,
+  };
 }

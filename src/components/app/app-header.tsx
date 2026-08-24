@@ -21,7 +21,12 @@ export function AppHeader() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLElement>(null);
-  const { unreadCount, setUnreadCount } = useUnreadNotificationCount();
+  const {
+    unreadCount,
+    setUnreadCount,
+    announcementUnreadCount,
+    setAnnouncementUnreadCount,
+  } = useUnreadNotificationCount();
 
   useClickOutside(menuRef, () => setMenuOpen(false), menuOpen);
 
@@ -49,6 +54,8 @@ export function AppHeader() {
               <ProfileMenu
                 unreadCount={unreadCount}
                 onUnreadCountChange={setUnreadCount}
+                announcementUnreadCount={announcementUnreadCount}
+                onAnnouncementUnreadCountChange={setAnnouncementUnreadCount}
               />
             </div>
           </div>
