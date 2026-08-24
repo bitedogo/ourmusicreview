@@ -19,6 +19,7 @@
     "db:migrate:playlist-likes-comments": "node scripts/run-playlist-likes-comments-migration.mjs",
     "db:migrate:user-sanctions": "node scripts/run-user-sanctions-migration.mjs",
     "db:migrate:blocked-emails": "node scripts/run-blocked-emails-migration.mjs",
+    "db:migrate:notifications": "node scripts/run-notifications-migration.mjs",
     "db:seed:genres": "node scripts/seed-genres.mjs",
     "media:rewrite-r2-urls": "node scripts/rewrite-storage-urls-to-r2.mjs"
   },
@@ -46,7 +47,6 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
-    "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20.19.28",
     "@types/react": "^19",
     "@types/react-dom": "^19",

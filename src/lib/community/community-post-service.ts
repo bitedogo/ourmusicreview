@@ -6,6 +6,7 @@ import { isNoticeCategory } from "@/src/lib/community/notice-category";
 import type { NoticeCategory } from "@/src/lib/community/types";
 import { Post, type PostCategory } from "@/src/lib/db/entities/Post";
 import { ServiceError } from "@/src/lib/http/service-error";
+import { communityDetail } from "@/src/lib/navigation/routes";
 
 const BOARD_CATEGORIES: PostCategory[] = ["K", "I", "M", "W"];
 
@@ -122,6 +123,27 @@ export async function getCommunityPost(dataSource: DataSource, id: string) {
     throw new ServiceError("게시글을 찾을 수 없습니다.", 404);
   }
   return post;
+}
+
+export async function listNoticeAnnouncements(
+  dataSource: DataSource,
+  limit = 10
+) {
+  const safeLimit = Math.max(1, Math.min(limit, 30));
+  const posts = await dataSource.getRepository(Post).find({
+    where: { category: "N" },
+    order: { createdAt: "DESC" },
+    take: safeLimit,
+    select: ["id", "title", "createdAt", "noticeCategory"],
+  });
+
+  return posts.map((post) => ({
+    id: post.id,
+    title: post.title,
+    noticeCategory: post.noticeCategory,
+    createdAt: new Date(post.createdAt).toISOString(),
+    link: communityDetail(post.id),
+  }));
 }
 
 export async function updateCommunityPost(

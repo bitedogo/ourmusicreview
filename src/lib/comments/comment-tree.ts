@@ -2,13 +2,6 @@
 
 import type { CommentItemData } from "@/src/components/interaction/comment-types";
 
-export function countAllComments(comments: CommentItemData[]): number {
-  return comments.reduce(
-    (sum, comment) => sum + 1 + countAllComments(comment.replies),
-    0
-  );
-}
-
 export function updateCommentLikeInTree(
   comments: CommentItemData[],
   commentId: string,

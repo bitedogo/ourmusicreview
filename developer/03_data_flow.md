@@ -362,7 +362,6 @@ fetchJson 이 ApiClientError 를 throw
 컴포넌트 catch → setErrorMessage(...) 또는 router.push(로그인)
 ```
 
-`useAuthenticatedFetch`는 status 401이면 로그인 페이지로 보냅니다.  
 권한 없음(403)과 없음(404)을 같은 “실패”로 뭉개지 않는 것이 중요합니다.
 
 ---

@@ -4,7 +4,6 @@ import type { CommentItemData } from "@/src/components/interaction/comment-types
 import { fetchJson } from "@/src/lib/http/client";
 
 export {
-  countAllComments,
   updateCommentContentInTree,
   updateCommentLikeInTree,
 } from "@/src/lib/comments/comment-tree";

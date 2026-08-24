@@ -12,21 +12,3 @@ export async function fetchActivityStats() {
     };
   }>("/api/profile/activity-stats");
 }
-
-export async function fetchMyProfilePosts() {
-  return fetchJson<{ ok: true; data: { posts: unknown[] } }>(
-    "/api/profile/posts"
-  );
-}
-
-export async function fetchMyProfileComments() {
-  return fetchJson<{ ok: true; data: { comments: unknown[] } }>(
-    "/api/profile/comments"
-  );
-}
-
-export async function fetchMyLikedPosts() {
-  return fetchJson<{ ok: true; data: { posts: unknown[] } }>(
-    "/api/profile/liked-posts"
-  );
-}

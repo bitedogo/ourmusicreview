@@ -15,7 +15,7 @@ interface ColorChipProps extends ColorChipData {
   large?: boolean;
 }
 
-export function ColorChip({ name, hex, token, swatch, note, large }: ColorChipProps) {
+function ColorChip({ name, hex, token, swatch, note, large }: ColorChipProps) {
   const [copied, setCopied] = useState(false);
 
   async function copyHex() {

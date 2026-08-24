@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import type { ProfileReviewItem } from "./profile-types";
 
-export function getListenerLabel(rating: number): string {
+function getListenerLabel(rating: number): string {
   if (rating < 3) return "Harsh listener";
   if (rating < 5) return "Critical listener";
   if (rating < 6.5) return "Balanced listener";

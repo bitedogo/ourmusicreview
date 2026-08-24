@@ -8,6 +8,7 @@ import {
   type UserSanctionAction,
 } from "@/src/lib/db/entities/UserSanction";
 import { ServiceError } from "@/src/lib/http/service-error";
+import { safeCreateNotification } from "@/src/lib/notifications/notification-service";
 
 export type AccountStatus = "ACTIVE" | "WARNED" | "SUSPENDED";
 
@@ -52,10 +53,6 @@ function statusAfterWarnings(warningCount: number): AccountStatus {
   return warningCount > 0 ? "WARNED" : "ACTIVE";
 }
 
-/**
- * 정지 기간이 지났으면 ACTIVE/WARNED로 자동 복구한다.
- * 변경이 있으면 DB에 저장한다.
- */
 export async function refreshExpiredSuspension(
   userRepo: Repository<User>,
   user: User
@@ -204,6 +201,14 @@ export async function warnMember(
     action: "WARN",
     reason: trimmed,
   });
+  await safeCreateNotification(dataSource, {
+    userId,
+    actorUserId: adminId,
+    type: "ADMIN_WARN",
+    title: "관리자에 의해 경고를 받았습니다.",
+    body: `경고 사유 : ${trimmed}`,
+    link: "/profile",
+  });
 
   return user;
 }
@@ -253,6 +258,14 @@ export async function suspendMember(
     reason: trimmed,
     suspendedUntil: until,
   });
+  await safeCreateNotification(dataSource, {
+    userId,
+    actorUserId: adminId,
+    type: "ADMIN_SUSPEND",
+    title: "계정 이용이 일시 제한되었습니다",
+    body: formatSuspensionMessage(until, trimmed),
+    link: "/profile",
+  });
 
   return user;
 }
@@ -287,6 +300,14 @@ export async function unsuspendMember(
     adminId,
     action: "UNSUSPEND",
     reason: trimmed,
+  });
+  await safeCreateNotification(dataSource, {
+    userId,
+    actorUserId: adminId,
+    type: "ADMIN_UNSUSPEND",
+    title: "계정 제한이 해제되었습니다",
+    body: trimmed,
+    link: "/profile",
   });
 
   return user;

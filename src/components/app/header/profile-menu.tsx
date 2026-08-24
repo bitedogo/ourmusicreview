@@ -2,23 +2,33 @@
 /** 헤더 프로필·계정 메뉴 */
 
 import Link from "next/link";
-import Image from "next/image";
-import { signOut, useSession } from "next-auth/react";
-import { useRef, useState } from "react";
-import { useClickOutside } from "@/src/hooks/use-click-outside";
-import { HeaderDropdownPanel } from "./header-dropdown-panel";
+import { useSession } from "next-auth/react";
+import { useState, type Dispatch, type SetStateAction } from "react";
+import { AccountMenu } from "./account-menu";
+import { AnnouncementInbox } from "./announcement-inbox";
+import { MailInbox } from "./mail-inbox";
 import { UserOutlineIcon } from "./user-outline-icon";
-import { profileSelf } from "@/src/lib/navigation/routes";
 
-export function ProfileMenu() {
+type HeaderMenu = "announcement" | "mail" | "profile" | null;
+
+interface ProfileMenuProps {
+  unreadCount: number;
+  onUnreadCountChange: Dispatch<SetStateAction<number>>;
+}
+
+export function ProfileMenu({
+  unreadCount,
+  onUnreadCountChange,
+}: ProfileMenuProps) {
   const { data: session, status } = useSession();
   const nickname = session?.user?.name ?? null;
   const profileImage =
     session?.user?.profileImage ?? session?.user?.image ?? null;
-  const [profileOpen, setProfileOpen] = useState(false);
-  const profileRef = useRef<HTMLDivElement>(null);
+  const [openMenu, setOpenMenu] = useState<HeaderMenu>(null);
 
-  useClickOutside(profileRef, () => setProfileOpen(false), profileOpen);
+  function toggleMenu(menu: HeaderMenu) {
+    setOpenMenu((current) => (current === menu ? null : menu));
+  }
 
   if (status === "loading") {
     return <span className="text-xs text-[var(--color-text-muted)]">...</span>;
@@ -26,51 +36,26 @@ export function ProfileMenu() {
 
   if (nickname) {
     return (
-      <div className="relative" ref={profileRef}>
-        <button
-          type="button"
-          aria-label="프로필 메뉴"
-          aria-expanded={profileOpen}
-          onClick={() => setProfileOpen((prev) => !prev)}
-          className="flex items-center justify-center rounded-full text-[var(--color-text-primary)] transition hover:text-[var(--color-accent)]"
-        >
-          {profileImage ? (
-            <Image
-              src={profileImage}
-              alt={nickname}
-              width={24}
-              height={24}
-              sizes="24px"
-              className="h-6 w-6 rounded-full border border-zinc-300 object-cover"
-            />
-          ) : (
-            <UserOutlineIcon />
-          )}
-        </button>
-
-        {profileOpen && (
-          <div className="absolute right-0 top-full z-50 mt-2 min-w-[9rem]">
-            <HeaderDropdownPanel>
-              <Link
-                href={profileSelf()}
-                onClick={() => setProfileOpen(false)}
-                className="block w-full px-4 py-3 text-sm font-medium text-[var(--color-text-primary)] hover:bg-zinc-50"
-              >
-                마이페이지
-              </Link>
-              <button
-                type="button"
-                onClick={() => {
-                  setProfileOpen(false);
-                  signOut({ callbackUrl: "/" });
-                }}
-                className="block w-full px-4 py-3 text-left text-sm font-medium text-[var(--color-text-primary)] hover:bg-zinc-50"
-              >
-                로그아웃
-              </button>
-            </HeaderDropdownPanel>
-          </div>
-        )}
+      <div className="flex items-center gap-3.5">
+        <AnnouncementInbox
+          isOpen={openMenu === "announcement"}
+          onToggle={() => toggleMenu("announcement")}
+          onClose={() => setOpenMenu(null)}
+        />
+        <MailInbox
+          isOpen={openMenu === "mail"}
+          unreadCount={unreadCount}
+          onUnreadCountChange={onUnreadCountChange}
+          onToggle={() => toggleMenu("mail")}
+          onClose={() => setOpenMenu(null)}
+        />
+        <AccountMenu
+          nickname={nickname}
+          profileImage={profileImage}
+          isOpen={openMenu === "profile"}
+          onToggle={() => toggleMenu("profile")}
+          onClose={() => setOpenMenu(null)}
+        />
       </div>
     );
   }

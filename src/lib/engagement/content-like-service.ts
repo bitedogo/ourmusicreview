@@ -5,6 +5,7 @@ import type { DataSource, FindOptionsWhere } from "typeorm";
 import { IsNull } from "typeorm";
 import { Like } from "@/src/lib/db/entities/Like";
 import { ServiceError } from "@/src/lib/http/service-error";
+import { notifyContentLiked } from "@/src/lib/notifications/activity-notifications";
 
 export type ContentLikeTarget = {
   postId: string | null;
@@ -68,6 +69,8 @@ export async function toggleContentLike(
     commentId: null,
   });
   await likeRepository.save(newLike);
+  await notifyContentLiked(dataSource, userId, target);
+
   return { liked: true };
 }
 

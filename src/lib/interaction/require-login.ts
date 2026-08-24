@@ -2,7 +2,7 @@
 
 const LOGIN_MESSAGE = "로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?";
 
-export function confirmLoginRedirect(): boolean {
+function confirmLoginRedirect(): boolean {
   if (!confirm(LOGIN_MESSAGE)) return false;
   window.location.href = "/auth/signin";
   return false;

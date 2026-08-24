@@ -9,7 +9,9 @@ import {
 } from "@/src/lib/comments/comment-list-service";
 import { Comment } from "@/src/lib/db/entities/Comment";
 import { Like } from "@/src/lib/db/entities/Like";
+import { User } from "@/src/lib/db/entities/User";
 import { ServiceError } from "@/src/lib/http/service-error";
+import { notifyCommentCreated, notifyCommentLiked } from "@/src/lib/notifications/activity-notifications";
 
 export interface CreateCommentInput {
   content?: unknown;
@@ -69,6 +71,19 @@ export async function createComment(
   newComment.parentId = parentId ? String(parentId) : null;
 
   await commentRepository.save(newComment);
+
+  const user = await dataSource.getRepository(User).findOne({
+    where: { id: userId },
+    select: ["id", "nickname"],
+  });
+  await notifyCommentCreated(
+    dataSource,
+    userId,
+    user?.nickname ?? "누군가",
+    newComment,
+    content
+  );
+
   return newComment;
 }
 
@@ -214,6 +229,15 @@ export async function toggleCommentLike(
     playlistId: null,
   });
   await likeRepository.save(newLike);
+
+  const comment = await dataSource.getRepository(Comment).findOne({
+    where: { id },
+    select: ["id", "postId", "reviewId", "playlistId"],
+  });
+  if (comment) {
+    await notifyCommentLiked(dataSource, userId, comment);
+  }
+
   const count = await likeRepository.count({ where: { commentId: id } });
   return { liked: true, count };
 }

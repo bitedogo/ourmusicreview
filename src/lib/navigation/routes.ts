@@ -21,6 +21,10 @@ export function boardPath(board: BoardSlug | (string & {})): string {
   return `/boards/${board}`;
 }
 
+export function communityDetail(postId: string): string {
+  return `/community/${encodeURIComponent(postId)}`;
+}
+
 export function communityEdit(postId: string): string {
   return `/community/write?edit=${encodeURIComponent(postId)}`;
 }

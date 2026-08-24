@@ -5,6 +5,7 @@ import { useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useClickOutside } from "@/src/hooks/use-click-outside";
+import { useUnreadNotificationCount } from "@/src/hooks/use-unread-notification-count";
 import {
   SITE_CONTAINER_PADDING_X,
   contentMaxWidthStyle,
@@ -20,6 +21,7 @@ export function AppHeader() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLElement>(null);
+  const { unreadCount, setUnreadCount } = useUnreadNotificationCount();
 
   useClickOutside(menuRef, () => setMenuOpen(false), menuOpen);
 
@@ -44,7 +46,10 @@ export function AppHeader() {
             <HeaderLogo />
 
             <div className="absolute right-0 top-1/2 flex -translate-y-1/2">
-              <ProfileMenu />
+              <ProfileMenu
+                unreadCount={unreadCount}
+                onUnreadCountChange={setUnreadCount}
+              />
             </div>
           </div>
         </div>

@@ -288,7 +288,6 @@ Today / Yesterday는 커버+소개글, Previous는 그제 이전 날짜의 커�
 | `use-today-albums` | 홈 오늘의 앨범 fetch |
 | `use-featured-albums` | 슬라이드바 |
 | `use-chart` | 차트 |
-| `use-authenticated-fetch` | 401이면 로그인 페이지로 |
 | `use-playlist-detail` / `*-mutations` | 플리 조회·트랙 추가 |
 | `use-comment-compose` / `use-comment-edit` | 댓글 작성·수정 |
 | `use-artist-autocomplete` | 검색창 디바운스 |
