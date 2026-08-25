@@ -3,10 +3,14 @@
 
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { useState, type Dispatch, type SetStateAction } from "react";
+import { useRef, useState, type Dispatch, type SetStateAction } from "react";
+import { useClickOutside } from "@/src/hooks/use-click-outside";
 import { AccountMenu } from "./account-menu";
-import { AnnouncementInbox } from "./announcement-inbox";
-import { MailInbox } from "./mail-inbox";
+import {
+  AnnouncementInboxPanel,
+  AnnouncementInboxTrigger,
+} from "./announcement-inbox";
+import { MailInboxPanel, MailInboxTrigger } from "./mail-inbox";
 import { UserOutlineIcon } from "./user-outline-icon";
 
 type HeaderMenu = "announcement" | "mail" | "profile" | null;
@@ -29,6 +33,9 @@ export function ProfileMenu({
   const profileImage =
     session?.user?.profileImage ?? session?.user?.image ?? null;
   const [openMenu, setOpenMenu] = useState<HeaderMenu>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  useClickOutside(rootRef, () => setOpenMenu(null), openMenu !== null);
 
   function toggleMenu(menu: HeaderMenu) {
     setOpenMenu((current) => (current === menu ? null : menu));
@@ -40,28 +47,45 @@ export function ProfileMenu({
 
   if (nickname) {
     return (
-      <div className="flex items-center gap-3.5">
-        <AnnouncementInbox
-          isOpen={openMenu === "announcement"}
+      <div className="relative flex items-center gap-3.5" ref={rootRef}>
+        <AnnouncementInboxTrigger
+          className="hidden md:block"
           unreadCount={announcementUnreadCount}
-          onUnreadCountChange={onAnnouncementUnreadCountChange}
+          isOpen={openMenu === "announcement"}
           onToggle={() => toggleMenu("announcement")}
-          onClose={() => setOpenMenu(null)}
         />
-        <MailInbox
-          isOpen={openMenu === "mail"}
+        <MailInboxTrigger
+          className="hidden md:block"
           unreadCount={unreadCount}
-          onUnreadCountChange={onUnreadCountChange}
+          isOpen={openMenu === "mail"}
           onToggle={() => toggleMenu("mail")}
-          onClose={() => setOpenMenu(null)}
         />
         <AccountMenu
           nickname={nickname}
           profileImage={profileImage}
           isOpen={openMenu === "profile"}
+          announcementUnreadCount={announcementUnreadCount}
+          mailUnreadCount={unreadCount}
           onToggle={() => toggleMenu("profile")}
           onClose={() => setOpenMenu(null)}
+          onOpenAnnouncement={() => setOpenMenu("announcement")}
+          onOpenMail={() => setOpenMenu("mail")}
         />
+
+        {openMenu === "announcement" ? (
+          <AnnouncementInboxPanel
+            onClose={() => setOpenMenu(null)}
+            onUnreadCountChange={onAnnouncementUnreadCountChange}
+          />
+        ) : null}
+
+        {openMenu === "mail" ? (
+          <MailInboxPanel
+            unreadCount={unreadCount}
+            onClose={() => setOpenMenu(null)}
+            onUnreadCountChange={onUnreadCountChange}
+          />
+        ) : null}
       </div>
     );
   }

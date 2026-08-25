@@ -4,12 +4,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import {
-  useRef,
+  useEffect,
   useState,
   type Dispatch,
   type SetStateAction,
 } from "react";
-import { useClickOutside } from "@/src/hooks/use-click-outside";
 import {
   fetchAnnouncements,
   markAnnouncementsSeen,
@@ -22,55 +21,25 @@ import {
   HeaderInboxTimestamp,
 } from "./header-inbox-panel";
 
-interface AnnouncementInboxProps {
-  isOpen: boolean;
+interface AnnouncementInboxTriggerProps {
   unreadCount: number;
-  onUnreadCountChange: Dispatch<SetStateAction<number>>;
+  isOpen: boolean;
   onToggle: () => void;
-  onClose: () => void;
+  className?: string;
 }
 
-export function AnnouncementInbox({
-  isOpen,
+export function AnnouncementInboxTrigger({
   unreadCount,
-  onUnreadCountChange,
+  isOpen,
   onToggle,
-  onClose,
-}: AnnouncementInboxProps) {
-  const [items, setItems] = useState<AnnouncementItem[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-
-  useClickOutside(ref, onClose, isOpen);
-
-  async function handleToggle() {
-    const next = !isOpen;
-    onToggle();
-    if (!next || isLoading) return;
-
-    setIsLoading(true);
-    try {
-      const data = await fetchAnnouncements(12);
-      setItems(data.data.items ?? []);
-      try {
-        await markAnnouncementsSeen();
-        onUnreadCountChange(0);
-      } catch {
-        onUnreadCountChange(data.data.unreadCount ?? 0);
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
+  className = "",
+}: AnnouncementInboxTriggerProps) {
   return (
-    <div className="relative" ref={ref}>
+    <div className={className}>
       <HeaderIconButton
         label="공지 알림"
         expanded={isOpen}
-        onClick={() => {
-          void handleToggle();
-        }}
+        onClick={onToggle}
       >
         <Image
           src="/icons/announcements-badge.svg"
@@ -86,33 +55,74 @@ export function AnnouncementInbox({
           </span>
         ) : null}
       </HeaderIconButton>
-
-      {isOpen ? (
-        <HeaderInboxPanel title="공지 알림" widthClass="w-[20rem]">
-          {isLoading ? (
-            <HeaderInboxStatus>불러오는 중...</HeaderInboxStatus>
-          ) : items.length === 0 ? (
-            <HeaderInboxStatus>새로운 공지가 없습니다.</HeaderInboxStatus>
-          ) : (
-            <ul className="max-h-72 overflow-y-auto">
-              {items.map((item) => (
-                <li key={item.id}>
-                  <Link
-                    href={item.link}
-                    onClick={onClose}
-                    className="block px-3 py-2 hover:bg-zinc-50"
-                  >
-                    <p className="line-clamp-1 text-xs font-medium text-[var(--color-text-primary)]">
-                      {item.title}
-                    </p>
-                    <HeaderInboxTimestamp value={item.createdAt} />
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
-        </HeaderInboxPanel>
-      ) : null}
     </div>
+  );
+}
+
+interface AnnouncementInboxPanelProps {
+  onClose: () => void;
+  onUnreadCountChange: Dispatch<SetStateAction<number>>;
+}
+
+export function AnnouncementInboxPanel({
+  onClose,
+  onUnreadCountChange,
+}: AnnouncementInboxPanelProps) {
+  const [items, setItems] = useState<AnnouncementItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function load() {
+      setIsLoading(true);
+      try {
+        const data = await fetchAnnouncements(12);
+        if (cancelled) return;
+        setItems(data.data.items ?? []);
+        try {
+          await markAnnouncementsSeen();
+          if (!cancelled) onUnreadCountChange(0);
+        } catch {
+          if (!cancelled) {
+            onUnreadCountChange(data.data.unreadCount ?? 0);
+          }
+        }
+      } finally {
+        if (!cancelled) setIsLoading(false);
+      }
+    }
+
+    void load();
+    return () => {
+      cancelled = true;
+    };
+  }, [onUnreadCountChange]);
+
+  return (
+    <HeaderInboxPanel title="공지 알림" widthClass="w-[20rem] max-w-[calc(100vw-2rem)]">
+      {isLoading ? (
+        <HeaderInboxStatus>불러오는 중...</HeaderInboxStatus>
+      ) : items.length === 0 ? (
+        <HeaderInboxStatus>새로운 공지가 없습니다.</HeaderInboxStatus>
+      ) : (
+        <ul className="max-h-72 overflow-y-auto">
+          {items.map((item) => (
+            <li key={item.id}>
+              <Link
+                href={item.link}
+                onClick={onClose}
+                className="block px-3 py-2 hover:bg-zinc-50"
+              >
+                <p className="line-clamp-1 text-xs font-medium text-[var(--color-text-primary)]">
+                  {item.title}
+                </p>
+                <HeaderInboxTimestamp value={item.createdAt} />
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+    </HeaderInboxPanel>
   );
 }
