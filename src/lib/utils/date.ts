@@ -40,6 +40,27 @@ export function formatDateDottedSpaced(dateInput: string | Date): string {
   }
 }
 
+/** 문의·알림 등 — 한국어 날짜+시각 (예: 2026. 9. 4. 오전 12:23:00) */
+export function formatDateTime(dateInput: string | Date): string {
+  try {
+    return new Date(dateInput).toLocaleString("ko-KR");
+  } catch {
+    return String(dateInput);
+  }
+}
+
+/** MM.DD 형식 (내 문의 내역 등 짧은 표기) */
+export function formatMonthDay(dateInput: string | Date): string {
+  try {
+    const d = new Date(dateInput);
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${m}.${day}`;
+  } catch {
+    return String(dateInput);
+  }
+}
+
 /** 앨범 발매일 — YYYY-MM-DD면 그대로 점 표기, 그 외는 Date 파싱 */
 export function formatAlbumReleaseDate(
   dateInput: string | null | undefined,

@@ -2,6 +2,7 @@
 
 import { MasterpiecePlusBadge } from "@/src/components/profile/MasterpiecePlusBadge";
 import { MasterpieceAlbumMeta } from "./MasterpieceAlbumMeta";
+import { MasterpieceRatingFooter } from "./masterpiece-rating-footer";
 import { MASTERPIECE_MAX_COUNT } from "./masterpiece-utils";
 
 interface MasterpieceAddCardProps {
@@ -32,11 +33,7 @@ export function MasterpieceAddCard({
             genre="—"
             year="—"
             linkArtist={false}
-            footer={
-              <p className="text-center text-[9px] font-bold leading-snug tracking-[-0.005em] text-[#43A7B2] lg:text-[10px]">
-                Rating : -
-              </p>
-            }
+            footer={<MasterpieceRatingFooter />}
           />
         </div>
         <p className="absolute inset-x-0 bottom-2 text-center text-[13px] font-bold leading-4 text-[#43A7B2]">

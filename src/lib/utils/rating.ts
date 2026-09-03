@@ -7,16 +7,18 @@ export const RATING_COLORS = {
   low: "var(--color-rating-score-low)",
 } as const;
 
+export const EMPTY_RATING_COLOR = "var(--color-text-muted)";
+
 /** 10.0 → "10", 그 외는 소수 한 자리 유지 (8.0 → "8.0") */
 export function formatRating(rating: number | null | undefined): string {
-  if (rating == null) return "-";
+  if (rating == null) return "N/A";
   const value = Number(rating);
   if (value === 10) return "10";
   return value.toFixed(1);
 }
 
 export function getRatingScoreColor(rating: number | null): string {
-  if (rating == null) return RATING_COLORS.low;
+  if (rating == null) return EMPTY_RATING_COLOR;
   if (rating >= 9) return RATING_COLORS.high;
   if (rating >= 6) return RATING_COLORS.midHigh;
   if (rating >= 3) return RATING_COLORS.mid;
@@ -30,5 +32,15 @@ export function getDisplayRating(
   if (reviewCount && averageRating != null) {
     return formatRating(averageRating);
   }
-  return "-";
+  return "N/A";
+}
+
+export function getDisplayRatingColor(
+  averageRating: number | null | undefined,
+  reviewCount: number | null | undefined
+): string {
+  if (reviewCount && averageRating != null) {
+    return getRatingScoreColor(averageRating);
+  }
+  return EMPTY_RATING_COLOR;
 }

@@ -21,6 +21,7 @@
     "db:migrate:blocked-emails": "node scripts/run-blocked-emails-migration.mjs",
     "db:migrate:notifications": "node scripts/run-notifications-migration.mjs",
     "db:migrate:announcement-cursors": "node scripts/run-announcement-cursors-migration.mjs",
+    "db:migrate:inquiries": "node scripts/run-inquiries-migration.mjs",
     "db:seed:genres": "node scripts/seed-genres.mjs",
     "media:rewrite-r2-urls": "node scripts/rewrite-storage-urls-to-r2.mjs"
   },

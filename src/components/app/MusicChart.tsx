@@ -5,8 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { ArtistNameLink } from "@/src/components/app/artist-name-link";
+import { AlbumCoverPlaceholder } from "@/src/components/common/album-cover-placeholder";
 import { useMusicChart } from "@/src/hooks/use-chart";
-import { ALBUM_COVER_PLACEHOLDER } from "@/src/lib/site/copy";
 import { CHART_REGIONS, type ChartRegion } from "@/src/lib/chart/types";
 import { buildAlbumReviewPath } from "@/src/lib/utils/album";
 
@@ -66,9 +66,7 @@ export default function MusicChart() {
                       className="h-full w-full object-cover"
                     />
                   ) : (
-                    <div className="flex h-full w-full items-center justify-center text-[length:var(--text-featured-meta)] text-[var(--color-text-muted)]">
-                      {ALBUM_COVER_PLACEHOLDER}
-                    </div>
+                    <AlbumCoverPlaceholder label={`${album.title} cover`} />
                   )}
                   <span className="absolute left-0 top-0 flex h-7 w-7 items-center justify-center rounded-br-[var(--featured-card-radius)] bg-[var(--color-accent)] text-sm font-bold text-white">
                     {album.rank}

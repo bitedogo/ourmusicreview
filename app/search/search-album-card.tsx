@@ -9,7 +9,7 @@ import type { AlbumStreamingLinks } from "@/src/lib/streaming/types";
 import { ALBUM_COVER_PLACEHOLDER } from "@/src/lib/site/copy";
 import { StreamingLinkButtons } from "@/src/components/streaming/streaming-link-buttons";
 import { buildAlbumReviewPath, getReleaseYear } from "@/src/lib/utils/album";
-import { getDisplayRating, getRatingScoreColor } from "@/src/lib/utils/rating";
+import { getDisplayRating, getDisplayRatingColor } from "@/src/lib/utils/rating";
 
 interface SearchAlbumCardProps {
   album: SearchAlbumResult;
@@ -35,8 +35,9 @@ export function SearchAlbumCard({
   const router = useRouter();
   const albumId = album.collectionId.toString();
   const ratingValue = getDisplayRating(ratingInfo?.averageRating, ratingInfo?.reviewCount);
-  const ratingColor = getRatingScoreColor(
-    ratingInfo?.reviewCount ? ratingInfo.averageRating : null
+  const ratingColor = getDisplayRatingColor(
+    ratingInfo?.averageRating,
+    ratingInfo?.reviewCount
   );
 
   return (

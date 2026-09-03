@@ -4,9 +4,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { signOut } from "next-auth/react";
-import { profileSelf } from "@/src/lib/navigation/routes";
+import { inquiry, profileSelf } from "@/src/lib/navigation/routes";
 import { HeaderDropdownPanel } from "./header-dropdown-panel";
-import { HeaderIconButton } from "./header-icon-button";
+import { HeaderIconButton, UnreadBadge } from "./header-icon-button";
 import { UserOutlineIcon } from "./user-outline-icon";
 
 interface AccountMenuProps {
@@ -19,15 +19,6 @@ interface AccountMenuProps {
   onClose: () => void;
   onOpenAnnouncement: () => void;
   onOpenMail: () => void;
-}
-
-function UnreadBadge({ count }: { count: number }) {
-  if (count <= 0) return null;
-  return (
-    <span className="ml-auto inline-flex min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-semibold leading-4 text-white">
-      {count > 99 ? "99+" : count}
-    </span>
-  );
 }
 
 export function AccountMenu({
@@ -58,11 +49,7 @@ export function AccountMenu({
         ) : (
           <UserOutlineIcon />
         )}
-        {mobileUnreadTotal > 0 ? (
-          <span className="absolute -right-1 -top-1 inline-flex min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-semibold leading-4 text-white md:hidden">
-            {mobileUnreadTotal > 99 ? "99+" : mobileUnreadTotal}
-          </span>
-        ) : null}
+        <UnreadBadge count={mobileUnreadTotal} className="absolute -right-1 -top-1 md:hidden" />
       </HeaderIconButton>
 
       {isOpen ? (
@@ -74,7 +61,7 @@ export function AccountMenu({
               className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm font-medium text-[var(--color-text-primary)] hover:bg-zinc-50 md:hidden"
             >
               공지
-              <UnreadBadge count={announcementUnreadCount} />
+              <UnreadBadge count={announcementUnreadCount} className="ml-auto" />
             </button>
             <button
               type="button"
@@ -82,7 +69,7 @@ export function AccountMenu({
               className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm font-medium text-[var(--color-text-primary)] hover:bg-zinc-50 md:hidden"
             >
               알림
-              <UnreadBadge count={mailUnreadCount} />
+              <UnreadBadge count={mailUnreadCount} className="ml-auto" />
             </button>
             <Link
               href={profileSelf()}
@@ -90,6 +77,13 @@ export function AccountMenu({
               className="block w-full px-4 py-3 text-sm font-medium text-[var(--color-text-primary)] hover:bg-zinc-50"
             >
               마이페이지
+            </Link>
+            <Link
+              href={inquiry()}
+              onClick={onClose}
+              className="block w-full px-4 py-3 text-sm font-medium text-[var(--color-text-primary)] hover:bg-zinc-50"
+            >
+              1:1 문의
             </Link>
             <button
               type="button"

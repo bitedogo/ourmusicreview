@@ -29,6 +29,7 @@ export const FOOTER_LINK_COLUMNS: FooterLinkColumnConfig[] = [
     links: [
       { href: "/boards/notice", label: "Announcements" },
       { href: "/faq", label: "FAQ" },
+      { href: "/inquiry", label: "1:1 Inquiry" },
     ],
   },
   {

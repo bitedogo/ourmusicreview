@@ -14,6 +14,7 @@ const NOTIFICATION_TYPES = [
   "ADMIN_WARN",
   "ADMIN_SUSPEND",
   "ADMIN_UNSUSPEND",
+  "INQUIRY_REPLY",
 ] as const;
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];

@@ -26,4 +26,5 @@ export const ADMIN_LINKS: NavLinkItem[] = [
   { href: "/admin/albums", label: "오늘의 앨범" },
   { href: "/admin/featured-slide", label: "슬라이드바 편집" },
   { href: "/admin/faq", label: "FAQ 관리" },
+  { href: "/admin/inquiries", label: "1:1 문의" },
 ];

@@ -1,7 +1,7 @@
 /** 오늘의 앨범 커버 */
 
 import Image from "next/image";
-import { ALBUM_COVER_PLACEHOLDER } from "@/src/lib/site/copy";
+import { AlbumCoverPlaceholder } from "@/src/components/common/album-cover-placeholder";
 import type { TodayAlbumData } from "@/src/lib/today-album/types";
 
 interface TodayAlbumCoverProps {
@@ -21,9 +21,9 @@ export function TodayAlbumCover({
   if (!album) {
     return (
       <div
-        className={`mx-auto flex aspect-square w-full items-center justify-center text-[length:var(--text-today-album-empty)] text-[var(--color-text-muted)] sm:mx-0 sm:shrink-0 ${coverSizeClass}`}
+        className={`mx-auto flex aspect-square w-full items-center justify-center overflow-hidden rounded-[var(--featured-cover-radius)] sm:mx-0 sm:shrink-0 ${coverSizeClass}`}
       >
-        앨범 없음
+        <AlbumCoverPlaceholder label="오늘의 앨범 없음" />
       </div>
     );
   }
@@ -42,9 +42,7 @@ export function TodayAlbumCover({
           onError={onImageError}
         />
       ) : (
-        <div className="flex h-full w-full items-center justify-center text-[length:var(--text-featured-meta)] font-medium text-[var(--color-text-muted)]">
-          {ALBUM_COVER_PLACEHOLDER}
-        </div>
+        <AlbumCoverPlaceholder label={`${album.title} cover`} />
       )}
     </div>
   );

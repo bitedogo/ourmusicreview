@@ -16,7 +16,7 @@ import {
   markNotificationRead,
   type MailNotificationItem,
 } from "@/src/lib/notifications/client-api";
-import { HeaderIconButton } from "./header-icon-button";
+import { HeaderIconButton, UnreadBadge } from "./header-icon-button";
 import {
   HeaderInboxPanel,
   HeaderInboxStatus,
@@ -51,11 +51,7 @@ export function MailInboxTrigger({
           height={30}
           className="h-[30px] w-[30px] shrink-0 object-contain"
         />
-        {unreadCount > 0 ? (
-          <span className="absolute -right-1 -top-1 inline-flex min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-semibold leading-4 text-white">
-            {unreadCount > 99 ? "99+" : unreadCount}
-          </span>
-        ) : null}
+        <UnreadBadge count={unreadCount} className="absolute -right-1 -top-1" />
       </HeaderIconButton>
     </div>
   );

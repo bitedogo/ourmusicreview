@@ -14,7 +14,7 @@ import {
   markAnnouncementsSeen,
   type AnnouncementItem,
 } from "@/src/lib/notifications/client-api";
-import { HeaderIconButton } from "./header-icon-button";
+import { HeaderIconButton, UnreadBadge } from "./header-icon-button";
 import {
   HeaderInboxPanel,
   HeaderInboxStatus,
@@ -49,11 +49,7 @@ export function AnnouncementInboxTrigger({
           height={30}
           className="h-[30px] w-[30px] shrink-0 object-contain"
         />
-        {unreadCount > 0 ? (
-          <span className="absolute -right-1 -top-1 inline-flex min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-semibold leading-4 text-white">
-            {unreadCount > 99 ? "99+" : unreadCount}
-          </span>
-        ) : null}
+        <UnreadBadge count={unreadCount} className="absolute -right-1 -top-1" />
       </HeaderIconButton>
     </div>
   );
@@ -70,12 +66,14 @@ export function AnnouncementInboxPanel({
 }: AnnouncementInboxPanelProps) {
   const [items, setItems] = useState<AnnouncementItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
 
     async function load() {
       setIsLoading(true);
+      setLoadError(false);
       try {
         const data = await fetchAnnouncements(12);
         if (cancelled) return;
@@ -84,10 +82,10 @@ export function AnnouncementInboxPanel({
           await markAnnouncementsSeen();
           if (!cancelled) onUnreadCountChange(0);
         } catch {
-          if (!cancelled) {
-            onUnreadCountChange(data.data.unreadCount ?? 0);
-          }
+          if (!cancelled) onUnreadCountChange(data.data.unreadCount ?? 0);
         }
+      } catch {
+        if (!cancelled) setLoadError(true);
       } finally {
         if (!cancelled) setIsLoading(false);
       }
@@ -103,6 +101,8 @@ export function AnnouncementInboxPanel({
     <HeaderInboxPanel title="공지 알림" widthClass="w-[20rem] max-w-[calc(100vw-2rem)]">
       {isLoading ? (
         <HeaderInboxStatus>불러오는 중...</HeaderInboxStatus>
+      ) : loadError ? (
+        <HeaderInboxStatus>공지를 불러오지 못했습니다.</HeaderInboxStatus>
       ) : items.length === 0 ? (
         <HeaderInboxStatus>새로운 공지가 없습니다.</HeaderInboxStatus>
       ) : (

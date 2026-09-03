@@ -4,6 +4,7 @@ import { type DragEvent, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { MasterpieceAlbumMeta } from "./MasterpieceAlbumMeta";
+import { MasterpieceRatingFooter } from "./masterpiece-rating-footer";
 import { yearFromRelease } from "./masterpiece-utils";
 
 export interface MasterpieceSlideAlbum {
@@ -243,11 +244,7 @@ export function MasterpieceAlbumCard({
           artist={album.artist}
           genre={genre}
           year={year}
-          footer={
-            <p className="text-center text-[9px] font-bold leading-snug tracking-[-0.005em] text-[#43A7B2] lg:text-[10px]">
-              Rating : -
-            </p>
-          }
+          footer={<MasterpieceRatingFooter />}
         />
       </Link>
     </div>

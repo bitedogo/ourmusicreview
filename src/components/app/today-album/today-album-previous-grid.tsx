@@ -11,7 +11,7 @@ import {
   PREVIOUS_GRID_CLASS,
   TODAY_ALBUM_EMPTY_CLASS,
 } from "@/src/components/app/today-album/today-album-styles";
-import { ALBUM_COVER_PLACEHOLDER } from "@/src/lib/site/copy";
+import { AlbumCoverPlaceholder } from "@/src/components/common/album-cover-placeholder";
 import { formatTodayAlbumCellDate } from "@/src/lib/today-album/dates";
 import { PREVIOUS_GRID, PREVIOUS_SCROLLBAR } from "@/src/lib/today-album/layout";
 import type { TodayAlbumArchiveItem } from "@/src/lib/today-album/types";
@@ -36,11 +36,9 @@ function PreviousAlbumCell({ item }: { item: TodayAlbumArchiveItem }) {
           className="h-full w-full object-cover"
           onError={() => setImageError(true)}
         />
-      ) : item.imageUrl ? (
-        <span className="flex h-full w-full items-center justify-center text-[length:var(--text-featured-meta)] font-medium text-[var(--color-text-muted)]">
-          {ALBUM_COVER_PLACEHOLDER}
-        </span>
-      ) : null}
+      ) : (
+        <AlbumCoverPlaceholder label={`${item.title} cover`} className="rounded-none" />
+      )}
       <span className={PREVIOUS_DATE_CLASS}>{dateLabel}</span>
     </>
   );

@@ -21,6 +21,14 @@ export function boardPath(board: BoardSlug | (string & {})): string {
   return `/boards/${board}`;
 }
 
+export function inquiry(): string {
+  return "/inquiry";
+}
+
+export function inquiryDetail(inquiryId: string): string {
+  return `/inquiry/${encodeURIComponent(inquiryId)}`;
+}
+
 export function communityDetail(postId: string): string {
   return `/community/${encodeURIComponent(postId)}`;
 }

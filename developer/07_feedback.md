@@ -11,6 +11,34 @@
 
 ---
 
+## 2026-09-02
+
+#### 관리자 문의 답변
+
+`/api/admin/inquiries` 목록·상세·답변·종료 + `/admin/inquiries` UI. 헤더 관리자 메뉴에 「1:1 문의」 추가. 화면은 [디자이너 07](/designer/07_feedback).
+
+상태: **반영함**
+
+#### 홈 중복·평점·커버 플레이스홀더
+
+Featured 마키 클론 `aria-hidden`, 푸터 단일 마크업, `RatingDisplay` emptyMode, `AlbumCoverPlaceholder` 공통 컴포넌트. 화면은 [디자이너 07](/designer/07_feedback).
+
+상태: **반영함**
+
+## 2026-09-01
+
+#### inquiry 탭 내 FAQ·공지 임베드
+
+`/inquiry?tab=faq|notice`로 같은 페이지에서 FAQ(`FaqPublicClient`)·공지(`BoardPostTable`)를 렌더. 화면은 [디자이너 07](/designer/07_feedback) 「FAQ·공지 탭을 페이지 안에서」.
+
+상태: **반영함**
+
+#### 1:1 문의 게시판 1차
+
+`inquiries`/`inquiry_replies` + `/inquiry` 페이지(폼·내역·상세), 첨부 업로드 API, 푸터 링크. 화면은 [디자이너 07](/designer/07_feedback) 「1:1 문의 게시판」.
+
+상태: **반영함**
+
 ## 2026-08-24
 
 #### 모바일 프로필 메뉴에 공지·알림

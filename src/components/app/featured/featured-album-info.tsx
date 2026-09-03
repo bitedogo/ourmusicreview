@@ -32,7 +32,7 @@ export function FeaturedAlbumInfo({ album }: FeaturedAlbumInfoProps) {
       </div>
 
       <div className="mt-1 border-t border-[var(--color-divider)] pt-1">
-        <RatingDisplay rating={album.averageRating} />
+        <RatingDisplay rating={album.averageRating} emptyMode="na" />
       </div>
     </div>
   );

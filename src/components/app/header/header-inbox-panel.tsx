@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { HeaderDropdownPanel } from "./header-dropdown-panel";
+import { formatDateTime } from "@/src/lib/utils/date";
 
 interface HeaderInboxPanelProps {
   title: string;
@@ -42,7 +43,7 @@ export function HeaderInboxStatus({ children }: { children: ReactNode }) {
 export function HeaderInboxTimestamp({ value }: { value: string }) {
   return (
     <p className="mt-0.5 text-[11px] text-[var(--color-text-muted)]">
-      {new Date(value).toLocaleString("ko-KR")}
+      {formatDateTime(value)}
     </p>
   );
 }

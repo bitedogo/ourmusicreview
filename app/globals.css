@@ -9,6 +9,10 @@
   --color-brand-primary-hover: #3796A0;
   --color-accent: #43A7B2;
   --color-accent-hover: #3796A0;
+  /* 문의·인박스 배경/보더 */
+  --color-inquiry-bg: #EFFAF8;
+  --color-inquiry-border: #C9ECE7;
+  --color-inquiry-text-dark: #2D8F99;
   --color-hero-title: #35909A;
   --color-hero-subtitle: rgba(67, 167, 178, 0.55);
   --color-nav-menu: #505050;
