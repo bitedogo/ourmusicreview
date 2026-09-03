@@ -1,5 +1,5 @@
 "use client";
-/** 문의 ?�세·?��? ?�레??*/
+/** 문의 상세·답변 스레드 */
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -36,7 +36,7 @@ export function InquiryDetailClient({ inquiryId }: InquiryDetailClientProps) {
         if (!cancelled) setInquiryData(data.data.inquiry);
       } catch (loadError) {
         if (!cancelled) {
-          setError(getApiErrorMessage(loadError, "문의�?불러?��? 못했?�니??"));
+          setError(getApiErrorMessage(loadError, "문의를 불러오지 못했습니다."));
         }
       } finally {
         if (!cancelled) setIsLoading(false);
@@ -52,7 +52,7 @@ export function InquiryDetailClient({ inquiryId }: InquiryDetailClientProps) {
   if (isLoading) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-16 text-center text-[var(--color-text-secondary)]">
-        불러?�는 �?..
+        불러오는 중...
       </div>
     );
   }
@@ -60,9 +60,9 @@ export function InquiryDetailClient({ inquiryId }: InquiryDetailClientProps) {
   if (error || !inquiryData) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-16 text-center">
-        <p className="text-red-500">{error ?? "문의�?찾을 ???�습?�다."}</p>
+        <p className="text-red-500">{error ?? "문의를 찾을 수 없습니다."}</p>
         <Link href={inquiry()} className="mt-4 inline-block text-sm text-[var(--color-accent)] underline">
-          문의 목록?�로
+          문의 목록으로
         </Link>
       </div>
     );
@@ -75,26 +75,27 @@ export function InquiryDetailClient({ inquiryId }: InquiryDetailClientProps) {
           href={inquiry()}
           className="mb-6 inline-flex items-center gap-1 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-accent)]"
         >
-          ??1:1 문의�??�아가�?        </Link>
+          &larr; 1:1 문의로 돌아가기
+        </Link>
 
         <header className="mb-6 rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
           <div className="flex flex-wrap items-center gap-2 text-xs text-[var(--color-text-muted)]">
             <span className="font-mono">{inquiryData.publicCode}</span>
-            <span>·</span>
+            <span>&middot;</span>
             <span>{categoryLabel(inquiryData.category)}</span>
-            <span>·</span>
+            <span>&middot;</span>
             <span>{INQUIRY_STATUS_LABEL[inquiryData.status]}</span>
           </div>
           <h1 className="mt-2 text-2xl font-bold text-[var(--color-text-primary)]">
             {inquiryData.title}
           </h1>
           <p className="mt-2 text-sm text-[var(--color-text-secondary)]">
-            ?�수??{formatDateTime(inquiryData.createdAt)}
+            접수일 {formatDateTime(inquiryData.createdAt)}
           </p>
         </header>
 
         <article className="mb-4 rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
-          <p className="mb-2 text-xs font-semibold text-[var(--color-text-muted)]">??문의</p>
+          <p className="mb-2 text-xs font-semibold text-[var(--color-text-muted)]">내 문의</p>
           <p className="whitespace-pre-wrap text-sm leading-relaxed text-[var(--color-text-primary)]">
             {inquiryData.body}
           </p>
@@ -105,11 +106,10 @@ export function InquiryDetailClient({ inquiryId }: InquiryDetailClientProps) {
 
         {inquiryData.status === "WAITING" && inquiryData.replies.length === 0 ? (
           <p className="rounded-xl border border-zinc-200 bg-white px-4 py-3 text-sm text-[var(--color-text-secondary)]">
-            ?��???준�?중입?�다. ?�료?�면 ?�메?�과 ?�동 ?�림?�로 ?�내?�립?�다.
+            답변을 준비 중입니다. 완료되면 이메일과 활동 알림으로 안내드립니다.
           </p>
         ) : null}
       </div>
     </div>
   );
 }
-

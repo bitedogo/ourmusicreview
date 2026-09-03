@@ -1,10 +1,10 @@
-/** 문의 ?�세·관리자 ?�쪽?�서 공용?�로 ?�는 UI 조각 */
+/** 문의 상세·관리자 양쪽에서 공용으로 쓰는 UI 조각 */
 
 import type { InquiryReplyItem } from "@/src/lib/inquiries/client-api";
 import type { InquiryAttachment } from "@/src/lib/inquiries/types";
 import { formatDateTime } from "@/src/lib/utils/date";
 
-/** 첨�??�일 링크 목록 */
+/** 첨부파일 링크 목록 */
 export function InquiryAttachmentList({ files }: { files: InquiryAttachment[] }) {
   if (files.length === 0) return null;
   return (
@@ -25,7 +25,7 @@ export function InquiryAttachmentList({ files }: { files: InquiryAttachment[] })
   );
 }
 
-/** ?��? ?�레???�일 카드 */
+/** 답변 스레드 단일 카드 */
 export function InquiryReplyCard({ reply }: { reply: InquiryReplyItem }) {
   return (
     <article
@@ -36,7 +36,7 @@ export function InquiryReplyCard({ reply }: { reply: InquiryReplyItem }) {
       }`}
     >
       <p className="mb-2 text-xs font-semibold text-[var(--color-text-muted)]">
-        {reply.isAdmin ? "?�영???��?" : "추�? 문의"}
+        {reply.isAdmin ? "운영자 답변" : "추가 문의"}
       </p>
       <p className="whitespace-pre-wrap text-sm leading-relaxed text-[var(--color-text-primary)]">
         {reply.body}
@@ -48,7 +48,7 @@ export function InquiryReplyCard({ reply }: { reply: InquiryReplyItem }) {
   );
 }
 
-/** ?��? ?�레???�체 목록 */
+/** 답변 스레드 전체 목록 */
 export function InquiryReplyThread({ replies }: { replies: InquiryReplyItem[] }) {
   if (replies.length === 0) return null;
   return (
@@ -59,4 +59,3 @@ export function InquiryReplyThread({ replies }: { replies: InquiryReplyItem[] })
     </div>
   );
 }
-
