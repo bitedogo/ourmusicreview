@@ -9,6 +9,7 @@ interface ApiOkOptions {
 
 interface ApiErrorOptions {
   status?: number;
+  data?: unknown;
 }
 
 export function apiOk<T>(data: T, options?: ApiOkOptions) {
@@ -27,6 +28,7 @@ export function apiError(error: string, options?: ApiErrorOptions) {
     {
       ok: false as const,
       error,
+      ...(options?.data !== undefined ? { data: options.data } : {}),
     },
     { status: options?.status ?? 400 }
   );

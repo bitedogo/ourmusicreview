@@ -72,7 +72,16 @@ export function ReviewWriteClient() {
       }
     } catch (error) {
       if (error instanceof ApiClientError && error.status === 409) {
-        router.back();
+        const payload = error.payload as {
+          data?: { reviewId?: string | null };
+        } | null;
+        const existingId = payload?.data?.reviewId;
+        if (existingId) {
+          router.push(`/review/${encodeURIComponent(existingId)}`);
+          return;
+        }
+        setErrorMessage("이미 이 앨범에 작성한 리뷰가 있습니다.");
+        setIsSubmitting(false);
         return;
       }
       setErrorMessage(getApiErrorMessage(error, "리뷰 작성에 실패했습니다."));

@@ -12,11 +12,16 @@ export function handleRouteError(
   fallbackMessage: string
 ): Response {
   if (error instanceof ServiceError) {
-    return apiError(error.message, { status: error.status });
+    return apiError(error.message, {
+      status: error.status,
+      data: error.data,
+    });
   }
 
-  if (process.env.NODE_ENV !== "production" && error instanceof Error) {
-    console.error("[api]", error);
+  if (error instanceof Error) {
+    console.error("[api]", fallbackMessage, error.message, error);
+  } else {
+    console.error("[api]", fallbackMessage, error);
   }
 
   return apiError(fallbackMessage, { status: 500 });

@@ -237,7 +237,9 @@ export async function createReview(
   });
 
   if (existingReview) {
-    throw new ServiceError("동일한 앨범에는 리뷰를 1개만 작성할 수 있습니다.", 409);
+    throw new ServiceError("동일한 앨범에는 리뷰를 1개만 작성할 수 있습니다.", 409, {
+      reviewId: existingReview.id,
+    });
   }
 
   let album = await albumRepository.findOne({
@@ -292,19 +294,35 @@ export async function createReview(
     rating,
     isApproved: "Y",
     rejectReason: null,
+    views: 0,
   });
 
   try {
     await reviewRepository.save(review);
   } catch (error) {
-    if (
-      typeof error === "object" &&
-      error !== null &&
-      "code" in error &&
-      (error as { code?: string }).code === "23505"
-    ) {
-      throw new ServiceError("동일한 앨범에는 리뷰를 1개만 작성할 수 있습니다.", 409);
+    const pgCode =
+      typeof error === "object" && error !== null && "code" in error
+        ? (error as { code?: string }).code
+        : undefined;
+
+    if (pgCode === "23505") {
+      const duplicate = await reviewRepository.findOne({
+        where: { userId, albumId },
+        select: ["id"],
+      });
+      throw new ServiceError("동일한 앨범에는 리뷰를 1개만 작성할 수 있습니다.", 409, {
+        reviewId: duplicate?.id ?? null,
+      });
     }
+
+    // NUMERIC(2,1) 등 스키마가 좁으면 평점 10.0에서 overflow
+    if (pgCode === "22003") {
+      throw new ServiceError(
+        "평점 저장에 실패했습니다. DB rating 컬럼이 0.0–10.0을 지원하는지 확인해주세요.",
+        500
+      );
+    }
+
     throw error;
   }
 

@@ -21,7 +21,8 @@ export class Review {
   @Column({ name: "content", type: "text" })
   content!: string;
 
-  @Column({ name: "rating", type: "decimal", precision: 2, scale: 1 })
+  /** 0.0–10.0 저장. precision 2면 10.0이 numeric overflow 난다. */
+  @Column({ name: "rating", type: "decimal", precision: 3, scale: 1 })
   rating!: number;
 
   @Column({ name: "is_approved", type: "varchar", length: 1 })

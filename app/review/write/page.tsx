@@ -10,11 +10,32 @@ const ReviewWriteClient = dynamic(() =>
   import("./write-client").then((mod) => mod.ReviewWriteClient)
 );
 
-export default async function ReviewWritePage() {
+type SearchParams = Record<string, string | string[] | undefined>;
+
+function buildWriteCallbackUrl(searchParams: SearchParams): string {
+  const params = new URLSearchParams();
+  for (const [key, value] of Object.entries(searchParams)) {
+    if (typeof value === "string" && value.length > 0) {
+      params.set(key, value);
+    } else if (Array.isArray(value) && typeof value[0] === "string") {
+      params.set(key, value[0]);
+    }
+  }
+  const query = params.toString();
+  return query ? `/review/write?${query}` : "/review/write";
+}
+
+export default async function ReviewWritePage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
   const session = await getServerSession(authOptions);
+  const resolvedSearchParams = await searchParams;
 
   if (!session?.user?.id) {
-    redirect("/auth/signin?callbackUrl=/review/write");
+    const callbackUrl = buildWriteCallbackUrl(resolvedSearchParams);
+    redirect(`/auth/signin?callbackUrl=${encodeURIComponent(callbackUrl)}`);
   }
 
   return (
