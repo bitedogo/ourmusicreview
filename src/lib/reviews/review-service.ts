@@ -4,8 +4,14 @@ import type { DataSource } from "typeorm";
 import { randomUUID } from "crypto";
 import { Review } from "@/src/lib/db/entities/Review";
 import { Album } from "@/src/lib/db/entities/Album";
+import {
+  isRatingOutOfRangeError,
+  isUniqueViolation,
+} from "@/src/lib/db/pg-error";
 import { getAlbumById } from "@/src/lib/album-lookup";
 import { ServiceError } from "@/src/lib/http/service-error";
+import { isEditorContentEmpty } from "@/src/lib/utils/editor";
+import { normalizeReviewRating } from "@/src/lib/utils/rating";
 
 export interface ReviewRequester {
   userId: string;
@@ -121,13 +127,7 @@ export async function updateReview(
 ): Promise<UpdateReviewResult> {
   const content =
     typeof body.content === "string" ? body.content.trim() : undefined;
-  let rating: number | undefined = undefined;
-  if (typeof body.rating === "number" && !isNaN(body.rating)) {
-    const rounded = Math.round(body.rating * 10) / 10;
-    if (rounded >= 0 && rounded <= 10) {
-      rating = rounded;
-    }
-  }
+  const rating = normalizeReviewRating(body.rating);
 
   const reviewRepository = dataSource.getRepository(Review);
   const review = await reviewRepository.findOne({ where: { id } });
@@ -143,7 +143,7 @@ export async function updateReview(
   let hasUserEdit = false;
 
   if (content !== undefined) {
-    if (!content || content === "<p><br></p>") {
+    if (!content || isEditorContentEmpty(content)) {
       throw new ServiceError("리뷰 내용을 입력해주세요.", 400);
     }
     if (review.content !== content) {
@@ -209,13 +209,7 @@ export async function createReview(
     typeof body.albumId === "string" ? body.albumId.trim() : undefined;
   const content =
     typeof body.content === "string" ? body.content.trim() : undefined;
-  let rating: number | undefined = undefined;
-  if (typeof body.rating === "number" && !isNaN(body.rating)) {
-    const rounded = Math.round(body.rating * 10) / 10;
-    if (rounded >= 0 && rounded <= 10) {
-      rating = rounded;
-    }
-  }
+  const rating = normalizeReviewRating(body.rating);
 
   if (!albumId || !content) {
     throw new ServiceError("앨범 ID와 리뷰 내용은 필수입니다.", 400);
@@ -225,69 +219,20 @@ export async function createReview(
     throw new ServiceError("평점(0.0-10.0)을 입력해주세요.", 400);
   }
 
-  const albumRepository = dataSource.getRepository(Album);
   const reviewRepository = dataSource.getRepository(Review);
-
   const existingReview = await reviewRepository.findOne({
-    where: {
-      userId,
-      albumId,
-    },
+    where: { userId, albumId },
     select: ["id"],
   });
 
   if (existingReview) {
-    throw new ServiceError("동일한 앨범에는 리뷰를 1개만 작성할 수 있습니다.", 409, {
-      reviewId: existingReview.id,
-    });
+    throw duplicateAlbumReviewError(existingReview.id);
   }
 
-  let album = await albumRepository.findOne({
-    where: { albumId },
-  });
-
-  if (!album) {
-    const albumTitle =
-      typeof body.albumTitle === "string" ? body.albumTitle.trim() : undefined;
-    const albumArtist =
-      typeof body.albumArtist === "string" ? body.albumArtist.trim() : undefined;
-    const albumImageUrl =
-      typeof body.albumImageUrl === "string" && body.albumImageUrl.length > 0
-        ? body.albumImageUrl
-        : null;
-
-    if (!albumTitle || !albumArtist) {
-      throw new ServiceError(
-        "앨범 정보가 부족합니다. 앨범 제목과 아티스트는 필수입니다.",
-        400
-      );
-    }
-
-    let releaseDate: Date | undefined = undefined;
-    if (body.albumReleaseDate) {
-      const parsed = new Date(body.albumReleaseDate);
-      if (!isNaN(parsed.getTime())) {
-        releaseDate = parsed;
-      }
-    }
-
-    const newAlbum = albumRepository.create({
-      albumId,
-      title: albumTitle,
-      artist: albumArtist,
-      imageUrl: albumImageUrl || undefined,
-      releaseDate,
-      category: "I",
-    });
-
-    await albumRepository.save(newAlbum);
-    album = newAlbum;
-  }
-
-  const reviewId = randomUUID().replace(/-/g, "").slice(0, 255);
+  await findOrCreateAlbum(dataSource, albumId, body);
 
   const review = reviewRepository.create({
-    id: reviewId,
+    id: randomUUID().replace(/-/g, "").slice(0, 255),
     albumId,
     userId,
     content,
@@ -300,33 +245,89 @@ export async function createReview(
   try {
     await reviewRepository.save(review);
   } catch (error) {
-    const pgCode =
-      typeof error === "object" && error !== null && "code" in error
-        ? (error as { code?: string }).code
-        : undefined;
-
-    if (pgCode === "23505") {
-      const duplicate = await reviewRepository.findOne({
-        where: { userId, albumId },
-        select: ["id"],
-      });
-      throw new ServiceError("동일한 앨범에는 리뷰를 1개만 작성할 수 있습니다.", 409, {
-        reviewId: duplicate?.id ?? null,
-      });
-    }
-
-    // NUMERIC(2,1) 등 스키마가 좁으면 평점 10.0에서 overflow
-    if (pgCode === "22003") {
-      throw new ServiceError(
-        "평점 저장에 실패했습니다. DB rating 컬럼이 0.0–10.0을 지원하는지 확인해주세요.",
-        500
-      );
-    }
-
-    throw error;
+    await mapReviewInsertError(error, dataSource, userId, albumId);
   }
 
   return { id: review.id };
+}
+
+function duplicateAlbumReviewError(reviewId: string | null) {
+  return new ServiceError("동일한 앨범에는 리뷰를 1개만 작성할 수 있습니다.", 409, {
+    reviewId,
+  });
+}
+
+async function findOrCreateAlbum(
+  dataSource: DataSource,
+  albumId: string,
+  body: CreateReviewInput
+) {
+  const albumRepository = dataSource.getRepository(Album);
+  const existing = await albumRepository.findOne({ where: { albumId } });
+  if (existing) return existing;
+
+  const albumTitle =
+    typeof body.albumTitle === "string" ? body.albumTitle.trim() : undefined;
+  const albumArtist =
+    typeof body.albumArtist === "string" ? body.albumArtist.trim() : undefined;
+  const albumImageUrl =
+    typeof body.albumImageUrl === "string" && body.albumImageUrl.length > 0
+      ? body.albumImageUrl
+      : null;
+
+  if (!albumTitle || !albumArtist) {
+    throw new ServiceError(
+      "앨범 정보가 부족합니다. 앨범 제목과 아티스트는 필수입니다.",
+      400
+    );
+  }
+
+  let releaseDate: Date | undefined = undefined;
+  if (body.albumReleaseDate) {
+    const parsed = new Date(body.albumReleaseDate);
+    if (!isNaN(parsed.getTime())) {
+      releaseDate = parsed;
+    }
+  }
+
+  const created = albumRepository.create({
+    albumId,
+    title: albumTitle,
+    artist: albumArtist,
+    imageUrl: albumImageUrl || undefined,
+    releaseDate,
+    category: "I",
+  });
+
+  try {
+    return await albumRepository.save(created);
+  } catch (error) {
+    if (!isUniqueViolation(error)) throw error;
+    const raced = await albumRepository.findOne({ where: { albumId } });
+    if (!raced) throw error;
+    return raced;
+  }
+}
+
+async function mapReviewInsertError(
+  error: unknown,
+  dataSource: DataSource,
+  userId: string,
+  albumId: string
+): Promise<never> {
+  if (isUniqueViolation(error)) {
+    const duplicate = await dataSource.getRepository(Review).findOne({
+      where: { userId, albumId },
+      select: ["id"],
+    });
+    throw duplicateAlbumReviewError(duplicate?.id ?? null);
+  }
+
+  if (isRatingOutOfRangeError(error)) {
+    throw new ServiceError("평점은 0.0에서 10.0 사이여야 합니다.", 400);
+  }
+
+  throw error;
 }
 
 export interface UserReviewListItem {

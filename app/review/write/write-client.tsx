@@ -7,7 +7,8 @@ import { ArtistNameLink } from "@/src/components/app/artist-name-link";
 import { TuiEditor, TuiEditorRef } from "@/src/components/common/TuiEditor";
 import { isEditorContentEmpty } from "@/src/lib/utils/editor";
 import Image from "next/image";
-import { ApiClientError, fetchJson, getApiErrorMessage } from "@/src/lib/http/client";
+import { ApiClientError, getApiErrorMessage } from "@/src/lib/http/client";
+import { createReviewApi } from "@/src/lib/reviews/client-api";
 import { formatRating } from "@/src/lib/utils/rating";
 
 export function ReviewWriteClient() {
@@ -19,25 +20,21 @@ export function ReviewWriteClient() {
   const albumImageUrl = searchParams.get("imageUrl");
 
   const [rating, setRating] = useState<number>(5);
-  interface CreateReviewResponse {
-    ok: boolean;
-    data: {
-      id: string;
-    };
-  }
-
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const editorRef = useRef<TuiEditorRef>(null);
+  const submittingRef = useRef(false);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    
+
     if (!albumId) {
       setErrorMessage("앨범 정보가 없습니다.");
       return;
     }
 
+    if (submittingRef.current) return;
+    submittingRef.current = true;
     setIsSubmitting(true);
     setErrorMessage(null);
 
@@ -46,30 +43,25 @@ export function ReviewWriteClient() {
 
     if (isEditorContentEmpty(trimmedContent)) {
       setErrorMessage("리뷰 내용을 입력해주세요.");
+      submittingRef.current = false;
       setIsSubmitting(false);
       return;
     }
 
+    let keepLocked = false;
     try {
-      const data = await fetchJson<CreateReviewResponse>("/api/reviews", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          albumId,
-          content: trimmedContent,
-          rating,
-          albumTitle: albumTitle || undefined,
-          albumArtist: albumArtist || undefined,
-          albumImageUrl: albumImageUrl || null,
-        }),
+      const data = await createReviewApi({
+        albumId,
+        content: trimmedContent,
+        rating,
+        albumTitle: albumTitle || undefined,
+        albumArtist: albumArtist || undefined,
+        albumImageUrl: albumImageUrl || null,
       });
 
       const reviewId = data.data?.id;
-      if (reviewId) {
-        router.push(`/review/${encodeURIComponent(reviewId)}`);
-      } else {
-        router.push("/");
-      }
+      keepLocked = true;
+      router.push(reviewId ? `/review/${encodeURIComponent(reviewId)}` : "/");
     } catch (error) {
       if (error instanceof ApiClientError && error.status === 409) {
         const payload = error.payload as {
@@ -77,15 +69,19 @@ export function ReviewWriteClient() {
         } | null;
         const existingId = payload?.data?.reviewId;
         if (existingId) {
+          keepLocked = true;
           router.push(`/review/${encodeURIComponent(existingId)}`);
           return;
         }
         setErrorMessage("이미 이 앨범에 작성한 리뷰가 있습니다.");
-        setIsSubmitting(false);
         return;
       }
       setErrorMessage(getApiErrorMessage(error, "리뷰 작성에 실패했습니다."));
-      setIsSubmitting(false);
+    } finally {
+      if (!keepLocked) {
+        submittingRef.current = false;
+        setIsSubmitting(false);
+      }
     }
   }
 

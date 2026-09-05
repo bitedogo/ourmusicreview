@@ -189,6 +189,7 @@ export const TuiEditor = forwardRef<TuiEditorRef, TuiEditorProps>(
       ref,
       () => ({
         getHTML: () => {
+          blurEditorBeforeUpdate();
           const html = getEditorInstance()?.getHTML() || "";
           return normalizeHtml(html);
         },
@@ -196,7 +197,7 @@ export const TuiEditor = forwardRef<TuiEditorRef, TuiEditorProps>(
         setHTML: safeSetHTML,
         setMarkdown: (markdown: string) => getEditorInstance()?.setMarkdown(markdown),
       }),
-      [getEditorInstance, safeSetHTML]
+      [getEditorInstance, safeSetHTML, blurEditorBeforeUpdate]
     );
 
     useEffect(() => {

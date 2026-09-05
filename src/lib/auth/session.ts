@@ -3,7 +3,7 @@
 import { getServerSession, type Session } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/src/lib/auth/config";
-import { initializeDatabase } from "@/src/lib/db";
+import { withDatabase } from "@/src/lib/db";
 import { apiError } from "@/src/lib/http/response";
 import { getSuspensionBlockForUser } from "@/src/lib/users/user-sanction-service";
 
@@ -94,8 +94,9 @@ export async function requireWritableSessionApi(): Promise<SessionGuardResult> {
   }
 
   try {
-    const dataSource = await initializeDatabase();
-    const block = await getSuspensionBlockForUser(dataSource, session.user.id);
+    const block = await withDatabase((dataSource) =>
+      getSuspensionBlockForUser(dataSource, session.user.id)
+    );
     if (block) {
       return {
         session: null,

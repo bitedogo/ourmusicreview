@@ -46,8 +46,10 @@ export const AppDataSource = new DataSource({
       ? false
       : { rejectUnauthorized: false },
   extra: {
-    max: 10,
-    idleTimeoutMillis: 30000,
+    // Vercel 서버리스는 인스턴스마다 풀을 열므로 max를 크게 두면
+    // Supabase 슬롯이 금방 차고 리뷰 POST가 500으로 간헐 실패한다.
+    max: nodeEnv === "production" ? 1 : 10,
+    idleTimeoutMillis: 10000,
     connectionTimeoutMillis: 10000,
   },
 });

@@ -26,3 +26,14 @@ export function handleRouteError(
 
   return apiError(fallbackMessage, { status: 500 });
 }
+
+export async function handleApi(
+  fallbackMessage: string,
+  handler: () => Promise<Response>
+): Promise<Response> {
+  try {
+    return await handler();
+  } catch (error) {
+    return handleRouteError(error, fallbackMessage);
+  }
+}

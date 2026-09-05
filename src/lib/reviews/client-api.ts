@@ -2,6 +2,21 @@
 
 import { fetchJson } from "@/src/lib/http/client";
 
+export async function createReviewApi(body: {
+  albumId: string;
+  content: string;
+  rating: number;
+  albumTitle?: string;
+  albumArtist?: string;
+  albumImageUrl?: string | null;
+}) {
+  return fetchJson<{ ok: true; data: { id: string } }>("/api/reviews", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+}
+
 export async function incrementReviewView(reviewId: string) {
   return fetchJson<{
     ok: true;
