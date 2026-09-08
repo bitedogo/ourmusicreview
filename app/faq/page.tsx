@@ -4,6 +4,8 @@ import { FaqPublicClient } from "@/src/components/faq/faq-public-client";
 import { initializeDatabase } from "@/src/lib/db";
 import { listFaqs } from "@/src/lib/faq/faq-service";
 
+export const dynamic = "force-dynamic";
+
 export default async function FaqPage() {
   const dataSource = await initializeDatabase();
   const faqs = await listFaqs(dataSource);
