@@ -6,6 +6,7 @@ import { IsNull } from "typeorm";
 import { Like } from "@/src/lib/db/entities/Like";
 import { ServiceError } from "@/src/lib/http/service-error";
 import { notifyContentLiked } from "@/src/lib/notifications/activity-notifications";
+import { isUniqueViolation } from "@/src/lib/db/pg-error";
 
 export type ContentLikeTarget = {
   postId: string | null;
@@ -68,7 +69,14 @@ export async function toggleContentLike(
     playlistId: target.playlistId,
     commentId: null,
   });
-  await likeRepository.save(newLike);
+  try {
+    await likeRepository.save(newLike);
+  } catch (error) {
+    if (isUniqueViolation(error)) {
+      return { liked: true };
+    }
+    throw error;
+  }
   await notifyContentLiked(dataSource, userId, target);
 
   return { liked: true };

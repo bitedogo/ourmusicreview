@@ -66,7 +66,7 @@ export function ProfilePageContent(props: ProfilePageContentProps) {
     nickname,
     name,
     gender,
-    role: _role,
+    role,
     createdAtText,
     profileImage,
     privacy,
@@ -122,7 +122,7 @@ export function ProfilePageContent(props: ProfilePageContentProps) {
     .slice(0, 5);
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen" data-user-role={role ?? undefined}>
       <div className={PROFILE_PAGE_SHELL_CLASS}>
         <div className="mb-[var(--profile-title-section-gap)] flex items-center justify-between gap-4">
           <h1 className="text-xl font-semibold tracking-tight text-[var(--color-text-primary)] md:text-2xl">

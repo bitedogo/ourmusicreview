@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { absoluteUrl, SITE_URL } from "@/src/lib/site/branding";
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -15,7 +16,7 @@ export default function robots(): MetadataRoute.Robots {
         ],
       },
     ],
-    sitemap: "https://www.comeonoru.com/sitemap.xml",
-    host: "https://www.comeonoru.com",
+    sitemap: absoluteUrl("/sitemap.xml"),
+    host: SITE_URL,
   };
 }

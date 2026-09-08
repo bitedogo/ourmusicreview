@@ -21,8 +21,20 @@ export class Review {
   @Column({ name: "content", type: "text" })
   content!: string;
 
-  /** 0.0–10.0 저장. precision 2면 10.0이 numeric overflow 난다. */
-  @Column({ name: "rating", type: "decimal", precision: 3, scale: 1 })
+  /** 0.0–10.0. pg numeric은 문자열로 오므로 읽을 때 숫자로 변환한다. */
+  @Column({
+    name: "rating",
+    type: "decimal",
+    precision: 3,
+    scale: 1,
+    transformer: {
+      to: (value: number) => value,
+      from: (value: unknown) => {
+        const n = Number(value);
+        return Number.isFinite(n) ? n : 0;
+      },
+    },
+  })
   rating!: number;
 
   @Column({ name: "is_approved", type: "varchar", length: 1 })

@@ -1,15 +1,13 @@
 "use client";
 /** 댓글 한 줄 (default / detail) */
 
-import { useState } from "react";
 import Link from "next/link";
 import { CommentAvatar } from "@/src/components/interaction/comment-avatar";
 import { CommentDetailItem } from "@/src/components/interaction/CommentDetailItem";
 import { CommentReplyForm } from "@/src/components/interaction/CommentReplyForm";
 import { getUserProfilePath } from "@/src/components/profile/user-profile-view";
 import type { CommentItemData } from "@/src/components/interaction/comment-types";
-import { useCommentEdit } from "@/src/hooks/use-comment-edit";
-import { ensureLoggedIn } from "@/src/lib/interaction/require-login";
+import { useCommentItemController } from "@/src/hooks/use-comment-item-controller";
 
 const DEFAULT_ACTION_CLASS =
   "shrink-0 text-[12px] font-normal leading-[14px] text-[#D9D9D9] transition hover:text-[var(--color-text-secondary)]";
@@ -86,47 +84,36 @@ function DefaultCommentItem({
   onLike,
   onReply,
 }: Omit<CommentItemProps, "variant">) {
-  const [isReplying, setIsReplying] = useState(false);
-  const [replyContent, setReplyContent] = useState("");
-  const [isReplySubmitting, setIsReplySubmitting] = useState(false);
-
-  const isOwner = currentUserId === comment.user.id;
-  const canDelete = isOwner || Boolean(isAdmin);
-  const canEdit = isOwner || Boolean(isAdmin);
-  const canReply = depth === 0;
-
-  const { isEditing, draft, isSaving, setDraft, startEdit, cancelEdit, saveEdit } =
-    useCommentEdit({
-      initialContent: comment.content,
-      commentId: comment.id,
-      onEdit,
-    });
-
-  const handleLikeClick = () => {
-    if (!ensureLoggedIn(isLoggedIn)) return;
-    onLike(comment.id);
-  };
-
-  const handleReplyClick = () => {
-    if (!ensureLoggedIn(isLoggedIn)) return;
-    setIsReplying((prev) => !prev);
-  };
-
-  const handleReplySubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!replyContent.trim() || isReplySubmitting) return;
-
-    setIsReplySubmitting(true);
-    try {
-      const ok = await onReply(comment.id, replyContent);
-      if (ok) {
-        setReplyContent("");
-        setIsReplying(false);
-      }
-    } finally {
-      setIsReplySubmitting(false);
-    }
-  };
+  const {
+    isEditing,
+    draft,
+    isSaving,
+    setDraft,
+    startEdit,
+    cancelEdit,
+    saveEdit,
+    canDelete,
+    canEdit,
+    canReply,
+    isReplying,
+    replyContent,
+    isReplySubmitting,
+    setReplyContent,
+    handleLikeClick,
+    handleReplyClick,
+    handleReplySubmit,
+  } = useCommentItemController({
+    commentId: comment.id,
+    initialContent: comment.content,
+    authorId: comment.user.id,
+    depth,
+    currentUserId,
+    isAdmin,
+    isLoggedIn,
+    onEdit,
+    onLike,
+    onReply,
+  });
 
   const ownerActions =
     canEdit || canDelete ? (

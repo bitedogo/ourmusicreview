@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import type { ProfileReviewItem } from "./profile-types";
+import { toRatingNumber } from "@/src/lib/utils/rating";
 
 function getListenerLabel(rating: number): string {
   if (rating < 3) return "Harsh listener";
@@ -19,7 +20,8 @@ export function computeRating(
   const computed =
     averageRating ??
     (reviews.length > 0
-      ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
+      ? reviews.reduce((sum, r) => sum + (toRatingNumber(r.rating) ?? 0), 0) /
+        reviews.length
       : 0);
   const clamped = Math.min(10, Math.max(0, computed));
   return {

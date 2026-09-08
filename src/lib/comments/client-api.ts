@@ -21,13 +21,26 @@ function getCommentQuery(
 export async function fetchCommentsApi(
   postId?: string,
   reviewId?: string,
-  playlistId?: string
+  playlistId?: string,
+  options?: { page?: number; pageSize?: number }
 ) {
-  const query = getCommentQuery(postId, reviewId, playlistId);
+  const search = new URLSearchParams(
+    getCommentQuery(postId, reviewId, playlistId)
+  );
+  if (options?.page != null) search.set("page", String(options.page));
+  if (options?.pageSize != null) {
+    search.set("pageSize", String(options.pageSize));
+  }
   return fetchJson<{
     ok: true;
-    data: { comments: CommentItemData[]; totalCount: number };
-  }>(`/api/comments?${query}`);
+    data: {
+      comments: CommentItemData[];
+      totalCount: number;
+      page: number;
+      pageSize: number;
+      totalPages: number;
+    };
+  }>(`/api/comments?${search}`);
 }
 
 export async function createCommentApi(

@@ -1,7 +1,7 @@
 /** POST/DELETE/GET 앨범 즐겨찾기 */
 
 import { requireSessionApi } from "@/src/lib/auth/session";
-import { initializeDatabase } from "@/src/lib/db";
+import { withDatabase, withDatabaseRead } from "@/src/lib/db";
 import { handleRouteError } from "@/src/lib/http/handle-route-error";
 import { apiOk } from "@/src/lib/http/response";
 import {
@@ -18,8 +18,9 @@ export async function POST(request: Request) {
 
     const body = (await request.json()) as ToggleFavoriteInput;
 
-    const dataSource = await initializeDatabase();
-    const result = await addFavoriteAlbum(dataSource, session.user.id, body);
+    const result = await withDatabase((dataSource) =>
+      addFavoriteAlbum(dataSource, session.user.id, body)
+    );
 
     return apiOk(
       { favoriteId: result.favoriteId },
@@ -37,8 +38,9 @@ export async function DELETE(request: Request) {
 
     const body = (await request.json()) as { albumId?: string };
 
-    const dataSource = await initializeDatabase();
-    await removeFavoriteAlbum(dataSource, session.user.id, body.albumId);
+    await withDatabase((dataSource) =>
+      removeFavoriteAlbum(dataSource, session.user.id, body.albumId)
+    );
 
     return apiOk({});
   } catch (error) {
@@ -51,8 +53,9 @@ export async function GET() {
     const { session, response } = await requireSessionApi();
     if (response) return response;
 
-    const dataSource = await initializeDatabase();
-    const favorites = await getUserFavoriteAlbums(dataSource, session.user.id);
+    const favorites = await withDatabaseRead((dataSource) =>
+      getUserFavoriteAlbums(dataSource, session.user.id)
+    );
 
     return apiOk({ favorites });
   } catch (error) {

@@ -13,10 +13,17 @@ import {
   PlaylistSearchModal,
 } from "@/src/components/playlist/playlist-search-modal";
 import { ReviewSearchButton } from "@/src/components/reviews/ReviewSearchButton";
-import { usePublicPlaylistList } from "@/src/hooks/use-public-playlist-list";
+import {
+  usePublicPlaylistList,
+  type PublicPlaylistInitialData,
+} from "@/src/hooks/use-public-playlist-list";
 import { playlistDetail } from "@/src/lib/navigation/routes";
 
-export function PlaylistListClient() {
+export function PlaylistListClient({
+  initialData,
+}: {
+  initialData?: PublicPlaylistInitialData;
+}) {
   const {
     playlists,
     featured,
@@ -44,7 +51,7 @@ export function PlaylistListClient() {
     applySearch,
     removeSearch,
     selectGenre,
-  } = usePublicPlaylistList();
+  } = usePublicPlaylistList(initialData);
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-[832px] flex-col bg-white px-4 pb-14 pt-[72px] sm:px-6">

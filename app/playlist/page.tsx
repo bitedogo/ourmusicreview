@@ -1,9 +1,57 @@
 /** 공개 플레이리스트 목록 페이지 */
 
 import { Suspense } from "react";
+import { withDatabaseRead } from "@/src/lib/db";
+import { getGenreTree } from "@/src/lib/genres/genre-service";
+import type { PublicPlaylistInitialData } from "@/src/hooks/use-public-playlist-list";
+import { listPublicPlaylists } from "@/src/lib/playlists/playlist-service";
 import { PlaylistListClient } from "./PlaylistListClient";
 
-export default function PlaylistPage() {
+type PlaylistSearchParams = Promise<
+  Record<string, string | string[] | undefined>
+>;
+
+function first(value: string | string[] | undefined): string | null {
+  return Array.isArray(value) ? value[0] ?? null : value ?? null;
+}
+
+export default async function PlaylistPage({
+  searchParams,
+}: {
+  searchParams: PlaylistSearchParams;
+}) {
+  const query = await searchParams;
+  const initialData = await withDatabaseRead(async (dataSource) => {
+    const [result, featuredResult, genreTree] = await Promise.all([
+      listPublicPlaylists(dataSource, {
+        page: first(query.page),
+        searchField: first(query.searchField),
+        q: first(query.q),
+        genre: first(query.genre),
+      }),
+      listPublicPlaylists(dataSource, {
+        page: "1",
+        searchField: null,
+        q: null,
+        genre: null,
+      }),
+      getGenreTree(dataSource),
+    ]);
+
+    return JSON.parse(
+      JSON.stringify({
+        playlists: result.playlists,
+        featured: featuredResult.playlists.slice(0, 5),
+        genreTree,
+        page: result.page,
+        totalPages: result.totalPages,
+        searchField: result.searchField,
+        q: result.q,
+        genre: result.genre ?? "",
+      })
+    ) as PublicPlaylistInitialData;
+  });
+
   return (
     <Suspense
       fallback={
@@ -17,7 +65,7 @@ export default function PlaylistPage() {
         </div>
       }
     >
-      <PlaylistListClient />
+      <PlaylistListClient initialData={initialData} />
     </Suspense>
   );
 }

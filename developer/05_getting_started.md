@@ -142,12 +142,16 @@ TypeORM **`synchronize: false`** — 엔티티를 고쳐도 테이블이 자동 
 이 레포는 TypeORM Migration 대신 **SQL 파일 + Node 러너**를 씁니다.
 
 ```
-scripts/add-플레이리스트.sql
-scripts/run-playlist-migration.mjs   → package.json 의 db:migrate:playlists
+scripts/add-playlist-tables.sql
+scripts/run-migration.mjs
+scripts/migration-manifest.json
 ```
 
 ```bash
-# 예시 (필요한 것만, 이미 운영에 적용된 것은 다시 돌리면 에러가 날 수 있음)
+# manifest 순서대로 미적용 SQL 전체 적용
+npm run db:migrate
+
+# 또는 필요한 것만 적용
 npm run db:migrate:playlists
 npm run db:migrate:email-auth
 npm run db:migrate:email-otp
@@ -162,13 +166,14 @@ npm run db:migrate:blocked-emails
 npm run db:seed:genres
 ```
 
-러너는 `.env.local`의 `DATABASE_URL`을 읽습니다.
+러너는 `.env.local`의 `DATABASE_URL`을 읽고, `schema_migrations`의 체크섬으로
+중복 적용과 적용된 SQL의 변경을 막습니다.
 
 **신규 컬럼을 추가하는 PR 체크리스트**
 
-1. `scripts/add-xxx.sql`  
-2. `scripts/run-xxx-migration.mjs`  
-3. `package.json`에 `"db:migrate:xxx": "node scripts/run-xxx-migration.mjs"`  
+1. `scripts/add-xxx.sql`
+2. `scripts/migration-manifest.json` 끝에 의존 순서대로 추가
+3. `package.json`에 `"db:migrate:xxx": "node scripts/run-migration.mjs add-xxx.sql"`
 4. `src/lib/db/entities/` 수정 + `data-source.ts`의 `entities` 배열
 
 ### 4.3 로컬에 데이터가 없을 때

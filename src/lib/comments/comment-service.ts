@@ -1,8 +1,8 @@
 /** 댓글 작성·수정·삭제·목록·댓글 좋아요 */
 
 import { randomUUID } from "crypto";
-import type { DataSource } from "typeorm";
-import { In } from "typeorm";
+import type { DataSource, FindOptionsWhere } from "typeorm";
+import { In, IsNull } from "typeorm";
 import {
   buildCommentTree,
   countAllComments,
@@ -94,6 +94,8 @@ export async function listComments(
     reviewId?: string | null;
     playlistId?: string | null;
     viewerUserId?: string | null;
+    page?: string | number | null;
+    pageSize?: string | number | null;
   }
 ) {
   const { postId, reviewId, playlistId, viewerUserId } = params;
@@ -103,16 +105,62 @@ export async function listComments(
 
   const commentRepository = dataSource.getRepository(Comment);
   const likeRepository = dataSource.getRepository(Like);
+  const targetWhere: FindOptionsWhere<Comment> = postId
+    ? { postId }
+    : reviewId
+      ? { reviewId }
+      : { playlistId: playlistId! };
+  const requestedPage = Number(params.page);
+  const requestedPageSize = Number(params.pageSize);
+  const isPaginated = params.page != null || params.pageSize != null;
+  const pageSize =
+    Number.isInteger(requestedPageSize) && requestedPageSize > 0
+      ? Math.min(requestedPageSize, 100)
+      : 10;
 
-  const comments = await commentRepository.find({
-    where: postId
-      ? { postId }
-      : reviewId
-        ? { reviewId }
-        : { playlistId: playlistId! },
-    relations: ["user"],
-    order: { createdAt: "ASC" },
-  });
+  let page = 1;
+  let totalPages = 1;
+  let totalCount = 0;
+  let comments: Comment[];
+
+  if (isPaginated) {
+    const [allCount, rootCount] = await Promise.all([
+      commentRepository.count({ where: targetWhere }),
+      commentRepository.count({
+        where: { ...targetWhere, parentId: IsNull() },
+      }),
+    ]);
+    totalCount = allCount;
+    totalPages = Math.max(1, Math.ceil(rootCount / pageSize));
+    page =
+      Number.isInteger(requestedPage) && requestedPage > 0
+        ? Math.min(requestedPage, totalPages)
+        : 1;
+
+    const roots = await commentRepository.find({
+      where: { ...targetWhere, parentId: IsNull() },
+      relations: ["user"],
+      order: { createdAt: "ASC" },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+    });
+    const rootIds = roots.map((comment) => comment.id);
+    const replies =
+      rootIds.length > 0
+        ? await commentRepository.find({
+            where: { parentId: In(rootIds) },
+            relations: ["user"],
+            order: { createdAt: "ASC" },
+          })
+        : [];
+    comments = [...roots, ...replies];
+  } else {
+    comments = await commentRepository.find({
+      where: targetWhere,
+      relations: ["user"],
+      order: { createdAt: "ASC" },
+    });
+  }
 
   const commentIds = comments.map((comment) => comment.id);
   const likeCountByCommentId = new Map<string, number>();
@@ -153,7 +201,10 @@ export async function listComments(
 
   return {
     comments: tree,
-    totalCount: countAllComments(tree),
+    totalCount: isPaginated ? totalCount : countAllComments(tree),
+    page,
+    pageSize: isPaginated ? pageSize : Math.max(tree.length, 1),
+    totalPages: isPaginated ? totalPages : 1,
   };
 }
 

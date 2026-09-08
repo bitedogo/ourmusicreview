@@ -34,8 +34,25 @@ export function useUnreadNotificationCount() {
   }, [isLoggedIn]);
 
   useEffect(() => {
-    void refreshUnreadCount();
-  }, [refreshUnreadCount]);
+    let cancelled = false;
+    if (!isLoggedIn) return;
+
+    void Promise.all([fetchMailNotifications(1), fetchAnnouncements(1)])
+      .then(([mail, announcements]) => {
+        if (cancelled) return;
+        setUnreadCount(mail.data.unreadCount ?? 0);
+        setAnnouncementUnreadCount(announcements.data.unreadCount ?? 0);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setUnreadCount(0);
+        setAnnouncementUnreadCount(0);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isLoggedIn]);
 
   useEffect(() => {
     if (!isLoggedIn) return;
@@ -58,9 +75,9 @@ export function useUnreadNotificationCount() {
   }, [isLoggedIn, refreshUnreadCount]);
 
   return {
-    unreadCount,
+    unreadCount: isLoggedIn ? unreadCount : 0,
     setUnreadCount,
-    announcementUnreadCount,
+    announcementUnreadCount: isLoggedIn ? announcementUnreadCount : 0,
     setAnnouncementUnreadCount,
     refreshUnreadCount,
     isLoggedIn,

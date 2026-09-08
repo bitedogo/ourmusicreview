@@ -2,7 +2,7 @@
 /** 플레이리스트 상세 헤더(커버·메타·장르·액션) */
 
 import Link from "next/link";
-import { useEffect, useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import type { PlaylistDetailDto } from "@/src/lib/playlists/client-api";
 import { GenreSelector } from "@/src/components/playlist/genre-selector";
 import { GenreTags } from "@/src/components/playlist/genre-tags";
@@ -41,10 +41,6 @@ export function PlaylistDetailHeader({
   const [draftGenreIds, setDraftGenreIds] = useState<string[]>(
     () => playlist.genres?.map((g) => g.id) ?? []
   );
-
-  useEffect(() => {
-    setDraftGenreIds(playlist.genres?.map((g) => g.id) ?? []);
-  }, [playlist.genres]);
 
   async function handleSaveGenres() {
     if (!onSaveGenres) return;

@@ -25,6 +25,16 @@ interface ProfileClientProps {
   createdAtText: string;
   profileImage: string | null;
   initialPrivacy: ProfilePrivacySettings;
+  initialReviews: ProfileReviewItem[];
+  initialFavorites: ProfileFavoriteItem[];
+  initialPlaylists: ProfilePlaylistItem[];
+  initialActivityStats: ActivityStats;
+}
+
+interface ActivityStats {
+  postCount: number;
+  commentCount: number;
+  likedPostCount: number;
 }
 
 interface MyReviewsResponse {
@@ -47,20 +57,24 @@ export function ProfileClient({
   createdAtText,
   profileImage,
   initialPrivacy,
+  initialReviews,
+  initialFavorites,
+  initialPlaylists,
+  initialActivityStats,
 }: ProfileClientProps) {
-  const [myReviews, setMyReviews] = useState<ProfileReviewItem[]>([]);
+  const [myReviews, setMyReviews] =
+    useState<ProfileReviewItem[]>(initialReviews);
   const [isLoadingReviews, setIsLoadingReviews] = useState(false);
-  const [favoriteAlbums, setFavoriteAlbums] = useState<ProfileFavoriteItem[]>([]);
+  const [favoriteAlbums, setFavoriteAlbums] =
+    useState<ProfileFavoriteItem[]>(initialFavorites);
   const [isLoadingFavorites, setIsLoadingFavorites] = useState(false);
-  const [playlists, setPlaylists] = useState<ProfilePlaylistItem[]>([]);
+  const [playlists, setPlaylists] =
+    useState<ProfilePlaylistItem[]>(initialPlaylists);
   const [isLoadingPlaylists, setIsLoadingPlaylists] = useState(false);
   const [privacy, setPrivacy] = useState<ProfilePrivacySettings>(initialPrivacy);
   const [isSavingPrivacy, setIsSavingPrivacy] = useState(false);
-  const [activityStats, setActivityStats] = useState({
-    postCount: 0,
-    commentCount: 0,
-    likedPostCount: 0,
-  });
+  const [activityStats, setActivityStats] =
+    useState<ActivityStats>(initialActivityStats);
 
   async function fetchMyReviews() {
     try {
@@ -128,13 +142,6 @@ export function ProfileClient({
       setIsSavingPrivacy(false);
     }
   }
-
-  useEffect(() => {
-    fetchMyReviews();
-    fetchFavorites();
-    fetchPlaylists();
-    loadActivityStats();
-  }, []);
 
   useEffect(() => {
     function handleVisibilityChange() {

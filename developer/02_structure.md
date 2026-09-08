@@ -302,7 +302,7 @@ Today / Yesterday는 커버+소개글, Previous는 그제 이전 날짜의 커�
 
 | 경로 | 역할 |
 |------|------|
-| `scripts/` | `add-*.sql` + `run-*-migration.mjs`. TypeORM Migration 대신 **수동 SQL** |
+| `scripts/` | `add-*.sql` + 공통 `run-migration.mjs` + 적용 순서 manifest. TypeORM Migration 대신 **수동 SQL** |
 | `public/` | `/icons`, `/genres`, `/streaming`, `/social` — URL이 곧 파일 경로 |
 | `src/types/next-auth.d.ts` | `session.user.id`, `role`, `profileImage` 타입 확장 |
 

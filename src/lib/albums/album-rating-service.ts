@@ -4,6 +4,7 @@ import type { DataSource } from "typeorm";
 import { In } from "typeorm";
 import { Review } from "@/src/lib/db/entities/Review";
 import { ServiceError } from "@/src/lib/http/service-error";
+import { averageFromRatings } from "@/src/lib/utils/rating";
 
 export interface AlbumRatingSummary {
   averageRating: number | null;
@@ -34,24 +35,20 @@ export async function getAlbumRatingsBatch(
     select: ["albumId", "rating"],
   });
 
-  const summaryMap: Record<string, { sum: number; count: number }> = {};
+  const ratingsByAlbum = new Map<string, unknown[]>();
   for (const review of approvedReviews) {
-    const current = summaryMap[review.albumId] ?? { sum: 0, count: 0 };
-    current.sum += review.rating;
-    current.count += 1;
-    summaryMap[review.albumId] = current;
+    const list = ratingsByAlbum.get(review.albumId) ?? [];
+    list.push(review.rating);
+    ratingsByAlbum.set(review.albumId, list);
   }
 
   const ratings: Record<string, AlbumRatingSummary> = {};
   for (const albumId of uniqueAlbumIds) {
-    const summary = summaryMap[albumId];
-    if (!summary || summary.count === 0) {
-      ratings[albumId] = { averageRating: null, reviewCount: 0 };
-      continue;
-    }
+    const values = ratingsByAlbum.get(albumId) ?? [];
+    const averageRating = averageFromRatings(values);
     ratings[albumId] = {
-      averageRating: Math.trunc((summary.sum / summary.count) * 10) / 10,
-      reviewCount: summary.count,
+      averageRating,
+      reviewCount: values.length,
     };
   }
 
@@ -71,13 +68,9 @@ export async function getAlbumRating(
     select: ["rating"],
   });
 
-  if (reviews.length === 0) {
-    return { averageRating: null, reviewCount: 0 };
-  }
-
-  const sum = reviews.reduce((acc, review) => acc + review.rating, 0);
+  const values = reviews.map((review) => review.rating);
   return {
-    averageRating: Math.trunc((sum / reviews.length) * 10) / 10,
-    reviewCount: reviews.length,
+    averageRating: averageFromRatings(values),
+    reviewCount: values.length,
   };
 }

@@ -3,7 +3,19 @@
 export const GUIDE_GATE_COOKIE = "oru_guide_gate";
 export const GUIDE_GATE_MAX_AGE_SECONDS = 60 * 60 * 24 * 30;
 
-const GUIDE_GATE_PASSWORD = process.env.GUIDE_GATE_PASSWORD?.trim() || "123456";
+const encoder = new TextEncoder();
+
+function getGuidePassword(): string | null {
+  return process.env.GUIDE_GATE_PASSWORD?.trim() || null;
+}
+
+function getGuideSigningSecret(): string | null {
+  return (
+    process.env.GUIDE_GATE_SECRET?.trim() ||
+    process.env.NEXTAUTH_SECRET?.trim() ||
+    null
+  );
+}
 
 export function safeGuideNextPath(next: string | null | undefined): string {
   if (!next || !next.startsWith("/") || next.startsWith("//") || next.includes("://")) {
@@ -39,21 +51,63 @@ function timingSafeEqual(left: string, right: string): boolean {
 }
 
 export function isGuideGatePassword(input: string): boolean {
-  return timingSafeEqual(input, GUIDE_GATE_PASSWORD);
+  const password = getGuidePassword();
+  return password ? timingSafeEqual(input, password) : false;
 }
 
 export async function createGuideGateToken(): Promise<string> {
-  const data = new TextEncoder().encode(`oru-guide-gate:${GUIDE_GATE_PASSWORD}`);
-  const hash = await crypto.subtle.digest("SHA-256", data);
-  return Array.from(new Uint8Array(hash), (byte) =>
+  const secret = getGuideSigningSecret();
+  if (!secret || !getGuidePassword()) {
+    throw new Error("[ENV] GUIDE_GATE_PASSWORD와 서명 비밀키가 필요합니다.");
+  }
+  const expiresAt = Math.floor(Date.now() / 1000) + GUIDE_GATE_MAX_AGE_SECONDS;
+  const key = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+  const signature = await crypto.subtle.sign(
+    "HMAC",
+    key,
+    encoder.encode(String(expiresAt))
+  );
+  const digest = Array.from(new Uint8Array(signature), (byte) =>
     byte.toString(16).padStart(2, "0")
   ).join("");
+  return `${expiresAt}.${digest}`;
 }
 
 export async function isGuideGateTokenValid(
   value: string | undefined
 ): Promise<boolean> {
   if (!value) return false;
-  const expected = await createGuideGateToken();
-  return timingSafeEqual(value, expected);
+  const [expiresRaw, signature] = value.split(".");
+  const expiresAt = Number(expiresRaw);
+  const secret = getGuideSigningSecret();
+  if (
+    !secret ||
+    !signature ||
+    !Number.isInteger(expiresAt) ||
+    expiresAt <= Math.floor(Date.now() / 1000)
+  ) {
+    return false;
+  }
+  const key = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+  const expectedBuffer = await crypto.subtle.sign(
+    "HMAC",
+    key,
+    encoder.encode(expiresRaw)
+  );
+  const expected = Array.from(new Uint8Array(expectedBuffer), (byte) =>
+    byte.toString(16).padStart(2, "0")
+  ).join("");
+  return timingSafeEqual(signature, expected);
 }

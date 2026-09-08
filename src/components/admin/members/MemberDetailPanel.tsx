@@ -2,7 +2,8 @@
 /** 관리자 회원 관리 - 상세 정보 패널 (모달) */
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { Dialog } from "@/src/components/common/Dialog";
 import {
   ACCOUNT_STATUS_LABEL,
   defaultSuspendUntilLocalValue,
@@ -46,11 +47,6 @@ export function MemberDetailPanel({
   const [reason, setReason] = useState("");
   const [suspendUntil, setSuspendUntil] = useState(defaultSuspendUntilLocalValue);
 
-  useEffect(() => {
-    setReason("");
-    setSuspendUntil(defaultSuspendUntilLocalValue());
-  }, [selectedId]);
-
   const canSanction =
     !!detail && detail.id !== currentUserId && detail.role !== "ADMIN";
   const isProcessing = detail ? processingIds.has(detail.id) : false;
@@ -89,17 +85,16 @@ export function MemberDetailPanel({
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-      onClick={onClose}
-      aria-hidden
+    <Dialog
+      labelledBy="member-detail-dialog-title"
+      onClose={onClose}
+      className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl border border-zinc-200 bg-white p-6 shadow-xl"
     >
-      <div
-        className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl border border-zinc-200 bg-white p-6 shadow-xl"
-        onClick={(e) => e.stopPropagation()}
-      >
         <div className="mb-4 flex items-center justify-between">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">
+          <p
+            id="member-detail-dialog-title"
+            className="text-[10px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)]"
+          >
             {detail?.id ?? selectedId}
           </p>
           <button
@@ -393,7 +388,6 @@ export function MemberDetailPanel({
             </>
           )}
         </div>
-      </div>
-    </div>
+    </Dialog>
   );
 }

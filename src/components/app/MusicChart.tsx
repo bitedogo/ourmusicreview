@@ -7,12 +7,20 @@ import { useState } from "react";
 import { ArtistNameLink } from "@/src/components/app/artist-name-link";
 import { AlbumCoverPlaceholder } from "@/src/components/common/album-cover-placeholder";
 import { useMusicChart } from "@/src/hooks/use-chart";
-import { CHART_REGIONS, type ChartRegion } from "@/src/lib/chart/types";
+import {
+  CHART_REGIONS,
+  type ChartAlbum,
+  type ChartRegion,
+} from "@/src/lib/chart/types";
 import { buildAlbumReviewPath } from "@/src/lib/utils/album";
 
-export default function MusicChart() {
+export default function MusicChart({
+  initialAlbums = [],
+}: {
+  initialAlbums?: ChartAlbum[];
+}) {
   const [region, setRegion] = useState<ChartRegion>("kr");
-  const { albums, isLoading } = useMusicChart(region);
+  const { albums, isLoading } = useMusicChart(region, "kr", initialAlbums);
 
   if (albums.length === 0 && isLoading) {
     return null;

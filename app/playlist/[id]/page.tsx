@@ -1,56 +1,84 @@
-"use client";
-/** 공개 플레이리스트 상세 (읽기 전용) */
+/** 공개 플레이리스트 상세 서버 진입 */
 
-import { useParams } from "next/navigation";
-import { CommentSection } from "@/src/components/interaction/CommentSection";
-import { InteractionButtons } from "@/src/components/interaction/InteractionButtons";
-import { PlaylistDetailHeader } from "@/src/components/playlist/playlist-detail-header";
-import { PlaylistDetailShell } from "@/src/components/playlist/playlist-detail-shell";
-import { PlaylistTrackList } from "@/src/components/playlist/playlist-track-list";
-import { getUserProfilePath } from "@/src/components/profile/profile-view-types";
-import { usePlaylistDetailQuery } from "@/src/hooks/use-playlist-detail-query";
-import { playlistList } from "@/src/lib/navigation/routes";
+import type { Metadata } from "next";
+import { cache } from "react";
+import { getAppSession } from "@/src/lib/auth/session";
+import { listComments } from "@/src/lib/comments/comment-service";
+import { withDatabaseRead } from "@/src/lib/db";
+import type { PlaylistDetailDto } from "@/src/lib/playlists/client-api";
+import { getPlaylistDetail } from "@/src/lib/playlists/playlist-service";
+import type { CommentPageData } from "@/src/components/interaction/CommentSection";
+import { PublicPlaylistDetailClient } from "./public-playlist-detail-client";
 
-export default function PublicPlaylistDetailPage() {
-  const params = useParams<{ id: string }>();
-  const playlistId = params?.id ?? "";
-  const { playlist, isLoading, error, streamingLinksByTrackId } =
-    usePlaylistDetailQuery(playlistId);
+const getInitialPlaylist = cache(async (id: string) => {
+  const session = await getAppSession();
+  return withDatabaseRead(async (dataSource) => {
+    const [playlist, comments] = await Promise.all([
+      getPlaylistDetail(dataSource, id, session?.user?.id ?? null),
+      listComments(dataSource, {
+        playlistId: id,
+        viewerUserId: session?.user?.id ?? null,
+        page: 1,
+        pageSize: 10,
+      }),
+    ]);
+    return JSON.parse(JSON.stringify({ playlist, comments })) as {
+      playlist: PlaylistDetailDto;
+      comments: CommentPageData;
+    };
+  });
+});
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const canonical = `/playlist/${encodeURIComponent(id)}`;
+
+  try {
+    const { playlist } = await getInitialPlaylist(id);
+    const description =
+      playlist.description?.replace(/\s+/g, " ").trim().slice(0, 160) ||
+      `${playlist.ownerNickname}님의 공개 플레이리스트`;
+    return {
+      title: playlist.title,
+      description,
+      alternates: { canonical },
+      openGraph: {
+        type: "website",
+        url: canonical,
+        title: playlist.title,
+        description,
+        images: playlist.coverImageUrl ? [playlist.coverImageUrl] : undefined,
+      },
+      robots: playlist.isPublic
+        ? undefined
+        : { index: false, follow: false },
+    };
+  } catch {
+    return {
+      title: "플레이리스트",
+      alternates: { canonical },
+      robots: { index: false, follow: false },
+    };
+  }
+}
+
+export default async function PublicPlaylistDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const initial = await getInitialPlaylist(id);
 
   return (
-    <PlaylistDetailShell
-      backHref={playlistList()}
-      isLoading={isLoading}
-      error={error}
-      hasPlaylist={!!playlist}
-      className="mx-auto flex min-h-screen w-full max-w-[640px] flex-col px-4 py-10 sm:px-0"
-    >
-      {playlist ? (
-        <>
-          <div className="flex flex-col gap-6">
-            <PlaylistDetailHeader
-              playlist={playlist}
-              variant="readonly"
-              ownerHref={getUserProfilePath(playlist.userId)}
-            />
-
-            <PlaylistTrackList
-              tracks={playlist.tracks}
-              streamingLinksByTrackId={streamingLinksByTrackId}
-            />
-          </div>
-
-          <div className="pt-4 pb-[30px] sm:pt-[18px] sm:pb-[30px]">
-            <InteractionButtons
-              playlistId={playlist.id}
-              authorUserId={playlist.userId}
-              variant="circle"
-            />
-          </div>
-
-          <CommentSection playlistId={playlist.id} variant="detail" />
-        </>
-      ) : null}
-    </PlaylistDetailShell>
+    <PublicPlaylistDetailClient
+      playlistId={id}
+      initialPlaylist={initial.playlist}
+      initialComments={initial.comments}
+    />
   );
 }

@@ -7,6 +7,9 @@ import { UserFavoriteAlbum } from "@/src/lib/db/entities/UserFavoriteAlbum";
 import { UserSlideAlbum } from "@/src/lib/db/entities/UserSlideAlbum";
 import { Review } from "@/src/lib/db/entities/Review";
 import { deleteUserAccount } from "@/src/lib/users/user-deletion";
+import { updateMemberInputSchema } from "@/src/lib/admin/member-contracts";
+import { handleApi } from "@/src/lib/http/handle-route-error";
+import { parseJsonBody } from "@/src/lib/http/schema";
 import { apiError, apiOk } from "@/src/lib/http/response";
 import {
   listUserSanctions,
@@ -18,7 +21,7 @@ export async function GET(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  try {
+  return handleApi("멤버 조회 중 오류가 발생했습니다.", async () => {
     const { response } = await requireAdminApi();
     if (response) return response;
 
@@ -73,28 +76,19 @@ export async function GET(
         sanctions,
       },
     });
-  } catch (error) {
-    return apiError(
-      error instanceof Error ? error.message : "멤버 조회 중 오류가 발생했습니다.",
-      { status: 500 }
-    );
-  }
-}
-
-interface UpdateMemberBody {
-  role?: "USER" | "ADMIN";
+  });
 }
 
 export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  try {
+  return handleApi("멤버 권한 변경 중 오류가 발생했습니다.", async () => {
     const { session, response } = await requireAdminApi();
     if (response) return response;
 
     const { id } = await params;
-    const body = (await request.json()) as UpdateMemberBody;
+    const body = await parseJsonBody(request, updateMemberInputSchema);
 
     if (!id) {
       return apiError("멤버 ID가 필요합니다.", { status: 400 });
@@ -102,10 +96,6 @@ export async function PATCH(
 
     if (id === session.user.id) {
       return apiError("자기 자신의 권한은 변경할 수 없습니다.", { status: 400 });
-    }
-
-    if (body.role !== "USER" && body.role !== "ADMIN") {
-      return apiError("role은 'USER' 또는 'ADMIN'이어야 합니다.", { status: 400 });
     }
 
     const dataSource = await initializeDatabase();
@@ -131,19 +121,14 @@ export async function PATCH(
       },
       { message: "멤버 권한이 변경되었습니다." }
     );
-  } catch (error) {
-    return apiError(
-      error instanceof Error ? error.message : "멤버 권한 변경 중 오류가 발생했습니다.",
-      { status: 500 }
-    );
-  }
+  });
 }
 
 export async function DELETE(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  try {
+  return handleApi("계정 삭제 중 오류가 발생했습니다.", async () => {
     const { session, response } = await requireAdminApi();
     if (response) return response;
 
@@ -169,10 +154,5 @@ export async function DELETE(
     }
 
     return apiOk({}, { message: "계정이 삭제되었습니다." });
-  } catch (error) {
-    return apiError(
-      error instanceof Error ? error.message : "계정 삭제 중 오류가 발생했습니다.",
-      { status: 500 }
-    );
-  }
+  });
 }

@@ -3,7 +3,10 @@
 
 import { useState } from "react";
 import { useTodayAlbums } from "@/src/hooks/use-today-albums";
-import type { TodayAlbumTab } from "@/src/lib/today-album/types";
+import type {
+  TodayAlbumsResponse,
+  TodayAlbumTab,
+} from "@/src/lib/today-album/types";
 import { TODAY_ALBUM_TABS } from "@/src/lib/today-album/types";
 import { TodayAlbumDetail } from "./today-album/today-album-detail";
 import { TodayAlbumPreviousGrid } from "./today-album/today-album-previous-grid";
@@ -18,9 +21,13 @@ import {
 } from "./today-album/today-album-styles";
 import { TodayAlbumTabs } from "./today-album/today-album-tabs";
 
-export default function TodayAlbumCard() {
+export default function TodayAlbumCard({
+  initialData,
+}: {
+  initialData?: TodayAlbumsResponse;
+}) {
   const { albums, archive, isLoading, imageErrors, markImageError } =
-    useTodayAlbums();
+    useTodayAlbums(initialData);
   const [activeTab, setActiveTab] = useState<TodayAlbumTab>("today");
 
   if (isLoading || !albums) return null;

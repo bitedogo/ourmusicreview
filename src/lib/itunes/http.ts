@@ -1,5 +1,8 @@
 /** iTunes API HTTP 호출 */
 
+import { z } from "zod";
+import { fetchExternalJson } from "@/src/lib/http/external";
+
 const ITUNES_BASE = "https://itunes.apple.com";
 
 const ITUNES_FETCH_OPTIONS = {
@@ -41,11 +44,21 @@ export function itunesArtistSearchUrls(term: string, limit: number): string[] {
 
 export async function fetchItunesResults(url: string): Promise<ItunesResult[]> {
   try {
-    const response = await fetch(url, ITUNES_FETCH_OPTIONS);
-    if (!response.ok) return [];
-    const data = (await response.json()) as { results?: ItunesResult[] };
-    return data.results ?? [];
-  } catch {
+    const data = await fetchExternalJson(
+      url,
+      ITUNES_FETCH_OPTIONS,
+      {
+        provider: "itunes",
+        timeoutMs: 5000,
+        retries: 1,
+        schema: z.object({
+          results: z.array(z.record(z.string(), z.unknown())).default([]),
+        }),
+      }
+    );
+    return data.results;
+  } catch (error) {
+    console.warn("[itunes] request failed", error);
     return [];
   }
 }

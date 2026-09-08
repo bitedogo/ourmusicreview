@@ -3,30 +3,15 @@
 import { unstable_cache } from "next/cache";
 import { fetchItunesResults, itunesLookupUrls } from "@/src/lib/itunes/http";
 import { searchSpotifyTrackUrl } from "@/src/lib/spotify/track-search";
-import { looseMatch, normalizeForMatch } from "@/src/lib/text/match";
 import type { AlbumStreamingLinks } from "./types";
+import {
+  fetchOdesliPlatformLinks,
+  pickStreamingUrl,
+  searchDeezerUrl,
+} from "./provider-http";
 
 const ODESLI_API = "https://api.song.link/v1-alpha.1/links";
 const DEEZER_TRACK_SEARCH_API = "https://api.deezer.com/search/track";
-
-const FETCH_JSON = {
-  headers: { Accept: "application/json" as const },
-};
-
-function pickUrl(value: unknown): string | undefined {
-  if (typeof value !== "string" || !value.trim()) return undefined;
-  return value;
-}
-
-interface OdesliResponse {
-  linksByPlatform?: Record<string, { url?: string }>;
-}
-
-interface DeezerTrack {
-  title?: string;
-  link?: string;
-  artist?: { name?: string };
-}
 
 async function lookupItunesTrackViewUrl(trackId: string): Promise<{
   trackViewUrl?: string;
@@ -42,7 +27,7 @@ async function lookupItunesTrackViewUrl(trackId: string): Promise<{
     if (!track) continue;
 
     return {
-      trackViewUrl: pickUrl(track.trackViewUrl),
+      trackViewUrl: pickStreamingUrl(track.trackViewUrl),
       trackName: typeof track.trackName === "string" ? track.trackName : undefined,
       artistName: typeof track.artistName === "string" ? track.artistName : undefined,
     };
@@ -52,52 +37,20 @@ async function lookupItunesTrackViewUrl(trackId: string): Promise<{
 }
 
 async function fetchOdesliTrackLinks(trackId: string): Promise<AlbumStreamingLinks> {
-  try {
-    const response = await fetch(
-      `${ODESLI_API}?platform=itunes&type=song&id=${encodeURIComponent(trackId)}&userCountry=KR`,
-      FETCH_JSON
-    );
-    if (!response.ok) return {};
-
-    const data = (await response.json()) as OdesliResponse;
-    const platforms = data.linksByPlatform ?? {};
-    return {
-      appleMusic: pickUrl(platforms.appleMusic?.url ?? platforms.itunes?.url),
-      spotify: pickUrl(platforms.spotify?.url),
-      deezer: pickUrl(platforms.deezer?.url),
-    };
-  } catch {
-    return {};
-  }
+  return fetchOdesliPlatformLinks(
+    `${ODESLI_API}?platform=itunes&type=song&id=${encodeURIComponent(trackId)}&userCountry=KR`
+  );
 }
 
 async function searchDeezerTrackUrl(
   artist: string,
   title: string
 ): Promise<string | undefined> {
-  const query = `${artist} ${title}`.trim();
-  if (!query) return undefined;
-
-  try {
-    const response = await fetch(
-      `${DEEZER_TRACK_SEARCH_API}?q=${encodeURIComponent(query)}&limit=10`,
-      FETCH_JSON
-    );
-    if (!response.ok) return undefined;
-
-    const data = (await response.json()) as { data?: DeezerTrack[] };
-    const targetArtist = normalizeForMatch(artist);
-    const matched = (data.data ?? []).find(
-      (track) =>
-        looseMatch(track.title ?? "", title) &&
-        !!targetArtist &&
-        looseMatch(track.artist?.name ?? "", artist)
-    );
-
-    return pickUrl(matched?.link);
-  } catch {
-    return undefined;
-  }
+  return searchDeezerUrl({
+    endpoint: DEEZER_TRACK_SEARCH_API,
+    artist,
+    title,
+  });
 }
 
 async function fetchTrackStreamingLinks(trackId: string): Promise<AlbumStreamingLinks> {

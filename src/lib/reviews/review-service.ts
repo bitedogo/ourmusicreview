@@ -1,15 +1,19 @@
 /** 리뷰 상세 조회·작성·수정·삭제 비즈니스 로직 */
 
-import type { DataSource } from "typeorm";
+import type { DataSource, EntityManager } from "typeorm";
 import { randomUUID } from "crypto";
 import { Review } from "@/src/lib/db/entities/Review";
-import { Album } from "@/src/lib/db/entities/Album";
 import {
   isRatingOutOfRangeError,
   isUniqueViolation,
 } from "@/src/lib/db/pg-error";
+import { ensureAlbum } from "@/src/lib/albums/ensure-album";
 import { getAlbumById } from "@/src/lib/album-lookup";
 import { ServiceError } from "@/src/lib/http/service-error";
+import type {
+  CreateReviewInput,
+  UpdateReviewInput,
+} from "@/src/lib/reviews/contracts";
 import { isEditorContentEmpty } from "@/src/lib/utils/editor";
 import { normalizeReviewRating } from "@/src/lib/utils/rating";
 
@@ -17,6 +21,8 @@ export interface ReviewRequester {
   userId: string;
   isAdmin: boolean;
 }
+
+type RepositoryProvider = DataSource | EntityManager;
 
 export interface ReviewDetailResult {
   review: {
@@ -107,11 +113,6 @@ export async function getReviewDetail(
   };
 }
 
-export interface UpdateReviewInput {
-  content?: string;
-  rating?: number;
-}
-
 export interface UpdateReviewResult {
   id: string;
   content: string;
@@ -190,16 +191,6 @@ export async function deleteReview(
   await reviewRepository.remove(review);
 }
 
-export interface CreateReviewInput {
-  albumId?: string;
-  content?: string;
-  rating?: number;
-  albumTitle?: string;
-  albumArtist?: string;
-  albumImageUrl?: string | null;
-  albumReleaseDate?: string;
-}
-
 export async function createReview(
   dataSource: DataSource,
   userId: string,
@@ -219,7 +210,8 @@ export async function createReview(
     throw new ServiceError("평점(0.0-10.0)을 입력해주세요.", 400);
   }
 
-  const reviewRepository = dataSource.getRepository(Review);
+  return dataSource.transaction(async (manager) => {
+  const reviewRepository = manager.getRepository(Review);
   const existingReview = await reviewRepository.findOne({
     where: { userId, albumId },
     select: ["id"],
@@ -229,7 +221,17 @@ export async function createReview(
     throw duplicateAlbumReviewError(existingReview.id);
   }
 
-  await findOrCreateAlbum(dataSource, albumId, body);
+  await ensureAlbum(
+    manager,
+    albumId,
+    {
+      title: body.albumTitle,
+      artist: body.albumArtist,
+      imageUrl: body.albumImageUrl,
+      releaseDate: body.albumReleaseDate,
+    },
+    "앨범 정보가 부족합니다. 앨범 제목과 아티스트는 필수입니다."
+  );
 
   const review = reviewRepository.create({
     id: randomUUID().replace(/-/g, "").slice(0, 255),
@@ -245,10 +247,11 @@ export async function createReview(
   try {
     await reviewRepository.save(review);
   } catch (error) {
-    await mapReviewInsertError(error, dataSource, userId, albumId);
+    await mapReviewInsertError(error, manager, userId, albumId);
   }
 
   return { id: review.id };
+  });
 }
 
 function duplicateAlbumReviewError(reviewId: string | null) {
@@ -257,61 +260,9 @@ function duplicateAlbumReviewError(reviewId: string | null) {
   });
 }
 
-async function findOrCreateAlbum(
-  dataSource: DataSource,
-  albumId: string,
-  body: CreateReviewInput
-) {
-  const albumRepository = dataSource.getRepository(Album);
-  const existing = await albumRepository.findOne({ where: { albumId } });
-  if (existing) return existing;
-
-  const albumTitle =
-    typeof body.albumTitle === "string" ? body.albumTitle.trim() : undefined;
-  const albumArtist =
-    typeof body.albumArtist === "string" ? body.albumArtist.trim() : undefined;
-  const albumImageUrl =
-    typeof body.albumImageUrl === "string" && body.albumImageUrl.length > 0
-      ? body.albumImageUrl
-      : null;
-
-  if (!albumTitle || !albumArtist) {
-    throw new ServiceError(
-      "앨범 정보가 부족합니다. 앨범 제목과 아티스트는 필수입니다.",
-      400
-    );
-  }
-
-  let releaseDate: Date | undefined = undefined;
-  if (body.albumReleaseDate) {
-    const parsed = new Date(body.albumReleaseDate);
-    if (!isNaN(parsed.getTime())) {
-      releaseDate = parsed;
-    }
-  }
-
-  const created = albumRepository.create({
-    albumId,
-    title: albumTitle,
-    artist: albumArtist,
-    imageUrl: albumImageUrl || undefined,
-    releaseDate,
-    category: "I",
-  });
-
-  try {
-    return await albumRepository.save(created);
-  } catch (error) {
-    if (!isUniqueViolation(error)) throw error;
-    const raced = await albumRepository.findOne({ where: { albumId } });
-    if (!raced) throw error;
-    return raced;
-  }
-}
-
 async function mapReviewInsertError(
   error: unknown,
-  dataSource: DataSource,
+  dataSource: RepositoryProvider,
   userId: string,
   albumId: string
 ): Promise<never> {

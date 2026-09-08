@@ -5,7 +5,7 @@ import {
   deleteComment,
   updateComment,
 } from "@/src/lib/comments/comment-service";
-import { initializeDatabase } from "@/src/lib/db";
+import { withDatabase } from "@/src/lib/db";
 import { handleRouteError } from "@/src/lib/http/handle-route-error";
 import { apiOk } from "@/src/lib/http/response";
 
@@ -19,12 +19,13 @@ export async function PATCH(
 
     const body = (await request.json()) as { content?: string };
     const { id } = await params;
-    const dataSource = await initializeDatabase();
-    const result = await updateComment(
-      dataSource,
-      id,
-      { userId: session.user.id, isAdmin: isAdmin(session) },
-      typeof body.content === "string" ? body.content : ""
+    const result = await withDatabase((dataSource) =>
+      updateComment(
+        dataSource,
+        id,
+        { userId: session.user.id, isAdmin: isAdmin(session) },
+        typeof body.content === "string" ? body.content : ""
+      )
     );
 
     return apiOk(result);
@@ -42,11 +43,12 @@ export async function DELETE(
     if (response) return response;
 
     const { id } = await params;
-    const dataSource = await initializeDatabase();
-    const result = await deleteComment(dataSource, id, {
-      userId: session.user.id,
-      isAdmin: isAdmin(session),
-    });
+    const result = await withDatabase((dataSource) =>
+      deleteComment(dataSource, id, {
+        userId: session.user.id,
+        isAdmin: isAdmin(session),
+      })
+    );
 
     return apiOk(result);
   } catch (error) {

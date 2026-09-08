@@ -1,6 +1,6 @@
 /** 장르 트리 조회 · 필터용 ID 확장 */
 
-import type { DataSource } from "typeorm";
+import type { DataSource, EntityManager } from "typeorm";
 import { Genre } from "@/src/lib/db/entities/Genre";
 import { ServiceError } from "@/src/lib/http/service-error";
 
@@ -15,8 +15,10 @@ export interface GenreTreeNode extends GenreDto {
   children: GenreDto[];
 }
 
+type RepositoryProvider = DataSource | EntityManager;
+
 export async function listGenresFlat(
-  dataSource: DataSource
+  dataSource: RepositoryProvider
 ): Promise<GenreDto[]> {
   const rows = await dataSource.getRepository(Genre).find({
     order: { parentId: "ASC", nameEn: "ASC" },
@@ -78,7 +80,7 @@ export async function resolveGenreFilterIds(
 }
 
 export async function assertValidGenreIds(
-  dataSource: DataSource,
+  dataSource: RepositoryProvider,
   genreIds: string[]
 ): Promise<string[]> {
   const unique = [...new Set(genreIds.map((id) => id.trim()).filter(Boolean))];

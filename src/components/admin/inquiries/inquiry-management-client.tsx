@@ -35,6 +35,28 @@ const STATUS_TABS: { id: StatusFilter; label: string }[] = [
   { id: "CLOSED", label: "종료" },
 ];
 
+function handleTabKeyDown(
+  event: React.KeyboardEvent<HTMLButtonElement>,
+  index: number,
+  onSelect: (status: StatusFilter) => void
+) {
+  let nextIndex: number | null = null;
+  if (event.key === "ArrowRight") nextIndex = (index + 1) % STATUS_TABS.length;
+  if (event.key === "ArrowLeft") {
+    nextIndex = (index - 1 + STATUS_TABS.length) % STATUS_TABS.length;
+  }
+  if (event.key === "Home") nextIndex = 0;
+  if (event.key === "End") nextIndex = STATUS_TABS.length - 1;
+  if (nextIndex === null) return;
+
+  event.preventDefault();
+  onSelect(STATUS_TABS[nextIndex].id);
+  const buttons = event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>(
+    '[role="tab"]'
+  );
+  buttons?.[nextIndex]?.focus();
+}
+
 function StatusBadge({ status }: { status: InquiryStatus }) {
   const className =
     status === "WAITING"
@@ -157,12 +179,22 @@ export function InquiryManagementClient() {
         </p>
       </section>
 
-      <div className="flex flex-wrap gap-2">
-        {STATUS_TABS.map((tab) => (
+      <div
+        role="tablist"
+        aria-label="문의 상태"
+        className="flex flex-wrap gap-2"
+      >
+        {STATUS_TABS.map((tab, index) => (
           <button
             key={tab.id}
             type="button"
+            role="tab"
+            aria-selected={statusFilter === tab.id}
+            tabIndex={statusFilter === tab.id ? 0 : -1}
             onClick={() => setStatusFilter(tab.id)}
+            onKeyDown={(event) =>
+              handleTabKeyDown(event, index, setStatusFilter)
+            }
             className={`rounded-full px-4 py-1.5 text-xs font-semibold transition ${
               statusFilter === tab.id
                 ? "bg-[var(--color-brand-primary)] text-white"
@@ -209,7 +241,15 @@ export function InquiryManagementClient() {
                       <tr
                         key={item.id}
                         onClick={() => setSelectedId(item.id)}
-                        className={`cursor-pointer border-b border-zinc-50 transition hover:bg-zinc-50 ${
+                        onKeyDown={(event) => {
+                          if (event.key === "Enter" || event.key === " ") {
+                            event.preventDefault();
+                            setSelectedId(item.id);
+                          }
+                        }}
+                        tabIndex={0}
+                        aria-selected={selectedId === item.id}
+                        className={`cursor-pointer border-b border-zinc-50 transition hover:bg-zinc-50 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--color-brand-primary)] ${
                           selectedId === item.id ? "bg-[var(--color-inquiry-bg)]/70" : ""
                         }`}
                       >

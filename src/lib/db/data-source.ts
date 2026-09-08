@@ -25,6 +25,7 @@ import { Notification } from "./entities/Notification";
 import { UserAnnouncementCursor } from "./entities/UserAnnouncementCursor";
 import { Inquiry } from "./entities/Inquiry";
 import { InquiryReply } from "./entities/InquiryReply";
+import { UserIdentity } from "./entities/UserIdentity";
 
 const databaseUrl = process.env.DATABASE_URL ?? "";
 const nodeEnv = process.env.NODE_ENV === "production" || process.env.NODE_ENV === "test"
@@ -40,7 +41,7 @@ export const AppDataSource = new DataSource({
   url: databaseUrl,
   synchronize: false,
   logging: nodeEnv === "development",
-  entities: [User, Album, Review, Post, UserFavoriteAlbum, Comment, Like, Report, TodayAlbum, FeaturedSlideAlbum, UserSlideAlbum, Faq, Playlist, PlaylistTrack, Genre, PlaylistGenre, EmailOtpChallenge, UserSanction, BlockedEmail, Notification, UserAnnouncementCursor, Inquiry, InquiryReply],
+  entities: [User, UserIdentity, Album, Review, Post, UserFavoriteAlbum, Comment, Like, Report, TodayAlbum, FeaturedSlideAlbum, UserSlideAlbum, Faq, Playlist, PlaylistTrack, Genre, PlaylistGenre, EmailOtpChallenge, UserSanction, BlockedEmail, Notification, UserAnnouncementCursor, Inquiry, InquiryReply],
   ssl:
     databaseUrl.includes("localhost") || databaseUrl.includes("placeholder")
       ? false

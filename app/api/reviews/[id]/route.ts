@@ -3,12 +3,13 @@
 import { isAdmin, requireSessionApi, requireWritableSessionApi } from "@/src/lib/auth/session";
 import { withDatabase } from "@/src/lib/db";
 import { handleApi } from "@/src/lib/http/handle-route-error";
+import { parseJsonBody } from "@/src/lib/http/schema";
 import { apiError, apiOk } from "@/src/lib/http/response";
+import { updateReviewInputSchema } from "@/src/lib/reviews/contracts";
 import {
   deleteReview,
   getReviewDetail,
   updateReview,
-  type UpdateReviewInput,
 } from "@/src/lib/reviews/review-service";
 
 export async function GET(
@@ -35,7 +36,7 @@ export async function PATCH(
     const { session, response } = await requireWritableSessionApi();
     if (response) return response;
 
-    const body = (await request.json()) as UpdateReviewInput;
+    const body = await parseJsonBody(request, updateReviewInputSchema);
     const result = await withDatabase((dataSource) =>
       updateReview(
         dataSource,

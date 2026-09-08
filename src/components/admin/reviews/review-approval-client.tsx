@@ -148,7 +148,6 @@ export function ReviewApprovalClient() {
 
       {rejectingReview && (
         <ReviewRejectModal
-          review={rejectingReview}
           selectedReason={selectedRejectReason}
           isProcessing={processingIds.has(rejectingReview.id)}
           onSelectReason={setSelectedRejectReason}

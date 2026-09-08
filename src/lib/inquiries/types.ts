@@ -27,6 +27,7 @@ export const INQUIRY_FILE_MAX_BYTES = 10 * 1024 * 1024;
 export const INQUIRY_FILE_MAX_COUNT = 5;
 
 export interface InquiryAttachment {
+  key?: string;
   url: string;
   name: string;
   size: number;

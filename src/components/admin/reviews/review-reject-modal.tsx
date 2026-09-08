@@ -5,10 +5,9 @@ import {
   REVIEW_REJECTION_REASONS,
   ReviewRejectionReason,
 } from "@/src/lib/reviews/rejection-reasons";
-import type { Review } from "./types";
+import { Dialog } from "@/src/components/common/Dialog";
 
 interface ReviewRejectModalProps {
-  review: Review;
   selectedReason: ReviewRejectionReason;
   isProcessing: boolean;
   onSelectReason: (reason: ReviewRejectionReason) => void;
@@ -17,7 +16,6 @@ interface ReviewRejectModalProps {
 }
 
 export function ReviewRejectModal({
-  review,
   selectedReason,
   isProcessing,
   onSelectReason,
@@ -25,15 +23,18 @@ export function ReviewRejectModal({
   onConfirm,
 }: ReviewRejectModalProps) {
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 backdrop-blur-sm p-4"
-      onClick={onCancel}
+    <Dialog
+      labelledBy="review-reject-dialog-title"
+      onClose={onCancel}
+      overlayClassName="bg-black/45 backdrop-blur-sm"
+      className="w-full max-w-lg rounded-2xl border border-zinc-200 bg-white p-5 shadow-xl"
     >
-      <div
-        className="w-full max-w-lg rounded-2xl border border-zinc-200 bg-white p-5 shadow-xl"
-        onClick={(event) => event.stopPropagation()}
-      >
-        <h3 className="text-base font-semibold text-[var(--color-text-primary)]">리뷰 반려</h3>
+        <h3
+          id="review-reject-dialog-title"
+          className="text-base font-semibold text-[var(--color-text-primary)]"
+        >
+          리뷰 반려
+        </h3>
         <p className="mt-1 text-xs text-[var(--color-text-secondary)]">
           반려 사유를 선택하면 작성자 마이페이지에 표시됩니다.
         </p>
@@ -70,7 +71,6 @@ export function ReviewRejectModal({
             {isProcessing ? "처리 중..." : "반려"}
           </button>
         </div>
-      </div>
-    </div>
+    </Dialog>
   );
 }

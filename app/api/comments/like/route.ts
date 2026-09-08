@@ -5,7 +5,7 @@ import {
   getCommentLikeStatus,
   toggleCommentLike,
 } from "@/src/lib/comments/comment-service";
-import { initializeDatabase } from "@/src/lib/db";
+import { withDatabase, withDatabaseRead } from "@/src/lib/db";
 import { handleRouteError } from "@/src/lib/http/handle-route-error";
 import { apiOk } from "@/src/lib/http/response";
 
@@ -15,11 +15,12 @@ export async function POST(request: Request) {
     if (response) return response;
 
     const { commentId } = await request.json();
-    const dataSource = await initializeDatabase();
-    const result = await toggleCommentLike(
-      dataSource,
-      session.user.id,
-      String(commentId ?? "")
+    const result = await withDatabase((dataSource) =>
+      toggleCommentLike(
+        dataSource,
+        session.user.id,
+        String(commentId ?? "")
+      )
     );
 
     return apiOk(result);
@@ -32,12 +33,13 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const commentId = searchParams.get("commentId") ?? "";
-    const dataSource = await initializeDatabase();
     const session = await getAppSession();
-    const result = await getCommentLikeStatus(
-      dataSource,
-      commentId,
-      session?.user?.id ?? null
+    const result = await withDatabaseRead((dataSource) =>
+      getCommentLikeStatus(
+        dataSource,
+        commentId,
+        session?.user?.id ?? null
+      )
     );
 
     return apiOk(result);

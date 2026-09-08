@@ -4,16 +4,22 @@
 import { useSession } from "next-auth/react";
 import { useFeaturedAlbums } from "@/src/hooks/use-featured-albums";
 import { useSlideSourceState } from "@/src/hooks/use-slide-source-state";
+import type { FeaturedAlbumCardData } from "@/src/lib/featured-albums/types";
 import { FeaturedAlbumCard } from "./featured-album-card";
 
-export default function FeaturedAlbums() {
+export default function FeaturedAlbums({
+  initialAlbums = [],
+}: {
+  initialAlbums?: FeaturedAlbumCardData[];
+}) {
   const { data: session, status } = useSession();
   const { slideSource } = useSlideSourceState();
   const showAdminSlide = slideSource === "admin";
   const { albums, isLoading } = useFeaturedAlbums(
     status,
     session?.user?.id,
-    showAdminSlide
+    showAdminSlide,
+    initialAlbums
   );
 
   if (isLoading) {

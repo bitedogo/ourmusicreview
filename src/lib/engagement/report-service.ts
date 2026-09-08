@@ -7,6 +7,7 @@ import { Post } from "@/src/lib/db/entities/Post";
 import { Report } from "@/src/lib/db/entities/Report";
 import { Review } from "@/src/lib/db/entities/Review";
 import { ServiceError } from "@/src/lib/http/service-error";
+import { isUniqueViolation } from "@/src/lib/db/pg-error";
 
 export async function createReport(
   dataSource: DataSource,
@@ -17,7 +18,7 @@ export async function createReport(
   const postId = input.postId ? String(input.postId) : null;
   const reviewId = input.reviewId ? String(input.reviewId) : null;
 
-  if (!reason || (!postId && !reviewId)) {
+  if (!reason || Number(Boolean(postId)) + Number(Boolean(reviewId)) !== 1) {
     throw new ServiceError("필수 정보가 누락되었습니다.", 400);
   }
 
@@ -56,6 +57,13 @@ export async function createReport(
     postId,
     reviewId,
   });
-  await reportRepository.save(newReport);
+  try {
+    await reportRepository.save(newReport);
+  } catch (error) {
+    if (isUniqueViolation(error)) {
+      throw new ServiceError("이미 신고한 게시물/리뷰입니다.", 409);
+    }
+    throw error;
+  }
   return { reported: true };
 }

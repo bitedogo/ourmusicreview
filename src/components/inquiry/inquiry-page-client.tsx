@@ -45,7 +45,8 @@ export function InquiryPageClient({
 }: InquiryPageClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const activeTab = parseTab(searchParams.get("tab"));
+  const tabParam = searchParams.get("tab");
+  const activeTab = tabParam === null ? initialTab : parseTab(tabParam);
   const [historyRefreshKey, setHistoryRefreshKey] = useState(0);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 

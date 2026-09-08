@@ -11,17 +11,19 @@ import {
   OG_IMAGE_HEIGHT,
   OG_IMAGE_SRC,
   OG_IMAGE_WIDTH,
+  SITE_DESCRIPTION,
+  SITE_NAME,
+  SITE_URL,
 } from "@/src/lib/site/branding";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://www.comeonoru.com"),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "ORU | Music Review & Community",
     template: "%s | ORU",
   },
-  description:
-    "음악을 기록하고 공유하는 커뮤니티 ORU. 앨범 리뷰를 남기고, 새로운 음악을 발견해보세요.",
-  applicationName: "ORU",
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
@@ -36,16 +38,12 @@ export const metadata: Metadata = {
       { url: "/icons/oru-app-icon-192.png", sizes: "192x192", type: "image/png" },
     ],
   },
-  alternates: {
-    canonical: "/",
-  },
   openGraph: {
     type: "website",
-    url: "https://www.comeonoru.com",
-    siteName: "ORU",
+    url: SITE_URL,
+    siteName: SITE_NAME,
     title: "ORU | Music Review & Community",
-    description:
-      "음악을 기록하고 공유하는 커뮤니티 ORU. 앨범 리뷰를 남기고, 새로운 음악을 발견해보세요.",
+    description: SITE_DESCRIPTION,
     locale: "ko_KR",
     images: [
       {
@@ -59,8 +57,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "ORU | Music Review & Community",
-    description:
-      "음악을 기록하고 공유하는 커뮤니티 ORU. 앨범 리뷰를 남기고, 새로운 음악을 발견해보세요.",
+    description: SITE_DESCRIPTION,
     images: [OG_IMAGE_SRC],
   },
   robots: {

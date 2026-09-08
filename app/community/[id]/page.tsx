@@ -1,7 +1,9 @@
 /** 커뮤니티 게시글 상세 서버 페이지 */
 
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { cache } from "react";
 import { initializeDatabase } from "@/src/lib/db";
 import { Post } from "@/src/lib/db/entities/Post";
 import type { NoticeCategory } from "@/src/lib/community/types";
@@ -12,6 +14,61 @@ import {
 } from "@/src/lib/community/notice-category";
 import { PostContentClient } from "./post-content-client";
 
+const getPost = cache(async (id: string) => {
+  const dataSource = await initializeDatabase();
+  return dataSource.getRepository(Post).findOne({
+    where: { id },
+    relations: ["user"],
+  });
+});
+
+function summarize(content: string): string {
+  const text = content
+    .replace(/<[^>]*>/g, " ")
+    .replace(/[#*_>`~[\]()!-]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  return text.slice(0, 160) || "ORU 커뮤니티 게시글입니다.";
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const canonical = `/community/${encodeURIComponent(id)}`;
+
+  try {
+    const post = await getPost(id);
+    if (!post) {
+      return {
+        title: "게시글을 찾을 수 없습니다",
+        alternates: { canonical },
+        robots: { index: false, follow: false },
+      };
+    }
+    const description = summarize(post.content);
+    return {
+      title: post.title,
+      description,
+      alternates: { canonical },
+      openGraph: {
+        type: "article",
+        url: canonical,
+        title: post.title,
+        description,
+      },
+    };
+  } catch {
+    return {
+      title: "커뮤니티 게시글",
+      alternates: { canonical },
+      robots: { index: false, follow: false },
+    };
+  }
+}
+
 export default async function CommunityDetailPage({
   params,
 }: {
@@ -20,13 +77,9 @@ export default async function CommunityDetailPage({
   const { id } = await params;
 
   const dataSource = await initializeDatabase();
-  const postRepository = dataSource.getRepository(Post);
   const commentRepository = dataSource.getRepository(Comment);
 
-  const post = await postRepository.findOne({
-    where: { id },
-    relations: ["user"],
-  });
+  const post = await getPost(id);
 
   if (!post) {
     notFound();

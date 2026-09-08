@@ -1,7 +1,7 @@
 "use client";
 /** 좋아요·신고 인터랙션 버튼 */
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { ReportModal } from "@/src/components/interaction/ReportModal";
@@ -38,23 +38,25 @@ export function InteractionButtons({
 
   const isOwnContent = authorUserId && session?.user?.id === authorUserId;
   const canReport = Boolean((postId || reviewId) && !isNotice && !isOwnContent);
-  const fetchLikeInfo = useCallback(async () => {
-    if (!postId && !reviewId && !playlistId) return;
-
-    try {
-      const data = await fetchContentLikeStatus({ postId, reviewId, playlistId });
-      setLikeInfo({
-        count: data.data.count ?? 0,
-        liked: data.data.liked ?? false,
-      });
-    } catch {
-      /* ignore */
-    }
-  }, [postId, reviewId, playlistId]);
 
   useEffect(() => {
-    void fetchLikeInfo();
-  }, [fetchLikeInfo]);
+    let cancelled = false;
+    if (!postId && !reviewId && !playlistId) return;
+
+    void fetchContentLikeStatus({ postId, reviewId, playlistId })
+      .then((data) => {
+        if (cancelled) return;
+        setLikeInfo({
+          count: data.data.count ?? 0,
+          liked: data.data.liked ?? false,
+        });
+      })
+      .catch(() => undefined);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [postId, reviewId, playlistId]);
 
   const handleLike = async () => {
     if (!session) {

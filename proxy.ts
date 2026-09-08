@@ -8,7 +8,7 @@ import {
   isGuidePath,
 } from "@/src/lib/guides/gate";
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   if (!isGuidePath(pathname)) {
     return NextResponse.next();

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { fetchJson, getApiErrorMessage } from "@/src/lib/http/client";
+import { useAdminAsyncAction } from "@/src/hooks/use-admin-async-action";
 
 interface ReportItem {
   id: string;
@@ -47,7 +48,7 @@ export function ReportManagementClient() {
   const [reports, setReports] = useState<ReportItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [processingIds, setProcessingIds] = useState<Set<string>>(new Set());
+  const { processingIds, runAction, confirmAndRun } = useAdminAsyncAction();
 
   useEffect(() => {
     fetchReports();
@@ -67,26 +68,22 @@ export function ReportManagementClient() {
   }
 
   async function handleDismiss(reportId: string) {
-    setProcessingIds((prev) => new Set(prev).add(reportId));
-    try {
-      await fetchJson<{ ok: true; data: { id: string; action: string } }>(
-        `/api/admin/reports/${encodeURIComponent(reportId)}`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: "dismiss" }),
-        }
-      );
-      setReports((prev) => prev.filter((r) => r.id !== reportId));
-    } catch (err) {
-      alert(getApiErrorMessage(err, "신고 처리 중 알 수 없는 오류가 발생했습니다."));
-    } finally {
-      setProcessingIds((prev) => {
-        const next = new Set(prev);
-        next.delete(reportId);
-        return next;
-      });
-    }
+    await runAction(
+      reportId,
+      async () => {
+        await fetchJson<{ ok: true; data: { id: string; action: string } }>(
+          `/api/admin/reports/${encodeURIComponent(reportId)}`,
+          {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action: "dismiss" }),
+          }
+        );
+        setReports((prev) => prev.filter((r) => r.id !== reportId));
+      },
+      (err) =>
+        alert(getApiErrorMessage(err, "신고 처리 중 알 수 없는 오류가 발생했습니다."))
+    );
   }
 
   async function handleDeleteContent(
@@ -98,28 +95,22 @@ export function ReportManagementClient() {
         ? "이 게시글을 삭제하시겠습니까? 삭제 후에는 복구할 수 없습니다."
         : "이 리뷰를 삭제하시겠습니까? 삭제 후에는 복구할 수 없습니다.";
 
-    if (!confirm(message)) return;
-
-    setProcessingIds((prev) => new Set(prev).add(reportId));
-    try {
-      await fetchJson<{ ok: true; data: { id: string; action: string } }>(
-        `/api/admin/reports/${encodeURIComponent(reportId)}`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action }),
-        }
-      );
-      setReports((prev) => prev.filter((r) => r.id !== reportId));
-    } catch (err) {
-      alert(getApiErrorMessage(err, "처리 중 알 수 없는 오류가 발생했습니다."));
-    } finally {
-      setProcessingIds((prev) => {
-        const next = new Set(prev);
-        next.delete(reportId);
-        return next;
-      });
-    }
+    await confirmAndRun(
+      reportId,
+      message,
+      async () => {
+        await fetchJson<{ ok: true; data: { id: string; action: string } }>(
+          `/api/admin/reports/${encodeURIComponent(reportId)}`,
+          {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action }),
+          }
+        );
+        setReports((prev) => prev.filter((r) => r.id !== reportId));
+      },
+      (err) => alert(getApiErrorMessage(err, "처리 중 알 수 없는 오류가 발생했습니다."))
+    );
   }
 
   const formatDate = (dateString: string) => {

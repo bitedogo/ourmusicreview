@@ -11,13 +11,20 @@ import type {
 export function useFeaturedAlbums(
   sessionStatus: "loading" | "authenticated" | "unauthenticated",
   userId: string | undefined,
-  showAdminSlide: boolean
+  showAdminSlide: boolean,
+  initialAlbums: FeaturedAlbumCardData[] = []
 ) {
-  const [albums, setAlbums] = useState<FeaturedAlbumCardData[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [albums, setAlbums] =
+    useState<FeaturedAlbumCardData[]>(initialAlbums);
+  const [isLoading, setIsLoading] = useState(initialAlbums.length === 0);
 
   useEffect(() => {
     if (sessionStatus === "loading") return;
+    if (showAdminSlide || sessionStatus === "unauthenticated") {
+      setAlbums(initialAlbums);
+      setIsLoading(false);
+      return;
+    }
 
     let isCancelled = false;
     setIsLoading(true);
@@ -51,7 +58,7 @@ export function useFeaturedAlbums(
     return () => {
       isCancelled = true;
     };
-  }, [sessionStatus, userId, showAdminSlide]);
+  }, [sessionStatus, userId, showAdminSlide, initialAlbums]);
 
   return { albums, isLoading };
 }

@@ -149,6 +149,8 @@ export function ImageCropModal({
               circularCrop={circularCrop}
               className="min-h-[200px] min-w-[200px] flex items-center justify-center"
             >
+              {/* Blob/data URL을 자르기 위한 편집 캔버스이므로 최적화 이미지가 아니다. */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 ref={setImgRef}
                 src={imageSrc}

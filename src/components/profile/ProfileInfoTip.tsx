@@ -2,7 +2,7 @@
 
 "use client";
 
-import { ReactNode, useId, useLayoutEffect, useRef, useState } from "react";
+import { ReactNode, useId, useLayoutEffect, useRef } from "react";
 import {
   INFO_TIP_BUBBLE_WIDTH,
   INFO_TIP_BUBBLES,
@@ -31,17 +31,16 @@ export function ProfileInfoTip({
   const { open, rootRef, onMouseEnter, onMouseLeave, onToggleClick } =
     useProfileInfoTip();
   const tipRef = useRef<HTMLSpanElement>(null);
-  const [shiftX, setShiftX] = useState(0);
 
   useLayoutEffect(() => {
-    if (!open || !tipRef.current) {
-      setShiftX(0);
+    const tip = tipRef.current;
+    if (!tip) return;
+    if (!open) {
+      tip.style.transform = "translateX(0px)";
       return;
     }
 
     const clamp = () => {
-      const tip = tipRef.current;
-      if (!tip) return;
       tip.style.transform = "translateX(0px)";
       const rect = tip.getBoundingClientRect();
       let next = 0;
@@ -51,7 +50,7 @@ export function ProfileInfoTip({
       if (rect.left + next < VIEWPORT_MARGIN) {
         next = VIEWPORT_MARGIN - rect.left;
       }
-      setShiftX(next);
+      tip.style.transform = `translateX(${next}px)`;
     };
 
     clamp();
@@ -84,7 +83,6 @@ export function ProfileInfoTip({
         className={`pointer-events-none absolute left-[-4px] top-[calc(100%+2px)] z-40 w-[min(334px,calc(100vw-2rem))] ${
           open ? "block" : "hidden"
         }`}
-        style={{ transform: `translateX(${shiftX}px)` }}
       >
         <span
           className="relative block w-full"

@@ -6,7 +6,10 @@ import {
   INQUIRY_FILE_MAX_COUNT,
   type InquiryAttachment,
 } from "@/src/lib/inquiries/types";
-import { uploadInquiryAttachmentApi } from "@/src/lib/inquiries/client-api";
+import {
+  deleteInquiryAttachmentApi,
+  uploadInquiryAttachmentApi,
+} from "@/src/lib/inquiries/client-api";
 import { getApiErrorMessage } from "@/src/lib/http/client";
 
 interface InquiryFileUploadProps {
@@ -52,6 +55,10 @@ export function InquiryFileUpload({
   }
 
   function removeAt(index: number) {
+    const attachment = attachments[index];
+    if (attachment?.key) {
+      void deleteInquiryAttachmentApi(attachment.key).catch(() => undefined);
+    }
     onChange(attachments.filter((_, i) => i !== index));
   }
 

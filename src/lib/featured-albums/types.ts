@@ -12,8 +12,7 @@ export interface FeaturedAlbumCardData {
 
 import type { ApiSuccessResponse } from "@/src/lib/http/client";
 
-export interface FeaturedAlbumsApiResponse
-  extends ApiSuccessResponse<{
-    albums: FeaturedAlbumCardData[];
-    hasUserSlide?: boolean;
-  }> {}
+export type FeaturedAlbumsApiResponse = ApiSuccessResponse<{
+  albums: FeaturedAlbumCardData[];
+  hasUserSlide?: boolean;
+}>;

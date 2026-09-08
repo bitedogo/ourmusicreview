@@ -7,6 +7,7 @@ import { User } from "../db/entities/User";
 import { isBcryptHash } from "@/src/lib/auth/validation";
 import { verifyPassword } from "@/src/lib/auth/password";
 import { getSupabaseClient } from "@/src/lib/supabase";
+import { resolveExternalIdentity } from "@/src/lib/auth/identity-service";
 
 export const credentialsProvider = CredentialsProvider({
   name: "Credentials",
@@ -105,30 +106,13 @@ export const supabaseCredentialsProvider = CredentialsProvider({
     }
 
     const dataSource = await initializeDatabase();
-    const userRepository = dataSource.getRepository(User);
-
-    let dbUser = await userRepository.findOne({
-      where: { email: user.email! },
+    const dbUser = await resolveExternalIdentity(dataSource, {
+      provider: "supabase",
+      providerSubject: user.id,
+      email: user.email!,
+      nickname: user.user_metadata.full_name || user.email!.split("@")[0],
+      profileImage: user.user_metadata.avatar_url || null,
     });
-
-    if (!dbUser) {
-      const { isEmailBlocked } = await import("@/src/lib/users/blocked-email");
-      if (await isEmailBlocked(dataSource, user.email!)) {
-        return null;
-      }
-      dbUser = userRepository.create({
-        id: user.id,
-        email: user.email!,
-        nickname: user.user_metadata.full_name || user.email!.split('@')[0],
-        profileImage: user.user_metadata.avatar_url || null,
-        role: "USER",
-        emailVerifiedAt: new Date(),
-      });
-      await userRepository.save(dbUser);
-    } else if (dbUser.id !== user.id) {
-      await userRepository.update({ email: user.email! }, { id: user.id });
-      dbUser.id = user.id;
-    }
 
     const { assertUserNotSuspended } = await import(
       "@/src/lib/users/user-sanction-service"

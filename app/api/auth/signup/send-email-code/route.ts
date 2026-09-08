@@ -4,15 +4,35 @@ import {
   EMAIL_AUTH_MESSAGES,
   sendSignupEmailOtp,
 } from "@/src/lib/auth/email-otp";
-import { sanitizeText, validateEmail } from "@/src/lib/auth/validation";
+import { emailRequestSchema } from "@/src/lib/auth/contracts";
+import { enforceRateLimit, getRequestIp } from "@/src/lib/auth/rate-limit";
+import { initializeDatabase } from "@/src/lib/db";
+import { handleApi } from "@/src/lib/http/handle-route-error";
+import { parseJsonBody } from "@/src/lib/http/schema";
 import { apiError, apiOk } from "@/src/lib/http/response";
 
 export async function POST(request: Request) {
-  try {
-    const body = await request.json();
-    const email = sanitizeText(body?.email).toLowerCase();
-    const emailError = validateEmail(email);
-    if (emailError) return apiError(emailError, { status: 400 });
+  return handleApi("인증번호 발송 중 오류가 발생했습니다.", async () => {
+    const { email: rawEmail } = await parseJsonBody(request, emailRequestSchema);
+    const email = rawEmail.toLowerCase();
+    const dataSource = await initializeDatabase();
+    const ip = getRequestIp(request);
+    await Promise.all([
+      enforceRateLimit(dataSource, {
+        scope: "signup-email",
+        key: email,
+        limit: 3,
+        windowSeconds: 600,
+        blockSeconds: 1800,
+      }),
+      enforceRateLimit(dataSource, {
+        scope: "signup-email-ip",
+        key: ip,
+        limit: 10,
+        windowSeconds: 600,
+        blockSeconds: 1800,
+      }),
+    ]);
 
     try {
       await sendSignupEmailOtp(email);
@@ -34,7 +54,5 @@ export async function POST(request: Request) {
       { email },
       { message: "인증번호를 이메일로 보냈습니다. 10분 안에 입력해 주세요." }
     );
-  } catch {
-    return apiError("인증번호 발송 중 오류가 발생했습니다.", { status: 500 });
-  }
+  });
 }

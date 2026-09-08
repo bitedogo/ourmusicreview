@@ -1,5 +1,7 @@
 /** 프론트 HTTP 클라이언트 래퍼 */
 
+import type { ZodType } from "zod";
+
 export interface ApiSuccessResponse<T> {
   ok: true;
   data: T;
@@ -35,10 +37,20 @@ export function getApiErrorMessage(error: unknown, fallback: string): string {
 
 export async function fetchJson<T extends ApiBaseResponse>(
   input: RequestInfo | URL,
-  init?: RequestInit
+  init?: RequestInit,
+  schema?: ZodType<T>
 ): Promise<T> {
   const response = await fetch(input, init);
-  const payload = (await response.json().catch(() => null)) as T | null;
+  const rawPayload: unknown = await response.json().catch(() => null);
+  const parsed = schema?.safeParse(rawPayload);
+  if (schema && !parsed?.success) {
+    throw new ApiClientError(
+      "서버 응답 형식이 올바르지 않습니다.",
+      response.status,
+      rawPayload
+    );
+  }
+  const payload = (schema ? parsed?.data : rawPayload) as T | null;
 
   if (!response.ok || !payload?.ok) {
     throw new ApiClientError(

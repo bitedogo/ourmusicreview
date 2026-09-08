@@ -1,11 +1,12 @@
 /** POST/GET 댓글 작성·목록 */
 
+import { revalidatePath } from "next/cache";
 import { getAppSession, requireWritableSessionApi } from "@/src/lib/auth/session";
 import {
   createComment,
   listComments,
 } from "@/src/lib/comments/comment-service";
-import { initializeDatabase } from "@/src/lib/db";
+import { withDatabase, withDatabaseRead } from "@/src/lib/db";
 import { handleRouteError } from "@/src/lib/http/handle-route-error";
 import { apiOk } from "@/src/lib/http/response";
 
@@ -15,8 +16,20 @@ export async function POST(request: Request) {
     if (response) return response;
 
     const body = await request.json();
-    const dataSource = await initializeDatabase();
-    const comment = await createComment(dataSource, session.user.id, body);
+    const comment = await withDatabase((dataSource) =>
+      createComment(dataSource, session.user.id, body)
+    );
+    if (typeof body.playlistId === "string") {
+      revalidatePath(`/playlist/${body.playlistId}`);
+      revalidatePath("/playlist");
+    }
+    if (typeof body.reviewId === "string") {
+      revalidatePath(`/review/${body.reviewId}`);
+      revalidatePath("/reviews");
+    }
+    if (typeof body.postId === "string") {
+      revalidatePath(`/community/${body.postId}`);
+    }
 
     return apiOk({ comment }, { status: 201 });
   } catch (error) {
@@ -27,15 +40,18 @@ export async function POST(request: Request) {
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const dataSource = await initializeDatabase();
     const session = await getAppSession();
 
-    const result = await listComments(dataSource, {
-      postId: searchParams.get("postId"),
-      reviewId: searchParams.get("reviewId"),
-      playlistId: searchParams.get("playlistId"),
-      viewerUserId: session?.user?.id ?? null,
-    });
+    const result = await withDatabaseRead((dataSource) =>
+      listComments(dataSource, {
+        postId: searchParams.get("postId"),
+        reviewId: searchParams.get("reviewId"),
+        playlistId: searchParams.get("playlistId"),
+        viewerUserId: session?.user?.id ?? null,
+        page: searchParams.get("page"),
+        pageSize: searchParams.get("pageSize"),
+      })
+    );
 
     return apiOk(result);
   } catch (error) {

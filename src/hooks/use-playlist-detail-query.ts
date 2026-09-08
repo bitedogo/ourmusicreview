@@ -9,9 +9,14 @@ import {
 import { fetchJson, getApiErrorMessage } from "@/src/lib/http/client";
 import type { AlbumStreamingLinks, BatchStreamingLinksResponse } from "@/src/lib/streaming/types";
 
-export function usePlaylistDetailQuery(playlistId: string) {
-  const [playlist, setPlaylist] = useState<PlaylistDetailDto | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+export function usePlaylistDetailQuery(
+  playlistId: string,
+  initialPlaylist?: PlaylistDetailDto | null
+) {
+  const [playlist, setPlaylist] = useState<PlaylistDetailDto | null>(
+    initialPlaylist ?? null
+  );
+  const [isLoading, setIsLoading] = useState(initialPlaylist === undefined);
   const [error, setError] = useState<string | null>(null);
   const [streamingLinksByTrackId, setStreamingLinksByTrackId] = useState<
     Record<string, AlbumStreamingLinks>
@@ -49,8 +54,14 @@ export function usePlaylistDetailQuery(playlistId: string) {
   );
 
   useEffect(() => {
+    if (initialPlaylist !== undefined) {
+      setPlaylist(initialPlaylist);
+      setIsLoading(false);
+      setError(null);
+      return;
+    }
     void loadPlaylist();
-  }, [loadPlaylist]);
+  }, [loadPlaylist, initialPlaylist]);
 
   useEffect(() => {
     let cancelled = false;

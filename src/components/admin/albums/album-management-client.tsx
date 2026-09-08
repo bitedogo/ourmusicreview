@@ -4,6 +4,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useItunesAlbumPicker } from "@/src/hooks/use-itunes-album-picker";
+import { useAdminAsyncAction } from "@/src/hooks/use-admin-async-action";
 import { fetchJson, getApiErrorMessage } from "@/src/lib/http/client";
 import type { SearchAlbumResult } from "@/src/lib/search/types";
 import { AlbumTable } from "./AlbumTable";
@@ -24,7 +25,7 @@ export function AlbumManagementClient() {
   const [albums, setAlbums] = useState<TodayAlbumItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [processingIds, setProcessingIds] = useState<Set<string>>(new Set());
+  const { processingIds, runAction, confirmAndRun } = useAdminAsyncAction();
   const [modalOpen, setModalOpen] = useState(false);
   const [editingDate, setEditingDate] = useState<string | null>(null);
   const [form, setForm] = useState<TodayAlbumFormState>(EMPTY_FORM);
@@ -122,45 +123,34 @@ export function AlbumManagementClient() {
       }
     }
 
-    setProcessingIds((prev) => new Set(prev).add("submit"));
-    try {
-      await fetchJson<{ ok: true }>("/api/admin/albums", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      setModalOpen(false);
-      fetchAlbums();
-    } catch (err) {
-      alert(getApiErrorMessage(err, "저장 중 오류가 발생했습니다."));
-    } finally {
-      setProcessingIds((prev) => {
-        const next = new Set(prev);
-        next.delete("submit");
-        return next;
-      });
-    }
+    await runAction(
+      "submit",
+      async () => {
+        await fetchJson<{ ok: true }>("/api/admin/albums", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        setModalOpen(false);
+        await fetchAlbums();
+      },
+      (err) => alert(getApiErrorMessage(err, "저장 중 오류가 발생했습니다."))
+    );
   }
 
   async function handleDelete(displayDate: string) {
-    if (!confirm(`${displayDate} 앨범을 삭제하시겠습니까?`)) return;
-
-    setProcessingIds((prev) => new Set(prev).add(displayDate));
-    try {
-      await fetchJson<{ ok: true }>(
-        `/api/admin/albums/${encodeURIComponent(displayDate)}`,
-        { method: "DELETE" }
-      );
-      setAlbums((prev) => prev.filter((a) => a.displayDate !== displayDate));
-    } catch (err) {
-      alert(getApiErrorMessage(err, "삭제 중 오류가 발생했습니다."));
-    } finally {
-      setProcessingIds((prev) => {
-        const next = new Set(prev);
-        next.delete(displayDate);
-        return next;
-      });
-    }
+    await confirmAndRun(
+      displayDate,
+      `${displayDate} 앨범을 삭제하시겠습니까?`,
+      async () => {
+        await fetchJson<{ ok: true }>(
+          `/api/admin/albums/${encodeURIComponent(displayDate)}`,
+          { method: "DELETE" }
+        );
+        setAlbums((prev) => prev.filter((a) => a.displayDate !== displayDate));
+      },
+      (err) => alert(getApiErrorMessage(err, "삭제 중 오류가 발생했습니다."))
+    );
   }
 
   const takenDates = albums.map((a) => a.displayDate);

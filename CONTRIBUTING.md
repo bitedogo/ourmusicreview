@@ -54,7 +54,9 @@ app/**/page.tsx         → 라우트 셸 (가능하면 RSC, 인터랙션만 클
 ## DB 스키마 변경
 
 - `synchronize: false` 유지.
-- **당분간** TypeORM Migration 대신 `scripts/run-*-migration.mjs` + `npm run db:migrate:*` 를 사용합니다.
+- SQL은 `scripts/`에 두고 공통 `scripts/run-migration.mjs`로 실행합니다.
+- 새 SQL은 `scripts/migration-manifest.json` 끝에 의존 순서대로 추가하고, 필요한 `db:migrate:<name>` 스크립트도 등록합니다.
+- 전체 적용은 `npm run db:migrate`, 단일 적용은 `npm run db:migrate:<name>`을 사용합니다. `schema_migrations`의 체크섬이 적용된 SQL 변경을 차단합니다.
 - 전환 시점·절차는 `BACKEND_SETUP.md`의「스키마 마이그레이션」을 따릅니다.
 
 ## UI 로딩·404
@@ -65,7 +67,6 @@ app/**/page.tsx         → 라우트 셸 (가능하면 RSC, 인터랙션만 클
 ## 검증
 
 ```bash
-npm run typecheck
-npm run lint
-npm run build
+npm run check         # typecheck + lint + test
+npm run check:build   # check + production build
 ```

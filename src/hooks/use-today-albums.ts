@@ -15,16 +15,19 @@ const INITIAL_IMAGE_ERRORS: Record<TodayAlbumTab, boolean> = {
   previous: false,
 };
 
-export function useTodayAlbums() {
+export function useTodayAlbums(initialData?: TodayAlbumsResponse) {
   const [albums, setAlbums] = useState<TodayAlbumsResponse["albums"] | null>(
-    null
+    initialData?.albums ?? null
   );
-  const [archive, setArchive] = useState<TodayAlbumArchiveItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [archive, setArchive] = useState<TodayAlbumArchiveItem[]>(
+    initialData?.archive ?? []
+  );
+  const [isLoading, setIsLoading] = useState(!initialData);
   const [imageErrors, setImageErrors] =
     useState<Record<TodayAlbumTab, boolean>>(INITIAL_IMAGE_ERRORS);
 
   useEffect(() => {
+    if (initialData) return;
     let isCancelled = false;
 
     async function fetchAlbums() {
@@ -47,7 +50,7 @@ export function useTodayAlbums() {
     return () => {
       isCancelled = true;
     };
-  }, []);
+  }, [initialData]);
 
   useEffect(() => {
     setImageErrors(INITIAL_IMAGE_ERRORS);

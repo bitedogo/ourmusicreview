@@ -12,13 +12,28 @@ import { safeCreateNotification } from "@/src/lib/notifications/notification-ser
 import {
   INQUIRY_BODY_MAX,
   INQUIRY_BODY_MIN,
-  INQUIRY_FILE_MAX_COUNT,
   INQUIRY_TITLE_MAX,
   isInquiryCategory,
-  type InquiryAttachment,
-  type InquiryCategory,
   type InquiryStatus,
 } from "@/src/lib/inquiries/types";
+import {
+  parseInquiryAttachments,
+  signInquiryAttachments,
+} from "@/src/lib/inquiries/inquiry-attachments";
+import {
+  toInquiryListItem,
+  toInquiryReplyDto,
+  type AdminInquiryDetailDto,
+  type InquiryDetailDto,
+} from "@/src/lib/inquiries/inquiry-mappers";
+
+export type {
+  AdminInquiryDetailDto,
+  AdminInquiryListItemDto,
+  InquiryDetailDto,
+  InquiryListItemDto,
+  InquiryReplyDto,
+} from "@/src/lib/inquiries/inquiry-mappers";
 
 function createId() {
   return randomUUID().replace(/-/g, "").slice(0, 24);
@@ -27,60 +42,6 @@ function createId() {
 function createPublicCode() {
   const n = Math.floor(1000 + Math.random() * 9000);
   return `ORU-${n}`;
-}
-
-export interface InquiryListItemDto {
-  id: string;
-  publicCode: string;
-  category: InquiryCategory;
-  title: string;
-  status: InquiryStatus;
-  createdAt: string;
-}
-
-export interface InquiryReplyDto {
-  id: string;
-  body: string;
-  isAdmin: boolean;
-  createdAt: string;
-}
-
-export interface InquiryDetailDto extends InquiryListItemDto {
-  email: string;
-  contact: string | null;
-  body: string;
-  attachments: InquiryAttachment[];
-  replies: InquiryReplyDto[];
-  userId: string;
-}
-
-export interface AdminInquiryListItemDto extends InquiryListItemDto {
-  userId: string;
-  userNickname: string;
-}
-
-export interface AdminInquiryDetailDto extends InquiryDetailDto {
-  userNickname: string;
-}
-
-function toListItem(inquiry: Inquiry): InquiryListItemDto {
-  return {
-    id: inquiry.id,
-    publicCode: inquiry.publicCode,
-    category: inquiry.category,
-    title: inquiry.title,
-    status: inquiry.status,
-    createdAt: new Date(inquiry.createdAt).toISOString(),
-  };
-}
-
-function toReplyDto(reply: InquiryReply): InquiryReplyDto {
-  return {
-    id: reply.id,
-    body: reply.body,
-    isAdmin: reply.isAdmin === "Y",
-    createdAt: new Date(reply.createdAt).toISOString(),
-  };
 }
 
 export async function createInquiry(
@@ -121,7 +82,7 @@ export async function createInquiry(
     throw new ServiceError(`내용은 ${INQUIRY_BODY_MAX}자 이하여야 합니다.`, 400);
   }
 
-  const attachments = parseAttachments(input.attachments);
+  const attachments = parseInquiryAttachments(input.attachments, userId);
 
   const repo = dataSource.getRepository(Inquiry);
   for (let attempt = 0; attempt < 8; attempt += 1) {
@@ -139,7 +100,7 @@ export async function createInquiry(
     });
     try {
       const saved = await repo.save(inquiry);
-      return toListItem(saved);
+      return toInquiryListItem(saved);
     } catch (error) {
       const message = error instanceof Error ? error.message : "";
       if (!message.includes("public_code") && !message.includes("unique")) {
@@ -148,33 +109,6 @@ export async function createInquiry(
     }
   }
   throw new ServiceError("문의 번호를 만들지 못했습니다. 다시 시도해 주세요.", 500);
-}
-
-function parseAttachments(value: unknown): InquiryAttachment[] {
-  if (value == null) return [];
-  if (!Array.isArray(value)) {
-    throw new ServiceError("첨부 형식이 올바르지 않습니다.", 400);
-  }
-  if (value.length > INQUIRY_FILE_MAX_COUNT) {
-    throw new ServiceError(`첨부 파일은 ${INQUIRY_FILE_MAX_COUNT}개까지입니다.`, 400);
-  }
-  return value.map((item) => {
-    if (
-      !item ||
-      typeof item !== "object" ||
-      typeof (item as InquiryAttachment).url !== "string" ||
-      typeof (item as InquiryAttachment).name !== "string" ||
-      typeof (item as InquiryAttachment).size !== "number"
-    ) {
-      throw new ServiceError("첨부 형식이 올바르지 않습니다.", 400);
-    }
-    const attachment = item as InquiryAttachment;
-    return {
-      url: attachment.url.slice(0, 500),
-      name: attachment.name.slice(0, 120),
-      size: attachment.size,
-    };
-  });
 }
 
 export async function listMyInquiries(
@@ -193,32 +127,7 @@ export async function listMyInquiries(
     take,
   });
   return {
-    items: rows.map(toListItem),
-    total,
-    page: safePage,
-    pageSize: take,
-    totalPages: Math.max(1, Math.ceil(total / take)),
-  };
-}
-
-export async function listAllInquiries(
-  dataSource: DataSource,
-  page = 1,
-  pageSize = 20,
-  status?: InquiryStatus
-) {
-  const safePage = Math.max(1, page);
-  const take = Math.min(50, Math.max(1, pageSize));
-  const repo = dataSource.getRepository(Inquiry);
-  const where = status ? { status } : {};
-  const [rows, total] = await repo.findAndCount({
-    where,
-    order: { createdAt: "DESC" },
-    skip: (safePage - 1) * take,
-    take,
-  });
-  return {
-    items: rows.map(toListItem),
+    items: rows.map(toInquiryListItem),
     total,
     page: safePage,
     pageSize: take,
@@ -257,7 +166,7 @@ export async function listAdminInquiries(
   );
   return {
     items: rows.map((row) => ({
-      ...toListItem(row),
+      ...toInquiryListItem(row),
       userId: row.userId,
       userNickname: nicknames.get(row.userId) ?? "알 수 없음",
     })),
@@ -304,12 +213,12 @@ export async function getInquiryDetail(
   });
 
   return {
-    ...toListItem(inquiry),
+    ...toInquiryListItem(inquiry),
     email: inquiry.email,
     contact: inquiry.contact ?? null,
     body: inquiry.body,
-    attachments: inquiry.attachments ?? [],
-    replies: replies.map(toReplyDto),
+    attachments: await signInquiryAttachments(inquiry.attachments ?? []),
+    replies: replies.map(toInquiryReplyDto),
     userId: inquiry.userId,
   };
 }
@@ -326,27 +235,34 @@ export async function addInquiryReply(
     throw new ServiceError(`내용은 ${INQUIRY_BODY_MAX}자 이하여야 합니다.`, 400);
   }
 
-  const repo = dataSource.getRepository(Inquiry);
-  const inquiry = await repo.findOne({ where: { id: inquiryId } });
-  if (!inquiry) throw new ServiceError("문의를 찾을 수 없습니다.", 404);
-  if (inquiry.userId !== actor.userId && !actor.isAdmin) {
-    throw new ServiceError("권한이 없습니다.", 403);
-  }
-  if (inquiry.status === "CLOSED") {
-    throw new ServiceError("종료된 문의에는 답변할 수 없습니다.", 400);
-  }
+  const { reply, inquiry } = await dataSource.transaction(async (manager) => {
+    const inquiryRepository = manager.getRepository(Inquiry);
+    const found = await inquiryRepository.findOne({
+      where: { id: inquiryId },
+      lock: { mode: "pessimistic_write" },
+    });
+    if (!found) throw new ServiceError("문의를 찾을 수 없습니다.", 404);
+    if (found.userId !== actor.userId && !actor.isAdmin) {
+      throw new ServiceError("권한이 없습니다.", 403);
+    }
+    if (found.status === "CLOSED") {
+      throw new ServiceError("종료된 문의에는 답변할 수 없습니다.", 400);
+    }
 
-  const reply = dataSource.getRepository(InquiryReply).create({
-    id: createId(),
-    inquiryId: inquiry.id,
-    authorUserId: actor.userId,
-    isAdmin: actor.isAdmin ? "Y" : "N",
-    body,
+    const replyRepository = manager.getRepository(InquiryReply);
+    const created = replyRepository.create({
+      id: createId(),
+      inquiryId: found.id,
+      authorUserId: actor.userId,
+      isAdmin: actor.isAdmin ? "Y" : "N",
+      body,
+    });
+    await replyRepository.save(created);
+
+    found.status = actor.isAdmin ? "ANSWERED" : "WAITING";
+    await inquiryRepository.save(found);
+    return { reply: created, inquiry: found };
   });
-  await dataSource.getRepository(InquiryReply).save(reply);
-
-  inquiry.status = actor.isAdmin ? "ANSWERED" : "WAITING";
-  await repo.save(inquiry);
 
   if (actor.isAdmin && inquiry.userId !== actor.userId) {
     await safeCreateNotification(dataSource, {
@@ -359,7 +275,7 @@ export async function addInquiryReply(
     });
   }
 
-  return toReplyDto(reply);
+  return toInquiryReplyDto(reply);
 }
 
 export async function closeInquiry(
@@ -371,5 +287,5 @@ export async function closeInquiry(
   if (!inquiry) throw new ServiceError("문의를 찾을 수 없습니다.", 404);
   inquiry.status = "CLOSED";
   await repo.save(inquiry);
-  return toListItem(inquiry);
+  return toInquiryListItem(inquiry);
 }

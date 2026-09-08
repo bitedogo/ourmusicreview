@@ -1,27 +1,41 @@
 /** POST 로그인 전 자격·이메일 인증·정지 상태 확인 */
 
-import { getUserRepository } from "@/src/lib/auth/email-otp";
+import { loginPreflightSchema } from "@/src/lib/auth/contracts";
 import { verifyPassword } from "@/src/lib/auth/password";
-import { sanitizeText } from "@/src/lib/auth/validation";
+import { enforceRateLimit, getRequestIp } from "@/src/lib/auth/rate-limit";
 import { initializeDatabase } from "@/src/lib/db";
 import { User } from "@/src/lib/db/entities/User";
-import { apiError, apiOk } from "@/src/lib/http/response";
+import { handleApi } from "@/src/lib/http/handle-route-error";
+import { parseJsonBody } from "@/src/lib/http/schema";
+import { apiOk } from "@/src/lib/http/response";
 import {
   formatSuspensionMessage,
   refreshExpiredSuspension,
 } from "@/src/lib/users/user-sanction-service";
 
 export async function POST(request: Request) {
-  try {
-    const body = await request.json();
-    const id = sanitizeText(body?.id);
-    const password = sanitizeText(body?.password);
+  return handleApi("로그인 확인 중 오류가 발생했습니다.", async () => {
+    const { id, password } = await parseJsonBody(request, loginPreflightSchema);
+    const dataSource = await initializeDatabase();
+    const ip = getRequestIp(request);
+    await Promise.all([
+      enforceRateLimit(dataSource, {
+        scope: "login-account",
+        key: `${ip}:${id}`,
+        limit: 10,
+        windowSeconds: 600,
+        blockSeconds: 900,
+      }),
+      enforceRateLimit(dataSource, {
+        scope: "login-ip",
+        key: ip,
+        limit: 30,
+        windowSeconds: 600,
+        blockSeconds: 900,
+      }),
+    ]);
 
-    if (!id || !password) {
-      return apiOk({ status: "invalid" as const });
-    }
-
-    const userRepository = await getUserRepository();
+    const userRepository = dataSource.getRepository(User);
     const user = await userRepository.findOne({ where: { id } });
 
     if (!user || typeof user.password !== "string" || !user.password) {
@@ -37,7 +51,6 @@ export async function POST(request: Request) {
       return apiOk({ status: "unverified" as const });
     }
 
-    const dataSource = await initializeDatabase();
     await refreshExpiredSuspension(dataSource.getRepository(User), user);
 
     if (user.accountStatus === "SUSPENDED") {
@@ -50,7 +63,5 @@ export async function POST(request: Request) {
     }
 
     return apiOk({ status: "ready" as const });
-  } catch {
-    return apiError("로그인 확인 중 오류가 발생했습니다.", { status: 500 });
-  }
+  });
 }

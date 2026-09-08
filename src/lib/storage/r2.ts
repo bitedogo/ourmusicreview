@@ -1,6 +1,12 @@
 /** Cloudflare R2 (S3 호환) 공개 객체 업로드 */
 
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import {
+  DeleteObjectCommand,
+  GetObjectCommand,
+  PutObjectCommand,
+  S3Client,
+} from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { getR2Env } from "@/src/lib/env";
 
 let client: S3Client | null = null;
@@ -38,4 +44,41 @@ export async function putPublicObject(params: {
 
   const base = env.publicBaseUrl.replace(/\/$/, "");
   return `${base}/${params.key}`;
+}
+
+export async function putPrivateObject(params: {
+  key: string;
+  body: Buffer | Uint8Array;
+  contentType: string;
+}): Promise<string> {
+  const env = getR2Env();
+  await getR2Client().send(
+    new PutObjectCommand({
+      Bucket: env.bucket,
+      Key: params.key,
+      Body: params.body,
+      ContentType: params.contentType,
+      CacheControl: "private, no-store",
+    })
+  );
+  return params.key;
+}
+
+export async function getPrivateObjectUrl(
+  key: string,
+  expiresIn = 600
+): Promise<string> {
+  const env = getR2Env();
+  return getSignedUrl(
+    getR2Client(),
+    new GetObjectCommand({ Bucket: env.bucket, Key: key }),
+    { expiresIn }
+  );
+}
+
+export async function deletePrivateObject(key: string): Promise<void> {
+  const env = getR2Env();
+  await getR2Client().send(
+    new DeleteObjectCommand({ Bucket: env.bucket, Key: key })
+  );
 }

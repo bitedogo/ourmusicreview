@@ -1,0 +1,21 @@
+{
+  "migrations": [
+    "add-profile-privacy-columns.sql",
+    "add-playlist-tables.sql",
+    "add-playlists-privacy-column.sql",
+    "add-email-auth-columns.sql",
+    "add-email-otp-challenges.sql",
+    "add-genre-tables.sql",
+    "add-comment-replies-and-likes.sql",
+    "add-review-views.sql",
+    "add-review-rating-precision.sql",
+    "add-playlist-likes-comments.sql",
+    "add-user-sanctions.sql",
+    "add-blocked-emails.sql",
+    "add-notifications.sql",
+    "add-announcement-cursors.sql",
+    "add-inquiries.sql",
+    "add-data-integrity-constraints.sql",
+    "add-auth-security.sql"
+  ]
+}

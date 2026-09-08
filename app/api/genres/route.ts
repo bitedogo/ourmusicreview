@@ -1,13 +1,12 @@
 /** GET 장르 트리 */
 
-import { initializeDatabase } from "@/src/lib/db";
+import { withDatabaseRead } from "@/src/lib/db";
 import { getGenreTree } from "@/src/lib/genres/genre-service";
 import { noStoreJson, publicCachedJson } from "@/src/lib/http/cache";
 
 export async function GET() {
   try {
-    const dataSource = await initializeDatabase();
-    const genres = await getGenreTree(dataSource);
+    const genres = await withDatabaseRead(getGenreTree);
     return publicCachedJson({ ok: true, genres }, 60, 300);
   } catch (error) {
     return noStoreJson(

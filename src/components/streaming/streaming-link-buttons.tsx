@@ -1,5 +1,6 @@
 /** 스트리밍 플랫폼 링크 버튼 */
 
+import Image from "next/image";
 import type { AlbumStreamingLinks } from "@/src/lib/streaming/types";
 import { getVisibleStreamingPlatforms } from "@/src/lib/streaming/platforms";
 
@@ -25,14 +26,13 @@ export function StreamingLinkButtons({ links, className = "" }: StreamingLinkBut
           aria-label={platform.label}
           className="inline-flex size-6 shrink-0 items-center justify-center rounded-md transition hover:opacity-80 sm:size-8 sm:rounded-lg"
         >
-          <img
+          <Image
             src={platform.iconSrc}
             alt=""
             width={32}
             height={32}
             className="size-6 object-contain sm:size-8"
-            loading="lazy"
-            decoding="async"
+            unoptimized
           />
         </a>
       ))}

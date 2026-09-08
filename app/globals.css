@@ -400,11 +400,12 @@ select {
   }
 }
 
-/* 모바일: 입력 포커스 시 iOS/Android 자동 확대 방지 (16px 미만일 때 발생) */
+/* 모바일: 편집 가능한 요소가 16px 미만일 때 발생하는 브라우저 자동 확대 방지 */
 @media (max-width: 767px) {
-  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="image"]):not([type="file"]):not([type="color"]):not([type="hidden"]):not(.auth-input),
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="image"]):not([type="file"]):not([type="color"]):not([type="hidden"]),
   textarea,
-  select {
+  select,
+  [contenteditable="true"] {
     font-size: 16px !important;
   }
 }

@@ -26,26 +26,50 @@ import { getReviewPreviewText } from "@/src/lib/utils/editor";
 type SortType = ReviewSortType;
 type SearchField = ReviewListSearchField;
 
+export interface ReviewListInitialData {
+  reviews: ReviewListItemDto[];
+  sort: SortType;
+  searchField: SearchField;
+  q: string;
+  page: number;
+  totalPages: number;
+}
+
 const SEARCH_FIELD_OPTIONS: { value: SearchField; label: string }[] = [
   { value: "artist", label: "아티스트명" },
   { value: "album", label: "앨범명" },
   { value: "author", label: "작성자명" },
 ];
 
-export function ReviewListClient() {
+function parseSort(value: string | null): SortType {
+  return value === "likes" || value === "comments" ? value : "latest";
+}
+
+function parseSearchField(value: string | null): SearchField {
+  return value === "album" || value === "author" ? value : "artist";
+}
+
+export function ReviewListClient({
+  initialData,
+}: {
+  initialData?: ReviewListInitialData;
+}) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pageFromUrl = Math.max(1, parseInt(searchParams.get("page") ?? "1", 10) || 1);
-  const sortFromUrl = (searchParams.get("sort") as SortType) || "latest";
-  const searchFieldFromUrl =
-    (searchParams.get("searchField") as SearchField) || "artist";
+  const sortFromUrl = parseSort(searchParams.get("sort"));
+  const searchFieldFromUrl = parseSearchField(
+    searchParams.get("searchField")
+  );
   const searchQueryFromUrl = (searchParams.get("q") ?? "").trim();
 
-  const [reviews, setReviews] = useState<ReviewListItemDto[]>([]);
-  const [sort, setSort] = useState<SortType>(sortFromUrl);
-  const [page, setPage] = useState(pageFromUrl);
-  const [totalPages, setTotalPages] = useState(1);
-  const [isLoading, setIsLoading] = useState(true);
+  const [reviews, setReviews] = useState<ReviewListItemDto[]>(
+    initialData?.reviews ?? []
+  );
+  const [sort, setSort] = useState<SortType>(initialData?.sort ?? sortFromUrl);
+  const [page, setPage] = useState(initialData?.page ?? pageFromUrl);
+  const [totalPages, setTotalPages] = useState(initialData?.totalPages ?? 1);
+  const [isLoading, setIsLoading] = useState(!initialData);
   const [error, setError] = useState<string | null>(null);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [isSortExpanded, setIsSortExpanded] = useState(false);
@@ -57,8 +81,8 @@ export function ReviewListClient() {
       1,
       parseInt(searchParams.get("page") ?? "1", 10) || 1
     );
-    const nextSort = (searchParams.get("sort") as SortType) || "latest";
-    const field = (searchParams.get("searchField") as SearchField) || "artist";
+    const nextSort = parseSort(searchParams.get("sort"));
+    const field = parseSearchField(searchParams.get("searchField"));
     const query = (searchParams.get("q") ?? "").trim();
     setPage(nextPage);
     setSort(nextSort);
@@ -97,6 +121,20 @@ export function ReviewListClient() {
   }, [syncFromUrl]);
 
   useEffect(() => {
+    if (
+      initialData &&
+      initialData.page === pageFromUrl &&
+      initialData.sort === sortFromUrl &&
+      initialData.searchField === searchFieldFromUrl &&
+      initialData.q === searchQueryFromUrl
+    ) {
+      setReviews(initialData.reviews);
+      setTotalPages(initialData.totalPages);
+      setPage(initialData.page);
+      setError(null);
+      setIsLoading(false);
+      return;
+    }
     const controller = new AbortController();
 
     async function loadReviews() {
@@ -107,9 +145,10 @@ export function ReviewListClient() {
           1,
           parseInt(searchParams.get("page") ?? "1", 10) || 1
         );
-        const currentSort = (searchParams.get("sort") as SortType) || "latest";
-        const currentSearchField =
-          (searchParams.get("searchField") as SearchField) || "artist";
+        const currentSort = parseSort(searchParams.get("sort"));
+        const currentSearchField = parseSearchField(
+          searchParams.get("searchField")
+        );
         const currentSearchQuery = (searchParams.get("q") ?? "").trim();
 
         const data = await fetchReviewList(
@@ -145,7 +184,14 @@ export function ReviewListClient() {
     return () => {
       controller.abort();
     };
-  }, [searchParams]);
+  }, [
+    searchParams,
+    initialData,
+    pageFromUrl,
+    sortFromUrl,
+    searchFieldFromUrl,
+    searchQueryFromUrl,
+  ]);
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-[860px] flex-col px-4 pb-10 pt-[61px] sm:px-6">

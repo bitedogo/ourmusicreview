@@ -2,6 +2,7 @@
 /** 신고 모달 공통 UI */
 
 import { REPORT_REASONS } from "@/src/components/interaction/report-constants";
+import { Dialog } from "@/src/components/common/Dialog";
 
 interface ReportModalProps {
   title?: string;
@@ -25,15 +26,17 @@ export function ReportModal({
   onSubmit,
 }: ReportModalProps) {
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-      onClick={onClose}
+    <Dialog
+      labelledBy="report-dialog-title"
+      onClose={onClose}
+      className="w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-6 shadow-xl"
     >
-      <div
-        className="w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-6 shadow-xl"
-        onClick={(e) => e.stopPropagation()}
+      <h3
+        id="report-dialog-title"
+        className="mb-4 text-lg font-semibold text-[var(--color-text-primary)]"
       >
-        <h3 className="mb-4 text-lg font-semibold text-[var(--color-text-primary)]">{title}</h3>
+        {title}
+      </h3>
         <div className="space-y-4">
           <div>
             <label className="mb-1.5 block text-sm font-medium text-[var(--color-text-primary)]">
@@ -82,7 +85,6 @@ export function ReportModal({
             {isSubmitting ? "처리 중..." : "신고하기"}
           </button>
         </div>
-      </div>
-    </div>
+    </Dialog>
   );
 }

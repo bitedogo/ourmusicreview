@@ -31,8 +31,16 @@ function SigninPageContent() {
   const savedIdKey = "oru.savedSigninId";
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [infoMessage, setInfoMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(() =>
+    searchParams.get("error") === "suspended"
+      ? "계정이 일시 정지되어 로그인할 수 없습니다."
+      : null
+  );
+  const [infoMessage, setInfoMessage] = useState<string | null>(() =>
+    searchParams.get("verified") === "1"
+      ? "이메일 인증이 완료되었습니다. 로그인해 주세요."
+      : null
+  );
   const [needsVerification, setNeedsVerification] = useState(false);
   const [resendStatus, setResendStatus] = useState<string | null>(null);
   const [id, setId] = useState(() => {
@@ -51,16 +59,6 @@ function SigninPageContent() {
       router.push(callbackUrl);
     }
   }, [status, router, callbackUrl]);
-
-  useEffect(() => {
-    if (searchParams.get("verified") === "1") {
-      setInfoMessage("이메일 인증이 완료되었습니다. 로그인해 주세요.");
-      setNeedsVerification(false);
-    }
-    if (searchParams.get("error") === "suspended") {
-      setErrorMessage("계정이 일시 정지되어 로그인할 수 없습니다.");
-    }
-  }, [searchParams]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();

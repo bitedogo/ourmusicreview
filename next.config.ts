@@ -28,6 +28,7 @@ const r2Hostname = getR2PublicHostname();
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  distDir: process.env.NEXT_DIST_DIR?.trim() || ".next",
   outputFileTracingIncludes: {
     "/developer": ["./developer/**/*.md"],
     "/developer/[slug]": ["./developer/**/*.md"],

@@ -308,6 +308,7 @@ export function MemberManagementClient() {
 
       {selectedId && (
         <MemberDetailPanel
+          key={selectedId}
           selectedId={selectedId}
           detail={detail}
           isLoadingDetail={isLoadingDetail}

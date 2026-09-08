@@ -76,3 +76,10 @@ export async function uploadInquiryAttachmentApi(file: File) {
     { method: "POST", body: formData }
   );
 }
+
+export async function deleteInquiryAttachmentApi(key: string) {
+  return fetchJson<{ ok: true; data: Record<string, never> }>(
+    `/api/inquiries/upload?key=${encodeURIComponent(key)}`,
+    { method: "DELETE" }
+  );
+}

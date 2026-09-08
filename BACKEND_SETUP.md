@@ -89,7 +89,9 @@ EmailOtpChallenge, UserSanction, BlockedEmail
 ### 현재 방침 (유지)
 
 - TypeORM `synchronize: false`
-- 스키마 변경은 **수동 SQL + Node 러너** (`scripts/run-*-migration.mjs`)
+- 스키마 변경은 **수동 SQL + 공통 Node 러너** (`scripts/run-migration.mjs`)
+- 적용 순서는 `scripts/migration-manifest.json`, 이력·체크섬은 `public.schema_migrations`에서 관리
+- 전체 적용: `npm run db:migrate`
 - 실행: `npm run db:migrate:<name>` (예: `db:migrate:user-sanctions`)
 - `DATABASE_URL`은 환경 변수 또는 `.env.local`에서 읽음
 
@@ -110,4 +112,4 @@ EmailOtpChallenge, UserSanction, BlockedEmail
 3. 이후 변경만 TypeORM migration 생성
 4. `package.json`의 `db:migrate:*`를 단계적으로 축소
 
-신규 스키마 변경 PR에는 **SQL 파일 + 러너 스크립트 + npm script**를 함께 넣는다.
+신규 스키마 변경 PR에는 **SQL 파일 + manifest 항목 + npm script**를 함께 넣는다.

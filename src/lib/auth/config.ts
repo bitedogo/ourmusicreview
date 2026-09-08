@@ -7,6 +7,7 @@ import { User } from "../db/entities/User";
 import { getServerEnv } from "@/src/lib/env";
 import { credentialsProvider, supabaseCredentialsProvider } from "./credentials";
 import { resolveProfileImageFromDb } from "./profile-image";
+import { resolveExternalIdentity } from "./identity-service";
 
 const env = getServerEnv();
 
@@ -20,47 +21,14 @@ export const authOptions: NextAuthOptions = {
       async profile(profile) {
         try {
           const dataSource = await initializeDatabase();
-          const userRepository = dataSource.getRepository(User);
-
-          let dbUser = await userRepository.findOne({
-            where: { email: profile.email! },
-          });
-
           const picture = profile.picture || null;
-
-          if (!dbUser) {
-            const { isEmailBlocked } = await import(
-              "@/src/lib/users/blocked-email"
-            );
-            if (await isEmailBlocked(dataSource, profile.email!)) {
-              return { id: "", name: "", email: "", image: "", role: "" };
-            }
-            dbUser = userRepository.create({
-              id: profile.sub,
-              email: profile.email!,
-              nickname: profile.name || profile.email!.split("@")[0],
-              profileImage: picture,
-              role: "USER",
-              emailVerifiedAt: new Date(),
-            });
-            await userRepository.save(dbUser);
-          } else {
-            if (!dbUser.emailVerifiedAt) {
-              await userRepository.update(
-                { id: dbUser.id },
-                { emailVerifiedAt: new Date() }
-              );
-              dbUser.emailVerifiedAt = new Date();
-            }
-            if (dbUser.id !== profile.sub) {
-              await userRepository.update({ email: profile.email! }, { id: profile.sub });
-              dbUser.id = profile.sub;
-            }
-            if (picture && picture !== dbUser.profileImage) {
-              await userRepository.update({ id: dbUser.id }, { profileImage: picture });
-              dbUser.profileImage = picture;
-            }
-          }
+          const dbUser = await resolveExternalIdentity(dataSource, {
+            provider: "google",
+            providerSubject: profile.sub,
+            email: profile.email!,
+            nickname: profile.name || profile.email!.split("@")[0],
+            profileImage: picture,
+          });
 
           const profileImage = dbUser.profileImage || null;
 

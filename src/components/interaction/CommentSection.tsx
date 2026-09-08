@@ -1,7 +1,7 @@
 "use client";
 /** 댓글 목록·작성 섹션 */
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { CommentForm } from "@/src/components/interaction/CommentForm";
@@ -28,6 +28,15 @@ interface CommentSectionProps {
   playlistId?: string;
   /** detail: 리뷰 상세 스타일 */
   variant?: "default" | "detail";
+  initialData?: CommentPageData;
+}
+
+export interface CommentPageData {
+  comments: CommentItemData[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
 }
 
 function CommentPagination({
@@ -66,13 +75,18 @@ export function CommentSection({
   reviewId,
   playlistId,
   variant = "default",
+  initialData,
 }: CommentSectionProps) {
   const { data: session } = useSession();
   const router = useRouter();
-  const [comments, setComments] = useState<CommentItemData[]>([]);
-  const [totalCount, setTotalCount] = useState(0);
+  const [comments, setComments] = useState<CommentItemData[]>(
+    initialData?.comments ?? []
+  );
+  const [totalCount, setTotalCount] = useState(initialData?.totalCount ?? 0);
   const [isLoading, setIsLoading] = useState(false);
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(initialData?.page ?? 1);
+  const [totalPages, setTotalPages] = useState(initialData?.totalPages ?? 1);
+  const hasNavigatedFromInitialPage = useRef(false);
 
   const isLoggedIn = Boolean(session);
   const isAdmin =
@@ -81,23 +95,38 @@ export function CommentSection({
   const fetchComments = useCallback(async () => {
     setIsLoading(true);
     try {
-      const data = await fetchCommentsApi(postId, reviewId, playlistId);
+      const data = await fetchCommentsApi(
+        postId,
+        reviewId,
+        playlistId,
+        variant === "detail" ? { page, pageSize: COMMENTS_PER_PAGE } : undefined
+      );
       setComments(data.data.comments ?? []);
       setTotalCount(data.data.totalCount ?? data.data.comments?.length ?? 0);
+      setTotalPages(Math.max(1, data.data.totalPages ?? 1));
+      if (data.data.page && data.data.page !== page) {
+        setPage(data.data.page);
+      }
     } catch {
       /* ignore */
     } finally {
       setIsLoading(false);
     }
-  }, [postId, reviewId, playlistId]);
+  }, [postId, reviewId, playlistId, variant, page]);
 
   useEffect(() => {
+    if (
+      initialData &&
+      page === initialData.page &&
+      !hasNavigatedFromInitialPage.current
+    ) {
+      return;
+    }
+    if (initialData && page !== initialData.page) {
+      hasNavigatedFromInitialPage.current = true;
+    }
     void fetchComments();
-  }, [fetchComments]);
-
-  useEffect(() => {
-    setPage(1);
-  }, [comments.length]);
+  }, [fetchComments, initialData, page]);
 
   const compose = useCommentCompose({
     postId,
@@ -177,15 +206,8 @@ export function CommentSection({
     }
   };
 
-  const totalPages = Math.max(1, Math.ceil(comments.length / COMMENTS_PER_PAGE));
-  const pagedComments = useMemo(() => {
-    if (variant !== "detail") return comments;
-    const start = (page - 1) * COMMENTS_PER_PAGE;
-    return comments.slice(start, start + COMMENTS_PER_PAGE);
-  }, [comments, page, variant]);
-
   const listProps = {
-    comments: variant === "detail" ? pagedComments : comments,
+    comments,
     isLoading,
     variant: variant as "default" | "detail",
     currentUserId: session?.user?.id,

@@ -1,13 +1,14 @@
 /** POST/GET 리뷰 작성·목록 */
 
 import { requireSessionApi, requireWritableSessionApi } from "@/src/lib/auth/session";
-import { withDatabase } from "@/src/lib/db";
+import { withDatabase, withDatabaseRead } from "@/src/lib/db";
 import { handleApi } from "@/src/lib/http/handle-route-error";
+import { parseJsonBody } from "@/src/lib/http/schema";
 import { apiOk } from "@/src/lib/http/response";
+import { createReviewInputSchema } from "@/src/lib/reviews/contracts";
 import {
   createReview,
   getUserReviews,
-  type CreateReviewInput,
 } from "@/src/lib/reviews/review-service";
 
 export async function POST(request: Request) {
@@ -15,7 +16,7 @@ export async function POST(request: Request) {
     const { session, response } = await requireWritableSessionApi();
     if (response) return response;
 
-    const body = (await request.json()) as CreateReviewInput;
+    const body = await parseJsonBody(request, createReviewInputSchema);
     const result = await withDatabase((dataSource) =>
       createReview(dataSource, session.user.id, body)
     );
@@ -29,7 +30,7 @@ export async function GET() {
     const { session, response } = await requireSessionApi();
     if (response) return response;
 
-    const reviews = await withDatabase((dataSource) =>
+    const reviews = await withDatabaseRead((dataSource) =>
       getUserReviews(dataSource, session.user.id)
     );
 

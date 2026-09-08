@@ -2,7 +2,7 @@
 
 import { Entity, PrimaryColumn, Column, CreateDateColumn } from "typeorm";
 
-const NOTIFICATION_TYPES = [
+export const NOTIFICATION_TYPES = [
   "POST_LIKE",
   "REVIEW_LIKE",
   "PLAYLIST_LIKE",

@@ -1,7 +1,8 @@
 /** POST/PATCH 플레이리스트 트랙 추가·정렬 */
 
+import { revalidatePath } from "next/cache";
 import { requireSessionApi } from "@/src/lib/auth/session";
-import { initializeDatabase } from "@/src/lib/db";
+import { withDatabase } from "@/src/lib/db";
 import { apiError, apiOk } from "@/src/lib/http/response";
 import { ServiceError } from "@/src/lib/http/service-error";
 import {
@@ -25,8 +26,12 @@ export async function POST(
     if (response) return response;
 
     const body = (await request.json()) as AddPlaylistTrackInput;
-    const dataSource = await initializeDatabase();
-    const result = await addTrackToPlaylist(dataSource, id, session.user.id, body);
+    const result = await withDatabase((dataSource) =>
+      addTrackToPlaylist(dataSource, id, session.user.id, body)
+    );
+    revalidatePath("/playlist");
+    revalidatePath(`/playlist/${id}`);
+    revalidatePath("/profile");
     return apiOk(
       { playlistTrackId: result.trackId, created: result.created },
       { status: result.created ? 201 : 200 }
@@ -56,8 +61,10 @@ export async function PATCH(
     if (response) return response;
 
     const body = (await request.json()) as ReorderPlaylistTracksInput;
-    const dataSource = await initializeDatabase();
-    await reorderPlaylistTracks(dataSource, id, session.user.id, body);
+    await withDatabase((dataSource) =>
+      reorderPlaylistTracks(dataSource, id, session.user.id, body)
+    );
+    revalidatePath(`/playlist/${id}`);
     return apiOk({});
   } catch (error) {
     if (error instanceof ServiceError) {

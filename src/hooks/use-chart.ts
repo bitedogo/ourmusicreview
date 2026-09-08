@@ -5,10 +5,20 @@ import { useEffect, useRef, useState } from "react";
 import { fetchJson } from "@/src/lib/http/client";
 import type { ChartAlbum, ChartRegion, ChartResponse } from "@/src/lib/chart/types";
 
-export function useMusicChart(region: ChartRegion) {
-  const [albums, setAlbums] = useState<ChartAlbum[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const cacheRef = useRef<Map<ChartRegion, ChartAlbum[]>>(new Map());
+export function useMusicChart(
+  region: ChartRegion,
+  initialRegion: ChartRegion = "kr",
+  initialAlbums: ChartAlbum[] = []
+) {
+  const [albums, setAlbums] = useState<ChartAlbum[]>(
+    region === initialRegion ? initialAlbums : []
+  );
+  const [isLoading, setIsLoading] = useState(
+    region !== initialRegion || initialAlbums.length === 0
+  );
+  const cacheRef = useRef<Map<ChartRegion, ChartAlbum[]>>(
+    new Map(initialAlbums.length > 0 ? [[initialRegion, initialAlbums]] : [])
+  );
 
   useEffect(() => {
     let isCancelled = false;

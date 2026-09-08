@@ -38,7 +38,15 @@ export async function initializeDatabase(): Promise<DataSource> {
 }
 
 /** 끊긴 풀에서 쿼리가 실패하면 한 번 재연결 후 다시 실행한다. */
+/** 쓰기에도 사용할 수 있는 기본 실행기. 콜백을 자동 재실행하지 않는다. */
 export async function withDatabase<T>(
+  operation: (dataSource: DataSource) => Promise<T>
+): Promise<T> {
+  return operation(await initializeDatabase());
+}
+
+/** 멱등인 읽기 작업만 일시적 연결 오류에서 한 번 재시도한다. */
+export async function withDatabaseRead<T>(
   operation: (dataSource: DataSource) => Promise<T>
 ): Promise<T> {
   try {

@@ -92,7 +92,7 @@
 
 ### 요구 사항
 
-- Node.js 20+
+- Node.js 22.x
 - npm
 - PostgreSQL (Supabase 권장)
 
@@ -105,18 +105,25 @@ npm run dev
 
 [http://localhost:3000](http://localhost:3000) 에서 확인합니다.
 
-### 빌드
+### 품질 검사와 빌드
 
 ```bash
+npm run check         # typecheck + lint + test
+npm run check:build   # 위 검사 후 production build
 npm run build
 npm start
 ```
 
-배포 전 TypeScript 검사는 `next build` 단계에 포함됩니다.
+### DB 마이그레이션
 
 ```bash
-npm run typecheck   # 선택: 별도 타입 검사
+npm run db:migrate                 # manifest 순서대로 미적용 SQL 실행
+npm run db:migrate:<name>          # 필요한 마이그레이션 하나만 실행
 ```
+
+적용 순서는 `scripts/migration-manifest.json`, 적용 이력과 SQL 체크섬은
+DB의 `public.schema_migrations`에서 관리합니다. 운영 DB에서는 배포 전에
+백업을 확인하고 한 번만 실행합니다.
 
 ### 문서
 

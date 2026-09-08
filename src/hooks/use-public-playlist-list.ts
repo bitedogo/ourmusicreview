@@ -20,24 +20,46 @@ import {
 
 export type PlaylistSearchField = "title" | "author";
 
-export function usePublicPlaylistList() {
+export interface PublicPlaylistInitialData {
+  playlists: PublicPlaylistListItemDto[];
+  featured: PublicPlaylistListItemDto[];
+  genreTree: GenreTreeNode[];
+  page: number;
+  totalPages: number;
+  searchField: PlaylistSearchField;
+  q: string;
+  genre: string;
+}
+
+function parseSearchField(value: string | null): PlaylistSearchField {
+  return value === "author" ? "author" : "title";
+}
+
+export function usePublicPlaylistList(initialData?: PublicPlaylistInitialData) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pageFromUrl = Math.max(
     1,
     parseInt(searchParams.get("page") ?? "1", 10) || 1
   );
-  const searchFieldFromUrl =
-    (searchParams.get("searchField") as PlaylistSearchField) || "title";
+  const searchFieldFromUrl = parseSearchField(
+    searchParams.get("searchField")
+  );
   const searchQueryFromUrl = (searchParams.get("q") ?? "").trim();
   const genreFromUrl = (searchParams.get("genre") ?? "").trim();
 
-  const [playlists, setPlaylists] = useState<PublicPlaylistListItemDto[]>([]);
-  const [featured, setFeatured] = useState<PublicPlaylistListItemDto[]>([]);
-  const [genreTree, setGenreTree] = useState<GenreTreeNode[]>([]);
-  const [page, setPage] = useState(pageFromUrl);
-  const [totalPages, setTotalPages] = useState(1);
-  const [isLoading, setIsLoading] = useState(true);
+  const [playlists, setPlaylists] = useState<PublicPlaylistListItemDto[]>(
+    initialData?.playlists ?? []
+  );
+  const [featured, setFeatured] = useState<PublicPlaylistListItemDto[]>(
+    initialData?.featured ?? []
+  );
+  const [genreTree, setGenreTree] = useState<GenreTreeNode[]>(
+    initialData?.genreTree ?? []
+  );
+  const [page, setPage] = useState(initialData?.page ?? pageFromUrl);
+  const [totalPages, setTotalPages] = useState(initialData?.totalPages ?? 1);
+  const [isLoading, setIsLoading] = useState(!initialData);
   const [error, setError] = useState<string | null>(null);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [searchField, setSearchField] =
@@ -95,6 +117,10 @@ export function usePublicPlaylistList() {
   }, [pageFromUrl, searchFieldFromUrl, searchQueryFromUrl]);
 
   useEffect(() => {
+    if (initialData) {
+      setGenreTree(initialData.genreTree);
+      return;
+    }
     const controller = new AbortController();
 
     async function loadGenres() {
@@ -108,9 +134,14 @@ export function usePublicPlaylistList() {
 
     void loadGenres();
     return () => controller.abort();
-  }, []);
+  }, [initialData]);
 
   useEffect(() => {
+    if (initialData) {
+      setFeatured(initialData.featured);
+      setFeaturedIndex(0);
+      return;
+    }
     const controller = new AbortController();
 
     async function loadFeatured() {
@@ -128,9 +159,23 @@ export function usePublicPlaylistList() {
 
     void loadFeatured();
     return () => controller.abort();
-  }, []);
+  }, [initialData]);
 
   useEffect(() => {
+    if (
+      initialData &&
+      initialData.page === pageFromUrl &&
+      initialData.searchField === searchFieldFromUrl &&
+      initialData.q === searchQueryFromUrl &&
+      initialData.genre === genreFromUrl
+    ) {
+      setPlaylists(initialData.playlists);
+      setTotalPages(initialData.totalPages);
+      setPage(initialData.page);
+      setError(null);
+      setIsLoading(false);
+      return;
+    }
     const controller = new AbortController();
 
     async function load() {
@@ -141,8 +186,9 @@ export function usePublicPlaylistList() {
           1,
           parseInt(searchParams.get("page") ?? "1", 10) || 1
         );
-        const currentField =
-          (searchParams.get("searchField") as PlaylistSearchField) || "title";
+        const currentField = parseSearchField(
+          searchParams.get("searchField")
+        );
         const currentQuery = (searchParams.get("q") ?? "").trim();
         const currentGenre = (searchParams.get("genre") ?? "").trim();
 
@@ -175,7 +221,14 @@ export function usePublicPlaylistList() {
 
     void load();
     return () => controller.abort();
-  }, [searchParams]);
+  }, [
+    searchParams,
+    initialData,
+    pageFromUrl,
+    searchFieldFromUrl,
+    searchQueryFromUrl,
+    genreFromUrl,
+  ]);
 
   const activeRoot = genreTree.find((g) => g.id === genreFromUrl);
   const activeChildParent = genreTree.find((g) =>

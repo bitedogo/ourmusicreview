@@ -2,9 +2,10 @@
 
 import type { DataSource } from "typeorm";
 import { randomUUID } from "crypto";
-import { Album } from "@/src/lib/db/entities/Album";
+import { ensureAlbum } from "@/src/lib/albums/ensure-album";
 import { UserFavoriteAlbum } from "@/src/lib/db/entities/UserFavoriteAlbum";
 import { ServiceError } from "@/src/lib/http/service-error";
+import { isUniqueViolation } from "@/src/lib/db/pg-error";
 
 export interface ToggleFavoriteInput {
   albumId?: string;
@@ -31,48 +32,20 @@ export async function addFavoriteAlbum(
     throw new ServiceError("앨범 ID는 필수입니다.", 400);
   }
 
-  const albumRepository = dataSource.getRepository(Album);
-  const favoriteRepository = dataSource.getRepository(UserFavoriteAlbum);
+  return dataSource.transaction(async (manager) => {
+  const favoriteRepository = manager.getRepository(UserFavoriteAlbum);
 
-  let album = await albumRepository.findOne({ where: { albumId } });
-
-  if (!album) {
-    const albumTitle =
-      typeof body.albumTitle === "string" ? body.albumTitle.trim() : undefined;
-    const albumArtist =
-      typeof body.albumArtist === "string" ? body.albumArtist.trim() : undefined;
-    const albumImageUrl =
-      typeof body.albumImageUrl === "string" && body.albumImageUrl.length > 0
-        ? body.albumImageUrl
-        : null;
-
-    if (!albumTitle || !albumArtist) {
-      throw new ServiceError(
-        "앨범 정보가 부족합니다. 앨범 제목과 아티스트 정보가 필요합니다.",
-        400
-      );
-    }
-
-    let releaseDate: Date | undefined = undefined;
-    if (body.albumReleaseDate) {
-      const parsed = new Date(body.albumReleaseDate);
-      if (!isNaN(parsed.getTime())) {
-        releaseDate = parsed;
-      }
-    }
-
-    const newAlbum = albumRepository.create({
-      albumId,
-      title: albumTitle,
-      artist: albumArtist,
-      imageUrl: albumImageUrl || undefined,
-      releaseDate,
-      category: "I",
-    });
-
-    await albumRepository.save(newAlbum);
-    album = newAlbum;
-  }
+  await ensureAlbum(
+    manager,
+    albumId,
+    {
+      title: body.albumTitle,
+      artist: body.albumArtist,
+      imageUrl: body.albumImageUrl,
+      releaseDate: body.albumReleaseDate,
+    },
+    "앨범 정보가 부족합니다. 앨범 제목과 아티스트 정보가 필요합니다."
+  );
 
   const existing = await favoriteRepository.findOne({
     where: { userId, albumId },
@@ -90,9 +63,17 @@ export async function addFavoriteAlbum(
     albumId,
   });
 
-  await favoriteRepository.save(favorite);
+  try {
+    await favoriteRepository.save(favorite);
+  } catch (error) {
+    if (!isUniqueViolation(error)) throw error;
+    const raced = await favoriteRepository.findOne({ where: { userId, albumId } });
+    if (!raced) throw error;
+    return { favoriteId: raced.id, created: false };
+  }
 
   return { favoriteId: favorite.id, created: true };
+  });
 }
 
 export async function removeFavoriteAlbum(
