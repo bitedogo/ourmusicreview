@@ -15,6 +15,7 @@ import {
   EMAIL_OTP_PURPOSE_SIGNUP,
   EmailOtpChallenge,
 } from "@/src/lib/db/entities/EmailOtpChallenge";
+import { SIGNUP_EMAIL_NOT_VERIFIED_MESSAGE } from "@/src/lib/auth/email-otp-consume";
 import { User } from "@/src/lib/db/entities/User";
 import { sendTemplatedEmail } from "@/src/lib/email/resend";
 import {
@@ -36,8 +37,7 @@ export const EMAIL_AUTH_MESSAGES = {
   findIdMismatch: "이름과 이메일이 일치하지 않습니다.",
   resendVerificationGeneric:
     "해당 계정이 미인증 상태이면 인증번호를 다시 보냈습니다.",
-  signupEmailNotVerified:
-    "이메일 인증을 완료한 뒤 회원가입을 진행해 주세요.",
+  signupEmailNotVerified: SIGNUP_EMAIL_NOT_VERIFIED_MESSAGE,
   emailAlreadyUsed: "이미 사용 중인 이메일입니다.",
   emailBlocked:
     "해당 이메일로는 회원가입할 수 없습니다. 관리자에게 문의해 주세요.",
@@ -140,11 +140,6 @@ export async function assertSignupEmailVerified(email: string): Promise<void> {
   if (verifiedAge > SIGNUP_VERIFIED_TTL_MS) {
     throw new Error(EMAIL_AUTH_MESSAGES.signupEmailNotVerified);
   }
-}
-
-export async function consumeSignupEmailChallenge(email: string): Promise<void> {
-  const challengeRepo = await getChallengeRepository();
-  await challengeRepo.delete({ email, purpose: EMAIL_OTP_PURPOSE_SIGNUP });
 }
 
 export async function sendEmailVerificationOtp(user: User): Promise<void> {

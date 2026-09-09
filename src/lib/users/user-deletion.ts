@@ -25,31 +25,31 @@ export async function deleteUserAccount(
   userId: string,
   options: DeleteUserAccountOptions = {}
 ): Promise<boolean> {
-  const userRepo = dataSource.getRepository(User);
-  const user = await userRepo.findOne({ where: { id: userId } });
+  return dataSource.transaction(async (manager) => {
+    const userRepo = manager.getRepository(User);
+    const user = await userRepo.findOne({ where: { id: userId } });
 
-  if (!user) {
-    return false;
-  }
+    if (!user) {
+      return false;
+    }
 
-  const emailToBlock = user.email;
+    await manager.getRepository(UserFavoriteAlbum).delete({ userId });
+    await manager.getRepository(Like).delete({ userId });
+    await manager.getRepository(Report).delete({ userId });
+    await manager.getRepository(Comment).delete({ userId });
+    await manager.getRepository(Review).delete({ userId });
 
-  await dataSource.getRepository(UserFavoriteAlbum).delete({ userId });
-  await dataSource.getRepository(Like).delete({ userId });
-  await dataSource.getRepository(Report).delete({ userId });
-  await dataSource.getRepository(Comment).delete({ userId });
-  await dataSource.getRepository(Review).delete({ userId });
+    await userRepo.remove(user);
 
-  await userRepo.remove(user);
+    if (options.blockEmail && user.email) {
+      await blockEmail(manager, {
+        email: user.email,
+        previousUserId: userId,
+        blockedByAdminId: options.blockedByAdminId ?? null,
+        reason: options.blockReason ?? "관리자에 의한 계정 삭제",
+      });
+    }
 
-  if (options.blockEmail && emailToBlock) {
-    await blockEmail(dataSource, {
-      email: emailToBlock,
-      previousUserId: userId,
-      blockedByAdminId: options.blockedByAdminId ?? null,
-      reason: options.blockReason ?? "관리자에 의한 계정 삭제",
-    });
-  }
-
-  return true;
+    return true;
+  });
 }

@@ -114,6 +114,23 @@ npm run build
 npm start
 ```
 
+### E2E (Playwright)
+
+Chromium만 사용합니다. 최초 한 번 브라우저를 설치합니다.
+
+```bash
+npx playwright install chromium
+npm run test:e2e
+npx playwright show-report
+```
+
+로컬에서 `npm run dev`가 이미 떠 있으면 그 서버를 재사용합니다.
+
+시나리오 테스트는 Playwright MCP로 화면을 확인한 뒤
+[`.github/prompts/playwright-test-gen.prompt.md`](./.github/prompts/playwright-test-gen.prompt.md)
+규칙으로 `e2e/`에 추가합니다. Google 로그인·OTP·관리자·결제는 넣지 않습니다.
+실패 시 Playwright MCP로 실제 UI를 확인한 다음 locator를 고칩니다. Google/OTP는 쓰지 않습니다.
+
 ### DB 마이그레이션
 
 ```bash

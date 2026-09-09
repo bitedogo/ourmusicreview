@@ -4,9 +4,11 @@ import bcrypt from "bcryptjs";
 import {
   EMAIL_AUTH_MESSAGES,
   assertSignupEmailVerified,
-  consumeSignupEmailChallenge,
-  getUserRepository,
 } from "@/src/lib/auth/email-otp";
+import {
+  createVerifiedUser,
+  isUniqueViolation,
+} from "@/src/lib/auth/signup-service";
 import { validateUserId } from "@/src/lib/auth/user-id";
 import {
   sanitizeText,
@@ -16,12 +18,9 @@ import {
   validatePassword,
 } from "@/src/lib/auth/validation";
 import { apiError, apiOk } from "@/src/lib/http/response";
+import { ServiceError } from "@/src/lib/http/service-error";
 import { initializeDatabase } from "@/src/lib/db";
 import { uploadProfileImage } from "@/src/lib/storage";
-import {
-  BLOCKED_EMAIL_MESSAGE,
-  isEmailBlocked,
-} from "@/src/lib/users/blocked-email";
 
 export async function POST(request: Request) {
   try {
@@ -102,41 +101,17 @@ export async function POST(request: Request) {
       }
     }
 
-    const userRepository = await getUserRepository();
     const dataSource = await initializeDatabase();
-    if (await isEmailBlocked(dataSource, email)) {
-      return apiError(BLOCKED_EMAIL_MESSAGE, { status: 403 });
-    }
-
-    if (await userRepository.findOne({ where: { id } })) {
-      return apiError("이미 존재하는 아이디입니다.", { status: 409 });
-    }
-    if (await userRepository.findOne({ where: { email } })) {
-      return apiError("이미 사용 중인 이메일입니다.", { status: 409 });
-    }
-    if (await userRepository.findOne({ where: { nickname } })) {
-      return apiError("이미 사용 중인 닉네임입니다.", { status: 409 });
-    }
-
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = userRepository.create({
+    await createVerifiedUser(dataSource, {
       id,
-      password: hashedPassword,
+      passwordHash: hashedPassword,
       name,
       nickname,
       email,
       profileImage: profileImagePath,
-      role: "USER",
       gender,
-      emailVerifiedAt: new Date(),
-      emailVerificationToken: null,
-      emailVerificationExpiresAt: null,
-      passwordResetToken: null,
-      passwordResetExpiresAt: null,
     });
-
-    await userRepository.save(newUser);
-    await consumeSignupEmailChallenge(email);
 
     return apiOk(
       {},
@@ -146,6 +121,14 @@ export async function POST(request: Request) {
       }
     );
   } catch (error) {
+    if (error instanceof ServiceError) {
+      return apiError(error.message, { status: error.status });
+    }
+    if (isUniqueViolation(error)) {
+      return apiError("아이디, 이메일 또는 닉네임이 이미 사용 중입니다.", {
+        status: 409,
+      });
+    }
     return apiError(
       error instanceof Error ? error.message : "회원가입 중 오류가 발생했습니다.",
       { status: 500 }

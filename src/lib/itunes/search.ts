@@ -9,20 +9,29 @@ export interface ArtistAutocompleteApiResponse {
   data: ItunesSearchAutocompleteResponse;
 }
 
-export async function fetchArtistAutocomplete(term: string): Promise<ItunesArtistResult[]> {
+export function isAbortError(error: unknown): boolean {
+  return error instanceof Error && error.name === "AbortError";
+}
+
+export async function fetchArtistAutocomplete(
+  term: string,
+  signal?: AbortSignal,
+): Promise<ItunesArtistResult[]> {
   const trimmed = term.trim();
   if (!trimmed) return [];
 
   try {
     const response = await fetch(
-      `/api/itunes/search-autocomplete?term=${encodeURIComponent(trimmed)}`
+      `/api/itunes/search-autocomplete?term=${encodeURIComponent(trimmed)}`,
+      { signal },
     );
     const data = (await response.json().catch(() => null)) as ArtistAutocompleteApiResponse | null;
 
     if (data?.ok && Array.isArray(data.data?.results)) {
       return data.data.results;
     }
-  } catch {
+  } catch (error) {
+    if (isAbortError(error)) throw error;
     return [];
   }
 

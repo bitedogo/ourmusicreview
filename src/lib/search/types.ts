@@ -13,6 +13,7 @@ export interface SearchAlbumResult {
   primaryGenreName: string;
   imageUrl600: string | null;
   releaseType: SearchReleaseType;
+  popularityScore?: number;
 }
 
 export interface ArtistSearchResponse {

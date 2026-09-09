@@ -22,23 +22,29 @@ export function pureAlbumTitle(value: string): string {
 }
 
 const DELUXE_PATTERN = /\b(deluxe|super\s*deluxe)\b/i;
+const REMASTER_PATTERN = /\bremaster(?:ed)?\b/i;
 
 export function isDeluxeAlbumTitle(title: string): boolean {
   return DELUXE_PATTERN.test(title);
 }
 
-/** 중복 제거용 키: 순수 앨범명을 문자만 남겨 비교 (디럭스는 원본과 별도 유지) */
+export function isRemasterAlbumTitle(title: string): boolean {
+  return REMASTER_PATTERN.test(title);
+}
+
+/** 중복 제거용 키: 순수 앨범명을 문자만 남겨 비교 (디럭스·리마스터는 원본과 별도 유지) */
 export function albumTitleDedupeKey(title: string): string {
   const base = pureAlbumTitle(title)
     .toLowerCase()
     .replace(/[^a-z0-9가-힣]/g, "");
   if (!base) return "";
-  // 디럭스판은 정규 앨범과 같은 키로 합치지 않음
-  return isDeluxeAlbumTitle(title) ? `${base}__deluxe` : base;
+  if (isDeluxeAlbumTitle(title)) return `${base}__deluxe`;
+  if (isRemasterAlbumTitle(title)) return `${base}__remaster`;
+  return base;
 }
 
 const ALBUM_VARIANT_PATTERN =
-  /\b(remaster(?:ed)?|expanded|anniversary|edition|live|bonus|extended|instrumental|acoustic|remix(?:ed)?|explicit|clean|mono|stereo)\b/gi;
+  /\b(remaster(?:ed)?|expanded|anniversary|edition|live|bonus|extended|instrumental|acoustic|remix(?:ed)?|explicit|clean|mono|stereo|legacy)\b/gi;
 
 /** 제목에서 10th / 20th / 30th 같은 기념 회차 추출 */
 export function albumAnniversaryOrdinal(title: string): number | null {

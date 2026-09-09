@@ -1,17 +1,39 @@
 /** iTunes 앨범 상세 조회 */
 
 import type { AlbumDetail, AlbumDetailTrack } from "@/src/lib/album/detail-types";
+import {
+  albumTitleDedupeKey,
+  albumVariantPenalty,
+  looseMatch,
+  pureAlbumTitle,
+} from "@/src/lib/text/match";
 import { createTtlCache } from "@/src/lib/utils/ttl-cache";
 import {
   fetchItunesResults,
   getLargeImageUrl,
+  isItunesKrUrl,
+  itunesAlbumNameSearchUrls,
   itunesLookupUrls,
+  itunesSongLookupFallbackUrls,
   type ItunesResult,
 } from "./http";
-import { asNumber, asString } from "./parse";
+import { asNumber, asString, normalizeName } from "./parse";
 
 const detailCache = createTtlCache<AlbumDetail>(6 * 60 * 60 * 1000);
 const TRACK_LOOKUP_LIMIT = 200;
+const TRACK_LOOKUP_TIMEOUT_MS = 8000;
+const CROSS_STORE_SEARCH_LIMIT = 25;
+
+export interface AlbumLookupParsed {
+  collection: ItunesResult | null;
+  tracks: AlbumDetailTrack[];
+}
+
+export interface CrossStoreAlbumSource {
+  collectionId: number | null;
+  collectionName: string;
+  artistName: string;
+}
 
 function mapTrack(item: ItunesResult): AlbumDetailTrack | null {
   const trackId = asNumber(item.trackId);
@@ -35,9 +57,92 @@ function mapTrack(item: ItunesResult): AlbumDetailTrack | null {
   };
 }
 
+export function parseAlbumLookupResults(results: ItunesResult[]): AlbumLookupParsed {
+  const collection =
+    results.find((item) => asString(item.wrapperType) === "collection") ?? null;
+  const tracks = results
+    .filter((item) => asString(item.wrapperType) === "track")
+    .map(mapTrack)
+    .filter((track): track is AlbumDetailTrack => Boolean(track))
+    .sort((a, b) => {
+      if (a.discNumber !== b.discNumber) return a.discNumber - b.discNumber;
+      return a.trackNumber - b.trackNumber;
+    });
+
+  return { collection, tracks };
+}
+
+/** KR은 메타(제목·장르), 곡이 없으면 US 트랙을 씀 */
+export function mergeAlbumLookups(
+  kr: AlbumLookupParsed,
+  us: AlbumLookupParsed,
+): AlbumLookupParsed {
+  return {
+    collection: kr.collection ?? us.collection,
+    tracks: kr.tracks.length > 0 ? kr.tracks : us.tracks,
+  };
+}
+
+function artistsMatch(a: string, b: string): boolean {
+  const na = normalizeName(a);
+  const nb = normalizeName(b);
+  if (!na || !nb) return false;
+  if (na === nb) return true;
+  if (na.startsWith(nb) || nb.startsWith(na)) return true;
+  return looseMatch(a, b);
+}
+
+function titleKeysCompatible(sourceKey: string, candidateKey: string): "exact" | "original" | null {
+  if (!sourceKey || !candidateKey) return null;
+  if (sourceKey === candidateKey) return "exact";
+  if (sourceKey.endsWith("__deluxe")) return null;
+  if (sourceKey.endsWith("__remaster") && candidateKey === sourceKey.replace(/__remaster$/, "")) {
+    return "original";
+  }
+  return null;
+}
+
+/** KR 전용 collectionId에 대응하는 US/GB 앨범 ID 고르기 */
+export function pickCrossStoreAlbumMatch(
+  source: CrossStoreAlbumSource,
+  candidates: ItunesResult[],
+): number | null {
+  const sourceKey = albumTitleDedupeKey(source.collectionName);
+  if (!sourceKey) return null;
+
+  let bestId: number | null = null;
+  let bestScore = Number.NEGATIVE_INFINITY;
+
+  candidates.forEach((item, index) => {
+    if (asString(item.wrapperType) !== "collection") return;
+    const collectionId = asNumber(item.collectionId);
+    const collectionName = asString(item.collectionName)?.trim() ?? "";
+    const artistName = asString(item.artistName)?.trim() ?? "";
+    if (collectionId == null || !collectionName || !artistName) return;
+    if (source.collectionId != null && collectionId === source.collectionId) return;
+    if (!artistsMatch(source.artistName, artistName)) return;
+
+    const compatibility = titleKeysCompatible(sourceKey, albumTitleDedupeKey(collectionName));
+    if (!compatibility) return;
+
+    const penaltyGap = Math.abs(
+      albumVariantPenalty(source.collectionName) - albumVariantPenalty(collectionName),
+    );
+    const score =
+      (compatibility === "exact" ? 1000 : 100) - penaltyGap * 2 - index;
+
+    if (score > bestScore) {
+      bestScore = score;
+      bestId = collectionId;
+    }
+  });
+
+  return bestId;
+}
+
 function toAlbumDetail(
   collection: ItunesResult,
-  tracks: AlbumDetailTrack[]
+  tracks: AlbumDetailTrack[],
 ): AlbumDetail | null {
   const collectionId = asNumber(collection.collectionId);
   const name = asString(collection.collectionName)?.trim();
@@ -62,57 +167,98 @@ function toAlbumDetail(
   };
 }
 
+async function lookupTracksByCollectionId(collectionId: number): Promise<AlbumDetailTrack[]> {
+  const urls = itunesSongLookupFallbackUrls(collectionId, TRACK_LOOKUP_LIMIT);
+  const lookups = await Promise.all(
+    urls.map((url) => fetchItunesResults(url, { timeoutMs: TRACK_LOOKUP_TIMEOUT_MS })),
+  );
+  for (const results of lookups) {
+    const tracks = parseAlbumLookupResults(results).tracks;
+    if (tracks.length > 0) return tracks;
+  }
+  return [];
+}
+
+async function findCrossStoreTracks(collection: ItunesResult): Promise<AlbumDetailTrack[]> {
+  const collectionName = asString(collection.collectionName)?.trim() ?? "";
+  const artistName = asString(collection.artistName)?.trim() ?? "";
+  if (!collectionName || !artistName) return [];
+
+  const searchTitle = pureAlbumTitle(collectionName) || collectionName;
+  const term = `${artistName} ${searchTitle}`.trim();
+  const searchUrls = itunesAlbumNameSearchUrls(term, CROSS_STORE_SEARCH_LIMIT);
+  const batches = await Promise.all(
+    searchUrls.map((url) => fetchItunesResults(url, { timeoutMs: TRACK_LOOKUP_TIMEOUT_MS })),
+  );
+
+  const candidates: ItunesResult[] = [];
+  const seen = new Set<number>();
+  for (const batch of batches) {
+    for (const item of batch) {
+      const id = asNumber(item.collectionId);
+      if (id == null || seen.has(id)) continue;
+      seen.add(id);
+      candidates.push(item);
+    }
+  }
+
+  const matchId = pickCrossStoreAlbumMatch(
+    {
+      collectionId: asNumber(collection.collectionId) ?? null,
+      collectionName,
+      artistName,
+    },
+    candidates,
+  );
+  if (matchId == null) return [];
+
+  return lookupTracksByCollectionId(matchId);
+}
+
 export async function getItunesAlbumDetail(
-  collectionId: string
+  collectionId: string,
 ): Promise<AlbumDetail | null> {
   const trimmed = collectionId.trim();
   if (!/^\d+$/.test(trimmed)) return null;
 
-  const cacheKey = `itunes-v4::${trimmed}`;
+  const cacheKey = `itunes-v6::${trimmed}`;
   const cached = detailCache.get(cacheKey);
   if (cached) return cached;
 
-  let collection: ItunesResult | null = null;
-  let tracks: AlbumDetailTrack[] = [];
-
-  for (const url of itunesLookupUrls(trimmed, {
+  const urls = itunesLookupUrls(trimmed, {
     entity: "song",
     limit: TRACK_LOOKUP_LIMIT,
-  })) {
-    const results = await fetchItunesResults(url);
-    if (results.length === 0) continue;
+  });
 
-    const foundCollection =
-      results.find((item) => asString(item.wrapperType) === "collection") ?? null;
-    const foundTracks = results
-      .filter((item) => asString(item.wrapperType) === "track")
-      .map(mapTrack)
-      .filter((track): track is AlbumDetailTrack => Boolean(track))
-      .sort((a, b) => {
-        if (a.discNumber !== b.discNumber) return a.discNumber - b.discNumber;
-        return a.trackNumber - b.trackNumber;
-      });
+  const lookups = await Promise.all(
+    urls.map(async (url) => ({
+      url,
+      parsed: parseAlbumLookupResults(
+        await fetchItunesResults(url, { timeoutMs: TRACK_LOOKUP_TIMEOUT_MS }),
+      ),
+    })),
+  );
 
-    if (!foundCollection) continue;
-
-    // KR 스토어는 collection만 주고 track을 생략하는 경우가 있어, 트랙이 있는 응답 우선
-    if (foundTracks.length > 0) {
-      collection = foundCollection;
-      tracks = foundTracks;
-      break;
-    }
-
-    if (!collection) {
-      collection = foundCollection;
-      tracks = foundTracks;
-    }
+  let kr: AlbumLookupParsed = { collection: null, tracks: [] };
+  let us: AlbumLookupParsed = { collection: null, tracks: [] };
+  for (const { url, parsed } of lookups) {
+    if (isItunesKrUrl(url)) kr = parsed;
+    else us = parsed;
   }
 
-  if (!collection) return null;
+  const merged = mergeAlbumLookups(kr, us);
+  if (!merged.collection) return null;
 
-  const detail = toAlbumDetail(collection, tracks);
+  let tracks = merged.tracks;
+  if (tracks.length === 0) {
+    tracks = await findCrossStoreTracks(merged.collection);
+  }
+
+  const detail = toAlbumDetail(merged.collection, tracks);
   if (!detail) return null;
 
-  detailCache.set(cacheKey, detail);
+  if (detail.tracks.length > 0) {
+    detailCache.set(cacheKey, detail);
+  }
   return detail;
 }

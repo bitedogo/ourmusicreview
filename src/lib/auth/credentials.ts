@@ -8,6 +8,7 @@ import { isBcryptHash } from "@/src/lib/auth/validation";
 import { verifyPassword } from "@/src/lib/auth/password";
 import { getSupabaseClient } from "@/src/lib/supabase";
 import { resolveExternalIdentity } from "@/src/lib/auth/identity-service";
+import { enforceRateLimit, getRequestIp } from "@/src/lib/auth/rate-limit";
 
 export const credentialsProvider = CredentialsProvider({
   name: "Credentials",
@@ -15,12 +16,30 @@ export const credentialsProvider = CredentialsProvider({
     id: { label: "ID", type: "text" },
     password: { label: "Password", type: "password" },
   },
-  async authorize(credentials) {
+  async authorize(credentials, request) {
     if (!credentials?.id || !credentials?.password) {
       return null;
     }
 
     const dataSource = await initializeDatabase();
+    const ip = getRequestIp(request.headers ?? {});
+    await Promise.all([
+      enforceRateLimit(dataSource, {
+        scope: "login-authorize-account",
+        key: `${ip}:${credentials.id}`,
+        limit: 10,
+        windowSeconds: 600,
+        blockSeconds: 900,
+      }),
+      enforceRateLimit(dataSource, {
+        scope: "login-authorize-ip",
+        key: ip,
+        limit: 30,
+        windowSeconds: 600,
+        blockSeconds: 900,
+      }),
+    ]);
+
     const userRepository = dataSource.getRepository(User);
 
     const user = await userRepository.findOne({

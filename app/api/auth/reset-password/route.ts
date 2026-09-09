@@ -3,10 +3,12 @@
 import bcrypt from "bcryptjs";
 import {
   EMAIL_AUTH_MESSAGES,
-  getUserRepository,
-  matchesStoredOtp,
   parseOtpCode,
 } from "@/src/lib/auth/email-otp";
+import { consumePasswordResetOtp } from "@/src/lib/auth/email-otp-consume";
+import { enforceRateLimit, getRequestIp } from "@/src/lib/auth/rate-limit";
+import { initializeDatabase } from "@/src/lib/db";
+import { ServiceError } from "@/src/lib/http/service-error";
 import {
   sanitizeText,
   validateEmail,
@@ -36,35 +38,43 @@ export async function POST(request: Request) {
     const pwdError = validatePassword(password);
     if (pwdError) return apiError(pwdError, { status: 400 });
 
-    const userRepository = await getUserRepository();
-    const user = await userRepository.findOne({ where: { id, email } });
-
-    if (
-      !user ||
-      !matchesStoredOtp(
-        user.passwordResetToken,
-        user.passwordResetExpiresAt,
-        code
-      )
-    ) {
+    const dataSource = await initializeDatabase();
+    const ip = getRequestIp(request);
+    await Promise.all([
+      enforceRateLimit(dataSource, {
+        scope: "password-reset-final-account",
+        key: `${ip}:${id}:${email}`,
+        limit: 10,
+        windowSeconds: 600,
+        blockSeconds: 900,
+      }),
+      enforceRateLimit(dataSource, {
+        scope: "password-reset-final-ip",
+        key: ip,
+        limit: 30,
+        windowSeconds: 600,
+        blockSeconds: 900,
+      }),
+    ]);
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const consumed = await consumePasswordResetOtp(dataSource, {
+      id,
+      email,
+      rawCode: code,
+      passwordHash: hashedPassword,
+    });
+    if (!consumed) {
       return apiError(EMAIL_AUTH_MESSAGES.otpInvalid, { status: 400 });
     }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-    await userRepository.update(
-      { id: user.id },
-      {
-        password: hashedPassword,
-        passwordResetToken: null,
-        passwordResetExpiresAt: null,
-      }
-    );
 
     return apiOk(
       {},
       { message: "비밀번호가 변경되었습니다. 새 비밀번호로 로그인해 주세요." }
     );
-  } catch {
+  } catch (error) {
+    if (error instanceof ServiceError) {
+      return apiError(error.message, { status: error.status });
+    }
     return apiError("비밀번호 재설정 중 오류가 발생했습니다.", { status: 500 });
   }
 }

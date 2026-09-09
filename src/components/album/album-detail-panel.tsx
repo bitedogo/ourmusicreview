@@ -42,26 +42,24 @@ export function AlbumDetailPanel({ album }: AlbumDetailPanelProps) {
 
   return (
     <div className="space-y-3">
-      {album.tracks.length > 0 ? (
-        <div>
-          <h4 className="text-sm font-semibold text-[var(--color-text-primary)]">트랙리스트</h4>
-          <div className="mt-2 max-h-64 overflow-y-auto">
-            <AlbumTrackList
-              tracks={album.tracks}
-              showExplicit
-              renderAction={(track) => (
-                <button
-                  type="button"
-                  onClick={() => handleOpenAddModal(track)}
-                  className="shrink-0 rounded-full border border-zinc-300 bg-white px-2.5 py-1 text-[11px] font-semibold text-[var(--color-text-primary)] hover:bg-zinc-100"
-                >
-                  담기
-                </button>
-              )}
-            />
-          </div>
+      <div>
+        <h4 className="text-sm font-semibold text-[var(--color-text-primary)]">트랙리스트</h4>
+        <div className="mt-2 max-h-64 overflow-y-auto">
+          <AlbumTrackList
+            tracks={album.tracks}
+            showExplicit
+            renderAction={(track) => (
+              <button
+                type="button"
+                onClick={() => handleOpenAddModal(track)}
+                className="shrink-0 rounded-full border border-zinc-300 bg-white px-2.5 py-1 text-[11px] font-semibold text-[var(--color-text-primary)] hover:bg-zinc-100"
+              >
+                담기
+              </button>
+            )}
+          />
         </div>
-      ) : null}
+      </div>
 
       {album.copyrights.length > 0 ? (
         <p className="text-[11px] leading-relaxed text-[var(--color-text-muted)]">

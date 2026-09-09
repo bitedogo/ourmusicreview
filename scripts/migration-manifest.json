@@ -16,6 +16,7 @@
     "add-announcement-cursors.sql",
     "add-inquiries.sql",
     "add-data-integrity-constraints.sql",
-    "add-auth-security.sql"
+    "add-auth-security.sql",
+    "add-user-unique-constraints.sql"
   ]
 }

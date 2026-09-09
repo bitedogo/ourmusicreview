@@ -10,12 +10,14 @@ import { createTtlCache } from "@/src/lib/utils/ttl-cache";
 import {
   fetchItunesResults,
   getLargeImageUrl,
+  itunesAlbumSearchUrls,
   itunesLookupUrls,
   type ItunesResult,
 } from "./http";
 import { asNumber, asString, normalizeName } from "./parse";
 
 const ARTIST_CACHE_TTL_MS = 10 * 60 * 1000;
+export const ARTIST_ALBUMS_LOOKUP_LIMIT = 200;
 
 const artistHasAlbumsCache = createTtlCache<boolean>(ARTIST_CACHE_TTL_MS);
 
@@ -31,9 +33,10 @@ export interface iTunesAlbum {
   collectionType?: string;
   trackCount?: number;
   releaseType?: ItunesReleaseType;
+  popularityScore?: number;
 }
 
-/** 팬메이드/비공식 등만 제외. remastered·live 등은 순수 제목 중복 제거로 처리 (디럭스는 별도 유지) */
+/** 팬메이드/비공식 등만 제외. remastered·deluxe는 원본과 별도 유지, 그 외 변형은 원본 우선으로 합침 */
 const ALBUM_TITLE_FILTER_KEYWORDS = [
   "LEAK",
   "FANMADE",
@@ -72,7 +75,12 @@ function preferOriginalAlbum(a: iTunesAlbum, b: iTunesAlbum): iTunesAlbum {
   const timeB = releaseTime(b);
   if (timeA !== timeB) return timeA < timeB ? a : b;
 
-  return (a.trackCount ?? 0) >= (b.trackCount ?? 0) ? a : b;
+  // 트랙 수 많은 리마스터/확장판보다 짧은 원제목을 남김
+  if (a.collectionName.length !== b.collectionName.length) {
+    return a.collectionName.length < b.collectionName.length ? a : b;
+  }
+
+  return (a.trackCount ?? 0) <= (b.trackCount ?? 0) ? a : b;
 }
 
 export async function getAlbumByCollectionId(
@@ -136,6 +144,39 @@ function dedupeAlbumsByTitleArtist(albums: iTunesAlbum[]): iTunesAlbum[] {
   return Array.from(bestByKey.values());
 }
 
+async function albumPopularityScores(
+  artistId: number,
+  artistName: string,
+  limit: number,
+): Promise<{ byId: Map<number, number>; byTitleKey: Map<string, number> }> {
+  const byId = new Map<number, number>();
+  const byTitleKey = new Map<string, number>();
+  if (!artistName.trim()) return { byId, byTitleKey };
+
+  for (const url of itunesAlbumSearchUrls(artistName, limit)) {
+    const results = await fetchItunesResults(url);
+    let hits = 0;
+    results.forEach((item, index) => {
+      if (item.wrapperType !== "collection") return;
+      const id = asNumber(item.collectionId);
+      const itemArtistId = asNumber(item.artistId);
+      if (id == null || itemArtistId !== artistId) return;
+      const score = Math.max(1, limit - index);
+      if (!byId.has(id)) {
+        byId.set(id, score);
+        hits += 1;
+      }
+      const titleKey = albumTitleDedupeKey(String(item.collectionName ?? ""));
+      if (titleKey && !byTitleKey.has(titleKey)) {
+        byTitleKey.set(titleKey, score);
+      }
+    });
+    if (hits > 0) break;
+  }
+
+  return { byId, byTitleKey };
+}
+
 function toItunesAlbum(item: ItunesResult): iTunesAlbum | null {
   const id = asNumber(item.collectionId);
   if (!id) return null;
@@ -153,32 +194,46 @@ function toItunesAlbum(item: ItunesResult): iTunesAlbum | null {
 
 export async function getArtistAlbums(
   artistId: number,
-  limit: number = 100
+  limit: number = ARTIST_ALBUMS_LOOKUP_LIMIT
 ): Promise<iTunesAlbum[]> {
   if (!Number.isFinite(artistId) || artistId <= 0) return [];
 
   const byId = new Map<number, iTunesAlbum>();
+  let artistName = "";
   for (const url of itunesLookupUrls(artistId, { limit })) {
     const results = await fetchItunesResults(url);
     for (const item of results) {
+      if (!artistName && item.wrapperType === "artist") {
+        artistName = asString(item.artistName) ?? "";
+      }
       if (item.wrapperType !== "collection") continue;
       const album = toItunesAlbum(item);
       if (album && !byId.has(album.collectionId)) {
         byId.set(album.collectionId, album);
+        if (!artistName) artistName = album.artistName;
       }
     }
   }
 
   const filtered = Array.from(byId.values()).filter(isDisplayableItunesRelease);
-  const deduped = dedupeAlbumsByTitleArtist(filtered).map((album) => ({
-    ...album,
-    releaseType: classifyItunesReleaseType(album),
-  }));
+  const popularity = await albumPopularityScores(artistId, artistName, limit);
+  const deduped = dedupeAlbumsByTitleArtist(filtered).map((album) => {
+    const titleKey = albumTitleDedupeKey(album.collectionName);
+    return {
+      ...album,
+      releaseType: classifyItunesReleaseType(album),
+      popularityScore:
+        popularity.byId.get(album.collectionId) ??
+        (titleKey ? popularity.byTitleKey.get(titleKey) : undefined) ??
+        0,
+    };
+  });
 
   return deduped.sort((a, b) => {
     const timeA = a.releaseDate ? new Date(a.releaseDate).getTime() : 0;
     const timeB = b.releaseDate ? new Date(b.releaseDate).getTime() : 0;
-    return timeB - timeA;
+    if (timeA !== timeB) return timeA - timeB;
+    return albumVariantPenalty(a.collectionName) - albumVariantPenalty(b.collectionName);
   });
 }
 

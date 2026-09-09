@@ -1,17 +1,19 @@
 /** 강제 탈퇴 이메일 재가입 차단 */
 
-import type { DataSource } from "typeorm";
+import type { DataSource, EntityManager } from "typeorm";
 import { BlockedEmail } from "@/src/lib/db/entities/BlockedEmail";
 
 export const BLOCKED_EMAIL_MESSAGE =
   "해당 이메일로는 회원가입할 수 없습니다. 관리자에게 문의해 주세요.";
+
+type RepositoryProvider = Pick<DataSource | EntityManager, "getRepository">;
 
 export function normalizeEmail(email: string): string {
   return email.trim().toLowerCase();
 }
 
 export async function isEmailBlocked(
-  dataSource: DataSource,
+  dataSource: RepositoryProvider,
   email: string
 ): Promise<boolean> {
   const normalized = normalizeEmail(email);
@@ -23,7 +25,7 @@ export async function isEmailBlocked(
 }
 
 export async function assertEmailNotBlocked(
-  dataSource: DataSource,
+  dataSource: RepositoryProvider,
   email: string
 ): Promise<void> {
   if (await isEmailBlocked(dataSource, email)) {
@@ -32,7 +34,7 @@ export async function assertEmailNotBlocked(
 }
 
 export async function blockEmail(
-  dataSource: DataSource,
+  dataSource: RepositoryProvider,
   input: {
     email: string;
     previousUserId?: string | null;

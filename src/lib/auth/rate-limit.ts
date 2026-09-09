@@ -10,10 +10,27 @@ interface RateLimitOptions {
   blockSeconds?: number;
 }
 
-export function getRequestIp(request: Request): string {
+type HeaderSource = Request | Headers | Record<string, unknown>;
+
+function readHeader(source: HeaderSource, name: string): string | null {
+  const headers =
+    source instanceof Request
+      ? source.headers
+      : source instanceof Headers
+        ? source
+        : null;
+  if (headers) return headers.get(name);
+
+  const record = source as Record<string, unknown>;
+  const value = record[name] ?? record[name.toLowerCase()];
+  if (Array.isArray(value)) return value[0] == null ? null : String(value[0]);
+  return value == null ? null : String(value);
+}
+
+export function getRequestIp(source: HeaderSource): string {
   return (
-    request.headers.get("cf-connecting-ip")?.trim() ||
-    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    readHeader(source, "cf-connecting-ip")?.trim() ||
+    readHeader(source, "x-forwarded-for")?.split(",")[0]?.trim() ||
     "unknown"
   );
 }

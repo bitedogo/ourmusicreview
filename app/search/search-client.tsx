@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { AlbumDetailModal } from "@/src/components/album/album-detail-modal";
 import { ArtistSearchBar } from "@/src/components/app/artist-search-bar";
+import { AlbumSortToggle } from "@/src/components/search/album-sort-toggle";
 import { DuplicateReviewModal } from "@/src/components/common/duplicate-review-modal";
 import { EmptyState } from "@/src/components/common/empty-state";
 import { useArtistAutocomplete } from "@/src/hooks/use-artist-autocomplete";
@@ -24,6 +25,11 @@ import type {
   SearchAlbumResult,
   SearchReleaseType,
 } from "@/src/lib/search/types";
+import {
+  DEFAULT_ALBUM_LIST_SORT,
+  sortSearchAlbums,
+  type AlbumListSort,
+} from "@/src/lib/search/album-sort";
 import { buildReviewWritePath } from "@/src/lib/utils/album";
 import { SearchAlbumCard } from "./search-album-card";
 
@@ -51,6 +57,7 @@ export function SearchClient() {
   const [selectedArtist, setSelectedArtist] = useState<ItunesArtistResult | null>(null);
   const [albums, setAlbums] = useState<SearchAlbumResult[]>([]);
   const [releaseFilter, setReleaseFilter] = useState<SearchReleaseType>("album");
+  const [albumSort, setAlbumSort] = useState<AlbumListSort>(DEFAULT_ALBUM_LIST_SORT);
   const [isLoadingAlbums, setIsLoadingAlbums] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isDuplicateModalOpen, setIsDuplicateModalOpen] = useState(false);
@@ -130,8 +137,12 @@ export function SearchClient() {
   }, []);
 
   const filteredAlbums = useMemo(
-    () => albums.filter((album) => (album.releaseType ?? "album") === releaseFilter),
-    [albums, releaseFilter]
+    () =>
+      sortSearchAlbums(
+        albums.filter((album) => (album.releaseType ?? "album") === releaseFilter),
+        albumSort,
+      ),
+    [albums, releaseFilter, albumSort]
   );
 
   const handleAlbumCoverClick = useCallback(async (album: SearchAlbumResult) => {
@@ -237,34 +248,37 @@ export function SearchClient() {
 
       {selectedArtist && (
         <section className="mt-[var(--featured-card-gap)]">
-          <div className="mb-[var(--featured-card-padding)] flex flex-wrap items-center justify-between gap-3">
+          <div className="mb-[var(--featured-card-padding)] flex flex-col gap-3">
             <h2 className="text-[length:var(--text-today-album-title)] font-semibold tracking-tight text-[var(--color-text-primary)]">
               {selectedArtist.artistName} 의{" "}
               {releaseFilter === "album" ? "앨범" : "싱글"}
             </h2>
-            <div className="box-border flex h-[35px] w-[111px] items-center rounded-[10px] border border-[#D9D9D9] bg-[#FAFAFA] px-[5px]">
-              <button
-                type="button"
-                onClick={() => setReleaseFilter("album")}
-                className={`flex h-6 w-[47px] items-center justify-center rounded-[6px] text-[13px] leading-4 transition ${
-                  releaseFilter === "album"
-                    ? "bg-white text-[#43A7B2] shadow-[0px_1px_4px_rgba(0,0,0,0.25)]"
-                    : "bg-transparent text-[#D9D9D9]"
-                }`}
-              >
-                앨범
-              </button>
-              <button
-                type="button"
-                onClick={() => setReleaseFilter("single")}
-                className={`flex h-6 flex-1 items-center justify-center rounded-[6px] text-[13px] leading-4 transition ${
-                  releaseFilter === "single"
-                    ? "bg-white text-[#43A7B2] shadow-[0px_1px_4px_rgba(0,0,0,0.25)]"
-                    : "bg-transparent text-[#D9D9D9]"
-                }`}
-              >
-                싱글
-              </button>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <AlbumSortToggle value={albumSort} onChange={setAlbumSort} />
+              <div className="box-border flex h-[35px] w-[111px] items-center rounded-[10px] border border-[#D9D9D9] bg-[#FAFAFA] px-[5px]">
+                <button
+                  type="button"
+                  onClick={() => setReleaseFilter("album")}
+                  className={`flex h-6 w-[47px] items-center justify-center rounded-[6px] text-[13px] leading-4 transition ${
+                    releaseFilter === "album"
+                      ? "bg-white text-[#43A7B2] shadow-[0px_1px_4px_rgba(0,0,0,0.25)]"
+                      : "bg-transparent text-[#D9D9D9]"
+                  }`}
+                >
+                  앨범
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setReleaseFilter("single")}
+                  className={`flex h-6 flex-1 items-center justify-center rounded-[6px] text-[13px] leading-4 transition ${
+                    releaseFilter === "single"
+                      ? "bg-white text-[#43A7B2] shadow-[0px_1px_4px_rgba(0,0,0,0.25)]"
+                      : "bg-transparent text-[#D9D9D9]"
+                  }`}
+                >
+                  싱글
+                </button>
+              </div>
             </div>
           </div>
 

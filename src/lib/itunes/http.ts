@@ -37,19 +37,62 @@ export function itunesLookupUrls(
   return [`${ITUNES_BASE}/lookup?${query}&country=KR&lang=ko_kr`, `${ITUNES_BASE}/lookup?${query}`];
 }
 
+export function isItunesKrUrl(url: string): boolean {
+  return /[?&]country=KR\b/i.test(url);
+}
+
 export function itunesArtistSearchUrls(term: string, limit: number): string[] {
   const query = `term=${encodeURIComponent(term)}&media=music&entity=musicArtist&limit=${limit}`;
   return [`${ITUNES_BASE}/search?${query}&country=KR&lang=ko_kr`, `${ITUNES_BASE}/search?${query}`];
 }
 
-export async function fetchItunesResults(url: string): Promise<ItunesResult[]> {
+/** 곡 인기 순 신호. KR 카탈로그는 해외 아티스트 곡이 비는 경우가 있어 기본(US)을 먼저 */
+export function itunesSongSearchUrls(term: string, limit: number): string[] {
+  const query = `term=${encodeURIComponent(term)}&media=music&entity=song&limit=${limit}`;
+  return [`${ITUNES_BASE}/search?${query}`, `${ITUNES_BASE}/search?${query}&country=KR&lang=ko_kr`];
+}
+
+/** KR에 없는 앨범 ID의 곡을 US/GB에서 찾기 */
+export function itunesSongLookupFallbackUrls(id: number | string, limit: number): string[] {
+  const query = `id=${id}&entity=song&limit=${limit}`;
+  return [
+    `${ITUNES_BASE}/lookup?${query}`,
+    `${ITUNES_BASE}/lookup?${query}&country=GB`,
+  ];
+}
+
+/** 제목+아티스트로 미국·영국 앨범 검색 (KR 전용 ID 폴백) */
+export function itunesAlbumNameSearchUrls(term: string, limit: number): string[] {
+  const query = `term=${encodeURIComponent(term)}&media=music&entity=album&limit=${limit}`;
+  return [
+    `${ITUNES_BASE}/search?${query}`,
+    `${ITUNES_BASE}/search?${query}&country=GB`,
+  ];
+}
+
+/** 앨범 인기 순 신호. artistTerm을 우선하고, 비면 일반 앨범 검색 */
+export function itunesAlbumSearchUrls(term: string, limit: number): string[] {
+  const encoded = encodeURIComponent(term);
+  const base = `term=${encoded}&media=music&entity=album&limit=${limit}`;
+  return [
+    `${ITUNES_BASE}/search?${base}&attribute=artistTerm`,
+    `${ITUNES_BASE}/search?${base}`,
+    `${ITUNES_BASE}/search?${base}&attribute=artistTerm&country=KR&lang=ko_kr`,
+    `${ITUNES_BASE}/search?${base}&country=KR&lang=ko_kr`,
+  ];
+}
+
+export async function fetchItunesResults(
+  url: string,
+  options?: { timeoutMs?: number },
+): Promise<ItunesResult[]> {
   try {
     const data = await fetchExternalJson(
       url,
       ITUNES_FETCH_OPTIONS,
       {
         provider: "itunes",
-        timeoutMs: 5000,
+        timeoutMs: options?.timeoutMs ?? 5000,
         retries: 1,
         schema: z.object({
           results: z.array(z.record(z.string(), z.unknown())).default([]),
