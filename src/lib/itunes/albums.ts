@@ -107,6 +107,19 @@ export async function getAlbumByCollectionId(
   return null;
 }
 
+export function isBlockedItunesAlbumTitle(title: string): boolean {
+  const upper = title.toUpperCase();
+  return ALBUM_TITLE_FILTER_KEYWORDS.some((keyword) => {
+    if (keyword.includes(" ") || keyword.includes("-")) {
+      return upper.includes(keyword);
+    }
+    // Discovery 안의 COVER처럼 단어 일부가 키워드와 겹치면 제외하지 않는다
+    return new RegExp(`(?:^|[^A-Z0-9가-힣])${keyword}(?:[^A-Z0-9가-힣]|$)`).test(
+      upper,
+    );
+  });
+}
+
 export function classifyItunesReleaseType(album: iTunesAlbum): ItunesReleaseType {
   const collectionType = (album.collectionType ?? "").toLowerCase();
   if (collectionType === "single") return "single";
@@ -123,8 +136,7 @@ export function classifyItunesReleaseType(album: iTunesAlbum): ItunesReleaseType
 }
 
 function isDisplayableItunesRelease(album: iTunesAlbum): boolean {
-  const title = (album.collectionName || "").toUpperCase();
-  return !ALBUM_TITLE_FILTER_KEYWORDS.some((keyword) => title.includes(keyword));
+  return !isBlockedItunesAlbumTitle(album.collectionName || "");
 }
 
 function dedupeAlbumsByTitleArtist(albums: iTunesAlbum[]): iTunesAlbum[] {

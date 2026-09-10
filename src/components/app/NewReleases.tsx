@@ -147,7 +147,15 @@ export default function NewReleases({
   );
   const [coverCenterPx, setCoverCenterPx] = useState(0);
   const [transitionOn, setTransitionOn] = useState(false);
+  const carouselResetKey = `${canLoop}:${visibleCount}:${albums.length}`;
+  const [appliedResetKey, setAppliedResetKey] = useState(carouselResetKey);
   const arrowOutsetPx = visibleCount === DESKTOP_VISIBLE ? -56 : 0;
+
+  if (appliedResetKey !== carouselResetKey) {
+    setAppliedResetKey(carouselResetKey);
+    setTransitionOn(false);
+    setOffset(canLoop ? visibleCount : 0);
+  }
 
   const slides = useMemo(() => {
     if (!canLoop) {
@@ -161,11 +169,6 @@ export default function NewReleases({
       ...tail.map((album, index) => ({ album, key: `tail-${album.id}-${index}` })),
     ];
   }, [albums, canLoop, visibleCount]);
-
-  useLayoutEffect(() => {
-    setTransitionOn(false);
-    setOffset(canLoop ? visibleCount : 0);
-  }, [canLoop, visibleCount, albums.length]);
 
   useLayoutEffect(() => {
     const viewport = viewportRef.current;

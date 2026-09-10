@@ -306,7 +306,7 @@ export function resetArtistSearchStateForTests() {
   inflightSearches.clear();
 }
 
-export interface SearchArtistsForApiOptions extends SearchArtistsOptions {}
+export type SearchArtistsForApiOptions = SearchArtistsOptions;
 
 /** 공백/빈 검색어를 정규화한 뒤 아티스트를 검색하는 API 핸들러 공용 로직 */
 export async function searchArtistsForApi(
