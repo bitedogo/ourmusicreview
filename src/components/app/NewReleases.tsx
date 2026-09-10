@@ -79,13 +79,22 @@ function NewReleaseCover({
             </div>
           )}
           <span
-            className={`absolute left-0 top-0 flex h-6 min-w-6 items-center justify-center rounded-br-[var(--featured-card-radius)] px-1 text-[10px] font-bold sm:h-7 sm:min-w-7 sm:px-1.5 sm:text-xs ${
+            className={`absolute left-0 top-0 flex h-6 items-center justify-center overflow-hidden rounded-br-[var(--featured-card-radius)] px-1 text-[10px] font-bold sm:h-7 sm:px-1.5 sm:text-xs ${
               isToday
                 ? "bg-[var(--color-new-release-today)] text-[var(--color-new-release-today-text)]"
-                : "bg-[var(--color-accent)] tabular-nums text-white"
+                : "bg-[var(--color-accent)] text-white"
             }`}
           >
-            {releaseLabel}
+            <span className="invisible tabular-nums" aria-hidden>
+              00.00
+            </span>
+            <span
+              className={`absolute inset-0 flex items-center justify-center whitespace-nowrap ${
+                isToday ? "text-[8px] tracking-tight sm:text-[10px]" : "tabular-nums"
+              }`}
+            >
+              {releaseLabel}
+            </span>
           </span>
         </div>
       </div>

@@ -13,6 +13,12 @@
 
 ## 2026-09-10
 
+#### Today 뱃지는 날짜 칸 안에
+
+신보 커버의 Today가 MM.DD 코너보다 넓어 보인다. 웹·모바일 모두 날짜 칸 크기는 그대로 두고 Today만 그 안에 들어가면 좋겠다. 동작은 [개발자 07](/developer/07_feedback).
+
+상태: **반영함**
+
 #### 신보 추천 문구 표기
 
 Upcoming 제목 아래는 Recommended by ORUMUSICWEB이면 좋겠다. 동작은 [개발자 07](/developer/07_feedback).

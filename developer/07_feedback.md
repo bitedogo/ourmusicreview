@@ -13,6 +13,12 @@
 
 ## 2026-09-10
 
+#### Today 뱃지는 날짜 칸 안에
+
+오늘 발매 뱃지 Today가 날짜 코너를 밀어 넓히지 않았으면 좋겠다. MM.DD와 같은 크기에 맞추면 좋겠다. 화면은 [디자이너 07](/designer/07_feedback).
+
+상태: **반영함**
+
 #### 신보 추천 문구 표기
 
 홈 신보 제목 아래 카피는 Recommended by ORUMUSICWEB로 두면 좋겠다. 화면은 [디자이너 07](/designer/07_feedback).
