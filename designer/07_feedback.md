@@ -13,6 +13,42 @@
 
 ## 2026-09-10
 
+#### 신보 추천 문구 표기
+
+Upcoming 제목 아래는 Recommended by ORUMUSICWEB이면 좋겠다. 동작은 [개발자 07](/developer/07_feedback).
+
+상태: **반영함**
+
+#### 신보 추천 문구는 간격 유지
+
+Recommended by ORU를 넣어도 제목과 커버 사이 간격은 원래대로면 좋겠다. 동작은 [개발자 07](/developer/07_feedback).
+
+상태: **반영함**
+
+#### 신보 제목 아래 운영자 추천
+
+Upcoming Album Releases 아래에, Chart의 from Apple Music처럼 작게 ORU 운영자 추천이라고 적히면 좋겠다. 동작은 [개발자 07](/developer/07_feedback).
+
+상태: **반영함**
+
+#### 신보 양쪽이 살짝 잘림
+
+Upcoming 캐러셀 왼쪽엔 이전 커버가 조금 보이고, 오른쪽 커버는 잘린다. 모바일도 같다. 카드가 칸에 딱 맞게 들어가면 좋겠다. 동작은 [개발자 07](/developer/07_feedback).
+
+상태: **반영함**
+
+#### 홈 신보는 등록한 것 전부
+
+Upcoming Album Releases에 이번 주·다음 주만 나오고 예정은 빠진다. 관리자에 넣은 앨범은 다 보이면 좋겠다. 동작은 [개발자 07](/developer/07_feedback).
+
+상태: **반영함**
+
+#### Chart 제목 아래 출처
+
+Chart 레이블만 있으면 데이터가 어디서 오는지 모른다. 제목 아래에 `from Apple Music`처럼 작은 출처 한 줄이 있으면 좋겠다. 동작은 [개발자 07](/developer/07_feedback).
+
+상태: **반영함**
+
 #### 직접 등록 커버 없으면 로고
 
 직접 등록할 때 이미지 링크를 안 넣으면 빈 칸 대신 ORU 로고가 커버로 보이면 좋겠다. 동작은 [개발자 07](/developer/07_feedback).

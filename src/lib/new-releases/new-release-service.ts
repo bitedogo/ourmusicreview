@@ -1,6 +1,6 @@
 /** 주간 신보 조회·등록 비즈니스 로직 */
 
-import { Between, LessThan, type DataSource } from "typeorm";
+import { LessThan, type DataSource } from "typeorm";
 import { getAlbumById } from "@/src/lib/album-lookup";
 import { WeeklyReleaseAlbum } from "@/src/lib/db/entities/WeeklyReleaseAlbum";
 import { isUniqueViolation } from "@/src/lib/db/pg-error";
@@ -88,12 +88,9 @@ export function emptyNewReleasesHomeData(): NewReleasesHomeData {
 export async function getHomeNewReleases(
   dataSource: DataSource
 ): Promise<NewReleasesHomeData> {
-  const weeks = getNewReleaseWeekWindows();
+  await purgeExpiredManualNewReleases(dataSource);
   const repo = dataSource.getRepository(WeeklyReleaseAlbum);
   const rows = await repo.find({
-    where: {
-      releaseDate: Between(weeks.thisWeekStart, weeks.nextWeekEnd),
-    },
     order: { releaseDate: "ASC", title: "ASC" },
   });
 

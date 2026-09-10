@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { DataSource } from "typeorm";
-import { Between, LessThan } from "typeorm";
+import { LessThan } from "typeorm";
 import { WeeklyReleaseAlbum } from "@/src/lib/db/entities/WeeklyReleaseAlbum";
 
 const { getAlbumByIdMock, classifyItunesReleaseTypeMock } = vi.hoisted(() => ({
@@ -54,17 +54,17 @@ function createDataSource(repo: ReturnType<typeof createRepo>) {
 }
 
 describe("getHomeNewReleases", () => {
-  it("홈 창 밖의 앨범을 조회하지 않고 purge도 하지 않는다", async () => {
+  it("등록된 앨범을 전부 보여주고 만료 수동 등록은 정리한다", async () => {
     const repo = createRepo({
       find: vi.fn().mockResolvedValue([
         {
           id: "1",
           collectionId: "100",
-          title: "In Window",
+          title: "Far Ahead",
           artist: "A",
           artistId: null,
           imageUrl: null,
-          releaseDate: "2026-09-11",
+          releaseDate: "2026-10-16",
           source: "itunes",
         },
       ]),
@@ -73,16 +73,15 @@ describe("getHomeNewReleases", () => {
 
     const result = await getHomeNewReleases(dataSource);
 
-    expect(repo.delete).not.toHaveBeenCalled();
-    expect(repo.find).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: {
-          releaseDate: Between("2026-09-09", "2026-09-18"),
-        },
-      })
-    );
+    expect(repo.delete).toHaveBeenCalledWith({
+      source: "manual",
+      releaseDate: LessThan("2026-09-09"),
+    });
+    expect(repo.find).toHaveBeenCalledWith({
+      order: { releaseDate: "ASC", title: "ASC" },
+    });
     expect(result.albums).toHaveLength(1);
-    expect(result.albums[0]?.title).toBe("In Window");
+    expect(result.albums[0]?.title).toBe("Far Ahead");
   });
 });
 

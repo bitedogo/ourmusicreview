@@ -28,9 +28,14 @@ export default function MusicChart({
 
   return (
     <section className="mt-[var(--today-album-chart-gap)]">
-      <h2 className="mb-[var(--chart-title-content-gap)] text-center text-[20px] font-semibold leading-[145%] tracking-[-0.005em] text-[var(--color-accent)]">
-        Chart
-      </h2>
+      <div className="mb-[var(--chart-title-content-gap)] text-center">
+        <h2 className="text-[20px] font-semibold leading-[145%] tracking-[-0.005em] text-[var(--color-accent)]">
+          Chart
+        </h2>
+        <p className="mt-1 text-[10px] font-normal leading-[145%] tracking-[-0.005em] text-[var(--color-text-muted)] sm:text-[11px]">
+          from Apple Music
+        </p>
+      </div>
 
       <div className="flex justify-center">
         <div className="chart-region-track inline-flex gap-1 rounded-full border border-[var(--color-border)] bg-white p-1">

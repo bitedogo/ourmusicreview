@@ -145,7 +145,6 @@ export default function NewReleases({
   const [offset, setOffset] = useState(() =>
     albums.length > DESKTOP_VISIBLE ? DESKTOP_VISIBLE : 0
   );
-  const [stepPx, setStepPx] = useState(0);
   const [coverCenterPx, setCoverCenterPx] = useState(0);
   const [transitionOn, setTransitionOn] = useState(false);
   const arrowOutsetPx = visibleCount === DESKTOP_VISIBLE ? -56 : 0;
@@ -174,12 +173,6 @@ export default function NewReleases({
     if (!viewport || !track) return;
 
     const measure = () => {
-      const card = track.querySelector("li");
-      const gap = Number.parseFloat(getComputedStyle(track).columnGap) || 0;
-      if (card instanceof HTMLElement) {
-        setStepPx(card.offsetWidth + gap);
-      }
-
       const cover = track.querySelector(".aspect-square");
       const root = viewport.parentElement;
       if (cover instanceof HTMLElement && root) {
@@ -247,9 +240,14 @@ export default function NewReleases({
         }
       }}
     >
-      <h2 className="mb-[var(--chart-title-content-gap)] text-center text-[20px] font-semibold leading-[145%] tracking-[-0.005em] text-[var(--color-accent)]">
-        Upcoming Album Releases
-      </h2>
+      <div className="relative mb-[var(--chart-title-content-gap)] text-center">
+        <h2 className="text-[20px] font-semibold leading-[145%] tracking-[-0.005em] text-[var(--color-accent)]">
+          Upcoming Album Releases
+        </h2>
+        <p className="absolute inset-x-0 top-full mt-1 text-[10px] font-normal leading-[145%] tracking-[-0.005em] text-[var(--color-text-muted)] sm:text-[11px]">
+          Recommended by ORUMUSICWEB
+        </p>
+      </div>
 
       <div className="relative px-8 sm:px-0">
         {canLoop ? (
@@ -278,7 +276,7 @@ export default function NewReleases({
             onTransitionEnd={handleTransitionEnd}
             className="grid w-max grid-flow-col auto-cols-[calc((100cqi-2*var(--featured-card-margin-x))/3)] gap-x-[var(--featured-card-margin-x)] py-[var(--masterpiece-slider-pad-y)] sm:auto-cols-[calc((100cqi-4*var(--featured-card-margin-x))/5)]"
             style={{
-              transform: `translate3d(${-offset * stepPx}px, 0, 0)`,
+              transform: `translate3d(calc(${-offset} * (100cqi + var(--featured-card-margin-x)) / ${visibleCount}), 0, 0)`,
               transition: transitionOn
                 ? `transform ${SLIDE_TRANSITION_MS}ms cubic-bezier(0.4, 0, 0.2, 1)`
                 : "none",
