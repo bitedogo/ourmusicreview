@@ -22,6 +22,7 @@ export function HomeHeroSticky() {
     suggestions,
     isLoading,
     isDropdownOpen,
+    isThrottled,
     closeDropdown,
   } = useArtistAutocomplete();
 
@@ -75,6 +76,7 @@ export function HomeHeroSticky() {
                 suggestions={suggestions}
                 isLoading={isLoading}
                 isDropdownOpen={isDropdownOpen}
+                isThrottled={isThrottled}
                 onArtistSelect={handleArtistSelect}
               />
             </div>

@@ -1,10 +1,11 @@
 "use client";
 /** iTunes 앨범 선택 모달 */
 
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import type { SearchAlbumResult } from "@/src/lib/search/types";
 import { useItunesAlbumPicker } from "@/src/hooks/use-itunes-album-picker";
 import { ItunesAlbumSearchPanel } from "@/src/components/itunes/itunes-album-search-panel";
+import { isUpcomingReleaseDate } from "@/src/lib/new-releases/weeks";
 
 interface ItunesAlbumPickerModalProps {
   open: boolean;
@@ -15,6 +16,8 @@ interface ItunesAlbumPickerModalProps {
   isSelecting?: boolean;
   selectError?: string | null;
   titleId?: string;
+  /** 오늘 이후 발매 앨범만 (주간 신보 등록) */
+  upcomingOnly?: boolean;
 }
 
 export function ItunesAlbumPickerModal({
@@ -26,8 +29,15 @@ export function ItunesAlbumPickerModal({
   isSelecting = false,
   selectError = null,
   titleId = "itunes-album-picker-title",
+  upcomingOnly = false,
 }: ItunesAlbumPickerModalProps) {
-  const picker = useItunesAlbumPicker();
+  const filterUpcoming = useCallback(
+    (album: SearchAlbumResult) => isUpcomingReleaseDate(album.releaseDate),
+    []
+  );
+  const picker = useItunesAlbumPicker(
+    upcomingOnly ? { filterAlbums: filterUpcoming } : undefined
+  );
   const { reset } = picker;
 
   useEffect(() => {
@@ -59,6 +69,12 @@ export function ItunesAlbumPickerModal({
           isSelecting={isSelecting}
           error={selectError}
           variant="modal"
+          showReleaseDate={upcomingOnly}
+          emptyAlbumsMessage={
+            upcomingOnly
+              ? "앞으로 발매될 앨범이 없습니다."
+              : undefined
+          }
         />
 
         <div className="mt-6 flex justify-end">

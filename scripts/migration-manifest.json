@@ -17,6 +17,9 @@
     "add-inquiries.sql",
     "add-data-integrity-constraints.sql",
     "add-auth-security.sql",
-    "add-user-unique-constraints.sql"
+    "add-user-unique-constraints.sql",
+    "add-weekly-release-albums.sql",
+    "add-weekly-release-mbid.sql",
+    "add-weekly-release-source.sql"
   ]
 }

@@ -51,6 +51,7 @@ export function SearchClient() {
     suggestions,
     isLoading: isLoadingSuggestions,
     isDropdownOpen,
+    isThrottled,
     closeDropdown,
   } = useArtistAutocomplete({ initialQuery });
 
@@ -236,6 +237,7 @@ export function SearchClient() {
           suggestions={suggestions}
           isLoading={isLoadingSuggestions}
           isDropdownOpen={isDropdownOpen}
+          isThrottled={isThrottled}
           onArtistSelect={handleArtistSelectFromDropdown}
         />
 

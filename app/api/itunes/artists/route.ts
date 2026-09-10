@@ -1,6 +1,6 @@
 /** GET iTunes 아티스트 검색 */
 
-import { searchArtistsForApi } from "@/src/lib/itunes";
+import { isItunesCoolingDown, searchArtistsForApi } from "@/src/lib/itunes";
 import { apiError, apiOk } from "@/src/lib/http/response";
 
 export async function GET(request: Request) {
@@ -15,6 +15,11 @@ export async function GET(request: Request) {
     const artists = await searchArtistsForApi(term, { limit: 20 });
 
     if (artists.length === 0) {
+      if (isItunesCoolingDown()) {
+        return apiError("검색이 잠시 제한되었습니다. 잠시 후 다시 시도해주세요.", {
+          status: 429,
+        });
+      }
       return apiError("아티스트 검색 결과가 없습니다.", { status: 404 });
     }
 

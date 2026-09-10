@@ -9,6 +9,7 @@ export interface ItunesArtistResult {
 }
 
 export interface ItunesSearchAutocompleteResponse {
-  resultCount: number;
+  resultCount?: number;
   results: ItunesArtistResult[];
+  throttled?: boolean;
 }

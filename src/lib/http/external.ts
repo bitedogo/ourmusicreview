@@ -18,6 +18,12 @@ interface ExternalFetchOptions<T> {
   schema?: ZodType<T>;
 }
 
+/** 429는 재시도하면 차단만 길어진다. 네트워크 오류·5xx만 재시도 */
+export function isRetryableExternalStatus(status: number | null): boolean {
+  if (status === null) return true;
+  return status >= 500 && status < 600;
+}
+
 export async function fetchExternalJson<T>(
   input: string | URL,
   init: RequestInit,
@@ -55,8 +61,7 @@ export async function fetchExternalJson<T>(
       const status =
         error instanceof ExternalHttpError ? error.status : null;
       const retryable =
-        attempt < retries &&
-        (status === null || status === 429 || (status >= 500 && status < 600));
+        attempt < retries && isRetryableExternalStatus(status);
       if (!retryable) break;
       await new Promise((resolve) =>
         setTimeout(resolve, Math.min(250 * 2 ** attempt, 1000))

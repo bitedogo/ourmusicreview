@@ -1,6 +1,6 @@
 /** iTunes 검색·상세 공개 API 배럴 */
 
-export { getLargeImageUrl } from "./http";
+export { getLargeImageUrl, isItunesCoolingDown } from "./http";
 export {
   ARTIST_ALBUMS_LOOKUP_LIMIT,
   getAlbumByCollectionId,

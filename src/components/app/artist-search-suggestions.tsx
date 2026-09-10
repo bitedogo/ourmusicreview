@@ -9,16 +9,26 @@ export const DEFAULT_ARTIST_AVATAR =
 interface ArtistSearchSuggestionsProps {
   suggestions: ItunesArtistResult[];
   isLoading: boolean;
+  isThrottled?: boolean;
   onSelect: (artist: ItunesArtistResult) => void;
 }
 
 export function ArtistSearchSuggestions({
   suggestions,
   isLoading,
+  isThrottled = false,
   onSelect,
 }: ArtistSearchSuggestionsProps) {
   if (isLoading) {
     return <li className="px-4 py-3 text-sm text-[var(--color-text-secondary)]">검색 중...</li>;
+  }
+
+  if (isThrottled && suggestions.length === 0) {
+    return (
+      <li className="px-4 py-3 text-sm text-[var(--color-text-secondary)]">
+        검색이 잠시 제한되었습니다. 잠시 후 다시 시도해주세요.
+      </li>
+    );
   }
 
   return (

@@ -1,12 +1,16 @@
 /** iTunes API HTTP 호출 */
 
 import { z } from "zod";
-import { fetchExternalJson } from "@/src/lib/http/external";
+import { ExternalHttpError, fetchExternalJson } from "@/src/lib/http/external";
 
 const ITUNES_BASE = "https://itunes.apple.com";
 
 const ITUNES_FETCH_OPTIONS = {
-  headers: { Accept: "application/json" as const },
+  headers: {
+    Accept: "application/json" as const,
+    // Next.js 서버 fetch가 브라우저 UA를 넘기면 iTunes가 403을 준다
+    "User-Agent": "ORU/1.0",
+  },
   cache: "no-store" as const,
 };
 
@@ -82,10 +86,41 @@ export function itunesAlbumSearchUrls(term: string, limit: number): string[] {
   ];
 }
 
-export async function fetchItunesResults(
+const ITUNES_COOLDOWN_MS: Record<number, number> = {
+  429: 30_000,
+  403: 60_000,
+};
+
+let itunesCooledDownUntil = 0;
+
+export interface ItunesFetchOutcome {
+  results: ItunesResult[];
+  ok: boolean;
+  throttled: boolean;
+}
+
+export function isItunesCoolingDown(now = Date.now()): boolean {
+  return now < itunesCooledDownUntil;
+}
+
+export function resetItunesHttpStateForTests() {
+  itunesCooledDownUntil = 0;
+}
+
+function markItunesThrottled(status: number, now = Date.now()) {
+  const cooldownMs = ITUNES_COOLDOWN_MS[status];
+  if (cooldownMs == null) return;
+  itunesCooledDownUntil = Math.max(itunesCooledDownUntil, now + cooldownMs);
+}
+
+export async function fetchItunesOutcome(
   url: string,
   options?: { timeoutMs?: number },
-): Promise<ItunesResult[]> {
+): Promise<ItunesFetchOutcome> {
+  if (isItunesCoolingDown()) {
+    return { results: [], ok: false, throttled: true };
+  }
+
   try {
     const data = await fetchExternalJson(
       url,
@@ -99,9 +134,19 @@ export async function fetchItunesResults(
         }),
       }
     );
-    return data.results;
+    return { results: data.results, ok: true, throttled: false };
   } catch (error) {
+    const status = error instanceof ExternalHttpError ? error.status : null;
+    const throttled = status === 429 || status === 403;
+    if (status != null) markItunesThrottled(status);
     console.warn("[itunes] request failed", error);
-    return [];
+    return { results: [], ok: false, throttled };
   }
+}
+
+export async function fetchItunesResults(
+  url: string,
+  options?: { timeoutMs?: number },
+): Promise<ItunesResult[]> {
+  return (await fetchItunesOutcome(url, options)).results;
 }

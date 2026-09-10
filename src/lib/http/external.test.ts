@@ -44,4 +44,16 @@ describe("fetchExternalJson", () => {
       )
     ).rejects.toBeInstanceOf(ExternalHttpError);
   });
+
+  it("429는 재시도하지 않는다", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(new Response("rate limited", { status: 429 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      fetchExternalJson("https://example.com", {}, { provider: "test", retries: 1 })
+    ).rejects.toMatchObject({ status: 429 });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
 });

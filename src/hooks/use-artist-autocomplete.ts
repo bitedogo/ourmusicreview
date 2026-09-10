@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { ItunesArtistResult } from "@/src/lib/itunes/types";
 import {
   ARTIST_SEARCH_DEBOUNCE_MS,
+  ARTIST_SEARCH_MIN_CHARS,
   fetchArtistAutocomplete,
   isAbortError,
 } from "@/src/lib/itunes/search";
@@ -24,6 +25,7 @@ export function useArtistAutocomplete(options: UseArtistAutocompleteOptions = {}
   const [suggestions, setSuggestions] = useState<ItunesArtistResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isThrottled, setIsThrottled] = useState(false);
   const searchQueryRef = useRef(searchQuery);
 
   useEffect(() => {
@@ -37,9 +39,10 @@ export function useArtistAutocomplete(options: UseArtistAutocompleteOptions = {}
   const fetchSuggestions = useCallback(async (term: string) => {
     abortRef.current?.abort();
 
-    if (!term.trim()) {
+    if (term.trim().length < ARTIST_SEARCH_MIN_CHARS) {
       requestIdRef.current += 1;
       setSuggestions([]);
+      setIsThrottled(false);
       setIsLoading(false);
       setIsDropdownOpen(false);
       return;
@@ -53,7 +56,7 @@ export function useArtistAutocomplete(options: UseArtistAutocompleteOptions = {}
     setIsDropdownOpen(true);
 
     try {
-      const results = await fetchArtistAutocomplete(term, controller.signal);
+      const { results, throttled } = await fetchArtistAutocomplete(term, controller.signal);
       if (
         requestId !== requestIdRef.current ||
         term.trim() !== searchQueryRef.current.trim()
@@ -62,11 +65,13 @@ export function useArtistAutocomplete(options: UseArtistAutocompleteOptions = {}
       }
 
       setSuggestions(results);
-      setIsDropdownOpen(results.length > 0);
+      setIsThrottled(throttled);
+      setIsDropdownOpen(results.length > 0 || throttled);
       setIsLoading(false);
     } catch (error) {
       if (isAbortError(error) || requestId !== requestIdRef.current) return;
       setSuggestions([]);
+      setIsThrottled(false);
       setIsDropdownOpen(false);
       setIsLoading(false);
     }
@@ -97,6 +102,7 @@ export function useArtistAutocomplete(options: UseArtistAutocompleteOptions = {}
     suggestions,
     isLoading,
     isDropdownOpen,
+    isThrottled,
     closeDropdown,
   };
 }

@@ -1,8 +1,12 @@
 /** iTunes 앨범·아티스트 검색 */
 
 import type { ItunesArtistResult, ItunesSearchAutocompleteResponse } from "./types";
+import { ARTIST_SEARCH_MIN_CHARS } from "./search-config";
 
-export const ARTIST_SEARCH_DEBOUNCE_MS = 300;
+export {
+  ARTIST_SEARCH_DEBOUNCE_MS,
+  ARTIST_SEARCH_MIN_CHARS,
+} from "./search-config";
 
 export interface ArtistAutocompleteApiResponse {
   ok: boolean;
@@ -16,9 +20,11 @@ export function isAbortError(error: unknown): boolean {
 export async function fetchArtistAutocomplete(
   term: string,
   signal?: AbortSignal,
-): Promise<ItunesArtistResult[]> {
+): Promise<{ results: ItunesArtistResult[]; throttled: boolean }> {
   const trimmed = term.trim();
-  if (!trimmed) return [];
+  if (trimmed.length < ARTIST_SEARCH_MIN_CHARS) {
+    return { results: [], throttled: false };
+  }
 
   try {
     const response = await fetch(
@@ -28,14 +34,17 @@ export async function fetchArtistAutocomplete(
     const data = (await response.json().catch(() => null)) as ArtistAutocompleteApiResponse | null;
 
     if (data?.ok && Array.isArray(data.data?.results)) {
-      return data.data.results;
+      return {
+        results: data.data.results,
+        throttled: Boolean(data.data.throttled),
+      };
     }
   } catch (error) {
     if (isAbortError(error)) throw error;
-    return [];
+    return { results: [], throttled: false };
   }
 
-  return [];
+  return { results: [], throttled: false };
 }
 
 export function buildArtistSearchPath(

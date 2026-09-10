@@ -10,7 +10,11 @@ import type {
   SearchAlbumResult,
 } from "@/src/lib/search/types";
 
-export function useItunesAlbumPicker() {
+export function useItunesAlbumPicker(
+  options?: {
+    filterAlbums?: (album: SearchAlbumResult) => boolean;
+  }
+) {
   const [searchQuery, setSearchQuery] = useState("");
   const [artists, setArtists] = useState<ItunesArtistResult[]>([]);
   const [selectedArtist, setSelectedArtist] = useState<ItunesArtistResult | null>(null);
@@ -70,18 +74,23 @@ export function useItunesAlbumPicker() {
       const data = await fetchJson<ArtistAlbumsResponse>(
         `/api/itunes/artists/${artist.artistId}/albums`
       );
-      setAlbums(
-        (data.data.albums ?? []).filter(
-          (album) => (album.releaseType ?? "album") === "album"
-        )
+      const albums = (data.data.albums ?? []).filter(
+        (album) => (album.releaseType ?? "album") === "album"
       );
+      const filtered = options?.filterAlbums
+        ? albums.filter(options.filterAlbums)
+        : albums;
+      if (options?.filterAlbums) {
+        filtered.sort((a, b) => a.releaseDate.localeCompare(b.releaseDate));
+      }
+      setAlbums(filtered);
     } catch (err) {
       setError(getApiErrorMessage(err, "앨범 목록 로딩 중 오류가 발생했습니다."));
       setAlbums([]);
     } finally {
       setIsLoadingAlbums(false);
     }
-  }, []);
+  }, [options?.filterAlbums]);
 
   const backToArtists = useCallback(() => {
     setSelectedArtist(null);

@@ -8,6 +8,7 @@ import {
 } from "@/src/lib/text/match";
 import { createTtlCache } from "@/src/lib/utils/ttl-cache";
 import {
+  fetchItunesOutcome,
   fetchItunesResults,
   getLargeImageUrl,
   itunesAlbumSearchUrls,
@@ -245,9 +246,11 @@ export async function artistHasDisplayableAlbums(artistId: number): Promise<bool
   const cached = artistHasAlbumsCache.get(cacheKey);
   if (cached !== undefined) return cached;
 
+  let sawSuccess = false;
   for (const url of itunesLookupUrls(artistId, { limit: 100 })) {
-    const results = await fetchItunesResults(url);
-    for (const item of results) {
+    const outcome = await fetchItunesOutcome(url);
+    if (outcome.ok) sawSuccess = true;
+    for (const item of outcome.results) {
       if (item.wrapperType !== "collection") continue;
       const album = toItunesAlbum(item);
       if (album && isDisplayableItunesRelease(album)) {
@@ -255,6 +258,11 @@ export async function artistHasDisplayableAlbums(artistId: number): Promise<bool
         return true;
       }
     }
+  }
+
+  if (!sawSuccess) {
+    // 조회 실패를 '앨범 없음'으로 캐시하면 검색이 통째로 비게 된다
+    return true;
   }
 
   artistHasAlbumsCache.set(cacheKey, false);

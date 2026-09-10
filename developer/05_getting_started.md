@@ -181,6 +181,7 @@ npm run db:seed:genres
 빈 DB여도 앱은 뜹니다. 다만:
 
 - 홈 슬라이드/오늘의 앨범이 비어 있음 → 관리자 `/admin/albums`, `/admin/featured-slide`에서 채움
+- 홈 주간 신보가 비어 있음 → `/admin/new-releases`에서 iTunes 검색으로 앨범을 등록
 - 리뷰·게시글이 없음 → 회원가입 후 직접 작성
 - 관리자 페이지는 `users.role = 'ADMIN'` 인 계정만. Supabase Table Editor에서 해당 유저 role을 바꾸면 됩니다.
 

@@ -4,7 +4,9 @@ import { expandArtistSearchTermsForItunes } from "@/src/lib/search/artist-aliase
 import { createTtlCache } from "@/src/lib/utils/ttl-cache";
 import { artistHasDisplayableAlbums } from "./albums";
 import {
+  fetchItunesOutcome,
   fetchItunesResults,
+  isItunesCoolingDown,
   isItunesKrUrl,
   itunesArtistSearchUrls,
   itunesLookupUrls,
@@ -23,9 +25,24 @@ import type { ItunesArtistResult } from "./types";
 
 const ARTIST_CACHE_TTL_MS = 10 * 60 * 1000;
 const ARTIST_SEARCH_MAX_LIMIT = 25;
+const STRONG_NAME_MATCH = 90;
 
 const artistSearchCache = createTtlCache<ItunesArtistResult[]>(ARTIST_CACHE_TTL_MS);
 const artistArtworkCache = createTtlCache<string | null>(ARTIST_CACHE_TTL_MS);
+const inflightSearches = new Map<string, Promise<ItunesArtistResult[]>>();
+
+function hasUniqueStrongMatch(
+  artists: Iterable<ItunesArtistResult>,
+  query: string,
+): boolean {
+  const strongIds = new Set<string>();
+  for (const artist of artists) {
+    if (artistNameRelevance(query, artist.artistName) < STRONG_NAME_MATCH) continue;
+    strongIds.add(artist.artistId);
+    if (strongIds.size > 1) return false;
+  }
+  return strongIds.size === 1;
+}
 
 async function fetchArtistArtworkUrl(
   artistId: number,
@@ -111,6 +128,7 @@ function recordSignal(
 }
 
 async function collectArtistCandidates(
+  originalQuery: string,
   searchTerms: string[],
   candidateLimit: number,
 ): Promise<{
@@ -122,9 +140,9 @@ async function collectArtistCandidates(
 
   for (const searchTerm of searchTerms) {
     for (const url of itunesArtistSearchUrls(searchTerm, candidateLimit)) {
-      const results = await fetchItunesResults(url);
+      const outcome = await fetchItunesOutcome(url);
       const fromUsCatalog = !isItunesKrUrl(url);
-      results.forEach((item, index) => {
+      outcome.results.forEach((item, index) => {
         const artist = toArtistResult(item);
         if (!artist) return;
         mergeArtist(byId, artist);
@@ -132,7 +150,9 @@ async function collectArtistCandidates(
           recordSignal(signalsById, artist.artistId, { usArtistIndex: index });
         }
       });
+      if (hasUniqueStrongMatch(byId.values(), originalQuery)) break;
     }
+    if (hasUniqueStrongMatch(byId.values(), originalQuery)) break;
   }
 
   return { byId, signalsById };
@@ -177,19 +197,11 @@ async function takeArtistsWithAlbums(
   limit: number,
 ): Promise<ItunesArtistResult[]> {
   const visible: ItunesArtistResult[] = [];
-  const BATCH_SIZE = 8;
 
-  for (let i = 0; i < ranked.length && visible.length < limit; i += BATCH_SIZE) {
-    const batch = ranked.slice(i, i + BATCH_SIZE);
-    const checked = await Promise.all(
-      batch.map(async (artist) => ({
-        artist,
-        hasAlbums: await artistHasDisplayableAlbums(Number(artist.artistId)),
-      })),
-    );
-    for (const entry of checked) {
-      if (visible.length >= limit) break;
-      if (entry.hasAlbums) visible.push(entry.artist);
+  for (const artist of ranked) {
+    if (visible.length >= limit) break;
+    if (await artistHasDisplayableAlbums(Number(artist.artistId))) {
+      visible.push(artist);
     }
   }
 
@@ -210,17 +222,18 @@ async function withArtistArtwork(
   );
 }
 
-export async function searchArtists(
-  term: string,
-  limit: number = 20,
-): Promise<ItunesArtistResult[]> {
-  const trimmed = term.trim();
-  if (!trimmed) return [];
+export interface SearchArtistsOptions {
+  limit?: number;
+  /** 자동완성: 앨범·아트워크 추가 조회를 생략해 iTunes 호출을 줄인다 */
+  light?: boolean;
+}
 
-  const cappedLimit = Math.min(Math.max(limit, 1), ARTIST_SEARCH_MAX_LIMIT);
-  const cacheKey = `v6_songrank_${trimmed.toLowerCase()}_${cappedLimit}`;
-  const cached = artistSearchCache.get(cacheKey);
-  if (cached) return cached;
+async function searchArtistsUncached(
+  trimmed: string,
+  cappedLimit: number,
+  light: boolean,
+): Promise<ItunesArtistResult[]> {
+  if (isItunesCoolingDown()) return [];
 
   const candidateLimit = Math.min(
     ARTIST_SEARCH_MAX_LIMIT,
@@ -228,33 +241,72 @@ export async function searchArtists(
   );
 
   const searchTerms = expandArtistSearchTermsForItunes(trimmed);
-  const [artistCollected, songCollected] = await Promise.all([
-    collectArtistCandidates(searchTerms, candidateLimit),
-    collectSongSignals(trimmed, candidateLimit),
-  ]);
+  const artistCollected = await collectArtistCandidates(
+    trimmed,
+    searchTerms,
+    candidateLimit,
+  );
 
   const byId = artistCollected.byId;
   const signalsById = artistCollected.signalsById;
-  for (const artist of songCollected.byId.values()) {
-    mergeArtist(byId, artist);
-  }
-  for (const [artistId, signals] of songCollected.signalsById) {
-    recordSignal(signalsById, artistId, signals);
+
+  if (!hasUniqueStrongMatch(byId.values(), trimmed)) {
+    const songCollected = await collectSongSignals(trimmed, candidateLimit);
+    for (const artist of songCollected.byId.values()) {
+      mergeArtist(byId, artist);
+    }
+    for (const [artistId, signals] of songCollected.signalsById) {
+      recordSignal(signalsById, artistId, signals);
+    }
   }
 
   const ranked = rankArtistsByQuery([...byId.values()], trimmed, signalsById);
-  const withAlbums = await takeArtistsWithAlbums(ranked, cappedLimit);
-  const results = await withArtistArtwork(withAlbums);
+  const visible = light
+    ? ranked.slice(0, cappedLimit)
+    : await takeArtistsWithAlbums(ranked, cappedLimit);
+  const results = light ? visible : await withArtistArtwork(visible);
 
-  if (results.length > 0) {
-    artistSearchCache.set(cacheKey, results);
-  }
   return results;
 }
 
-export interface SearchArtistsForApiOptions {
-  limit?: number;
+export async function searchArtists(
+  term: string,
+  limit: number | SearchArtistsOptions = 20,
+): Promise<ItunesArtistResult[]> {
+  const options: SearchArtistsOptions =
+    typeof limit === "number" ? { limit } : limit;
+  const trimmed = term.trim();
+  if (!trimmed) return [];
+
+  const cappedLimit = Math.min(Math.max(options.limit ?? 20, 1), ARTIST_SEARCH_MAX_LIMIT);
+  const light = Boolean(options.light);
+  const cacheKey = `v8_${light ? "light" : "full"}_${trimmed.toLowerCase()}_${cappedLimit}`;
+  const cached = artistSearchCache.get(cacheKey);
+  if (cached) return cached;
+
+  const inflight = inflightSearches.get(cacheKey);
+  if (inflight) return inflight;
+
+  const pending = searchArtistsUncached(trimmed, cappedLimit, light)
+    .then((results) => {
+      if (results.length > 0) artistSearchCache.set(cacheKey, results);
+      return results;
+    })
+    .finally(() => {
+      inflightSearches.delete(cacheKey);
+    });
+
+  inflightSearches.set(cacheKey, pending);
+  return pending;
 }
+
+export function resetArtistSearchStateForTests() {
+  artistSearchCache.clear();
+  artistArtworkCache.clear();
+  inflightSearches.clear();
+}
+
+export interface SearchArtistsForApiOptions extends SearchArtistsOptions {}
 
 /** 공백/빈 검색어를 정규화한 뒤 아티스트를 검색하는 API 핸들러 공용 로직 */
 export async function searchArtistsForApi(
@@ -264,5 +316,5 @@ export async function searchArtistsForApi(
   const trimmed = query.trim();
   if (!trimmed) return [];
 
-  return searchArtists(trimmed, options?.limit);
+  return searchArtists(trimmed, options);
 }

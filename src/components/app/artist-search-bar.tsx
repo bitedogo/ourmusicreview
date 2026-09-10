@@ -13,6 +13,7 @@ interface ArtistSearchBarProps {
   suggestions: ItunesArtistResult[];
   isLoading: boolean;
   isDropdownOpen: boolean;
+  isThrottled?: boolean;
   onArtistSelect: (artist: ItunesArtistResult) => void;
 }
 
@@ -24,6 +25,7 @@ export function ArtistSearchBar({
   suggestions,
   isLoading,
   isDropdownOpen,
+  isThrottled = false,
   onArtistSelect,
 }: ArtistSearchBarProps) {
   return (
@@ -84,6 +86,7 @@ export function ArtistSearchBar({
               <ArtistSearchSuggestions
                 suggestions={suggestions}
                 isLoading={isLoading}
+                isThrottled={isThrottled}
                 onSelect={onArtistSelect}
               />
             </ul>

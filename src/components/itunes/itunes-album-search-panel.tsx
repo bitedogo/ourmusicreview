@@ -4,6 +4,7 @@
 import Image from "next/image";
 import type { SearchAlbumResult } from "@/src/lib/search/types";
 import type { ItunesAlbumPickerState } from "@/src/hooks/use-itunes-album-picker";
+import { formatDottedDateFromIso } from "@/src/lib/new-releases/weeks";
 
 interface ItunesAlbumSearchPanelProps {
   picker: ItunesAlbumPickerState;
@@ -12,6 +13,8 @@ interface ItunesAlbumSearchPanelProps {
   error?: string | null;
   variant?: "modal" | "embedded";
   searchPlaceholder?: string;
+  showReleaseDate?: boolean;
+  emptyAlbumsMessage?: string;
 }
 
 export function ItunesAlbumSearchPanel({
@@ -21,6 +24,8 @@ export function ItunesAlbumSearchPanel({
   error = null,
   variant = "modal",
   searchPlaceholder = "아티스트 검색",
+  showReleaseDate = false,
+  emptyAlbumsMessage = "앨범이 없습니다.",
 }: ItunesAlbumSearchPanelProps) {
   const displayError = error ?? picker.error;
   const isEmbedded = variant === "embedded";
@@ -215,7 +220,7 @@ export function ItunesAlbumSearchPanel({
           {picker.isLoadingAlbums ? (
             <p className="mt-2 text-sm text-[var(--color-text-secondary)]">앨범 목록 불러오는 중...</p>
           ) : picker.albums.length === 0 ? (
-            <p className="mt-2 text-sm text-[var(--color-text-secondary)]">앨범이 없습니다.</p>
+            <p className="mt-2 text-sm text-[var(--color-text-secondary)]">{emptyAlbumsMessage}</p>
           ) : (
             <ul className="mt-2 max-h-64 overflow-y-auto rounded-lg border border-zinc-200">
               {picker.albums.map((album) => (
@@ -241,6 +246,16 @@ export function ItunesAlbumSearchPanel({
                       <p className="truncate font-medium">{album.collectionName}</p>
                       <p className="truncate text-[var(--color-text-secondary)]">{album.artistName}</p>
                     </div>
+                    {showReleaseDate ? (
+                      <span className="shrink-0 text-right">
+                        <span className="block text-[10px] text-[var(--color-text-muted)]">
+                          발매
+                        </span>
+                        <span className="block text-sm tabular-nums text-[var(--color-text-primary)]">
+                          {formatDottedDateFromIso(album.releaseDate)}
+                        </span>
+                      </span>
+                    ) : null}
                   </button>
                 </li>
               ))}

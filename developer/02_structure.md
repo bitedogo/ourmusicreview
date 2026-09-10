@@ -77,7 +77,7 @@ app/users/[userId]/page.tsx   →  https://.../users/abc123
 
 ```
 app/
-├── page.tsx                 홈: 히어로, 슬라이드, 오늘의 앨범, 차트
+├── page.tsx                 홈: 히어로, 슬라이드, 오늘의 앨범, 신보, 차트
 ├── layout.tsx               루트: Pretendard, Providers, Header/Footer
 ├── providers.tsx            NextAuth SessionProvider (클라이언트)
 │
@@ -103,7 +103,7 @@ app/
 ├── users/[userId]/          타인 공개 프로필
 │
 ├── auth/                    signin, signup, verify-email, reset-password
-├── admin/                   reviews, members, reports, albums, featured-slide, faq
+├── admin/                   reviews, members, reports, albums, new-releases, featured-slide, faq
 ├── search/                  iTunes 아티스트 검색 결과
 ├── designer/ · developer/   내부 가이드 (비밀번호 게이트)
 ├── guide-access/            가이드 비밀번호 입력
@@ -222,7 +222,7 @@ src/lib/
 ├── email/                   Resend + 메일 템플릿
 ├── navigation/              routes.ts, nav-config.ts
 ├── layout/                  콘텐츠 폭, 패딩 토큰
-├── genres/ · faq/ · chart/ · slides/ · today-album/
+├── genres/ · faq/ · chart/ · slides/ · today-album/ · new-releases/
 ├── users/                   제재, 차단 이메일, 탈퇴
 ├── profile/                 공개설정, 프로필 콘텐츠
 ├── favorites/

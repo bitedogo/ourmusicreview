@@ -38,6 +38,9 @@
     "db:migrate:inquiries": "node scripts/run-migration.mjs add-inquiries.sql",
     "db:migrate:data-integrity": "node scripts/run-migration.mjs add-data-integrity-constraints.sql",
     "db:migrate:auth-security": "node scripts/run-migration.mjs add-auth-security.sql",
+    "db:migrate:weekly-releases": "node scripts/run-migration.mjs add-weekly-release-albums.sql",
+    "db:migrate:weekly-release-mbid": "node scripts/run-migration.mjs add-weekly-release-mbid.sql",
+    "db:migrate:weekly-release-source": "node scripts/run-migration.mjs add-weekly-release-source.sql",
     "db:seed:genres": "node scripts/seed-genres.mjs",
     "media:rewrite-r2-urls": "node scripts/rewrite-storage-urls-to-r2.mjs"
   },
