@@ -9,6 +9,7 @@ export async function createReviewApi(body: {
   albumTitle?: string;
   albumArtist?: string;
   albumImageUrl?: string | null;
+  albumReleaseType?: "album" | "single";
 }) {
   return fetchJson<{ ok: true; data: { id: string } }>("/api/reviews", {
     method: "POST",
@@ -65,6 +66,7 @@ export async function deleteReviewApi(reviewId: string) {
 
 export type ReviewListSort = "latest" | "likes" | "comments";
 export type ReviewListSearchField = "artist" | "album" | "author";
+export type ReviewListReleaseType = "album" | "single";
 
 export interface ReviewListItemDto {
   id: string;
@@ -89,6 +91,7 @@ export async function fetchReviewList(
     page?: number;
     searchField?: ReviewListSearchField | string;
     q?: string;
+    releaseType?: ReviewListReleaseType | string;
   },
   signal?: AbortSignal
 ) {
@@ -98,6 +101,9 @@ export async function fetchReviewList(
     searchField: params.searchField ?? "artist",
     q: params.q ?? "",
   });
+  if (params.releaseType === "single") {
+    search.set("releaseType", "single");
+  }
 
   return fetchJson<{
     ok: true;

@@ -1,6 +1,10 @@
 /** 리뷰 목록 조회(필터·정렬·페이지네이션) 비즈니스 로직 */
 
 import type { DataSource, SelectQueryBuilder } from "typeorm";
+import {
+  parseAlbumReleaseType,
+  type AlbumReleaseType,
+} from "@/src/lib/albums/release-type";
 import { Review } from "@/src/lib/db/entities/Review";
 import { Like } from "@/src/lib/db/entities/Like";
 import { Comment } from "@/src/lib/db/entities/Comment";
@@ -17,6 +21,7 @@ export interface ReviewListParams {
   page: string | null;
   searchField: string | null;
   q: string | null;
+  releaseType: string | null;
 }
 
 export interface ReviewListItem {
@@ -41,6 +46,7 @@ export interface ReviewListResult {
   sort: SortType;
   searchField: SearchField;
   q: string;
+  releaseType: AlbumReleaseType;
   page: number;
   totalPages: number;
   total: number;
@@ -88,6 +94,19 @@ function applySearchCondition(
   return qb;
 }
 
+function applyListFilters(
+  qb: SelectQueryBuilder<Review>,
+  searchField: SearchField,
+  searchQuery: string,
+  releaseType: AlbumReleaseType
+) {
+  applySearchCondition(qb, searchField, searchQuery);
+  qb.andWhere("COALESCE(album.release_type, 'album') = :releaseType", {
+    releaseType,
+  });
+  return qb;
+}
+
 export async function getReviewList(
   dataSource: DataSource,
   params: ReviewListParams
@@ -96,6 +115,7 @@ export async function getReviewList(
   const page = parsePage(params.page);
   const searchField = parseSearchField(params.searchField);
   const searchQuery = parseSearchQuery(params.q);
+  const releaseType = parseAlbumReleaseType(params.releaseType);
 
   const reviewRepository = dataSource.getRepository(Review);
   const likeRepository = dataSource.getRepository(Like);
@@ -106,7 +126,7 @@ export async function getReviewList(
     .leftJoin("r.album", "album")
     .leftJoin("r.user", "user")
     .where("1 = 1");
-  applySearchCondition(totalQueryBuilder, searchField, searchQuery);
+  applyListFilters(totalQueryBuilder, searchField, searchQuery, releaseType);
   const total = await totalQueryBuilder.getCount();
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE_ALBUM_REVIEWS));
   const currentPage = Math.min(page, totalPages);
@@ -124,7 +144,7 @@ export async function getReviewList(
       .orderBy("r.created_at", "DESC")
       .offset(start)
       .limit(PAGE_SIZE_ALBUM_REVIEWS);
-    applySearchCondition(latestQueryBuilder, searchField, searchQuery);
+    applyListFilters(latestQueryBuilder, searchField, searchQuery, releaseType);
     const rows = await latestQueryBuilder.getRawMany<{ id: string }>();
     orderedIds = rows.map((row) => row.id);
   } else if (sort === "likes") {
@@ -141,7 +161,7 @@ export async function getReviewList(
       .addOrderBy("r.created_at", "DESC")
       .offset(start)
       .limit(PAGE_SIZE_ALBUM_REVIEWS);
-    applySearchCondition(likesQueryBuilder, searchField, searchQuery);
+    applyListFilters(likesQueryBuilder, searchField, searchQuery, releaseType);
     const rows = await likesQueryBuilder.getRawMany<{ id: string }>();
     orderedIds = rows.map((row) => row.id);
   } else {
@@ -158,7 +178,7 @@ export async function getReviewList(
       .addOrderBy("r.created_at", "DESC")
       .offset(start)
       .limit(PAGE_SIZE_ALBUM_REVIEWS);
-    applySearchCondition(commentsQueryBuilder, searchField, searchQuery);
+    applyListFilters(commentsQueryBuilder, searchField, searchQuery, releaseType);
     const rows = await commentsQueryBuilder.getRawMany<{ id: string }>();
     orderedIds = rows.map((row) => row.id);
   }
@@ -228,6 +248,7 @@ export async function getReviewList(
     sort,
     searchField,
     q: searchQuery,
+    releaseType,
     page: currentPage,
     totalPages,
     total,

@@ -20,6 +20,7 @@ export function ReviewWriteClient() {
   const albumTitle = searchParams.get("title");
   const albumArtist = searchParams.get("artist");
   const albumImageUrl = searchParams.get("imageUrl");
+  const albumReleaseType = searchParams.get("releaseType");
 
   const [rating, setRating] = useState<number>(5);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -57,6 +58,10 @@ export function ReviewWriteClient() {
         albumTitle: albumTitle || undefined,
         albumArtist: albumArtist || undefined,
         albumImageUrl: albumImageUrl || null,
+        albumReleaseType:
+          albumReleaseType === "single" || albumReleaseType === "album"
+            ? albumReleaseType
+            : undefined,
       });
 
       const reviewId = data.data?.id;

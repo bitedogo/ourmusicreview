@@ -18,6 +18,7 @@ interface ReviewWriteParams {
   title: string;
   artist: string;
   imageUrl?: string | null;
+  releaseType?: "album" | "single";
 }
 
 export function buildReviewWritePath({
@@ -25,6 +26,7 @@ export function buildReviewWritePath({
   title,
   artist,
   imageUrl,
+  releaseType,
 }: ReviewWriteParams): string {
   const params = new URLSearchParams({
     albumId: String(albumId),
@@ -34,6 +36,9 @@ export function buildReviewWritePath({
 
   if (imageUrl) {
     params.append("imageUrl", imageUrl);
+  }
+  if (releaseType) {
+    params.append("releaseType", releaseType);
   }
 
   return `/review/write?${params.toString()}`;

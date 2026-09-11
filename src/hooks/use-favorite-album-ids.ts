@@ -63,6 +63,7 @@ export function useFavoriteAlbumIds({
             albumArtist: album.artistName,
             albumImageUrl: album.imageUrl600,
             albumReleaseDate: album.releaseDate,
+            albumReleaseType: album.releaseType,
           });
 
           setFavoriteAlbumIds((prev) => new Set(prev).add(albumId));

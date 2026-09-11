@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { PaginationNav } from "@/src/components/common/PaginationNav";
 import { AlbumReviewPreviewCard } from "@/src/components/reviews/AlbumReviewPreviewCard";
+import { ReviewReleaseTypeToggle } from "@/src/components/reviews/ReviewReleaseTypeToggle";
 import { ReviewSearchButton } from "@/src/components/reviews/ReviewSearchButton";
 import {
   ReviewSortToggle,
@@ -14,6 +15,7 @@ import {
   REVIEW_LIST_CONTENT_CLASS,
   REVIEW_PAGE_TITLE_CLASS,
 } from "@/src/components/reviews/review-page-styles";
+import { parseAlbumReleaseType, type AlbumReleaseType } from "@/src/lib/albums/release-type";
 import { getApiErrorMessage } from "@/src/lib/http/client";
 import { reviewDetail } from "@/src/lib/navigation/routes";
 import {
@@ -31,6 +33,7 @@ export interface ReviewListInitialData {
   sort: SortType;
   searchField: SearchField;
   q: string;
+  releaseType: AlbumReleaseType;
   page: number;
   totalPages: number;
 }
@@ -62,6 +65,9 @@ export function ReviewListClient({
     searchParams.get("searchField")
   );
   const searchQueryFromUrl = (searchParams.get("q") ?? "").trim();
+  const releaseTypeFromUrl = parseAlbumReleaseType(
+    searchParams.get("releaseType")
+  );
 
   const [reviews, setReviews] = useState<ReviewListItemDto[]>(
     initialData?.reviews ?? []
@@ -75,6 +81,9 @@ export function ReviewListClient({
   const [isSortExpanded, setIsSortExpanded] = useState(false);
   const [searchField, setSearchField] = useState<SearchField>(searchFieldFromUrl);
   const [searchQuery, setSearchQuery] = useState(searchQueryFromUrl);
+  const [releaseType, setReleaseType] = useState<AlbumReleaseType>(
+    initialData?.releaseType ?? releaseTypeFromUrl
+  );
 
   const syncFromUrl = useCallback(() => {
     const nextPage = Math.max(
@@ -84,14 +93,18 @@ export function ReviewListClient({
     const nextSort = parseSort(searchParams.get("sort"));
     const field = parseSearchField(searchParams.get("searchField"));
     const query = (searchParams.get("q") ?? "").trim();
+    const nextReleaseType = parseAlbumReleaseType(
+      searchParams.get("releaseType")
+    );
     setPage(nextPage);
     setSort(nextSort);
     setSearchField(field);
     setSearchQuery(query);
+    setReleaseType(nextReleaseType);
   }, [searchParams]);
 
   const buildReviewsHref = useCallback(
-    (nextSort: SortType, nextPage: number, field: SearchField, query: string) => {
+    (nextSort: SortType, nextPage: number, field: SearchField, query: string, nextReleaseType: AlbumReleaseType) => {
       const params = new URLSearchParams({
         sort: nextSort,
         page: String(nextPage),
@@ -100,19 +113,22 @@ export function ReviewListClient({
         params.set("searchField", field);
         params.set("q", query.trim());
       }
+      if (nextReleaseType === "single") {
+        params.set("releaseType", "single");
+      }
       return `/reviews?${params.toString()}`;
     },
     []
   );
 
   const removeSearch = useCallback(() => {
-    router.push(buildReviewsHref(sort, 1, searchField, ""));
+    router.push(buildReviewsHref(sort, 1, searchField, "", releaseType));
     setIsSearchModalOpen(false);
-  }, [buildReviewsHref, router, searchField, sort]);
+  }, [buildReviewsHref, releaseType, router, searchField, sort]);
 
   function applySearch(event: React.FormEvent) {
     event.preventDefault();
-    router.push(buildReviewsHref(sort, 1, searchField, searchQuery));
+    router.push(buildReviewsHref(sort, 1, searchField, searchQuery, releaseType));
     setIsSearchModalOpen(false);
   }
 
@@ -126,7 +142,8 @@ export function ReviewListClient({
       initialData.page === pageFromUrl &&
       initialData.sort === sortFromUrl &&
       initialData.searchField === searchFieldFromUrl &&
-      initialData.q === searchQueryFromUrl
+      initialData.q === searchQueryFromUrl &&
+      initialData.releaseType === releaseTypeFromUrl
     ) {
       setReviews(initialData.reviews);
       setTotalPages(initialData.totalPages);
@@ -150,6 +167,9 @@ export function ReviewListClient({
           searchParams.get("searchField")
         );
         const currentSearchQuery = (searchParams.get("q") ?? "").trim();
+        const currentReleaseType = parseAlbumReleaseType(
+          searchParams.get("releaseType")
+        );
 
         const data = await fetchReviewList(
           {
@@ -157,6 +177,7 @@ export function ReviewListClient({
             page: currentPage,
             searchField: currentSearchField,
             q: currentSearchQuery,
+            releaseType: currentReleaseType,
           },
           controller.signal
         );
@@ -191,20 +212,29 @@ export function ReviewListClient({
     sortFromUrl,
     searchFieldFromUrl,
     searchQueryFromUrl,
+    releaseTypeFromUrl,
   ]);
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-[860px] flex-col px-4 pb-10 pt-[61px] sm:px-6">
       <div className={REVIEW_LIST_CONTENT_CLASS}>
         <section className="flex flex-col gap-[28px]">
-          <h1 className={REVIEW_PAGE_TITLE_CLASS}>앨범 리뷰</h1>
+          <div className="flex flex-wrap items-end gap-x-8 gap-y-2">
+            <h1 className={`${REVIEW_PAGE_TITLE_CLASS} shrink-0`}>앨범 리뷰</h1>
+            <ReviewReleaseTypeToggle
+              value={releaseType}
+              buildHref={(nextReleaseType) =>
+                buildReviewsHref(sort, 1, searchField, searchQuery, nextReleaseType)
+              }
+            />
+          </div>
           <div className="flex items-center justify-between gap-3">
             <ReviewSortToggle
               sort={sort}
               expanded={isSortExpanded}
               onExpandedChange={setIsSortExpanded}
               buildHref={(nextSort) =>
-                buildReviewsHref(nextSort, 1, searchField, searchQuery)
+                buildReviewsHref(nextSort, 1, searchField, searchQuery, releaseType)
               }
             />
             <ReviewSearchButton onClick={() => setIsSearchModalOpen(true)} />
@@ -237,14 +267,16 @@ export function ReviewListClient({
           </div>
         ) : reviews.length === 0 ? (
           <div className="mt-5 rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 px-4 py-12 text-center text-sm text-[var(--color-text-secondary)]">
-            아직 승인된 앨범 리뷰가 없습니다.
+            {releaseType === "single"
+              ? "아직 승인된 싱글 리뷰가 없습니다."
+              : "아직 승인된 앨범 리뷰가 없습니다."}
           </div>
         ) : (
           <div className="mt-5 flex flex-col gap-5">
             {reviews.map((review) => (
               <AlbumReviewPreviewCard
                 key={review.id}
-                href={`${reviewDetail(review.id)}?from=reviews&sort=${sort}&page=${page}&searchField=${searchField}&q=${encodeURIComponent(searchQuery)}`}
+                href={`${reviewDetail(review.id)}?from=reviews&sort=${sort}&page=${page}&searchField=${searchField}&q=${encodeURIComponent(searchQuery)}${releaseType === "single" ? "&releaseType=single" : ""}`}
                 albumTitle={review.album?.title ?? "앨범"}
                 artist={review.album?.artist ?? "-"}
                 imageUrl={review.album?.imageUrl ?? null}
@@ -265,7 +297,7 @@ export function ReviewListClient({
               currentPage={page}
               totalPages={totalPages}
               buildHref={(nextPage) =>
-                buildReviewsHref(sort, nextPage, searchField, searchQuery)
+                buildReviewsHref(sort, nextPage, searchField, searchQuery, releaseType)
               }
             />
           </div>

@@ -120,7 +120,11 @@ export function isBlockedItunesAlbumTitle(title: string): boolean {
   });
 }
 
-export function classifyItunesReleaseType(album: iTunesAlbum): ItunesReleaseType {
+export function classifyItunesReleaseType(album: {
+  collectionName?: string;
+  collectionType?: string;
+  trackCount?: number;
+}): ItunesReleaseType {
   const collectionType = (album.collectionType ?? "").toLowerCase();
   if (collectionType === "single") return "single";
 

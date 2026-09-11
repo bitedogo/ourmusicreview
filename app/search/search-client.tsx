@@ -219,6 +219,7 @@ export function SearchClient() {
         title: album.collectionName,
         artist: album.artistName,
         imageUrl: album.imageUrl600,
+        releaseType: album.releaseType,
       })
     );
   }

@@ -14,6 +14,7 @@ export async function GET(request: NextRequest) {
         page: searchParams.get("page"),
         searchField: searchParams.get("searchField"),
         q: searchParams.get("q"),
+        releaseType: searchParams.get("releaseType"),
       })
     );
 

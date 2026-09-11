@@ -9,6 +9,7 @@ export interface AddFavoriteInput {
   albumArtist: string;
   albumImageUrl?: string | null;
   albumReleaseDate?: string | null;
+  albumReleaseType?: "album" | "single";
 }
 
 export async function fetchFavoritesApi<

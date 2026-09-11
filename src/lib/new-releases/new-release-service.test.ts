@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { DataSource } from "typeorm";
-import { LessThan } from "typeorm";
+import { LessThan, MoreThanOrEqual } from "typeorm";
 import { WeeklyReleaseAlbum } from "@/src/lib/db/entities/WeeklyReleaseAlbum";
 
 const { getAlbumByIdMock, classifyItunesReleaseTypeMock } = vi.hoisted(() => ({
@@ -31,7 +31,7 @@ import {
   addNewReleaseAlbum,
   getHomeNewReleases,
   listAdminNewReleases,
-  purgeExpiredManualNewReleases,
+  purgeExpiredNewReleases,
   removeNewReleaseAlbum,
 } from "./new-release-service";
 
@@ -54,7 +54,7 @@ function createDataSource(repo: ReturnType<typeof createRepo>) {
 }
 
 describe("getHomeNewReleases", () => {
-  it("등록된 앨범을 전부 보여주고 만료 수동 등록은 정리한다", async () => {
+  it("오늘 이후 등록분을 보여주고 지난 발매는 정리한다", async () => {
     const repo = createRepo({
       find: vi.fn().mockResolvedValue([
         {
@@ -74,10 +74,10 @@ describe("getHomeNewReleases", () => {
     const result = await getHomeNewReleases(dataSource);
 
     expect(repo.delete).toHaveBeenCalledWith({
-      source: "manual",
       releaseDate: LessThan("2026-09-09"),
     });
     expect(repo.find).toHaveBeenCalledWith({
+      where: { releaseDate: MoreThanOrEqual("2026-09-09") },
       order: { releaseDate: "ASC", title: "ASC" },
     });
     expect(result.albums).toHaveLength(1);
@@ -86,7 +86,7 @@ describe("getHomeNewReleases", () => {
 });
 
 describe("listAdminNewReleases", () => {
-  it("관리자 목록에서는 만료 수동 등록을 정리한다", async () => {
+  it("관리자 목록에서는 지난 발매를 정리한다", async () => {
     const repo = createRepo({
       find: vi.fn().mockResolvedValue([]),
     });
@@ -95,20 +95,22 @@ describe("listAdminNewReleases", () => {
     await listAdminNewReleases(dataSource);
 
     expect(repo.delete).toHaveBeenCalledWith({
-      source: "manual",
       releaseDate: LessThan("2026-09-09"),
+    });
+    expect(repo.find).toHaveBeenCalledWith({
+      where: { releaseDate: MoreThanOrEqual("2026-09-09") },
+      order: { releaseDate: "ASC", title: "ASC" },
     });
   });
 });
 
-describe("purgeExpiredManualNewReleases", () => {
-  it("오늘 이전 수동 등록만 삭제한다", async () => {
+describe("purgeExpiredNewReleases", () => {
+  it("오늘 이전 발매는 출처와 상관없이 삭제한다", async () => {
     const repo = createRepo();
     const dataSource = createDataSource(repo);
 
-    await expect(purgeExpiredManualNewReleases(dataSource)).resolves.toBe(1);
+    await expect(purgeExpiredNewReleases(dataSource)).resolves.toBe(1);
     expect(repo.delete).toHaveBeenCalledWith({
-      source: "manual",
       releaseDate: LessThan("2026-09-09"),
     });
   });

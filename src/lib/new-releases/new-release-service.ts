@@ -1,6 +1,6 @@
 /** 주간 신보 조회·등록 비즈니스 로직 */
 
-import { LessThan, type DataSource } from "typeorm";
+import { LessThan, MoreThanOrEqual, type DataSource } from "typeorm";
 import { getAlbumById } from "@/src/lib/album-lookup";
 import { WeeklyReleaseAlbum } from "@/src/lib/db/entities/WeeklyReleaseAlbum";
 import { isUniqueViolation } from "@/src/lib/db/pg-error";
@@ -69,13 +69,12 @@ function normalizeCoverUrl(value: string | null | undefined): string | null {
   return trimmed;
 }
 
-export async function purgeExpiredManualNewReleases(
+export async function purgeExpiredNewReleases(
   dataSource: DataSource,
   todayIso: string = getKstTodayIso()
 ): Promise<number> {
   const repo = dataSource.getRepository(WeeklyReleaseAlbum);
   const result = await repo.delete({
-    source: "manual",
     releaseDate: LessThan(todayIso),
   });
   return result.affected ?? 0;
@@ -88,9 +87,11 @@ export function emptyNewReleasesHomeData(): NewReleasesHomeData {
 export async function getHomeNewReleases(
   dataSource: DataSource
 ): Promise<NewReleasesHomeData> {
-  await purgeExpiredManualNewReleases(dataSource);
+  const todayIso = getKstTodayIso();
+  await purgeExpiredNewReleases(dataSource, todayIso);
   const repo = dataSource.getRepository(WeeklyReleaseAlbum);
   const rows = await repo.find({
+    where: { releaseDate: MoreThanOrEqual(todayIso) },
     order: { releaseDate: "ASC", title: "ASC" },
   });
 
@@ -100,10 +101,11 @@ export async function getHomeNewReleases(
 export async function listAdminNewReleases(
   dataSource: DataSource
 ): Promise<{ albums: NewReleaseAdminAlbum[] }> {
-  await purgeExpiredManualNewReleases(dataSource);
   const weeks = getNewReleaseWeekWindows();
+  await purgeExpiredNewReleases(dataSource, weeks.today);
   const repo = dataSource.getRepository(WeeklyReleaseAlbum);
   const rows = await repo.find({
+    where: { releaseDate: MoreThanOrEqual(weeks.today) },
     order: { releaseDate: "ASC", title: "ASC" },
   });
 
@@ -136,12 +138,7 @@ export async function addNewReleaseAlbum(
   }
 
   const releaseType = classifyItunesReleaseType({
-    collectionId: Number(albumInfo.collectionId) || 0,
     collectionName: albumInfo.title,
-    artistName: albumInfo.artist,
-    artworkUrl100: "",
-    releaseDate: albumInfo.releaseDate,
-    primaryGenreName: albumInfo.genre,
   });
   if (releaseType !== "album") {
     throw new ServiceError("앨범만 등록할 수 있습니다.", 400);

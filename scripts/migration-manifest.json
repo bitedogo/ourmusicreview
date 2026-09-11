@@ -20,6 +20,7 @@
     "add-user-unique-constraints.sql",
     "add-weekly-release-albums.sql",
     "add-weekly-release-mbid.sql",
-    "add-weekly-release-source.sql"
+    "add-weekly-release-source.sql",
+    "add-album-release-type.sql"
   ]
 }

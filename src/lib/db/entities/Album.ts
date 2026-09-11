@@ -21,4 +21,7 @@ export class Album {
 
   @Column({ name: "category", type: "varchar", length: 1 })
   category!: "K" | "I";
+
+  @Column({ name: "release_type", type: "varchar", length: 16, default: "album" })
+  releaseType!: "album" | "single";
 }

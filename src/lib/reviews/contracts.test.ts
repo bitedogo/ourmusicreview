@@ -11,6 +11,7 @@ describe("review input contracts", () => {
         albumId: "123",
         content: "<p>좋은 앨범</p>",
         rating: 8.5,
+        albumReleaseType: "single",
       }).success
     ).toBe(true);
   });

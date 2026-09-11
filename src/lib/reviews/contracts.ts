@@ -12,6 +12,7 @@ export const createReviewInputSchema = z
     albumArtist: z.string().trim().max(500).optional(),
     albumImageUrl: z.string().url().max(2000).nullable().optional(),
     albumReleaseDate: z.string().trim().max(50).optional(),
+    albumReleaseType: z.enum(["album", "single"]).optional(),
   })
   .strict();
 

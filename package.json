@@ -41,6 +41,7 @@
     "db:migrate:weekly-releases": "node scripts/run-migration.mjs add-weekly-release-albums.sql",
     "db:migrate:weekly-release-mbid": "node scripts/run-migration.mjs add-weekly-release-mbid.sql",
     "db:migrate:weekly-release-source": "node scripts/run-migration.mjs add-weekly-release-source.sql",
+    "db:migrate:album-release-type": "node scripts/run-migration.mjs add-album-release-type.sql",
     "db:seed:genres": "node scripts/seed-genres.mjs",
     "media:rewrite-r2-urls": "node scripts/rewrite-storage-urls-to-r2.mjs"
   },

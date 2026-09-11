@@ -28,6 +28,7 @@ export default async function ReviewsPage({
       page: first(query.page),
       searchField: first(query.searchField),
       q: first(query.q),
+      releaseType: first(query.releaseType),
     })
   );
   const initialData = JSON.parse(
@@ -36,6 +37,7 @@ export default async function ReviewsPage({
       sort: result.sort,
       searchField: result.searchField,
       q: result.q,
+      releaseType: result.releaseType,
       page: result.page,
       totalPages: result.totalPages,
     })

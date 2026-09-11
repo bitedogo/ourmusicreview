@@ -13,6 +13,7 @@ export interface ToggleFavoriteInput {
   albumArtist?: string;
   albumImageUrl?: string | null;
   albumReleaseDate?: string;
+  albumReleaseType?: "album" | "single";
 }
 
 export interface AddFavoriteResult {
@@ -43,6 +44,7 @@ export async function addFavoriteAlbum(
       artist: body.albumArtist,
       imageUrl: body.albumImageUrl,
       releaseDate: body.albumReleaseDate,
+      releaseType: body.albumReleaseType,
     },
     "앨범 정보가 부족합니다. 앨범 제목과 아티스트 정보가 필요합니다."
   );

@@ -6,6 +6,10 @@ import Link from "next/link";
 import { useState } from "react";
 import { ArtistNameLink } from "@/src/components/app/artist-name-link";
 import { AlbumCoverPlaceholder } from "@/src/components/common/album-cover-placeholder";
+import {
+  ChartStylePillTrack,
+  chartStylePillTabClass,
+} from "@/src/components/common/chart-style-pill-toggle";
 import { useMusicChart } from "@/src/hooks/use-chart";
 import {
   CHART_REGIONS,
@@ -38,7 +42,7 @@ export default function MusicChart({
       </div>
 
       <div className="flex justify-center">
-        <div className="chart-region-track inline-flex gap-1 rounded-full border border-[var(--color-border)] bg-white p-1">
+        <ChartStylePillTrack>
           {CHART_REGIONS.map((entry) => {
             const isActive = entry.id === region;
             return (
@@ -47,17 +51,13 @@ export default function MusicChart({
                 type="button"
                 onClick={() => setRegion(entry.id)}
                 aria-pressed={isActive}
-                className={`rounded-full px-5 py-1.5 text-sm font-semibold transition ${
-                  isActive
-                    ? "chart-region-tab-active bg-[var(--color-accent)] text-white"
-                    : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
-                }`}
+                className={chartStylePillTabClass(isActive)}
               >
                 {entry.label}
               </button>
             );
           })}
-        </div>
+        </ChartStylePillTrack>
       </div>
 
       <ul className="mt-[var(--featured-track-padding-y)] grid grid-cols-2 gap-x-[var(--featured-card-margin-x)] gap-y-[var(--today-album-layout-gap-mobile)] sm:grid-cols-5">
