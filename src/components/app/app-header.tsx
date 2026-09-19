@@ -40,7 +40,7 @@ export function AppHeader() {
         style={contentMaxWidthStyle}
       >
         <div className="pt-[var(--header-logo-padding-top)]">
-          <div className="relative flex items-center justify-center">
+          <div className="relative z-10 flex items-center justify-center">
             <div className="absolute left-0 top-1/2 flex -translate-y-1/2 md:hidden">
               <HamburgerButton
                 isOpen={menuOpen}
