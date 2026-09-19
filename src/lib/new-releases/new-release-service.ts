@@ -148,7 +148,7 @@ export async function addNewReleaseAlbum(
   if (!isIsoDate(releaseDate)) {
     throw new ServiceError("발매일이 있는 앨범만 등록할 수 있습니다.", 400);
   }
-  if (!isUpcomingReleaseDate(releaseDate)) {
+  if (!isUpcomingReleaseDate(releaseDate, getKstTodayIso())) {
     throw new ServiceError("오늘 이후 발매 앨범만 등록할 수 있습니다.", 400);
   }
 
@@ -178,7 +178,7 @@ export async function addManualNewReleaseAlbum(
   dataSource: DataSource,
   input: AddManualNewReleaseInput
 ): Promise<NewReleaseAdminAlbum> {
-  if (!isUpcomingReleaseDate(input.releaseDate)) {
+  if (!isUpcomingReleaseDate(input.releaseDate, getKstTodayIso())) {
     throw new ServiceError("오늘 이후 발매 앨범만 등록할 수 있습니다.", 400);
   }
 
