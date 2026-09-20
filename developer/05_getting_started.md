@@ -219,12 +219,15 @@ npm run dev
 
 ## 6. 빌드와 배포
 
+`main`에 바로 푸시하지 않습니다. PR의 GitHub Actions **Quality**가 통과한 뒤 머지하면 Vercel이 프로덕션을 배포합니다.
+
 ```
-로컬 검증                 Vercel
-─────────                 ──────
-npm run typecheck         git push → 자동 빌드
-npm run lint              vercel.json:
-npm run build               framework: nextjs
+로컬 검증                 GitHub PR              Vercel
+─────────                 ────────               ──────
+npm run check             Quality (check:build)  PR 프리뷰
+                          통과 후 main 머지      main → 프로덕션
+                          vercel.json:
+                            framework: nextjs
                             regions: ["icn1"]   ← 서울
                             API maxDuration 30s
 ```
