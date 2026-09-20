@@ -120,6 +120,7 @@ ORU(오루)는 싱글 한 곡이 아니라 **앨범 전체**를 듣고 평점·�
 | 기술 | 역할 |
 |------|------|
 | **Vercel** (`icn1` 서울 리전) | 빌드·호스팅. `vercel.json`에서 API `maxDuration: 30초` |
+| **GitHub Actions Quality** | PR에서 `npm run check:build`. 통과 후 `main` 머지 |
 | **ESLint + `tsc --noEmit`** | 린트·타입 검사. 배포 전 `npm run build`에 타입 검사가 포함됨 |
 | **patch-package** | 의존성 패치를 `postinstall`에 적용 |
 

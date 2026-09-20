@@ -107,6 +107,8 @@ npm run dev
 
 ### 품질 검사와 빌드
 
+기능은 브랜치 → PR → GitHub **Quality** 통과 → `main` 머지 순으로 올립니다. `main`에 바로 푸시하지 않습니다.
+
 ```bash
 npm run check         # typecheck + lint + test
 npm run check:build   # 위 검사 후 production build

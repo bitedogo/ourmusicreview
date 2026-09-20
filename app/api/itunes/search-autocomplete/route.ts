@@ -1,7 +1,7 @@
 /** GET iTunes 검색 자동완성 */
 
 import { handleApi } from "@/src/lib/http/handle-route-error";
-import { apiError, apiOk } from "@/src/lib/http/response";
+import { apiOk } from "@/src/lib/http/response";
 import { enforceItunesProxyRateLimit } from "@/src/lib/itunes/api-rate-limit";
 import { isItunesCoolingDown, searchArtistsForApi } from "@/src/lib/itunes";
 import { ARTIST_SEARCH_MIN_CHARS } from "@/src/lib/itunes/search-config";

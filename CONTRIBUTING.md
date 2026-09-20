@@ -64,6 +64,14 @@ app/**/page.tsx         → 라우트 셸 (가능하면 RSC, 인터랙션만 클
 - 주요 세그먼트에 `loading.tsx` / 필요 시 `not-found.tsx`를 둡니다.
 - 공통 로딩 문구는 `src/components/common/route-loading.tsx`를 재사용합니다.
 
+## 머지
+
+`main`에 바로 푸시하지 않습니다. 브랜치에서 PR을 열고 GitHub Actions **Quality**(`npm run check:build`)가 통과한 뒤에 머지합니다. 리뷰어는 필수가 아닙니다.
+
+로컬 `npm run build`는 Postgres가 있으면 CI와 다르게 통과할 수 있습니다. 배포 전 게이트는 GitHub Quality입니다. Vercel 프리뷰가 있으면 그 주소로 화면을 확인합니다.
+
+`main` 보호는 저장소 Settings → Rules → Rulesets에서 한 번 켭니다. Target은 `main`, Require a pull request(승인자 **0명**), Require status checks to pass는 워크플로 Quality의 `check`입니다. 코드 리뷰 필수는 끄고, force push는 막습니다.
+
 ## 검증
 
 ```bash
