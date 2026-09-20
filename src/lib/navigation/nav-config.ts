@@ -19,13 +19,18 @@ export const BOARD_LINKS: NavLinkItem[] = [
 
 export const NAV_LINKS: NavLinkItem[] = [ALBUM_REVIEW_LINK, ...BOARD_LINKS];
 
+export const ADMIN_HOME_LINK: NavLinkItem = {
+  href: "/admin",
+  label: "Overview",
+};
+
 export const ADMIN_LINKS: NavLinkItem[] = [
-  { href: "/admin/reviews", label: "리뷰 승인 관리" },
-  { href: "/admin/members", label: "멤버 관리" },
-  { href: "/admin/reports", label: "신고 관리" },
+  { href: "/admin/reviews", label: "리뷰 승인" },
+  { href: "/admin/members", label: "멤버" },
+  { href: "/admin/reports", label: "신고" },
   { href: "/admin/albums", label: "오늘의 앨범" },
-  { href: "/admin/new-releases", label: "신보 등록" },
-  { href: "/admin/featured-slide", label: "슬라이드바 편집" },
-  { href: "/admin/faq", label: "FAQ 관리" },
+  { href: "/admin/new-releases", label: "신보" },
+  { href: "/admin/featured-slide", label: "슬라이드" },
+  { href: "/admin/faq", label: "FAQ" },
   { href: "/admin/inquiries", label: "1:1 문의" },
 ];

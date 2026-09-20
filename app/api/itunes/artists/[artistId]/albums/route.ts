@@ -1,13 +1,21 @@
 /** GET iTunes 아티스트 앨범 목록 */
 
-import { ARTIST_ALBUMS_LOOKUP_LIMIT, getArtistAlbums, getLargeImageUrl } from "@/src/lib/itunes";
+import { handleApi } from "@/src/lib/http/handle-route-error";
 import { apiError, apiOk } from "@/src/lib/http/response";
+import { enforceItunesProxyRateLimit } from "@/src/lib/itunes/api-rate-limit";
+import {
+  ARTIST_ALBUMS_LOOKUP_LIMIT,
+  getArtistAlbums,
+  getLargeImageUrl,
+} from "@/src/lib/itunes";
 
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ artistId: string }> }
 ) {
-  try {
+  return handleApi("앨범 목록 조회 중 오류가 발생했습니다.", async () => {
+    await enforceItunesProxyRateLimit(request);
+
     const { artistId } = await params;
     const trimmed = artistId?.trim() ?? "";
     const numericId = parseInt(trimmed, 10);
@@ -30,10 +38,5 @@ export async function GET(
     }));
 
     return apiOk({ albums });
-  } catch (error) {
-    return apiError(
-      error instanceof Error ? error.message : "앨범 목록 조회 중 오류가 발생했습니다.",
-      { status: 500 }
-    );
-  }
+  });
 }

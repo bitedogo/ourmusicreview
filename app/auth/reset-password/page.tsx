@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { normalizeOtpInput, OTP_CODE_LENGTH } from "@/src/lib/auth/otp-input";
 import { validatePassword } from "@/src/lib/auth/validation";
-import { fetchJson } from "@/src/lib/http/client";
+import { fetchJson, getApiErrorMessage } from "@/src/lib/http/client";
 
 type Step = "verify" | "reset" | "done";
 
@@ -57,8 +57,10 @@ function ResetPasswordForm() {
       setPassword("");
       setPasswordConfirm("");
       setStep("reset");
-    } catch {
-      router.replace("/auth/signin");
+    } catch (submitError) {
+      setError(
+        getApiErrorMessage(submitError, "인증번호 확인 중 오류가 발생했습니다.")
+      );
     } finally {
       setVerifying(false);
     }
@@ -92,8 +94,10 @@ function ResetPasswordForm() {
       });
       setStep("done");
       setTimeout(() => router.push("/auth/signin"), 1500);
-    } catch {
-      router.replace("/auth/signin");
+    } catch (submitError) {
+      setError(
+        getApiErrorMessage(submitError, "비밀번호 재설정에 실패했습니다.")
+      );
     } finally {
       setSubmitting(false);
     }

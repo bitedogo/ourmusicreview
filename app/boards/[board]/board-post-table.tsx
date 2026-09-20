@@ -14,7 +14,6 @@ export interface BoardPostRow {
   createdAt: Date;
   commentCount: number;
   isPinned: boolean;
-  isReleasePinned: boolean;
   noticeCategory?: NoticeCategory | null;
   /** 표시할 순번. 고정/공지 게시글은 null이며 대신 아이콘이 표시됩니다. */
   rowNumber: number | null;
@@ -66,14 +65,10 @@ export function BoardPostTable({ posts, isNoticeBoard }: BoardPostTableProps) {
               className={`hover:bg-zinc-50 ${post.isPinned ? "bg-zinc-50/50" : ""}`}
             >
               <td className="px-3 py-2 text-center text-[11px] text-[var(--color-text-muted)]">
-                {post.isPinned || post.isReleasePinned || isNoticeBoard ? (
+                {post.isPinned || isNoticeBoard ? (
                   <span
                     className="inline-flex items-center justify-center"
-                    title={
-                      post.isReleasePinned && !post.isPinned && !isNoticeBoard
-                        ? "릴리즈"
-                        : "공지사항"
-                    }
+                    title="공지사항"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -83,11 +78,7 @@ export function BoardPostTable({ posts, isNoticeBoard }: BoardPostTableProps) {
                       strokeWidth="2"
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      className={`h-4 w-4 ${
-                        post.isReleasePinned && !post.isPinned && !isNoticeBoard
-                          ? "text-emerald-600"
-                          : "text-red-600"
-                      }`}
+                      className="h-4 w-4 text-red-600"
                     >
                       <path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z" />
                       <path d="M14.5 8.5a5 5 0 0 1 0 7" />
@@ -101,7 +92,7 @@ export function BoardPostTable({ posts, isNoticeBoard }: BoardPostTableProps) {
               <td className="px-3 py-2 text-sm">
                 <Link
                   href={`/community/${encodeURIComponent(post.id)}`}
-                  className={`flex items-center gap-1.5 hover:underline ${isNoticeBoard ? "font-bold text-[var(--color-text-primary)]" : ""} ${post.isPinned ? "text-red-600 font-bold" : ""} ${post.isReleasePinned && !post.isPinned ? "text-emerald-600 font-bold" : ""}`}
+                  className={`flex items-center gap-1.5 hover:underline ${isNoticeBoard ? "font-bold text-[var(--color-text-primary)]" : ""} ${post.isPinned ? "text-red-600 font-bold" : ""}`}
                 >
                   {isNoticeBoard &&
                     (() => {

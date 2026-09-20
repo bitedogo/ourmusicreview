@@ -1,6 +1,6 @@
 /** 게시판 목록 조회 */
 
-import type { DataSource } from "typeorm";
+import type { DataSource, Repository, SelectQueryBuilder } from "typeorm";
 import { In } from "typeorm";
 import type { NoticeCategory } from "@/src/lib/community/types";
 import { Comment } from "@/src/lib/db/entities/Comment";
@@ -23,7 +23,6 @@ export interface BoardListPostItem {
   createdAt: Date;
   commentCount: number;
   isPinned: boolean;
-  isReleasePinned: boolean;
   noticeCategory: NoticeCategory | null;
   rowNumber: number | null;
 }
@@ -36,6 +35,93 @@ export interface BoardListResult {
   isEmpty: boolean;
 }
 
+function applySearchFilter(
+  query: SelectQueryBuilder<Post>,
+  searchField: BoardSearchField,
+  searchQuery: string
+): void {
+  if (!searchQuery) return;
+  if (searchField === "title") {
+    query.andWhere("post.title ILIKE :keyword", {
+      keyword: `%${searchQuery}%`,
+    });
+    return;
+  }
+  query.andWhere("post.nickname ILIKE :keyword", {
+    keyword: `%${searchQuery}%`,
+  });
+}
+
+function createPinnedQuery(
+  postRepository: Repository<Post>,
+  params: BoardListParams,
+  searchQuery: string
+) {
+  const query = postRepository
+    .createQueryBuilder("post")
+    .where("post.is_global = :isGlobal", { isGlobal: "Y" })
+    .orderBy("post.created_at", "DESC");
+
+  if (params.category === "N") {
+    query.andWhere("post.category = :category", { category: "N" });
+  }
+
+  applySearchFilter(query, params.searchField, searchQuery);
+  return query;
+}
+
+function createOtherQuery(
+  postRepository: Repository<Post>,
+  params: BoardListParams,
+  searchQuery: string
+) {
+  const query = postRepository
+    .createQueryBuilder("post")
+    .where("post.category = :category", { category: params.category })
+    .andWhere("post.is_global = :isGlobal", { isGlobal: "N" })
+    .orderBy("post.created_at", "DESC");
+
+  applySearchFilter(query, params.searchField, searchQuery);
+  return query;
+}
+
+async function loadCommentCounts(
+  commentRepository: Repository<Comment>,
+  postIds: string[]
+): Promise<Map<string, number>> {
+  if (postIds.length === 0) return new Map();
+
+  const commentCountRows = await commentRepository
+    .createQueryBuilder("comment")
+    .select("comment.post_id", "postId")
+    .addSelect("COUNT(comment.id)", "count")
+    .where({ postId: In(postIds) })
+    .groupBy("comment.post_id")
+    .getRawMany<{ postId: string; count: string }>();
+
+  return new Map(
+    commentCountRows.map((row) => [row.postId, Number(row.count)])
+  );
+}
+
+function toListItem(
+  post: Post,
+  commentCount: number,
+  isPinned: boolean,
+  rowNumber: number | null
+): BoardListPostItem {
+  return {
+    id: post.id,
+    title: post.title,
+    nickname: post.nickname,
+    createdAt: post.createdAt,
+    commentCount,
+    isPinned,
+    noticeCategory: post.noticeCategory,
+    rowNumber,
+  };
+}
+
 export async function listBoardPosts(
   dataSource: DataSource,
   params: BoardListParams
@@ -45,82 +131,26 @@ export async function listBoardPosts(
   const postRepository = dataSource.getRepository(Post);
   const commentRepository = dataSource.getRepository(Comment);
 
-  const postsQueryBuilder = postRepository
-    .createQueryBuilder("post")
-    .orderBy("post.created_at", "DESC");
+  const pinnedPosts = await createPinnedQuery(
+    postRepository,
+    params,
+    searchQuery
+  ).getMany();
 
-  if (params.category === "N") {
-    postsQueryBuilder.where("post.category = :category", { category: "N" });
-  } else {
-    postsQueryBuilder.where(
-      "(post.category = :category OR post.is_global = :isGlobal)",
-      {
-        category: params.category,
-        isGlobal: "Y",
-      }
-    );
-  }
-
-  if (searchQuery) {
-    if (params.searchField === "title") {
-      postsQueryBuilder.andWhere("post.title ILIKE :keyword", {
-        keyword: `%${searchQuery}%`,
-      });
-    } else {
-      postsQueryBuilder.andWhere("post.nickname ILIKE :keyword", {
-        keyword: `%${searchQuery}%`,
-      });
-    }
-  }
-
-  const allPosts = await postsQueryBuilder.getMany();
-  const postIds = allPosts.map((post) => post.id);
-  const commentCountRows =
-    postIds.length > 0
-      ? await commentRepository
-          .createQueryBuilder("comment")
-          .select("comment.post_id", "postId")
-          .addSelect("COUNT(comment.id)", "count")
-          .where({ postId: In(postIds) })
-          .groupBy("comment.post_id")
-          .getRawMany<{ postId: string; count: string }>()
-      : [];
-
-  const commentCountMap = new Map<string, number>(
-    commentCountRows.map((row) => [row.postId, Number(row.count)])
-  );
-
-  const postsWithMeta = allPosts.map((post) => {
-    const isReleasePinned =
-      post.category !== "N" && post.noticeCategory === "RELEASE_NOTE";
-    return {
-      ...post,
-      commentCount: commentCountMap.get(post.id) ?? 0,
-      isPinned: post.isGlobal === "Y",
-      isReleasePinned,
-    };
-  });
-
-  const globalPinnedPosts = postsWithMeta.filter((post) => post.isPinned);
-  const releasePinnedPosts = postsWithMeta
-    .filter((post) => !post.isPinned && post.isReleasePinned)
-    .sort(
-      (a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    )
-    .slice(0, 3);
-
-  const otherPosts = postsWithMeta.filter(
-    (post) => !post.isPinned && !post.isReleasePinned
-  );
-
-  const totalOtherPosts = otherPosts.length;
+  const otherBaseQuery = createOtherQuery(postRepository, params, searchQuery);
+  const totalOtherPosts = await otherBaseQuery.clone().getCount();
   const totalPages = Math.max(1, Math.ceil(totalOtherPosts / params.pageSize));
   const currentPage = Math.min(page, totalPages);
-  const paginatedOtherPosts = otherPosts.slice(
-    (currentPage - 1) * params.pageSize,
-    currentPage * params.pageSize
-  );
+  const paginatedOtherPosts = await otherBaseQuery
+    .clone()
+    .skip((currentPage - 1) * params.pageSize)
+    .take(params.pageSize)
+    .getMany();
+
+  const commentCountMap = await loadCommentCounts(commentRepository, [
+    ...pinnedPosts.map((post) => post.id),
+    ...paginatedOtherPosts.map((post) => post.id),
+  ]);
 
   const rowNumberByPostId = new Map<string, number>(
     paginatedOtherPosts.map((post, index) => [
@@ -130,37 +160,24 @@ export async function listBoardPosts(
   );
 
   const posts: BoardListPostItem[] = [
-    ...globalPinnedPosts,
-    ...releasePinnedPosts,
-    ...paginatedOtherPosts,
-  ]
-    .sort((a, b) => {
-      if (a.isPinned && !b.isPinned) return -1;
-      if (!a.isPinned && b.isPinned) return 1;
-      if (a.isReleasePinned && !a.isPinned && !b.isReleasePinned) return -1;
-      if (!a.isReleasePinned && b.isReleasePinned && !b.isPinned) return 1;
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-    })
-    .map((post) => ({
-      id: post.id,
-      title: post.title,
-      nickname: post.nickname,
-      createdAt: post.createdAt,
-      commentCount: post.commentCount,
-      isPinned: post.isPinned,
-      isReleasePinned: post.isReleasePinned,
-      noticeCategory: post.noticeCategory,
-      rowNumber: rowNumberByPostId.get(post.id) ?? null,
-    }));
+    ...pinnedPosts.map((post) =>
+      toListItem(post, commentCountMap.get(post.id) ?? 0, true, null)
+    ),
+    ...paginatedOtherPosts.map((post) =>
+      toListItem(
+        post,
+        commentCountMap.get(post.id) ?? 0,
+        false,
+        rowNumberByPostId.get(post.id) ?? null
+      )
+    ),
+  ];
 
   return {
     posts,
     totalOtherPosts,
     totalPages,
     currentPage,
-    isEmpty:
-      totalOtherPosts === 0 &&
-      globalPinnedPosts.length === 0 &&
-      releasePinnedPosts.length === 0,
+    isEmpty: totalOtherPosts === 0 && pinnedPosts.length === 0,
   };
 }

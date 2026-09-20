@@ -8,12 +8,13 @@ import { AlbumReviewListItem } from "@/src/components/reviews/album-review-list-
 import { ReviewDetailAlbumCard } from "@/src/components/reviews/ReviewDetailAlbumCard";
 import { StreamingLinkButtons } from "@/src/components/streaming/streaming-link-buttons";
 import { useStreamingLinks } from "@/src/hooks/use-streaming-links";
-import { ApiClientError, getApiErrorMessage } from "@/src/lib/http/client";
+import { buildSigninHref } from "@/src/lib/auth/callback-url";
+import { getApiErrorMessage } from "@/src/lib/http/client";
 import {
-  checkReviewExists,
   fetchAlbumRating,
   fetchAlbumReviews,
 } from "@/src/lib/reviews/client-api";
+import { guardReviewWrite } from "@/src/lib/reviews/guard-review-write";
 import { buildReviewWritePath } from "@/src/lib/utils/album";
 
 interface Review {
@@ -51,6 +52,7 @@ export function AlbumReviewListClient({ albumId }: { albumId: string }) {
   const [error, setError] = useState<string | null>(null);
   const [isCheckingDuplicate, setIsCheckingDuplicate] = useState(false);
   const [isDuplicateModalOpen, setIsDuplicateModalOpen] = useState(false);
+  const [writeError, setWriteError] = useState<string | null>(null);
 
   useEffect(() => {
     let isCancelled = false;
@@ -140,20 +142,25 @@ export function AlbumReviewListClient({ albumId }: { albumId: string }) {
   async function handleReviewWriteClick() {
     if (!albumInfo || isCheckingDuplicate) return;
     setIsCheckingDuplicate(true);
+    setWriteError(null);
     try {
-      const data = await checkReviewExists(albumInfo.albumId);
-      if (data.data.exists) {
+      const result = await guardReviewWrite(albumInfo.albumId);
+      if (result.status === "duplicate") {
         setIsDuplicateModalOpen(true);
+        return;
+      }
+      if (result.status === "unauthenticated") {
+        router.push(
+          buildSigninHref(`/review/album/${encodeURIComponent(albumInfo.albumId)}`)
+        );
+        return;
+      }
+      if (result.status === "error") {
+        setWriteError(result.message);
         return;
       }
       if (reviewWriteUrl) {
         router.push(reviewWriteUrl);
-      }
-    } catch (error) {
-      if (error instanceof ApiClientError && error.status === 401) {
-        router.push(
-          `/auth/signin?callbackUrl=${encodeURIComponent(`/review/album/${encodeURIComponent(albumInfo.albumId)}`)}`
-        );
       }
     } finally {
       setIsCheckingDuplicate(false);
@@ -217,6 +224,11 @@ export function AlbumReviewListClient({ albumId }: { albumId: string }) {
             </button>
           )}
         </div>
+        {writeError && (
+          <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-900">
+            {writeError}
+          </div>
+        )}
       </section>
 
       {reviews.length === 0 ? (

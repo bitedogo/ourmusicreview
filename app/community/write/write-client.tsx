@@ -24,7 +24,7 @@ const VALID_CATEGORIES: Category[] = ["K", "I", "M", "W", "N"];
 export function CommunityWriteClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
 
   const initialCategoryParam = searchParams.get("category");
   const editPostId = searchParams.get("edit");
@@ -41,7 +41,6 @@ export function CommunityWriteClient() {
   const [category, setCategory] = useState<Category>(initialCategory);
   const [noticeCategory, setNoticeCategory] = useState<NoticeCategory>("RELEASE_NOTE");
   const [isGlobal, setIsGlobal] = useState(false);
-  const [isRelease, setIsRelease] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(!!editPostId);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -58,13 +57,25 @@ export function CommunityWriteClient() {
   const isAdmin = (session?.user as { role?: string })?.role === "ADMIN";
 
   useEffect(() => {
+    if (status === "loading") return;
+    if (initialCategoryParam === "N" && !isAdmin) {
+      router.replace("/boards/notice");
+    }
+  }, [initialCategoryParam, isAdmin, router, status]);
+
+  useEffect(() => {
     if (!editPostId) return;
+    if (status === "loading") return;
 
     async function fetchPost() {
       if (!editPostId) return;
       try {
         const data = await fetchCommunityPost(editPostId);
         const post = data.data.post;
+        if (post.category === "N" && !isAdmin) {
+          router.replace("/boards/notice");
+          return;
+        }
         setTitle(post.title);
         setCategory(post.category);
         setNoticeCategory(
@@ -73,9 +84,6 @@ export function CommunityWriteClient() {
             : "RELEASE_NOTE"
         );
         setIsGlobal(post.isGlobal === "Y");
-        setIsRelease(
-          post.category !== "N" && post.noticeCategory === "RELEASE_NOTE"
-        );
         contentToLoadRef.current = post.content;
         handleEditorReady();
       } catch (error) {
@@ -88,7 +96,7 @@ export function CommunityWriteClient() {
     }
 
     fetchPost();
-  }, [editPostId, handleEditorReady]);
+  }, [editPostId, handleEditorReady, isAdmin, router, status]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -117,9 +125,6 @@ export function CommunityWriteClient() {
         content: trimmedContent,
         category,
         isGlobal,
-        ...(isAdmin && (category === "K" || category === "I")
-          ? { isRelease }
-          : {}),
         ...(category === "N" && { noticeCategory }),
       };
 
@@ -190,11 +195,8 @@ export function CommunityWriteClient() {
             />
             {isAdmin && category !== "N" && (
               <AdminPostToggles
-                category={category}
                 isGlobal={isGlobal}
-                isRelease={isRelease}
                 onIsGlobalChange={setIsGlobal}
-                onIsReleaseChange={setIsRelease}
               />
             )}
           </div>

@@ -2,7 +2,6 @@
 /** 홈 히어로 스티키 영역 */
 
 import { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
 import { useArtistAutocomplete } from "@/src/hooks/use-artist-autocomplete";
 import { useArtistSearchNavigation } from "@/src/hooks/use-artist-search-navigation";
 import { PAGE_PADDING_X, contentMaxWidthStyle } from "@/src/lib/layout";
@@ -12,8 +11,6 @@ import { DesktopNav } from "./header/desktop-nav";
 
 export function HomeHeroSticky() {
   const [isScrolled, setIsScrolled] = useState(false);
-  const { data: session } = useSession();
-  const isAdmin = session?.user?.role === "ADMIN";
   const { navigateToTextSearch, navigateToArtist } = useArtistSearchNavigation();
   const {
     containerRef,
@@ -64,7 +61,6 @@ export function HomeHeroSticky() {
             style={contentMaxWidthStyle}
           >
             <DesktopNav
-              isAdmin={isAdmin}
               className="relative z-50 hidden shrink-0 items-center justify-center gap-14 pb-0 text-[length:var(--nav-menu-font-size-mobile)] font-medium leading-[145%] tracking-[var(--tracking-nav-menu)] text-[var(--color-nav-menu)] sm:text-[length:var(--nav-menu-font-size)] md:flex"
             />
             <div className="relative z-0 mt-0 shrink-0 md:mt-[var(--hero-sticky-nav-search-gap)]">

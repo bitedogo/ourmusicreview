@@ -61,7 +61,6 @@ async function InquiryPageContent(props: {
         createdAt: post.createdAt.toISOString(),
         commentCount: post.commentCount,
         isPinned: post.isPinned,
-        isReleasePinned: post.isReleasePinned,
         noticeCategory: post.noticeCategory,
         rowNumber: post.rowNumber,
       }))}

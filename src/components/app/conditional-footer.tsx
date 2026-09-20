@@ -4,12 +4,18 @@
 import { usePathname } from "next/navigation";
 import { Footer } from "./Footer";
 
-const HIDE_FOOTER_PATHS = ["/auth/signin"];
+function shouldHideAppChrome(pathname: string) {
+  return (
+    pathname === "/auth/signin" ||
+    pathname === "/auth/post-login" ||
+    pathname.startsWith("/admin")
+  );
+}
 
 export function ConditionalFooter() {
   const pathname = usePathname();
 
-  if (HIDE_FOOTER_PATHS.includes(pathname)) {
+  if (shouldHideAppChrome(pathname)) {
     return null;
   }
 

@@ -88,7 +88,6 @@ export async function getHomeNewReleases(
   dataSource: DataSource
 ): Promise<NewReleasesHomeData> {
   const todayIso = getKstTodayIso();
-  await purgeExpiredNewReleases(dataSource, todayIso);
   const repo = dataSource.getRepository(WeeklyReleaseAlbum);
   const rows = await repo.find({
     where: { releaseDate: MoreThanOrEqual(todayIso) },
@@ -102,7 +101,6 @@ export async function listAdminNewReleases(
   dataSource: DataSource
 ): Promise<{ albums: NewReleaseAdminAlbum[] }> {
   const weeks = getNewReleaseWeekWindows();
-  await purgeExpiredNewReleases(dataSource, weeks.today);
   const repo = dataSource.getRepository(WeeklyReleaseAlbum);
   const rows = await repo.find({
     where: { releaseDate: MoreThanOrEqual(weeks.today) },
@@ -171,6 +169,7 @@ export async function addNewReleaseAlbum(
     }
     throw error;
   }
+  await purgeExpiredNewReleases(dataSource);
   return toAdminAlbum(entity);
 }
 
@@ -203,6 +202,7 @@ export async function addManualNewReleaseAlbum(
     }
     throw error;
   }
+  await purgeExpiredNewReleases(dataSource);
   return toAdminAlbum(entity);
 }
 
@@ -220,4 +220,5 @@ export async function removeNewReleaseAlbum(
     throw new ServiceError("해당 항목을 찾을 수 없습니다.", 404);
   }
   await repo.remove(entity);
+  await purgeExpiredNewReleases(dataSource);
 }

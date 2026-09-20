@@ -12,6 +12,7 @@ import { UserOutlineIcon } from "./user-outline-icon";
 interface AccountMenuProps {
   nickname: string;
   profileImage: string | null;
+  isAdmin?: boolean;
   isOpen: boolean;
   announcementUnreadCount: number;
   mailUnreadCount: number;
@@ -24,6 +25,7 @@ interface AccountMenuProps {
 export function AccountMenu({
   nickname,
   profileImage,
+  isAdmin = false,
   isOpen,
   announcementUnreadCount,
   mailUnreadCount,
@@ -78,6 +80,15 @@ export function AccountMenu({
             >
               마이페이지
             </Link>
+            {isAdmin ? (
+              <Link
+                href="/admin"
+                onClick={onClose}
+                className="block w-full px-4 py-3 text-sm font-medium text-[var(--color-text-primary)] hover:bg-zinc-50"
+              >
+                관리
+              </Link>
+            ) : null}
             <Link
               href={inquiry()}
               onClick={onClose}

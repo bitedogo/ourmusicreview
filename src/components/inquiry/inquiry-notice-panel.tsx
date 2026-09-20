@@ -13,7 +13,6 @@ export interface InquiryNoticePost {
   createdAt: string;
   commentCount: number;
   isPinned: boolean;
-  isReleasePinned: boolean;
   noticeCategory: NoticeCategory | null;
   rowNumber: number | null;
 }

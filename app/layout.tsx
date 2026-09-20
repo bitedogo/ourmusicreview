@@ -5,6 +5,7 @@ import "./globals.css";
 import { Providers } from "./providers";
 import { ConditionalAppHeader } from "@/src/components/app/conditional-app-header";
 import { ConditionalFooter } from "@/src/components/app/conditional-footer";
+import { AdminSiteSwitcher } from "@/src/components/admin/shell/admin-site-switcher";
 import { pretendard } from "@/src/lib/fonts/pretendard";
 import {
   LOGO_ALT,
@@ -94,6 +95,7 @@ export default function RootLayout({
           <ConditionalAppHeader />
           <main className="flex flex-1 flex-col bg-white">{children}</main>
           <ConditionalFooter />
+          <AdminSiteSwitcher />
         </Providers>
       </body>
     </html>

@@ -184,7 +184,7 @@ listBoardPosts
   WHERE category = K  OR  is_global = 'Y'
        │
        ├─ 일반 글: 최신순 페이지 (15개)
-       └─ 핀: is_global, RELEASE_NOTE 등은 테이블 상단
+       └─ 핀: is_global 글은 테이블 상단
 ```
 
 `is_global = "Y"` 인 글은 **다른 게시판에도 같이 보입니다.**  
@@ -195,22 +195,7 @@ listBoardPosts
 `createCommunityPost` (`community-post-service.ts`):
 
 - 일반 유저가 `category: "N"`을 내면 **403**.
-- 관리자 `isRelease: true` + 국내/해외 글 → **반대편 게시판에 미러 글**을 트랜잭션으로 한 번 더 INSERT (`noticeCategory: RELEASE_NOTE`).  
-  “발매 소식을 국내·해외에 동시에 올린다”는 운영 요구입니다.
-
-```ts
-const createdPostId = await dataSource.transaction(async (manager) => {
-  await postRepository.save(post);
-  if (isRelease) {
-    const mirroredCategory = category === "K" ? "I" : "K";
-    await postRepository.save(mirroredPost); // 다른 id, 같은 제목/본문
-  }
-  return post.id;
-});
-```
-
-**Why 트랜잭션?**  
-한쪽만 성공하고 다른쪽이 실패하면 “국내에만 발매 공지가 있는” 상태가 됩니다. 둘 다 되거나 둘 다 안 되거나.
+- 관리자 `isGlobal: true` → 해당 글이 다른 게시판 목록 상단에도 붙습니다.
 
 ### 댓글·좋아요·신고 (공통 인프라)
 

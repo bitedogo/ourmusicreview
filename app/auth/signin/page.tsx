@@ -4,10 +4,11 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
-import { signIn, useSession } from "next-auth/react";
+import { signIn, useSession, getSession } from "next-auth/react";
 import { Suspense, useEffect, useState } from "react";
 import { LOGO_ALT, LOGO_SRC } from "@/src/lib/site/branding";
 import { fetchJson, getApiErrorMessage } from "@/src/lib/http/client";
+import { resolveAuthCallbackUrl, resolveLoginLandingUrl, buildPostLoginHref } from "@/src/lib/auth/callback-url";
 import { FindIdModal } from "./find-id-modal";
 import { FindPasswordModal } from "./find-password-modal";
 
@@ -25,9 +26,8 @@ const linkTextClass =
 function SigninPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { status } = useSession();
-  const callbackUrl = "/";
-  const loginCallbackUrl = "/auth/signin";
+  const { status, data: session } = useSession();
+  const callbackUrl = resolveAuthCallbackUrl(searchParams.get("callbackUrl"));
   const savedIdKey = "oru.savedSigninId";
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -56,9 +56,9 @@ function SigninPageContent() {
 
   useEffect(() => {
     if (status === "authenticated") {
-      router.push(callbackUrl);
+      router.push(resolveLoginLandingUrl(session?.user?.role, callbackUrl));
     }
-  }, [status, router, callbackUrl]);
+  }, [status, router, callbackUrl, session?.user?.role]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -126,7 +126,10 @@ function SigninPageContent() {
       return;
     }
 
-    router.push(result.url ?? callbackUrl);
+    const nextSession = await getSession();
+    router.push(
+      resolveLoginLandingUrl(nextSession?.user?.role, result.url ?? callbackUrl)
+    );
   }
 
   async function handleResendVerification() {
@@ -152,11 +155,13 @@ function SigninPageContent() {
   }
 
   async function handleGoogleLogin() {
-    const result = await signIn("google", { callbackUrl: loginCallbackUrl });
+    const result = await signIn("google", {
+      callbackUrl: buildPostLoginHref(callbackUrl),
+    });
     if (result?.error) {
       setErrorMessage(result.error);
     } else if (!result?.url) {
-      router.push(loginCallbackUrl);
+      router.push(buildPostLoginHref(callbackUrl));
     }
   }
 

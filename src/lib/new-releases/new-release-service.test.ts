@@ -54,7 +54,7 @@ function createDataSource(repo: ReturnType<typeof createRepo>) {
 }
 
 describe("getHomeNewReleases", () => {
-  it("오늘 이후 등록분을 보여주고 지난 발매는 정리한다", async () => {
+  it("오늘 이후 등록분만 조회하고 purge는 하지 않는다", async () => {
     const repo = createRepo({
       find: vi.fn().mockResolvedValue([
         {
@@ -73,9 +73,7 @@ describe("getHomeNewReleases", () => {
 
     const result = await getHomeNewReleases(dataSource);
 
-    expect(repo.delete).toHaveBeenCalledWith({
-      releaseDate: LessThan("2026-09-09"),
-    });
+    expect(repo.delete).not.toHaveBeenCalled();
     expect(repo.find).toHaveBeenCalledWith({
       where: { releaseDate: MoreThanOrEqual("2026-09-09") },
       order: { releaseDate: "ASC", title: "ASC" },
@@ -86,7 +84,7 @@ describe("getHomeNewReleases", () => {
 });
 
 describe("listAdminNewReleases", () => {
-  it("관리자 목록에서는 지난 발매를 정리한다", async () => {
+  it("관리자 목록 조회에서는 purge하지 않는다", async () => {
     const repo = createRepo({
       find: vi.fn().mockResolvedValue([]),
     });
@@ -94,9 +92,7 @@ describe("listAdminNewReleases", () => {
 
     await listAdminNewReleases(dataSource);
 
-    expect(repo.delete).toHaveBeenCalledWith({
-      releaseDate: LessThan("2026-09-09"),
-    });
+    expect(repo.delete).not.toHaveBeenCalled();
     expect(repo.find).toHaveBeenCalledWith({
       where: { releaseDate: MoreThanOrEqual("2026-09-09") },
       order: { releaseDate: "ASC", title: "ASC" },
@@ -141,6 +137,9 @@ describe("addNewReleaseAlbum", () => {
     expect(album.collectionId).toBe("123");
     expect(album.weekBucket).toBe("upcoming");
     expect(repo.save).toHaveBeenCalledOnce();
+    expect(repo.delete).toHaveBeenCalledWith({
+      releaseDate: LessThan("2026-09-09"),
+    });
   });
 
   it("이미 등록된 collectionId는 거절한다", async () => {
@@ -213,6 +212,9 @@ describe("addManualNewReleaseAlbum", () => {
     expect(album.source).toBe("manual");
     expect(album.imageUrl).toBe("https://cdn.example/a.jpg");
     expect(repo.save).toHaveBeenCalledOnce();
+    expect(repo.delete).toHaveBeenCalledWith({
+      releaseDate: LessThan("2026-09-09"),
+    });
   });
 });
 
@@ -226,7 +228,7 @@ describe("removeNewReleaseAlbum", () => {
     });
   });
 
-  it("있으면 삭제한다", async () => {
+  it("삭제 후 만료분도 정리한다", async () => {
     const entity = { id: "11111111-1111-4111-8111-111111111111" } as WeeklyReleaseAlbum;
     const repo = createRepo({
       findOne: vi.fn().mockResolvedValue(entity),
@@ -235,5 +237,8 @@ describe("removeNewReleaseAlbum", () => {
 
     await removeNewReleaseAlbum(dataSource, entity.id);
     expect(repo.remove).toHaveBeenCalledWith(entity);
+    expect(repo.delete).toHaveBeenCalledWith({
+      releaseDate: LessThan("2026-09-09"),
+    });
   });
 });

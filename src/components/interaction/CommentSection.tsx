@@ -19,6 +19,10 @@ import {
   updateCommentLikeInTree,
 } from "@/src/lib/comments/client-api";
 import { getApiErrorMessage } from "@/src/lib/http/client";
+import {
+  buildSigninHref,
+  getCurrentReturnPath,
+} from "@/src/lib/auth/callback-url";
 
 const COMMENTS_PER_PAGE = 10;
 
@@ -137,7 +141,7 @@ export function CommentSection({
 
   const requireLogin = () => {
     if (confirm("로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?")) {
-      router.push("/auth/signin");
+      router.push(buildSigninHref(getCurrentReturnPath()));
     }
   };
 

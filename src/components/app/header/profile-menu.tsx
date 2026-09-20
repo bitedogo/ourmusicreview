@@ -16,6 +16,7 @@ import { UserOutlineIcon } from "./user-outline-icon";
 type HeaderMenu = "announcement" | "mail" | "profile" | null;
 
 interface ProfileMenuProps {
+  isAdmin?: boolean;
   unreadCount: number;
   onUnreadCountChange: Dispatch<SetStateAction<number>>;
   announcementUnreadCount: number;
@@ -23,6 +24,7 @@ interface ProfileMenuProps {
 }
 
 export function ProfileMenu({
+  isAdmin = false,
   unreadCount,
   onUnreadCountChange,
   announcementUnreadCount,
@@ -63,6 +65,7 @@ export function ProfileMenu({
         <AccountMenu
           nickname={nickname}
           profileImage={profileImage}
+          isAdmin={isAdmin}
           isOpen={openMenu === "profile"}
           announcementUnreadCount={announcementUnreadCount}
           mailUnreadCount={unreadCount}

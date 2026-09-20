@@ -4,12 +4,18 @@
 import { usePathname } from "next/navigation";
 import { AppHeader } from "./app-header";
 
-const HIDE_HEADER_PATHS = ["/auth/signin"];
+function shouldHideAppChrome(pathname: string) {
+  return (
+    pathname === "/auth/signin" ||
+    pathname === "/auth/post-login" ||
+    pathname.startsWith("/admin")
+  );
+}
 
 export function ConditionalAppHeader() {
   const pathname = usePathname();
 
-  if (HIDE_HEADER_PATHS.includes(pathname)) {
+  if (shouldHideAppChrome(pathname)) {
     return null;
   }
 

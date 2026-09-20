@@ -16,7 +16,6 @@ export interface CreateCommunityPostInput {
   category?: PostCategory;
   isGlobal?: boolean;
   noticeCategory?: NoticeCategory;
-  isRelease?: boolean;
 }
 
 export interface UpdateCommunityPostInput {
@@ -25,7 +24,6 @@ export interface UpdateCommunityPostInput {
   category?: PostCategory;
   isGlobal?: boolean;
   noticeCategory?: NoticeCategory;
-  isRelease?: boolean;
 }
 
 function createPostId(): string {
@@ -60,7 +58,6 @@ export async function createCommunityPost(
   }
 
   const category = resolveCreateCategory(body.category, actor.isAdmin);
-  const isReleaseRequested = actor.isAdmin && body.isRelease === true;
   const isGlobal = actor.isAdmin && body.isGlobal === true ? "Y" : "N";
 
   let noticeCategory: NoticeCategory | null = null;
@@ -74,44 +71,20 @@ export async function createCommunityPost(
     noticeCategory = body.noticeCategory;
   }
 
-  const canCreateRelease = category === "K" || category === "I";
-  const isRelease = isReleaseRequested && canCreateRelease;
-
-  const createdPostId = await dataSource.transaction(async (manager) => {
-    const postRepository = manager.getRepository(Post);
-    const id = createPostId();
-
-    const post = postRepository.create({
-      id,
-      title,
-      content,
-      category,
-      isGlobal: isRelease ? "N" : isGlobal,
-      noticeCategory: isRelease ? "RELEASE_NOTE" : noticeCategory,
-      userId: actor.userId,
-      nickname: actor.nickname,
-    });
-    await postRepository.save(post);
-
-    if (isRelease) {
-      const mirroredCategory: PostCategory = category === "K" ? "I" : "K";
-      const mirroredPost = postRepository.create({
-        id: createPostId(),
-        title,
-        content,
-        category: mirroredCategory,
-        isGlobal: "N",
-        noticeCategory: "RELEASE_NOTE",
-        userId: actor.userId,
-        nickname: actor.nickname,
-      });
-      await postRepository.save(mirroredPost);
-    }
-
-    return post.id;
+  const postRepository = dataSource.getRepository(Post);
+  const post = postRepository.create({
+    id: createPostId(),
+    title,
+    content,
+    category,
+    isGlobal,
+    noticeCategory,
+    userId: actor.userId,
+    nickname: actor.nickname,
   });
+  await postRepository.save(post);
 
-  return { id: createdPostId };
+  return { id: post.id };
 }
 
 export async function getCommunityPost(dataSource: DataSource, id: string) {
@@ -161,11 +134,6 @@ export async function updateCommunityPost(
     throw new ServiceError("수정 권한이 없습니다.", 403);
   }
 
-  const previousTitle = post.title;
-  const previousContent = post.content;
-  const previousCategory = post.category;
-  const previousNoticeCategory = post.noticeCategory;
-
   if (body.title) post.title = body.title;
   if (body.content) post.content = body.content;
   if (body.category) post.category = body.category;
@@ -176,78 +144,9 @@ export async function updateCommunityPost(
     if (isNoticeCategory(body.noticeCategory)) {
       post.noticeCategory = body.noticeCategory;
     }
-  } else if (actor.isAdmin && typeof body.isRelease === "boolean") {
-    if (body.isRelease) {
-      post.noticeCategory = "RELEASE_NOTE";
-      post.isGlobal = "N";
-    } else if (post.noticeCategory === "RELEASE_NOTE") {
-      post.noticeCategory = null;
-    }
   }
 
-  await dataSource.transaction(async (manager) => {
-    const txPostRepository = manager.getRepository(Post);
-    await txPostRepository.save(post);
-
-    const isBoardPost = post.category === "K" || post.category === "I";
-    if (!actor.isAdmin || typeof body.isRelease !== "boolean" || !isBoardPost) {
-      return;
-    }
-
-    const oppositeCategory: PostCategory = post.category === "K" ? "I" : "K";
-
-    let mirroredPost = await txPostRepository.findOne({
-      where: {
-        userId: post.userId,
-        category: oppositeCategory,
-        noticeCategory: "RELEASE_NOTE",
-        title: previousTitle,
-        content: previousContent,
-      },
-    });
-
-    if (!mirroredPost) {
-      mirroredPost = await txPostRepository.findOne({
-        where: {
-          userId: post.userId,
-          category: oppositeCategory,
-          noticeCategory: "RELEASE_NOTE",
-          title: post.title,
-          content: post.content,
-        },
-      });
-    }
-
-    const wasReleasePost =
-      previousNoticeCategory === "RELEASE_NOTE" &&
-      (previousCategory === "K" || previousCategory === "I");
-
-    if (body.isRelease) {
-      if (mirroredPost) {
-        mirroredPost.title = post.title;
-        mirroredPost.content = post.content;
-        mirroredPost.nickname = post.nickname;
-        mirroredPost.isGlobal = "N";
-        mirroredPost.noticeCategory = "RELEASE_NOTE";
-        await txPostRepository.save(mirroredPost);
-      } else {
-        const newMirroredPost = txPostRepository.create({
-          id: createPostId(),
-          title: post.title,
-          content: post.content,
-          category: oppositeCategory,
-          isGlobal: "N",
-          noticeCategory: "RELEASE_NOTE",
-          userId: post.userId,
-          nickname: post.nickname,
-        });
-        await txPostRepository.save(newMirroredPost);
-      }
-    } else if (wasReleasePost && mirroredPost) {
-      await txPostRepository.remove(mirroredPost);
-    }
-  });
-
+  await postRepository.save(post);
   return post;
 }
 

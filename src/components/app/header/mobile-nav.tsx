@@ -2,14 +2,13 @@
 
 import Link from "next/link";
 import { contentMaxWidthStyle } from "@/src/lib/layout";
-import { ADMIN_LINKS, NAV_LINKS } from "@/src/lib/navigation/nav-config";
+import { NAV_LINKS } from "@/src/lib/navigation/nav-config";
 
 interface MobileNavProps {
-  isAdmin: boolean;
   onNavigate: () => void;
 }
 
-export function MobileNav({ isAdmin, onNavigate }: MobileNavProps) {
+export function MobileNav({ onNavigate }: MobileNavProps) {
   return (
     <div className="absolute left-0 right-0 top-full z-40 bg-white shadow-lg md:hidden">
       <nav
@@ -28,26 +27,6 @@ export function MobileNav({ isAdmin, onNavigate }: MobileNavProps) {
               </Link>
             </li>
           ))}
-          {isAdmin && (
-            <>
-              <li className="mt-2 border-t border-zinc-100 pt-2">
-                <span className="block px-3 py-1.5 text-sm font-bold uppercase tracking-wider text-[var(--color-text-muted)]">
-                  관리자
-                </span>
-              </li>
-              {ADMIN_LINKS.map(({ href, label }) => (
-                <li key={href}>
-                  <Link
-                    href={href}
-                    onClick={onNavigate}
-                    className="block rounded-lg px-3 py-3 text-base font-medium text-[var(--color-text-primary)] transition-colors hover:bg-zinc-50 hover:text-[var(--color-accent)]"
-                  >
-                    {label}
-                  </Link>
-                </li>
-              ))}
-            </>
-          )}
         </ul>
       </nav>
     </div>

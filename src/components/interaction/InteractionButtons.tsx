@@ -13,6 +13,10 @@ import {
   toggleContentLikeApi,
 } from "@/src/lib/engagement/client-api";
 import { getApiErrorMessage } from "@/src/lib/http/client";
+import {
+  buildSigninHref,
+  getCurrentReturnPath,
+} from "@/src/lib/auth/callback-url";
 
 interface InteractionButtonsProps {
   postId?: string;
@@ -61,7 +65,7 @@ export function InteractionButtons({
   const handleLike = async () => {
     if (!session) {
       if (confirm("로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?")) {
-        router.push("/auth/signin");
+        router.push(buildSigninHref(getCurrentReturnPath()));
       }
       return;
     }

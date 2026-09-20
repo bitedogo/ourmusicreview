@@ -6,6 +6,7 @@ import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { fetchJson, getApiErrorMessage } from "@/src/lib/http/client";
+import { validateNickname } from "@/src/lib/auth/validation";
 import { useImageCropFlow } from "@/src/hooks/use-image-crop-flow";
 import {
   PROFILE_EDIT_INPUT,
@@ -61,13 +62,9 @@ export function ProfileEditClient({
     setErrorMessage(null);
 
     const trimmed = editingNickname.trim();
-    if (!trimmed) {
-      setErrorMessage("닉네임을 입력해주세요.");
-      setIsUpdating(false);
-      return;
-    }
-    if (trimmed.length > 50) {
-      setErrorMessage("닉네임은 50자 이하여야 합니다.");
+    const nickError = validateNickname(trimmed);
+    if (nickError) {
+      setErrorMessage(nickError);
       setIsUpdating(false);
       return;
     }
@@ -276,7 +273,7 @@ export function ProfileEditClient({
             </div>
             <div className="space-y-1 text-xs text-[var(--color-text-secondary)]">
               <p>* 특수문자 및 띄어쓰기 사용불가</p>
-              <p>* 닉네임 최대 글자 수: 영문 14자 또는 한글 7자 이내</p>
+              <p>* 닉네임 최대 글자 수: 영문 12자 또는 한글 6자 이내</p>
             </div>
             {errorMessage && (
               <p className="text-xs text-red-600">{errorMessage}</p>

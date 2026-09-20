@@ -30,7 +30,6 @@ export function AppHeader() {
 
   useClickOutside(menuRef, () => setMenuOpen(false), menuOpen);
 
-  const isAdmin = session?.user?.role === "ADMIN";
   const showDesktopNav = pathname !== "/";
 
   return (
@@ -52,6 +51,7 @@ export function AppHeader() {
 
             <div className="absolute right-0 top-1/2 flex -translate-y-1/2">
               <ProfileMenu
+                isAdmin={session?.user?.role === "ADMIN"}
                 unreadCount={unreadCount}
                 onUnreadCountChange={setUnreadCount}
                 announcementUnreadCount={announcementUnreadCount}
@@ -61,11 +61,11 @@ export function AppHeader() {
           </div>
         </div>
 
-        {showDesktopNav && <DesktopNav isAdmin={isAdmin} />}
+        {showDesktopNav && <DesktopNav />}
       </div>
 
       {menuOpen && (
-        <MobileNav isAdmin={isAdmin} onNavigate={() => setMenuOpen(false)} />
+        <MobileNav onNavigate={() => setMenuOpen(false)} />
       )}
     </header>
   );

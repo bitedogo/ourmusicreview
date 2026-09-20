@@ -4,6 +4,10 @@ import { type FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCommentEdit } from "@/src/hooks/use-comment-edit";
 import { ensureLoggedIn } from "@/src/lib/interaction/require-login";
+import {
+  buildSigninHref,
+  getCurrentReturnPath,
+} from "@/src/lib/auth/callback-url";
 
 interface UseCommentItemControllerOptions {
   commentId: string;
@@ -42,12 +46,12 @@ export function useCommentItemController({
   const canReply = depth === 0;
 
   function handleLikeClick() {
-    if (!ensureLoggedIn(isLoggedIn, () => router.push("/auth/signin"))) return;
+    if (!ensureLoggedIn(isLoggedIn, () => router.push(buildSigninHref(getCurrentReturnPath())))) return;
     onLike(commentId);
   }
 
   function handleReplyClick() {
-    if (!ensureLoggedIn(isLoggedIn, () => router.push("/auth/signin"))) return;
+    if (!ensureLoggedIn(isLoggedIn, () => router.push(buildSigninHref(getCurrentReturnPath())))) return;
     setIsReplying((previous) => !previous);
   }
 

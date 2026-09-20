@@ -19,7 +19,6 @@ export interface SaveCommunityPostInput {
   content: string;
   category: CommunityPostCategory;
   isGlobal?: boolean;
-  isRelease?: boolean;
   noticeCategory?: NoticeCategory;
 }
 

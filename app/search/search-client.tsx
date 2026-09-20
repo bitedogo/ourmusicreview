@@ -13,12 +13,13 @@ import { useBatchAlbumRatings } from "@/src/hooks/use-batch-album-ratings";
 import { useBatchStreamingLinks } from "@/src/hooks/use-streaming-links";
 import { useFavoriteAlbumIds } from "@/src/hooks/use-favorite-album-ids";
 import type { AlbumDetail, AlbumDetailResponse } from "@/src/lib/album/detail-types";
-import { ApiClientError, fetchJson, getApiErrorMessage } from "@/src/lib/http/client";
+import { fetchJson, getApiErrorMessage } from "@/src/lib/http/client";
 import type { ItunesArtistResult } from "@/src/lib/itunes/types";
 import { buildArtistSearchPath } from "@/src/lib/itunes/search";
 import { ContentContainer } from "@/src/lib/layout/content-container";
 import { PAGE_PADDING_X } from "@/src/lib/layout";
-import { checkReviewExists } from "@/src/lib/reviews/client-api";
+import { buildSigninHref, getCurrentReturnPath } from "@/src/lib/auth/callback-url";
+import { guardReviewWrite } from "@/src/lib/reviews/guard-review-write";
 import type {
   ArtistAlbumsResponse,
   ArtistSearchResponse,
@@ -198,30 +199,33 @@ export function SearchClient() {
       return;
     }
     setCheckingReviewAlbumId(albumId);
+    setErrorMessage(null);
     try {
-      const check = await checkReviewExists(albumId);
-      if (check.data.exists) {
+      const result = await guardReviewWrite(albumId);
+      if (result.status === "duplicate") {
         setIsDuplicateModalOpen(true);
         return;
       }
-    } catch (error) {
-      if (error instanceof ApiClientError && error.status === 401) {
-        router.push("/auth/signin?callbackUrl=/search");
+      if (result.status === "unauthenticated") {
+        router.push(buildSigninHref(getCurrentReturnPath()));
         return;
       }
+      if (result.status === "error") {
+        setErrorMessage(result.message);
+        return;
+      }
+      router.push(
+        buildReviewWritePath({
+          albumId,
+          title: album.collectionName,
+          artist: album.artistName,
+          imageUrl: album.imageUrl600,
+          releaseType: album.releaseType,
+        })
+      );
     } finally {
       setCheckingReviewAlbumId(null);
     }
-
-    router.push(
-      buildReviewWritePath({
-        albumId,
-        title: album.collectionName,
-        artist: album.artistName,
-        imageUrl: album.imageUrl600,
-        releaseType: album.releaseType,
-      })
-    );
   }
 
   return (

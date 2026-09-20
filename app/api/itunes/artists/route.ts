@@ -1,10 +1,14 @@
 /** GET iTunes 아티스트 검색 */
 
-import { isItunesCoolingDown, searchArtistsForApi } from "@/src/lib/itunes";
+import { handleApi } from "@/src/lib/http/handle-route-error";
 import { apiError, apiOk } from "@/src/lib/http/response";
+import { enforceItunesProxyRateLimit } from "@/src/lib/itunes/api-rate-limit";
+import { isItunesCoolingDown, searchArtistsForApi } from "@/src/lib/itunes";
 
 export async function GET(request: Request) {
-  try {
+  return handleApi("아티스트 검색 중 오류가 발생했습니다.", async () => {
+    await enforceItunesProxyRateLimit(request);
+
     const { searchParams } = new URL(request.url);
     const term = searchParams.get("term");
 
@@ -24,10 +28,5 @@ export async function GET(request: Request) {
     }
 
     return apiOk({ artists });
-  } catch (error) {
-    return apiError(
-      error instanceof Error ? error.message : "아티스트 검색 중 오류가 발생했습니다.",
-      { status: 500 }
-    );
-  }
+  });
 }
