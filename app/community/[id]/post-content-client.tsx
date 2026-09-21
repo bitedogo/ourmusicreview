@@ -62,17 +62,21 @@ export function PostContentClient({
   const [displayedViews, setDisplayedViews] = useState(initialViews);
 
   useEffect(() => {
-    const hasIncremented = sessionStorage.getItem(`post-${postId}-view-incremented`);
+    setDisplayedViews(initialViews);
+  }, [initialViews]);
 
-    if (!hasIncremented) {
-      sessionStorage.setItem(`post-${postId}-view-incremented`, "true");
+  useEffect(() => {
+    const storageKey = `post-${postId}-view-incremented`;
+    if (sessionStorage.getItem(storageKey)) return;
 
-      void incrementPostView(postId)
-        .then(() => {
-          setDisplayedViews((prev) => prev + 1);
-        })
-        .catch(() => {});
-    }
+    sessionStorage.setItem(storageKey, "true");
+
+    void incrementPostView(postId)
+      .then((payload) => {
+        if (payload.data?.skipped) return;
+        setDisplayedViews((prev) => prev + 1);
+      })
+      .catch(() => {});
   }, [postId]);
   const isOwner = session?.user?.id === userId || (session?.user as { role?: string })?.role === "ADMIN";
 

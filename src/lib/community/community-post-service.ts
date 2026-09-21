@@ -7,8 +7,11 @@ import type { NoticeCategory } from "@/src/lib/community/types";
 import { Post, type PostCategory } from "@/src/lib/db/entities/Post";
 import { ServiceError } from "@/src/lib/http/service-error";
 import { communityDetail } from "@/src/lib/navigation/routes";
+import { stripEmbeddedAudio } from "@/src/lib/utils/editor";
 
 const BOARD_CATEGORIES: PostCategory[] = ["K", "I", "M", "W"];
+const NOTICE_CATEGORY_REQUIRED =
+  "공지사항 카테고리를 선택해주세요. (RELEASE NOTE, EVENT, SERVICE, REPORT)";
 
 export interface CreateCommunityPostInput {
   title?: string;
@@ -30,9 +33,10 @@ function createPostId(): string {
   return randomUUID().replace(/-/g, "").slice(0, 24);
 }
 
-function resolveCreateCategory(
+function resolvePostCategory(
   requested: PostCategory | undefined,
-  isPostAdmin: boolean
+  isPostAdmin: boolean,
+  fallback: PostCategory
 ): PostCategory {
   if (requested === "N") {
     if (!isPostAdmin) {
@@ -43,7 +47,7 @@ function resolveCreateCategory(
   if (requested && BOARD_CATEGORIES.includes(requested)) {
     return requested;
   }
-  return "K";
+  return fallback;
 }
 
 export async function createCommunityPost(
@@ -52,21 +56,21 @@ export async function createCommunityPost(
   body: CreateCommunityPostInput
 ): Promise<{ id: string }> {
   const title = typeof body.title === "string" ? body.title.trim() : "";
-  const content = typeof body.content === "string" ? body.content.trim() : "";
+  const content =
+    typeof body.content === "string"
+      ? stripEmbeddedAudio(body.content.trim())
+      : "";
   if (!title || !content) {
     throw new ServiceError("제목과 내용을 모두 입력해주세요.", 400);
   }
 
-  const category = resolveCreateCategory(body.category, actor.isAdmin);
+  const category = resolvePostCategory(body.category, actor.isAdmin, "K");
   const isGlobal = actor.isAdmin && body.isGlobal === true ? "Y" : "N";
 
   let noticeCategory: NoticeCategory | null = null;
   if (category === "N") {
     if (!isNoticeCategory(body.noticeCategory)) {
-      throw new ServiceError(
-        "공지사항 카테고리를 선택해주세요. (RELEASE NOTE, EVENT, SERVICE, REPORT)",
-        400
-      );
+      throw new ServiceError(NOTICE_CATEGORY_REQUIRED, 400);
     }
     noticeCategory = body.noticeCategory;
   }
@@ -135,15 +139,25 @@ export async function updateCommunityPost(
   }
 
   if (body.title) post.title = body.title;
-  if (body.content) post.content = body.content;
-  if (body.category) post.category = body.category;
+  if (body.content) post.content = stripEmbeddedAudio(body.content);
+  if (body.category !== undefined) {
+    post.category = resolvePostCategory(
+      body.category,
+      actor.isAdmin,
+      post.category
+    );
+  }
   if (actor.isAdmin && typeof body.isGlobal === "boolean") {
     post.isGlobal = body.isGlobal ? "Y" : "N";
   }
   if (post.category === "N") {
     if (isNoticeCategory(body.noticeCategory)) {
       post.noticeCategory = body.noticeCategory;
+    } else if (!isNoticeCategory(post.noticeCategory)) {
+      throw new ServiceError(NOTICE_CATEGORY_REQUIRED, 400);
     }
+  } else {
+    post.noticeCategory = null;
   }
 
   await postRepository.save(post);

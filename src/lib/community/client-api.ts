@@ -58,8 +58,10 @@ export async function deleteCommunityPost(postId: string) {
 }
 
 export async function incrementPostView(postId: string) {
-  return fetchJson<{ ok: true }>(
-    `/api/posts/${encodeURIComponent(postId)}/view`,
-    { method: "POST" }
-  );
+  return fetchJson<{
+    ok: true;
+    data?: { skipped?: boolean };
+  }>(`/api/posts/${encodeURIComponent(postId)}/view`, {
+    method: "POST",
+  });
 }
