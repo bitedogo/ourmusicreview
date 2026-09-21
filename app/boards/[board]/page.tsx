@@ -85,33 +85,31 @@ export default async function BoardPage(props: {
         {list.isEmpty ? (
           <BoardEmptyState searchQuery={searchQuery} />
         ) : (
-          <>
-            <BoardPostTable
-              posts={list.posts}
-              isNoticeBoard={config.category === "N"}
-            />
-            <div className="mt-4">
-              {config.category !== "N" && (
-                <div className="mb-3 flex justify-start">
-                  <BoardSearchControls
-                    board={board}
-                    initialSearchField={searchField}
-                    initialQuery={searchQuery}
-                  />
-                </div>
-              )}
-              {list.totalPages > 1 && (
-                <div className="flex justify-center">
-                  <PaginationNav
-                    currentPage={list.currentPage}
-                    totalPages={list.totalPages}
-                    buildHref={buildBoardHref}
-                  />
-                </div>
-              )}
-            </div>
-          </>
+          <BoardPostTable
+            posts={list.posts}
+            isNoticeBoard={config.category === "N"}
+          />
         )}
+        <div className="mt-4">
+          {config.category !== "N" && (
+            <div className="mb-3 flex justify-start">
+              <BoardSearchControls
+                board={board}
+                initialSearchField={searchField}
+                initialQuery={searchQuery}
+              />
+            </div>
+          )}
+          {!list.isEmpty && list.totalPages > 1 && (
+            <div className="flex justify-center">
+              <PaginationNav
+                currentPage={list.currentPage}
+                totalPages={list.totalPages}
+                buildHref={buildBoardHref}
+              />
+            </div>
+          )}
+        </div>
       </section>
     </div>
   );

@@ -1,7 +1,17 @@
 /** 에디터 HTML·본문 유틸 */
 
+const EMBEDDED_AUDIO_TAG_RE = /<\/?(?:audio|source)\b[^>]*>/gi;
+
+export function htmlContainsEmbeddedAudio(html: string): boolean {
+  return /<(?:audio|source)\b/i.test(html);
+}
+
+export function stripEmbeddedAudio(html: string): string {
+  return html.replace(EMBEDDED_AUDIO_TAG_RE, "");
+}
+
 export function normalizeHtml(value: string): string {
-  return value.replace(/<p><\/p>/g, "<p><br></p>");
+  return stripEmbeddedAudio(value).replace(/<p><\/p>/g, "<p><br></p>");
 }
 
 export function decodeHtmlEntities(text: string): string {

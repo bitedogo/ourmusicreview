@@ -3,6 +3,11 @@
 
 import { useEffect, useRef } from "react";
 import DOMPurify from "dompurify";
+import {
+  htmlContainsEmbeddedAudio,
+  isEditorContentEmpty,
+  normalizeHtml,
+} from "@/src/lib/utils/editor";
 
 interface HtmlRendererProps {
   html: string;
@@ -11,10 +16,13 @@ interface HtmlRendererProps {
 
 export function HtmlRenderer({ html, className = "" }: HtmlRendererProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const hadAudio = htmlContainsEmbeddedAudio(html);
+  const cleaned = normalizeHtml(html ?? "");
+  const isEmpty = isEditorContentEmpty(cleaned);
 
   useEffect(() => {
-    if (containerRef.current && html) {
-      const sanitizedHtml = DOMPurify.sanitize(html, {
+    if (containerRef.current && !isEmpty) {
+      containerRef.current.innerHTML = DOMPurify.sanitize(cleaned, {
         ALLOWED_TAGS: [
           "p",
           "br",
@@ -58,14 +66,12 @@ export function HtmlRenderer({ html, className = "" }: HtmlRendererProps) {
         ],
         ALLOW_DATA_ATTR: false,
       });
-
-      containerRef.current.innerHTML = sanitizedHtml;
-    } else if (containerRef.current && !html) {
+    } else if (containerRef.current) {
       containerRef.current.innerHTML = "";
     }
-  }, [html]);
+  }, [cleaned, isEmpty]);
 
-  if (!html || html.trim() === "" || html.trim() === "<p><br></p>") {
+  if (isEmpty && !hadAudio) {
     return (
       <div className={`text-sm text-[var(--color-text-muted)] ${className}`}>
         내용이 없습니다.
@@ -74,13 +80,22 @@ export function HtmlRenderer({ html, className = "" }: HtmlRendererProps) {
   }
 
   return (
-    <div
-      ref={containerRef}
-      className={`toastui-editor-contents ${className}`}
-      style={{
-        wordBreak: "break-word",
-        lineHeight: "1.75",
-      }}
-    />
+    <div className="space-y-3">
+      {hadAudio ? (
+        <p className="text-sm text-[var(--color-text-muted)]">
+          이 글에 있던 음원 파일은 더 이상 재생할 수 없습니다.
+        </p>
+      ) : null}
+      {isEmpty ? null : (
+        <div
+          ref={containerRef}
+          className={`toastui-editor-contents ${className}`}
+          style={{
+            wordBreak: "break-word",
+            lineHeight: "1.75",
+          }}
+        />
+      )}
+    </div>
   );
 }

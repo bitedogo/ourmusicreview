@@ -59,7 +59,7 @@ export function BoardSearchControls({
         <button
           type="button"
           onClick={handleResetSearch}
-          className="hidden rounded-full border border-zinc-300 px-2.5 py-1 text-[11px] text-[var(--color-text-secondary)] hover:bg-zinc-100 sm:inline"
+          className="rounded-full border border-zinc-300 px-2.5 py-1 text-[11px] text-[var(--color-text-secondary)] hover:bg-zinc-100"
         >
           검색 해제
         </button>
