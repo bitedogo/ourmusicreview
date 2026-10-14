@@ -1,14 +1,13 @@
 "use client";
 /** 댓글 목록 */
 
-import { CommentItem } from "@/src/components/interaction/CommentItem";
+import { CommentDetailItem } from "@/src/components/interaction/CommentDetailItem";
 import { COMMENT_DETAIL_CLASS as styles } from "@/src/components/interaction/comment-detail-styles";
 import type { CommentItemData } from "@/src/components/interaction/comment-types";
 
 interface CommentListProps {
   comments: CommentItemData[];
   isLoading: boolean;
-  variant: "default" | "detail";
   currentUserId?: string;
   isAdmin?: boolean;
   isLoggedIn: boolean;
@@ -21,7 +20,6 @@ interface CommentListProps {
 export function CommentList({
   comments,
   isLoading,
-  variant,
   currentUserId,
   isAdmin,
   isLoggedIn,
@@ -30,37 +28,28 @@ export function CommentList({
   onLike,
   onReply,
 }: CommentListProps) {
-  const isDetail = variant === "detail";
-  const statusClass = isDetail
-    ? styles.empty
-    : "py-10 text-center text-xs text-[var(--color-text-muted)]";
-  const loadingClass = isDetail
-    ? styles.empty
-    : "text-center text-xs text-[var(--color-text-muted)]";
-
   if (isLoading) {
     return (
-      <div className={isDetail ? styles.listOffset : undefined}>
-        <p className={loadingClass}>불러오는 중...</p>
+      <div className={styles.listOffset}>
+        <p className={styles.empty}>불러오는 중...</p>
       </div>
     );
   }
 
   if (comments.length === 0) {
     return (
-      <div className={isDetail ? styles.listOffset : undefined}>
-        <p className={statusClass}>첫 번째 댓글을 남겨보세요.</p>
+      <div className={styles.listOffset}>
+        <p className={styles.empty}>첫 번째 댓글을 남겨보세요.</p>
       </div>
     );
   }
 
   return (
-    <div className={isDetail ? styles.list : "space-y-6"}>
+    <div className={styles.list}>
       {comments.map((comment) => (
-        <CommentItem
+        <CommentDetailItem
           key={comment.id}
           comment={comment}
-          variant={variant}
           currentUserId={currentUserId}
           isAdmin={isAdmin}
           isLoggedIn={isLoggedIn}

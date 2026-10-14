@@ -88,6 +88,14 @@ export function InquiryForm({ defaultEmail, onSubmitted, onOpenFaq }: InquiryFor
       setError("문의 처리에 동의해 주세요.");
       return;
     }
+    if (title.trim().length === 0) {
+      setError("제목을 입력해 주세요.");
+      return;
+    }
+    if (body.trim().length < INQUIRY_BODY_MIN) {
+      setError(`내용은 ${INQUIRY_BODY_MIN}자 이상 입력해 주세요.`);
+      return;
+    }
 
     setIsSubmitting(true);
     try {

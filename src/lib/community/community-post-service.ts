@@ -2,6 +2,7 @@
 
 import { randomUUID } from "crypto";
 import type { DataSource } from "typeorm";
+import { isUserWriteCategory } from "@/src/lib/community/board-config";
 import { isNoticeCategory } from "@/src/lib/community/notice-category";
 import type { NoticeCategory } from "@/src/lib/community/types";
 import { Post, type PostCategory } from "@/src/lib/db/entities/Post";
@@ -9,7 +10,6 @@ import { ServiceError } from "@/src/lib/http/service-error";
 import { communityDetail } from "@/src/lib/navigation/routes";
 import { stripEmbeddedAudio } from "@/src/lib/utils/editor";
 
-const BOARD_CATEGORIES: PostCategory[] = ["K", "I", "M", "W"];
 const NOTICE_CATEGORY_REQUIRED =
   "공지사항 카테고리를 선택해주세요. (RELEASE NOTE, EVENT, SERVICE, REPORT)";
 
@@ -44,7 +44,7 @@ function resolvePostCategory(
     }
     return "N";
   }
-  if (requested && BOARD_CATEGORIES.includes(requested)) {
+  if (requested && isUserWriteCategory(requested)) {
     return requested;
   }
   return fallback;

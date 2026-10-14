@@ -6,6 +6,8 @@ import { redirect } from "next/navigation";
 import { getAppSession, isAdmin } from "@/src/lib/auth/session";
 import { getCommunityPost } from "@/src/lib/community/community-post-service";
 import { initializeDatabase } from "@/src/lib/db";
+import { boardPath } from "@/src/lib/navigation/routes";
+import { CannotEditPost } from "./cannot-edit-post";
 
 const CommunityWriteClient = dynamic(() =>
   import("./write-client").then((mod) => mod.CommunityWriteClient)
@@ -39,20 +41,21 @@ export default async function CommunityWritePage({
   const admin = isAdmin(session);
 
   if (category === "N" && !admin) {
-    redirect("/boards/notice");
+    redirect(boardPath("notice"));
   }
 
-  if (editPostId && !admin) {
-    let editingCategory: string | null = null;
+  if (editPostId) {
     try {
       const dataSource = await initializeDatabase();
       const post = await getCommunityPost(dataSource, editPostId);
-      editingCategory = post.category;
+      if (post.category === "N" && !admin) {
+        redirect(boardPath("notice"));
+      }
+      if (post.userId !== session?.user?.id && !admin) {
+        return <CannotEditPost postId={editPostId} />;
+      }
     } catch {
       /* 없는 글 등은 클라이언트에서 안내 */
-    }
-    if (editingCategory === "N") {
-      redirect("/boards/notice");
     }
   }
 

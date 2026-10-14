@@ -7,6 +7,11 @@ import { cache } from "react";
 import { initializeDatabase } from "@/src/lib/db";
 import { Post } from "@/src/lib/db/entities/Post";
 import type { NoticeCategory } from "@/src/lib/community/types";
+import {
+  boardSlugFromCategory,
+  getBoardCategoryLabel,
+} from "@/src/lib/community/board-config";
+import { boardPath } from "@/src/lib/navigation/routes";
 import { Comment } from "@/src/lib/db/entities/Comment";
 import {
   NOTICE_CATEGORY_COLOR,
@@ -95,21 +100,8 @@ export default async function CommunityDetailPage({
     where: { postId: id },
   });
 
-  const categoryName = {
-    K: "국내게시판",
-    I: "해외게시판",
-    M: "장터게시판",
-    W: "워크룸",
-    N: "공지사항",
-  }[post.category];
-
-  const categoryPath = {
-    K: "domestic",
-    I: "overseas",
-    M: "market",
-    W: "workroom",
-    N: "notice",
-  }[post.category];
+  const categoryName = getBoardCategoryLabel(post.category);
+  const categoryHref = boardPath(boardSlugFromCategory(post.category));
 
   const noticeLabel =
     post.category === "N" && post.noticeCategory && post.noticeCategory in NOTICE_CATEGORY_LABEL
@@ -124,7 +116,7 @@ export default async function CommunityDetailPage({
     <div className="mx-auto flex min-h-screen w-full max-w-4xl flex-col gap-8 px-6 py-10 sm:px-10">
       <div className="flex items-center justify-between shrink-0">
         <Link
-          href={`/boards/${categoryPath}`}
+          href={categoryHref}
           className="text-xs text-[var(--color-text-muted)] hover:text-[var(--color-brand-primary)] transition-colors"
         >
           ← 목록으로 돌아가기

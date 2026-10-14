@@ -1,9 +1,11 @@
 import type { MetadataRoute } from "next";
+import { BOARD_CONFIG } from "@/src/lib/community/board-config";
 import { initializeDatabase } from "@/src/lib/db";
 import { Playlist } from "@/src/lib/db/entities/Playlist";
 import { Post } from "@/src/lib/db/entities/Post";
 import { Review } from "@/src/lib/db/entities/Review";
 import { absoluteUrl } from "@/src/lib/site/branding";
+import { boardPath } from "@/src/lib/navigation/routes";
 
 const STATIC_LAST_MODIFIED = new Date("2026-03-16T00:00:00.000Z");
 
@@ -33,36 +35,15 @@ function staticRoutes(): MetadataRoute.Sitemap {
       changeFrequency: "daily",
       priority: 0.8,
     },
-    {
-      url: absoluteUrl("/boards/domestic"),
+    ...Object.values(BOARD_CONFIG).map((board) => ({
+      url: absoluteUrl(boardPath(board.slug)),
       lastModified: STATIC_LAST_MODIFIED,
-      changeFrequency: "daily",
-      priority: 0.8,
-    },
-    {
-      url: absoluteUrl("/boards/overseas"),
-      lastModified: STATIC_LAST_MODIFIED,
-      changeFrequency: "daily",
-      priority: 0.8,
-    },
-    {
-      url: absoluteUrl("/boards/market"),
-      lastModified: STATIC_LAST_MODIFIED,
-      changeFrequency: "weekly",
-      priority: 0.7,
-    },
-    {
-      url: absoluteUrl("/boards/workroom"),
-      lastModified: STATIC_LAST_MODIFIED,
-      changeFrequency: "weekly",
-      priority: 0.7,
-    },
-    {
-      url: absoluteUrl("/boards/notice"),
-      lastModified: STATIC_LAST_MODIFIED,
-      changeFrequency: "weekly",
-      priority: 0.8,
-    },
+      changeFrequency:
+        board.slug === "domestic" || board.slug === "overseas"
+          ? ("daily" as const)
+          : ("weekly" as const),
+      priority: board.slug === "market" || board.slug === "workroom" ? 0.7 : 0.8,
+    })),
     {
       url: absoluteUrl("/faq"),
       lastModified: STATIC_LAST_MODIFIED,

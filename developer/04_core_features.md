@@ -155,12 +155,7 @@ try {
 | `workroom` | `W` | 로그인 유저 |
 | `notice` | `N` | **관리자만** (`adminOnlyWrite`) |
 
-설정이 **두 곳**에 있습니다.
-
-- 페이지용: `app/boards/[board]/board-config.ts` (제목, 설명, 쓰기 권한)
-- 라벨용: `src/lib/community/board-config.ts` (`BOARD_CATEGORY_LABEL`)
-
-슬러그를 추가할 때는 둘 다, 그리고 `src/lib/navigation/nav-config.ts`의 `BOARD_LINKS`를 맞추세요.
+설정은 `src/lib/community/board-config.ts` 한곳입니다. 슬러그·카테고리 코드·라벨·제목·설명·쓰기 권한이 여기 있고, 헤더 `BOARD_LINKS`는 이 설정에서 파생됩니다.
 
 ### 파일 지도
 
@@ -168,6 +163,7 @@ try {
 app/boards/[board]/page.tsx          RSC: listBoardPosts 직접 호출
 app/community/write/page.tsx         글쓰기
 app/community/[id]/page.tsx          상세
+src/lib/community/board-config.ts            슬러그·카테고리·라벨
 src/lib/community/community-post-service.ts   CRUD
 src/lib/community/board-post-service.ts       목록+고정글
 src/lib/community/client-api.ts

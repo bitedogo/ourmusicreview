@@ -222,11 +222,10 @@ export function ReviewDetailClient({ reviewId }: { reviewId: string }) {
         <InteractionButtons
           reviewId={reviewId}
           authorUserId={review.userId}
-          variant="circle"
         />
       </div>
 
-      <CommentSection reviewId={reviewId} variant="detail" />
+      <CommentSection reviewId={reviewId} />
     </div>
   );
 }

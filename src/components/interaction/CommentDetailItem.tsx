@@ -139,7 +139,7 @@ export function CommentDetailItem({
     <div className={isReply ? styles.replyIndent : undefined}>
       <article className={styles.article}>
         <div className={styles.avatar}>
-          <CommentAvatar user={comment.user} size="detail" />
+          <CommentAvatar user={comment.user} />
         </div>
 
         <div className={styles.body}>
@@ -195,7 +195,6 @@ export function CommentDetailItem({
 
               {isReplying ? (
                 <CommentReplyForm
-                  variant="detail"
                   content={replyContent}
                   isSubmitting={isReplySubmitting}
                   onContentChange={setReplyContent}
