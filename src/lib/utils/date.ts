@@ -49,6 +49,27 @@ export function formatDateTime(dateInput: string | Date): string {
   }
 }
 
+/** 피드용 상대 시각. 7일 이상은 날짜로 돌린다. */
+export function formatRelativeTimeKo(
+  dateInput: string | Date,
+  now: Date = new Date()
+): string {
+  const date = new Date(dateInput);
+  const diff = now.getTime() - date.getTime();
+  if (!Number.isFinite(diff)) return String(dateInput);
+
+  const minutes = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
+
+  if (minutes < 1) return "방금 전";
+  if (minutes < 60) return `${minutes}분 전`;
+  if (hours < 24) return `${hours}시간 전`;
+  if (days < 7) return `${days}일 전`;
+  if (date.getFullYear() === now.getFullYear()) return formatMonthDay(date);
+  return formatDateYYYYMMDD(date);
+}
+
 /** MM.DD 형식 (내 문의 내역 등 짧은 표기) */
 export function formatMonthDay(dateInput: string | Date): string {
   try {

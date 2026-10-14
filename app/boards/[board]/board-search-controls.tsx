@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-
-type BoardSearchField = "title" | "author";
+import type { BoardSearchField, BoardSlug } from "@/src/lib/community/board-config";
+import { boardPath } from "@/src/lib/navigation/routes";
 
 interface BoardSearchControlsProps {
-  board: string;
+  board: BoardSlug;
   initialSearchField: BoardSearchField;
   initialQuery: string;
 }
@@ -35,7 +35,7 @@ export function BoardSearchControls({
       params.set("searchField", nextField);
       params.set("q", trimmed);
     }
-    return `/boards/${board}?${params.toString()}`;
+    return `${boardPath(board)}?${params.toString()}`;
   }
 
   function handleSearchSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -49,7 +49,7 @@ export function BoardSearchControls({
     params.delete("searchField");
     params.delete("q");
     params.set("page", "1");
-    router.push(`/boards/${board}?${params.toString()}`);
+    router.push(`${boardPath(board)}?${params.toString()}`);
     setIsModalOpen(false);
   }
 

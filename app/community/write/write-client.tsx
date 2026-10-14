@@ -11,15 +11,19 @@ import {
   updateCommunityPost,
 } from "@/src/lib/community/client-api";
 import { NOTICE_CATEGORY_OPTIONS } from "@/src/lib/community/notice-category";
+import {
+  boardSlugFromCategory,
+  isPostCategory,
+} from "@/src/lib/community/board-config";
 import type { NoticeCategory } from "@/src/lib/community/types";
 import { getApiErrorMessage } from "@/src/lib/http/client";
+import { boardPath } from "@/src/lib/navigation/routes";
 import { isEditorContentEmpty } from "@/src/lib/utils/editor";
 import { CategorySelector, type WriteCategory } from "./CategorySelector";
 import { AdminPostToggles } from "./AdminPostToggles";
+import { CannotEditPost } from "./cannot-edit-post";
 
 type Category = WriteCategory;
-
-const VALID_CATEGORIES: Category[] = ["K", "I", "M", "W", "N"];
 
 export function CommunityWriteClient() {
   const router = useRouter();
@@ -30,7 +34,7 @@ export function CommunityWriteClient() {
   const editPostId = searchParams.get("edit");
 
   const hasLockedCategory =
-    initialCategoryParam != null && VALID_CATEGORIES.includes(initialCategoryParam as Category);
+    initialCategoryParam != null && isPostCategory(initialCategoryParam);
   const isCategoryLocked = hasLockedCategory || Boolean(editPostId);
   const initialCategory: Category =
     hasLockedCategory
@@ -43,6 +47,7 @@ export function CommunityWriteClient() {
   const [isGlobal, setIsGlobal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(!!editPostId);
+  const [cannotEdit, setCannotEdit] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const editorRef = useRef<TuiEditorRef>(null);
   const contentToLoadRef = useRef<string | null>(null);
@@ -59,7 +64,7 @@ export function CommunityWriteClient() {
   useEffect(() => {
     if (status === "loading") return;
     if (initialCategoryParam === "N" && !isAdmin) {
-      router.replace("/boards/notice");
+      router.replace(boardPath("notice"));
     }
   }, [initialCategoryParam, isAdmin, router, status]);
 
@@ -72,8 +77,14 @@ export function CommunityWriteClient() {
       try {
         const data = await fetchCommunityPost(editPostId);
         const post = data.data.post;
+        const canEdit =
+          isAdmin || Boolean(session?.user?.id && session.user.id === post.userId);
         if (post.category === "N" && !isAdmin) {
-          router.replace("/boards/notice");
+          router.replace(boardPath("notice"));
+          return;
+        }
+        if (!canEdit) {
+          setCannotEdit(true);
           return;
         }
         setTitle(post.title);
@@ -96,7 +107,7 @@ export function CommunityWriteClient() {
     }
 
     fetchPost();
-  }, [editPostId, handleEditorReady, isAdmin, router, status]);
+  }, [editPostId, handleEditorReady, isAdmin, router, session?.user?.id, status]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -137,15 +148,7 @@ export function CommunityWriteClient() {
         router.push(`/community/${encodeURIComponent(postId)}`);
         router.refresh();
       } else {
-        const categoryPath =
-          {
-            K: "domestic",
-            I: "overseas",
-            M: "market",
-            W: "workroom",
-            N: "notice",
-          }[category] || "domestic";
-        router.push(`/boards/${categoryPath}`);
+        router.push(boardPath(boardSlugFromCategory(category)));
       }
     } catch (error) {
       setErrorMessage(
@@ -156,6 +159,10 @@ export function CommunityWriteClient() {
       );
       setIsSubmitting(false);
     }
+  }
+
+  if (cannotEdit && editPostId) {
+    return <CannotEditPost postId={editPostId} />;
   }
 
   if (isLoading) {

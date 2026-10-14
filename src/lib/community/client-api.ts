@@ -1,15 +1,17 @@
 /** 커뮤니티 게시글 API 클라이언트 */
 
 import type { NoticeCategory } from "@/src/lib/community/types";
+import type { PostCategory } from "@/src/lib/db/entities/Post";
 import { fetchJson } from "@/src/lib/http/client";
 
-export type CommunityPostCategory = "K" | "I" | "M" | "W" | "N";
+export type CommunityPostCategory = PostCategory;
 
 export interface CommunityPostDto {
   id: string;
   title: string;
   content: string;
   category: CommunityPostCategory;
+  userId?: string;
   noticeCategory?: NoticeCategory | null;
   isGlobal?: "Y" | "N";
 }

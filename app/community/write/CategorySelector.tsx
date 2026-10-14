@@ -2,9 +2,14 @@
 /** 커뮤니티 글쓰기 - 카테고리 선택 영역 */
 
 import type { NoticeCategory } from "@/src/lib/community/types";
+import {
+  BOARD_CATEGORY_LABEL,
+  USER_WRITE_CATEGORIES,
+} from "@/src/lib/community/board-config";
 import { NOTICE_CATEGORY_OPTIONS } from "@/src/lib/community/notice-category";
+import type { PostCategory } from "@/src/lib/db/entities/Post";
 
-export type WriteCategory = "K" | "I" | "M" | "W" | "N";
+export type WriteCategory = PostCategory;
 
 interface CategorySelectorProps {
   category: WriteCategory;
@@ -14,22 +19,12 @@ interface CategorySelectorProps {
   onNoticeCategoryChange: (noticeCategory: NoticeCategory) => void;
 }
 
-const CATEGORY_LABELS: Record<WriteCategory, string> = {
-  K: "국내게시판",
-  I: "해외게시판",
-  M: "장터게시판",
-  W: "워크룸",
-  N: "공지사항",
-};
-
 const CATEGORY_BUTTON_COLORS: Partial<Record<WriteCategory, string>> = {
   K: "bg-blue-600 text-white border-blue-600",
   I: "bg-purple-600 text-white border-purple-600",
   M: "bg-emerald-600 text-white border-emerald-600",
   W: "bg-orange-600 text-white border-orange-600",
 };
-
-const SELECTABLE_CATEGORIES: WriteCategory[] = ["K", "I", "M", "W"];
 
 export function CategorySelector({
   category,
@@ -48,7 +43,7 @@ export function CategorySelector({
         }
       >
         <p className="text-lg font-semibold text-[var(--color-text-primary)]">
-          {CATEGORY_LABELS[category]}
+          {BOARD_CATEGORY_LABEL[category]}
         </p>
         {category === "N" && (
           <div className="inline-flex flex-wrap justify-end gap-1 text-xs text-[var(--color-text-secondary)]">
@@ -77,7 +72,7 @@ export function CategorySelector({
     <>
       <label className="text-xs font-medium text-[var(--color-text-secondary)]">카테고리</label>
       <div className="inline-flex flex-wrap gap-1 text-xs text-[var(--color-text-secondary)]">
-        {SELECTABLE_CATEGORIES.map((key) => (
+        {USER_WRITE_CATEGORIES.map((key) => (
           <button
             key={key}
             type="button"
@@ -89,7 +84,7 @@ export function CategorySelector({
                 : "border-zinc-200 text-[var(--color-text-secondary)] hover:text-[var(--color-brand-primary)]",
             ].join(" ")}
           >
-            {CATEGORY_LABELS[key]}
+            {BOARD_CATEGORY_LABEL[key]}
           </button>
         ))}
       </div>

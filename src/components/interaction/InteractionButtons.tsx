@@ -24,8 +24,6 @@ interface InteractionButtonsProps {
   playlistId?: string;
   isNotice?: boolean;
   authorUserId?: string;
-  /** circle: 리뷰 상세 원형 버튼 */
-  variant?: "default" | "circle";
 }
 
 export function InteractionButtons({
@@ -34,7 +32,6 @@ export function InteractionButtons({
   playlistId,
   isNotice,
   authorUserId,
-  variant = "default",
 }: InteractionButtonsProps) {
   const { data: session } = useSession();
   const router = useRouter();
@@ -123,59 +120,28 @@ export function InteractionButtons({
     }
   };
 
-  const reportModalUi = reportModal.isOpen ? (
-    <ReportModal
-      title="신고하기"
-      reportReason={reportModal.reason}
-      reportDetail={reportModal.detail}
-      isSubmitting={reportModal.isSubmitting}
-      onReasonChange={reportModal.setReason}
-      onDetailChange={reportModal.setDetail}
-      onClose={reportModal.close}
-      onSubmit={reportModal.submit}
-    />
-  ) : null;
-
-  if (variant === "circle") {
-    return (
-      <>
-        <ReviewDetailCircleButtons
-          liked={likeInfo.liked}
-          likeCount={likeInfo.count}
-          showReport={canReport}
-          onLike={handleLike}
-          onShare={() => void handleShare()}
-          onReport={handleOpenReportModal}
-        />
-        {reportModalUi}
-      </>
-    );
-  }
-
   return (
-    <div className="flex items-center gap-4 py-4">
-      <button
-        onClick={handleLike}
-        className={`flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-xs font-bold transition ${
-          likeInfo.liked
-            ? "border-red-500 bg-red-50 text-red-500"
-            : "border-zinc-200 bg-white text-[var(--color-text-secondary)] hover:border-zinc-300"
-        }`}
-      >
-        <span>{likeInfo.liked ? "❤️" : "♡"}</span>
-        <span>추천 {likeInfo.count}</span>
-      </button>
-
-      {canReport && (
-        <button
-          onClick={handleOpenReportModal}
-          className="flex items-center gap-1.5 rounded-full border border-zinc-200 bg-white px-4 py-1.5 text-xs font-bold text-[var(--color-text-muted)] transition hover:border-red-200 hover:text-red-400"
-        >
-          🚨 신고
-        </button>
-      )}
-
-      {reportModalUi}
-    </div>
+    <>
+      <ReviewDetailCircleButtons
+        liked={likeInfo.liked}
+        likeCount={likeInfo.count}
+        showReport={canReport}
+        onLike={handleLike}
+        onShare={() => void handleShare()}
+        onReport={handleOpenReportModal}
+      />
+      {reportModal.isOpen ? (
+        <ReportModal
+          title="신고하기"
+          reportReason={reportModal.reason}
+          reportDetail={reportModal.detail}
+          isSubmitting={reportModal.isSubmitting}
+          onReasonChange={reportModal.setReason}
+          onDetailChange={reportModal.setDetail}
+          onClose={reportModal.close}
+          onSubmit={reportModal.submit}
+        />
+      ) : null}
+    </>
   );
 }
