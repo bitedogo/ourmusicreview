@@ -339,18 +339,22 @@ select {
 }
 
 .toastui-editor-contents,
-.toastui-editor-contents .prose {
+.toastui-editor-contents .prose,
+.html-preview {
   white-space: pre-wrap;
   word-break: break-word;
 }
 
-.toastui-editor-contents p {
+.toastui-editor-contents p,
+.html-preview p {
   min-height: 1.2em;
   margin-bottom: 8px;
 }
 
 .toastui-editor-contents p:empty::before,
-.toastui-editor-contents p > br:only-child::before {
+.toastui-editor-contents p > br:only-child::before,
+.html-preview p:empty::before,
+.html-preview p > br:only-child::before {
   content: "\00a0";
 }
 

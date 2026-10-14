@@ -1,12 +1,16 @@
 /** 게시판 목록 조회 */
 
 import type { DataSource, Repository, SelectQueryBuilder } from "typeorm";
-import { In } from "typeorm";
+import { In, IsNull } from "typeorm";
+import type { BoardSearchField } from "@/src/lib/community/board-config";
 import type { NoticeCategory } from "@/src/lib/community/types";
 import { Comment } from "@/src/lib/db/entities/Comment";
+import { Like } from "@/src/lib/db/entities/Like";
 import { Post, type PostCategory } from "@/src/lib/db/entities/Post";
+import { User } from "@/src/lib/db/entities/User";
+import { getFirstHtmlImageSrc, getHtmlPreview } from "@/src/lib/utils/editor";
 
-export type BoardSearchField = "title" | "author";
+export type { BoardSearchField };
 
 export interface BoardListParams {
   category: PostCategory;
@@ -14,14 +18,21 @@ export interface BoardListParams {
   pageSize: number;
   searchField: BoardSearchField;
   searchQuery: string;
+  viewerUserId?: string | null;
 }
 
 export interface BoardListPostItem {
   id: string;
   title: string;
   nickname: string;
+  userId: string;
+  profileImage: string | null;
+  excerptHtml: string;
+  imageUrl: string | null;
   createdAt: Date;
   commentCount: number;
+  likeCount: number;
+  liked: boolean;
   isPinned: boolean;
   noticeCategory: NoticeCategory | null;
   rowNumber: number | null;
@@ -104,18 +115,87 @@ async function loadCommentCounts(
   );
 }
 
+async function loadLikeCounts(
+  likeRepository: Repository<Like>,
+  postIds: string[]
+): Promise<Map<string, number>> {
+  if (postIds.length === 0) return new Map();
+
+  const likeCountRows = await likeRepository
+    .createQueryBuilder("like")
+    .select("like.post_id", "postId")
+    .addSelect("COUNT(*)::int", "count")
+    .where("like.post_id IN (:...postIds)", { postIds })
+    .andWhere("like.comment_id IS NULL")
+    .groupBy("like.post_id")
+    .getRawMany<{ postId: string; count: string | number }>();
+
+  return new Map(
+    likeCountRows.map((row) => [row.postId, Number(row.count)])
+  );
+}
+
+async function loadLikedPostIds(
+  likeRepository: Repository<Like>,
+  postIds: string[],
+  viewerUserId?: string | null
+): Promise<Set<string>> {
+  if (!viewerUserId || postIds.length === 0) return new Set();
+
+  const rows = await likeRepository.find({
+    where: {
+      userId: viewerUserId,
+      postId: In(postIds),
+      commentId: IsNull(),
+    },
+    select: ["postId"],
+  });
+
+  return new Set(
+    rows
+      .map((row) => row.postId)
+      .filter((postId): postId is string => Boolean(postId))
+  );
+}
+
+async function loadProfileImages(
+  userRepository: Repository<User>,
+  userIds: string[]
+): Promise<Map<string, string | null>> {
+  const uniqueIds = [...new Set(userIds.filter(Boolean))];
+  if (uniqueIds.length === 0) return new Map();
+
+  const users = await userRepository.find({
+    where: { id: In(uniqueIds) },
+    select: ["id", "profileImage"],
+  });
+
+  return new Map(
+    users.map((user) => [user.id, user.profileImage ?? null])
+  );
+}
+
 function toListItem(
   post: Post,
   commentCount: number,
+  likeCount: number,
+  liked: boolean,
   isPinned: boolean,
-  rowNumber: number | null
+  rowNumber: number | null,
+  profileImage: string | null
 ): BoardListPostItem {
   return {
     id: post.id,
     title: post.title,
     nickname: post.nickname,
+    userId: post.userId,
+    profileImage,
+    excerptHtml: getHtmlPreview(post.content ?? ""),
+    imageUrl: getFirstHtmlImageSrc(post.content ?? ""),
     createdAt: post.createdAt,
     commentCount,
+    likeCount,
+    liked,
     isPinned,
     noticeCategory: post.noticeCategory,
     rowNumber,
@@ -130,6 +210,8 @@ export async function listBoardPosts(
   const searchQuery = params.searchQuery.trim().slice(0, 100);
   const postRepository = dataSource.getRepository(Post);
   const commentRepository = dataSource.getRepository(Comment);
+  const likeRepository = dataSource.getRepository(Like);
+  const userRepository = dataSource.getRepository(User);
 
   const pinnedPosts = await createPinnedQuery(
     postRepository,
@@ -147,10 +229,18 @@ export async function listBoardPosts(
     .take(params.pageSize)
     .getMany();
 
-  const commentCountMap = await loadCommentCounts(commentRepository, [
-    ...pinnedPosts.map((post) => post.id),
-    ...paginatedOtherPosts.map((post) => post.id),
-  ]);
+  const listedPosts = [...pinnedPosts, ...paginatedOtherPosts];
+  const listedPostIds = listedPosts.map((post) => post.id);
+  const [commentCountMap, likeCountMap, likedPostIds, profileImageMap] =
+    await Promise.all([
+      loadCommentCounts(commentRepository, listedPostIds),
+      loadLikeCounts(likeRepository, listedPostIds),
+      loadLikedPostIds(likeRepository, listedPostIds, params.viewerUserId),
+      loadProfileImages(
+        userRepository,
+        listedPosts.map((post) => post.userId)
+      ),
+    ]);
 
   const rowNumberByPostId = new Map<string, number>(
     paginatedOtherPosts.map((post, index) => [
@@ -161,14 +251,25 @@ export async function listBoardPosts(
 
   const posts: BoardListPostItem[] = [
     ...pinnedPosts.map((post) =>
-      toListItem(post, commentCountMap.get(post.id) ?? 0, true, null)
+      toListItem(
+        post,
+        commentCountMap.get(post.id) ?? 0,
+        likeCountMap.get(post.id) ?? 0,
+        likedPostIds.has(post.id),
+        true,
+        null,
+        profileImageMap.get(post.userId) ?? null
+      )
     ),
     ...paginatedOtherPosts.map((post) =>
       toListItem(
         post,
         commentCountMap.get(post.id) ?? 0,
+        likeCountMap.get(post.id) ?? 0,
+        likedPostIds.has(post.id),
         false,
-        rowNumberByPostId.get(post.id) ?? null
+        rowNumberByPostId.get(post.id) ?? null,
+        profileImageMap.get(post.userId) ?? null
       )
     ),
   ];

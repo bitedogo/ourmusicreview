@@ -53,13 +53,11 @@ export function PublicPlaylistDetailClient({
             <InteractionButtons
               playlistId={playlist.id}
               authorUserId={playlist.userId}
-              variant="circle"
             />
           </div>
 
           <CommentSection
             playlistId={playlist.id}
-            variant="detail"
             initialData={initialComments}
           />
         </>

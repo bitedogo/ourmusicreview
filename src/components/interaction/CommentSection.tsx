@@ -30,8 +30,6 @@ interface CommentSectionProps {
   postId?: string;
   reviewId?: string;
   playlistId?: string;
-  /** detail: 리뷰 상세 스타일 */
-  variant?: "default" | "detail";
   initialData?: CommentPageData;
 }
 
@@ -78,7 +76,6 @@ export function CommentSection({
   postId,
   reviewId,
   playlistId,
-  variant = "default",
   initialData,
 }: CommentSectionProps) {
   const { data: session } = useSession();
@@ -99,12 +96,10 @@ export function CommentSection({
   const fetchComments = useCallback(async () => {
     setIsLoading(true);
     try {
-      const data = await fetchCommentsApi(
-        postId,
-        reviewId,
-        playlistId,
-        variant === "detail" ? { page, pageSize: COMMENTS_PER_PAGE } : undefined
-      );
+      const data = await fetchCommentsApi(postId, reviewId, playlistId, {
+        page,
+        pageSize: COMMENTS_PER_PAGE,
+      });
       setComments(data.data.comments ?? []);
       setTotalCount(data.data.totalCount ?? data.data.comments?.length ?? 0);
       setTotalPages(Math.max(1, data.data.totalPages ?? 1));
@@ -116,7 +111,7 @@ export function CommentSection({
     } finally {
       setIsLoading(false);
     }
-  }, [postId, reviewId, playlistId, variant, page]);
+  }, [postId, reviewId, playlistId, page]);
 
   useEffect(() => {
     if (
@@ -210,60 +205,40 @@ export function CommentSection({
     }
   };
 
-  const listProps = {
-    comments,
-    isLoading,
-    variant: variant as "default" | "detail",
-    currentUserId: session?.user?.id,
-    isAdmin,
-    isLoggedIn,
-    onDelete: handleDelete,
-    onEdit: handleEdit,
-    onLike: handleLike,
-    onReply: handleReply,
-  };
-
-  const formProps = {
-    variant: variant as "default" | "detail",
-    content: compose.content,
-    isSubmitting: compose.isSubmitting,
-    isLoggedIn,
-    onContentChange: compose.setContent,
-    onSubmit: compose.submit,
-  };
-
   const commentCountLabel = totalCount || comments.length;
 
-  if (variant === "detail") {
-    return (
-      <section id="comments" className={styles.section}>
-        <div className={styles.card}>
-          <div className={styles.titleRow}>
-            <h3 className={styles.title}>댓글</h3>
-            <span className={styles.titleCount}>{commentCountLabel}</span>
-          </div>
-
-          <CommentForm {...formProps} />
-          <CommentList {...listProps} />
-          <CommentPagination
-            page={page}
-            totalPages={totalPages}
-            onPageChange={setPage}
-          />
-        </div>
-      </section>
-    );
-  }
-
   return (
-    <section className="mt-10 space-y-6">
-      <div className="flex items-center gap-2 border-b border-zinc-100 pb-3">
-        <h3 className="text-sm font-bold text-[var(--color-text-primary)]">댓글</h3>
-        <span className="text-xs text-[var(--color-text-muted)]">{commentCountLabel}</span>
-      </div>
+    <section id="comments" className={styles.section}>
+      <div className={styles.card}>
+        <div className={styles.titleRow}>
+          <h3 className={styles.title}>댓글</h3>
+          <span className={styles.titleCount}>{commentCountLabel}</span>
+        </div>
 
-      <CommentList {...listProps} />
-      <CommentForm {...formProps} />
+        <CommentForm
+          content={compose.content}
+          isSubmitting={compose.isSubmitting}
+          isLoggedIn={isLoggedIn}
+          onContentChange={compose.setContent}
+          onSubmit={compose.submit}
+        />
+        <CommentList
+          comments={comments}
+          isLoading={isLoading}
+          currentUserId={session?.user?.id}
+          isAdmin={isAdmin}
+          isLoggedIn={isLoggedIn}
+          onDelete={handleDelete}
+          onEdit={handleEdit}
+          onLike={handleLike}
+          onReply={handleReply}
+        />
+        <CommentPagination
+          page={page}
+          totalPages={totalPages}
+          onPageChange={setPage}
+        />
+      </div>
     </section>
   );
 }

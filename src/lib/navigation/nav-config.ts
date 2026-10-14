@@ -1,5 +1,12 @@
 /** 헤더·푸터 네비게이션 메뉴 설정 */
 
+import {
+  BOARD_CATEGORY_LABEL,
+  BOARD_SLUG_BY_CATEGORY,
+  USER_WRITE_CATEGORIES,
+} from "@/src/lib/community/board-config";
+import { boardPath } from "@/src/lib/navigation/routes";
+
 export interface NavLinkItem {
   href: string;
   label: string;
@@ -10,12 +17,10 @@ export const ALBUM_REVIEW_LINK: NavLinkItem = {
   label: "앨범 리뷰",
 };
 
-export const BOARD_LINKS: NavLinkItem[] = [
-  { href: "/boards/domestic", label: "국내게시판" },
-  { href: "/boards/overseas", label: "해외게시판" },
-  { href: "/boards/market", label: "장터게시판" },
-  { href: "/boards/workroom", label: "워크룸" },
-];
+export const BOARD_LINKS: NavLinkItem[] = USER_WRITE_CATEGORIES.map((category) => ({
+  href: boardPath(BOARD_SLUG_BY_CATEGORY[category]),
+  label: BOARD_CATEGORY_LABEL[category],
+}));
 
 export const NAV_LINKS: NavLinkItem[] = [ALBUM_REVIEW_LINK, ...BOARD_LINKS];
 

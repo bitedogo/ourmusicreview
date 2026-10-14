@@ -7,16 +7,13 @@ import { useEffect, useState } from "react";
 import { HtmlRenderer } from "@/src/components/common/HtmlRenderer";
 import { InteractionButtons } from "@/src/components/interaction/InteractionButtons";
 import { CommentSection } from "@/src/components/interaction/CommentSection";
+import { deleteCommunityPost, incrementPostView } from "@/src/lib/community/client-api";
 import {
-  deleteCommunityPost,
-  incrementPostView,
-} from "@/src/lib/community/client-api";
+  boardSlugFromCategory,
+  isPostCategory,
+} from "@/src/lib/community/board-config";
 import { getApiErrorMessage } from "@/src/lib/http/client";
-import {
-  boardPath,
-  communityEdit,
-  type BoardSlug,
-} from "@/src/lib/navigation/routes";
+import { boardPath, communityEdit } from "@/src/lib/navigation/routes";
 import { PostAuthorRow } from "./post-author-row";
 
 interface PostContentClientProps {
@@ -83,21 +80,14 @@ export function PostContentClient({
   const handleDelete = async () => {
     if (!confirm("정말로 이 게시글을 삭제하시겠습니까?")) return;
 
-    const categoryPath: BoardSlug =
-      (
-        {
-          K: "domestic",
-          I: "overseas",
-          M: "market",
-          W: "workroom",
-          N: "notice",
-        } satisfies Record<string, BoardSlug>
-      )[category as "K" | "I" | "M" | "W" | "N"] || "domestic";
+    const slug = isPostCategory(category)
+      ? boardSlugFromCategory(category)
+      : "domestic";
 
     try {
       await deleteCommunityPost(postId);
       alert("게시글이 삭제되었습니다.");
-      router.push(boardPath(categoryPath));
+      router.push(boardPath(slug));
       router.refresh();
     } catch (error) {
       alert(getApiErrorMessage(error, "삭제에 실패했습니다."));
@@ -141,11 +131,10 @@ export function PostContentClient({
           postId={postId}
           isNotice={isNotice}
           authorUserId={userId}
-          variant="circle"
         />
       </div>
 
-      <CommentSection postId={postId} variant="detail" />
+      <CommentSection postId={postId} />
     </div>
   );
 }

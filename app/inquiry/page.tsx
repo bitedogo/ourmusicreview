@@ -9,7 +9,7 @@ import { InquiryPageClient } from "@/src/components/inquiry/inquiry-page-client"
 import { listBoardPosts } from "@/src/lib/community/board-post-service";
 import { initializeDatabase } from "@/src/lib/db";
 import { listFaqs } from "@/src/lib/faq/faq-service";
-import { PAGE_SIZE_BOARD } from "@/app/boards/[board]/board-config";
+import { PAGE_SIZE_BOARD } from "@/src/lib/community/board-config";
 
 export const metadata: Metadata = {
   title: "1:1 문의하기",
