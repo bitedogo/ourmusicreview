@@ -3,7 +3,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { COMMENT_TRACK_CLASS as trackStyle } from "@/src/components/interaction/comment-detail-styles";
 import type { CommentTrackData } from "@/src/components/interaction/comment-types";
 import { StreamingLinkButtons } from "@/src/components/streaming/streaming-link-buttons";
@@ -28,12 +28,6 @@ export function CommentTrackCard({
   const [src, setSrc] = useState(track.previewUrl);
   const [broken, setBroken] = useState(false);
   const triedRefresh = useRef(false);
-
-  useEffect(() => {
-    setSrc(track.previewUrl);
-    setBroken(false);
-    triedRefresh.current = false;
-  }, [track.previewUrl, track.trackId]);
 
   async function handleError() {
     if (triedRefresh.current) {

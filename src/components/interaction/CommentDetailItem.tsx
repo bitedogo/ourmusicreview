@@ -209,6 +209,7 @@ export function CommentDetailItem({
               <div className={styles.contentWrap}>
                 {comment.track ? (
                   <CommentTrackCard
+                    key={`${comment.track.trackId}:${comment.track.previewUrl ?? ""}`}
                     track={comment.track}
                     isPlaying={playingCommentId === comment.id}
                     streamingLinks={streamingLinksByTrackId[comment.track.trackId]}

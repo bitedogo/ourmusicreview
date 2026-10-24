@@ -73,16 +73,10 @@ export default async function PublicPlaylistDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  let initial: Awaited<ReturnType<typeof getInitialPlaylist>>;
 
   try {
-    const initial = await getInitialPlaylist(id);
-    return (
-      <PublicPlaylistDetailClient
-        playlistId={id}
-        initialPlaylist={initial.playlist}
-        initialComments={initial.comments}
-      />
-    );
+    initial = await getInitialPlaylist(id);
   } catch (error) {
     if (
       error instanceof ServiceError &&
@@ -92,4 +86,12 @@ export default async function PublicPlaylistDetailPage({
     }
     throw error;
   }
+
+  return (
+    <PublicPlaylistDetailClient
+      playlistId={id}
+      initialPlaylist={initial.playlist}
+      initialComments={initial.comments}
+    />
+  );
 }

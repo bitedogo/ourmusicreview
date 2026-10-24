@@ -25,10 +25,17 @@ export function CommentTrackField({
   const [results, setResults] = useState<CommentTrackData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [throttled, setThrottled] = useState(false);
+  const query = term.trim();
+  const queryReady = query.length >= ARTIST_SEARCH_MIN_CHARS;
 
-  useEffect(() => {
-    if (disabled) setOpen(false);
-  }, [disabled]);
+  if (disabled && open) {
+    setOpen(false);
+  }
+  if (!queryReady && (results.length > 0 || throttled || isLoading)) {
+    setResults([]);
+    setThrottled(false);
+    setIsLoading(false);
+  }
 
   useEffect(() => {
     if (!open) return;
@@ -44,14 +51,7 @@ export function CommentTrackField({
   }, [open]);
 
   useEffect(() => {
-    if (!open) return;
-    const query = term.trim();
-    if (query.length < ARTIST_SEARCH_MIN_CHARS) {
-      setResults([]);
-      setThrottled(false);
-      setIsLoading(false);
-      return;
-    }
+    if (!open || query.length < ARTIST_SEARCH_MIN_CHARS) return;
 
     let cancelled = false;
     const timer = window.setTimeout(() => {
@@ -77,7 +77,7 @@ export function CommentTrackField({
       cancelled = true;
       window.clearTimeout(timer);
     };
-  }, [open, term]);
+  }, [open, query]);
 
   function selectTrack(next: CommentTrackData) {
     onChange(next);
@@ -85,8 +85,6 @@ export function CommentTrackField({
     setTerm("");
     setResults([]);
   }
-
-  const queryReady = term.trim().length >= ARTIST_SEARCH_MIN_CHARS;
 
   return (
     <div ref={rootRef} className={trackStyle.field}>

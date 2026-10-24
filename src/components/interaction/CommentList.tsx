@@ -70,14 +70,10 @@ export function CommentList({
   const trackIdsKey = collectTrackIds(comments).join(",");
 
   useEffect(() => {
-    let cancelled = false;
-    const trackIds = trackIdsKey ? trackIdsKey.split(",") : [];
-    if (trackIds.length === 0) {
-      setStreamingLinksByTrackId({});
-      return;
-    }
+    if (!trackIdsKey) return;
 
-    void fetchStreamingLinks(trackIds)
+    let cancelled = false;
+    void fetchStreamingLinks(trackIdsKey.split(","))
       .then((links) => {
         if (!cancelled) setStreamingLinksByTrackId(links);
       })
@@ -89,6 +85,8 @@ export function CommentList({
       cancelled = true;
     };
   }, [trackIdsKey]);
+
+  const visibleStreamingLinks = trackIdsKey ? streamingLinksByTrackId : {};
 
   if (isLoading) {
     return (
@@ -116,7 +114,7 @@ export function CommentList({
           isAdmin={isAdmin}
           isLoggedIn={isLoggedIn}
           playingCommentId={playingCommentId}
-          streamingLinksByTrackId={streamingLinksByTrackId}
+          streamingLinksByTrackId={visibleStreamingLinks}
           onTogglePlay={(commentId) =>
             setPlayingCommentId((previous) =>
               previous === commentId ? null : commentId
