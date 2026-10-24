@@ -36,6 +36,27 @@ export class Comment {
   @Column({ name: "parent_id", type: "varchar", length: 50, nullable: true })
   parentId?: string | null;
 
+  @Column({ name: "track_id", type: "varchar", length: 255, nullable: true })
+  trackId!: string | null;
+
+  @Column({ name: "track_name", type: "varchar", length: 500, nullable: true })
+  trackName!: string | null;
+
+  @Column({ name: "artist_name", type: "varchar", length: 255, nullable: true })
+  artistName!: string | null;
+
+  @Column({ name: "collection_id", type: "varchar", length: 255, nullable: true })
+  collectionId!: string | null;
+
+  @Column({ name: "collection_name", type: "varchar", length: 500, nullable: true })
+  collectionName!: string | null;
+
+  @Column({ name: "artwork_url", type: "varchar", length: 1000, nullable: true })
+  artworkUrl!: string | null;
+
+  @Column({ name: "preview_url", type: "varchar", length: 1000, nullable: true })
+  previewUrl!: string | null;
+
   @CreateDateColumn({ name: "created_at", type: "timestamp" })
   createdAt!: Date;
 

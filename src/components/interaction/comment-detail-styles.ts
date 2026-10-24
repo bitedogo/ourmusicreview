@@ -100,3 +100,34 @@ export const COMMENT_DETAIL_CLASS = {
   reportButton:
     "inline-flex h-[15px] min-h-[15px] w-[15.6px] shrink-0 items-center justify-center overflow-visible p-0 transition hover:opacity-70",
 } as const;
+
+export const COMMENT_TRACK_CLASS = {
+  field: "relative mt-2",
+  row: "flex min-w-0 items-center gap-2",
+  toggle:
+    "inline-flex h-[18px] shrink-0 items-center rounded-[5px] border border-[#D9D9D9] bg-white px-2 text-[10px] font-normal leading-[13px] text-[#505050] transition hover:border-[#505050] disabled:cursor-not-allowed disabled:opacity-40 sm:h-[30px] sm:px-3 sm:text-[14px] sm:leading-[200%]",
+  panel:
+    "absolute left-0 right-0 top-full z-30 mt-1 max-h-64 overflow-y-auto rounded-[10px] border border-[#D9D9D9] bg-white shadow-[0px_2px_4px_rgba(0,0,0,0.12)]",
+  search:
+    "w-full border-b border-[#D9D9D9] bg-transparent px-3 py-2 text-[12px] text-[#505050] outline-none placeholder:text-[#D9D9D9] sm:text-[14px]",
+  status: "px-3 py-3 text-[12px] text-[#C4C4C4]",
+  option: "flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-zinc-50",
+  optionTitle: "truncate text-[12px] font-medium text-[#505050] sm:text-[14px]",
+  optionMeta: "truncate text-[11px] text-[#C4C4C4] sm:text-[12px]",
+  inline: "flex min-w-0 items-center gap-2 sm:pr-[127px]",
+  cover:
+    "relative size-5 shrink-0 overflow-hidden rounded-[4px] bg-[#F3F3F3] sm:size-[22px]",
+  inlineTitle:
+    "min-w-0 flex-1 truncate text-[12px] font-normal leading-[200%] text-[#505050] sm:text-[14px]",
+  inlineArtist: "text-[#C4C4C4]",
+  inlineActions: "flex shrink-0 items-center gap-1",
+  chip: "flex min-w-0 flex-1 items-center gap-2",
+  title: "truncate text-[12px] font-medium leading-[15px] text-[#505050]",
+  meta: "truncate text-[11px] leading-[14px] text-[#C4C4C4]",
+  remove:
+    "shrink-0 text-[10px] font-normal leading-[12px] text-[#C4C4C4] transition hover:text-[#505050] sm:text-[12px]",
+  play:
+    "inline-flex shrink-0 items-center rounded-full border border-[#D9D9D9] px-2 py-0.5 text-[10px] leading-[14px] text-[#505050] transition hover:border-[#505050]",
+  broken: "text-[10px] leading-[14px] text-[#C4C4C4]",
+  actions: "mt-1 flex flex-wrap items-center gap-1.5",
+} as const;

@@ -2,9 +2,11 @@
 
 import type { Metadata } from "next";
 import { cache } from "react";
+import { notFound } from "next/navigation";
 import { getAppSession } from "@/src/lib/auth/session";
 import { listComments } from "@/src/lib/comments/comment-service";
 import { withDatabaseRead } from "@/src/lib/db";
+import { ServiceError } from "@/src/lib/http/service-error";
 import type { PlaylistDetailDto } from "@/src/lib/playlists/client-api";
 import { getPlaylistDetail } from "@/src/lib/playlists/playlist-service";
 import type { CommentPageData } from "@/src/components/interaction/CommentSection";
@@ -13,15 +15,14 @@ import { PublicPlaylistDetailClient } from "./public-playlist-detail-client";
 const getInitialPlaylist = cache(async (id: string) => {
   const session = await getAppSession();
   return withDatabaseRead(async (dataSource) => {
-    const [playlist, comments] = await Promise.all([
-      getPlaylistDetail(dataSource, id, session?.user?.id ?? null),
-      listComments(dataSource, {
-        playlistId: id,
-        viewerUserId: session?.user?.id ?? null,
-        page: 1,
-        pageSize: 10,
-      }),
-    ]);
+    const viewerId = session?.user?.id ?? null;
+    const playlist = await getPlaylistDetail(dataSource, id, viewerId);
+    const comments = await listComments(dataSource, {
+      playlistId: id,
+      viewerUserId: viewerId,
+      page: 1,
+      pageSize: 10,
+    });
     return JSON.parse(JSON.stringify({ playlist, comments })) as {
       playlist: PlaylistDetailDto;
       comments: CommentPageData;
@@ -72,13 +73,23 @@ export default async function PublicPlaylistDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const initial = await getInitialPlaylist(id);
 
-  return (
-    <PublicPlaylistDetailClient
-      playlistId={id}
-      initialPlaylist={initial.playlist}
-      initialComments={initial.comments}
-    />
-  );
+  try {
+    const initial = await getInitialPlaylist(id);
+    return (
+      <PublicPlaylistDetailClient
+        playlistId={id}
+        initialPlaylist={initial.playlist}
+        initialComments={initial.comments}
+      />
+    );
+  } catch (error) {
+    if (
+      error instanceof ServiceError &&
+      (error.status === 403 || error.status === 404)
+    ) {
+      notFound();
+    }
+    throw error;
+  }
 }

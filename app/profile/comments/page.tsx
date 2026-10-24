@@ -67,7 +67,7 @@ export default async function MyCommentsPage() {
               </div>
 
               <p className="line-clamp-2 text-sm text-[var(--color-text-primary)]">
-                {comment.content}
+                {comment.content.trim() || comment.trackName || ""}
               </p>
 
               <div className="mt-2 text-xs text-[var(--color-text-secondary)]">

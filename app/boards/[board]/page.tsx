@@ -72,6 +72,14 @@ export default async function BoardPage(props: {
   }
 
   const isFeed = config.listLayout === "feed";
+  const searchControls =
+    config.category !== "N" ? (
+      <BoardSearchControls
+        board={board}
+        initialSearchField={searchField}
+        initialQuery={searchQuery}
+      />
+    ) : null;
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-4xl flex-col gap-6 px-4 py-10 sm:px-10">
@@ -80,6 +88,7 @@ export default async function BoardPage(props: {
         descriptionHtml={config.description}
         canWrite={showWriteButton && !isFeed}
         writeHref={writeHref}
+        actions={isFeed ? searchControls : null}
       />
 
       <section>
@@ -109,14 +118,8 @@ export default async function BoardPage(props: {
           />
         )}
         <div className="mt-4">
-          {config.category !== "N" && (
-            <div className="mb-3 flex justify-start">
-              <BoardSearchControls
-                board={board}
-                initialSearchField={searchField}
-                initialQuery={searchQuery}
-              />
-            </div>
+          {isFeed || !searchControls ? null : (
+            <div className="mb-3 flex justify-start">{searchControls}</div>
           )}
           {!list.isEmpty && list.totalPages > 1 && (
             <div className="flex justify-center">

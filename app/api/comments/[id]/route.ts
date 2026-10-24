@@ -17,14 +17,15 @@ export async function PATCH(
     const { session, response } = await requireWritableSessionApi();
     if (response) return response;
 
-    const body = (await request.json()) as { content?: string };
+    const body = (await request.json()) as { content?: string; trackId?: unknown };
     const { id } = await params;
     const result = await withDatabase((dataSource) =>
       updateComment(
         dataSource,
         id,
         { userId: session.user.id, isAdmin: isAdmin(session) },
-        typeof body.content === "string" ? body.content : ""
+        typeof body.content === "string" ? body.content : "",
+        "trackId" in body ? body.trackId : undefined
       )
     );
 

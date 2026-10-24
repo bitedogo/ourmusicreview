@@ -31,6 +31,8 @@ interface CommentSectionProps {
   reviewId?: string;
   playlistId?: string;
   initialData?: CommentPageData;
+  initialTotalCount?: number;
+  onTotalCountChange?: (count: number) => void;
 }
 
 export interface CommentPageData {
@@ -77,13 +79,17 @@ export function CommentSection({
   reviewId,
   playlistId,
   initialData,
+  initialTotalCount,
+  onTotalCountChange,
 }: CommentSectionProps) {
   const { data: session } = useSession();
   const router = useRouter();
   const [comments, setComments] = useState<CommentItemData[]>(
     initialData?.comments ?? []
   );
-  const [totalCount, setTotalCount] = useState(initialData?.totalCount ?? 0);
+  const [totalCount, setTotalCount] = useState(
+    initialData?.totalCount ?? initialTotalCount ?? 0
+  );
   const [isLoading, setIsLoading] = useState(false);
   const [page, setPage] = useState(initialData?.page ?? 1);
   const [totalPages, setTotalPages] = useState(initialData?.totalPages ?? 1);
@@ -151,14 +157,19 @@ export function CommentSection({
     }
   };
 
-  const handleEdit = async (commentId: string, nextContent: string) => {
+  const handleEdit = async (
+    commentId: string,
+    nextContent: string,
+    trackId: string | null
+  ) => {
     try {
-      const data = await editCommentApi(commentId, nextContent);
+      const data = await editCommentApi(commentId, nextContent, trackId);
       setComments((prev) =>
         updateCommentContentInTree(
           prev,
           commentId,
-          data.data.content ?? nextContent
+          data.data.content ?? nextContent,
+          data.data.track ?? null
         )
       );
       return true;
@@ -189,14 +200,18 @@ export function CommentSection({
     }
   };
 
-  const handleReply = async (parentId: string, content: string) => {
+  const handleReply = async (
+    parentId: string,
+    content: string,
+    trackId: string | null
+  ) => {
     if (!session) {
       requireLogin();
       return false;
     }
 
     try {
-      await createCommentApi(content, postId, reviewId, parentId, playlistId);
+      await createCommentApi(content, postId, reviewId, parentId, playlistId, trackId);
       await fetchComments();
       return true;
     } catch (error) {
@@ -206,6 +221,10 @@ export function CommentSection({
   };
 
   const commentCountLabel = totalCount || comments.length;
+
+  useEffect(() => {
+    onTotalCountChange?.(commentCountLabel);
+  }, [commentCountLabel, onTotalCountChange]);
 
   return (
     <section id="comments" className={styles.section}>
@@ -219,7 +238,9 @@ export function CommentSection({
           content={compose.content}
           isSubmitting={compose.isSubmitting}
           isLoggedIn={isLoggedIn}
+          track={compose.track}
           onContentChange={compose.setContent}
+          onTrackChange={compose.setTrack}
           onSubmit={compose.submit}
         />
         <CommentList

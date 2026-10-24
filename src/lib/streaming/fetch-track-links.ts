@@ -84,6 +84,7 @@ async function fetchTrackStreamingLinks(trackId: string): Promise<AlbumStreaming
   }
 
   if (odesli.spotify) links.spotify = odesli.spotify;
+  if (odesli.youtubeMusic) links.youtubeMusic = odesli.youtubeMusic;
   if (odesli.deezer) links.deezer = odesli.deezer;
 
   return links;
@@ -92,7 +93,7 @@ async function fetchTrackStreamingLinks(trackId: string): Promise<AlbumStreaming
 function getCachedTrackStreamingLinks(trackId: string) {
   return unstable_cache(
     async () => fetchTrackStreamingLinks(trackId),
-    [`track-streaming-links-v2-${trackId}`],
+    [`track-streaming-links-v3-${trackId}`],
     { revalidate: 60 * 60 * 24 * 30 }
   )();
 }

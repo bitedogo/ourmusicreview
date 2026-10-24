@@ -13,6 +13,7 @@ import {
   type GenreDto,
 } from "@/src/lib/genres/genre-service";
 import { ServiceError } from "@/src/lib/http/service-error";
+import { assertPlaylistVisibleToViewer } from "@/src/lib/playlists/playlist-access";
 
 export type PlaylistGenreDto = GenreDto;
 export type PlaylistRepositoryProvider = DataSource | EntityManager;
@@ -371,9 +372,7 @@ export async function getPlaylistDetail(
   if (!playlist) {
     throw new ServiceError("플레이리스트를 찾을 수 없습니다.", 404);
   }
-  if (viewerId !== playlist.userId && playlist.isPublic !== "Y") {
-    throw new ServiceError("비공개 플레이리스트입니다.", 403);
-  }
+  assertPlaylistVisibleToViewer(playlist, viewerId);
 
   const [tracks, genresMap, engagement, owner] = await Promise.all([
     dataSource.getRepository(PlaylistTrack).find({

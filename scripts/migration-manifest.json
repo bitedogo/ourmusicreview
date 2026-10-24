@@ -21,6 +21,7 @@
     "add-weekly-release-albums.sql",
     "add-weekly-release-mbid.sql",
     "add-weekly-release-source.sql",
-    "add-album-release-type.sql"
+    "add-album-release-type.sql",
+    "add-comment-track.sql"
   ]
 }

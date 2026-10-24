@@ -3,12 +3,15 @@
 
 import { CommentDetailComposeBox } from "@/src/components/interaction/comment-detail-compose-box";
 import { COMMENT_DETAIL_FORM_CLASS as form } from "@/src/components/interaction/comment-detail-styles";
+import type { CommentTrackData } from "@/src/components/interaction/comment-types";
 
 interface CommentFormProps {
   content: string;
   isSubmitting: boolean;
   isLoggedIn: boolean;
+  track: CommentTrackData | null;
   onContentChange: (value: string) => void;
+  onTrackChange: (track: CommentTrackData | null) => void;
   onSubmit: (e: React.FormEvent) => void;
 }
 
@@ -16,7 +19,9 @@ export function CommentForm({
   content,
   isSubmitting,
   isLoggedIn,
+  track,
   onContentChange,
+  onTrackChange,
   onSubmit,
 }: CommentFormProps) {
   if (!isLoggedIn) {
@@ -39,7 +44,9 @@ export function CommentForm({
         content={content}
         isSubmitting={isSubmitting}
         placeholder="댓글을 남겨보세요..."
+        track={track}
         onContentChange={onContentChange}
+        onTrackChange={onTrackChange}
       />
     </form>
   );
