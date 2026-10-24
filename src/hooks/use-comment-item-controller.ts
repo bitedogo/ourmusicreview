@@ -2,6 +2,7 @@
 
 import { type FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
+import type { CommentTrackData } from "@/src/components/interaction/comment-types";
 import { useCommentEdit } from "@/src/hooks/use-comment-edit";
 import { ensureLoggedIn } from "@/src/lib/interaction/require-login";
 import {
@@ -12,19 +13,29 @@ import {
 interface UseCommentItemControllerOptions {
   commentId: string;
   initialContent: string;
+  initialTrack: CommentTrackData | null;
   authorId: string;
   depth: number;
   currentUserId?: string;
   isAdmin?: boolean;
   isLoggedIn: boolean;
-  onEdit: (commentId: string, content: string) => Promise<boolean>;
+  onEdit: (
+    commentId: string,
+    content: string,
+    trackId: string | null
+  ) => Promise<boolean>;
   onLike: (commentId: string) => void;
-  onReply: (parentId: string, content: string) => Promise<boolean>;
+  onReply: (
+    parentId: string,
+    content: string,
+    trackId: string | null
+  ) => Promise<boolean>;
 }
 
 export function useCommentItemController({
   commentId,
   initialContent,
+  initialTrack,
   authorId,
   depth,
   currentUserId,
@@ -37,8 +48,9 @@ export function useCommentItemController({
   const router = useRouter();
   const [isReplying, setIsReplying] = useState(false);
   const [replyContent, setReplyContent] = useState("");
+  const [replyTrack, setReplyTrack] = useState<CommentTrackData | null>(null);
   const [isReplySubmitting, setIsReplySubmitting] = useState(false);
-  const edit = useCommentEdit({ initialContent, commentId, onEdit });
+  const edit = useCommentEdit({ initialContent, initialTrack, commentId, onEdit });
 
   const isOwner = currentUserId === authorId;
   const canDelete = isOwner || Boolean(isAdmin);
@@ -57,13 +69,20 @@ export function useCommentItemController({
 
   async function handleReplySubmit(event: FormEvent) {
     event.preventDefault();
-    if (!replyContent.trim() || isReplySubmitting) return;
+    const hasText = Boolean(replyContent.trim());
+    const hasTrack = Boolean(replyTrack);
+    if (isReplySubmitting || hasText === hasTrack) return;
 
     setIsReplySubmitting(true);
     try {
-      const ok = await onReply(commentId, replyContent);
+      const ok = await onReply(
+        commentId,
+        hasTrack ? "" : replyContent,
+        hasTrack ? replyTrack?.trackId ?? null : null
+      );
       if (ok) {
         setReplyContent("");
+        setReplyTrack(null);
         setIsReplying(false);
       }
     } finally {
@@ -79,8 +98,10 @@ export function useCommentItemController({
     canReply,
     isReplying,
     replyContent,
+    replyTrack,
     isReplySubmitting,
     setReplyContent,
+    setReplyTrack,
     handleLikeClick,
     handleReplyClick,
     handleReplySubmit,

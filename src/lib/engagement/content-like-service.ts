@@ -7,6 +7,7 @@ import { Like } from "@/src/lib/db/entities/Like";
 import { ServiceError } from "@/src/lib/http/service-error";
 import { notifyContentLiked } from "@/src/lib/notifications/activity-notifications";
 import { isUniqueViolation } from "@/src/lib/db/pg-error";
+import { assertPlaylistReadable } from "@/src/lib/playlists/playlist-access";
 
 export type ContentLikeTarget = {
   postId: string | null;
@@ -51,6 +52,10 @@ export async function toggleContentLike(
   userId: string,
   target: ContentLikeTarget
 ) {
+  if (target.playlistId) {
+    await assertPlaylistReadable(dataSource, target.playlistId, userId);
+  }
+
   const likeRepository = dataSource.getRepository(Like);
   const existingLike = await likeRepository.findOne({
     where: buildLikeWhere(target, userId),
@@ -87,6 +92,14 @@ export async function getContentLikeStatus(
   target: ContentLikeTarget,
   viewerUserId?: string | null
 ) {
+  if (target.playlistId) {
+    await assertPlaylistReadable(
+      dataSource,
+      target.playlistId,
+      viewerUserId
+    );
+  }
+
   const likeRepository = dataSource.getRepository(Like);
   const count = await likeRepository.count({ where: buildLikeWhere(target) });
 

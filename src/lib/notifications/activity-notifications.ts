@@ -14,8 +14,15 @@ import {
 } from "@/src/lib/notifications/content-owner";
 import { notifyUnlessSelf } from "@/src/lib/notifications/notification-service";
 
-function commentPreview(actorName: string, content: string): string {
-  return `${actorName}: ${content.slice(0, 80)}`;
+function commentPreview(
+  actorName: string,
+  content: string,
+  trackName?: string | null
+): string {
+  const text = content.trim();
+  const song = trackName?.trim() ?? "";
+  const message = text && song ? `${text} · ${song}` : text || song;
+  return `${actorName}: ${message.slice(0, 80)}`;
 }
 
 export async function notifyContentLiked(
@@ -92,10 +99,11 @@ export async function notifyCommentCreated(
     reviewId?: string | null;
     playlistId?: string | null;
   },
-  content: string
+  content: string,
+  trackName?: string | null
 ) {
   const link = contentTargetLink(comment);
-  const preview = commentPreview(actorName, content);
+  const preview = commentPreview(actorName, content, trackName);
 
   if (comment.parentId) {
     const parentUserId = await findCommentAuthorUserId(

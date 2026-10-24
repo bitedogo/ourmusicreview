@@ -22,15 +22,21 @@ export function updateCommentLikeInTree(
 export function updateCommentContentInTree(
   comments: CommentItemData[],
   commentId: string,
-  content: string
+  content: string,
+  track: CommentItemData["track"]
 ): CommentItemData[] {
   return comments.map((comment) => {
     if (comment.id === commentId) {
-      return { ...comment, content };
+      return { ...comment, content, track };
     }
     return {
       ...comment,
-      replies: updateCommentContentInTree(comment.replies, commentId, content),
+      replies: updateCommentContentInTree(
+        comment.replies,
+        commentId,
+        content,
+        track
+      ),
     };
   });
 }

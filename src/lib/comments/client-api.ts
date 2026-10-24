@@ -1,6 +1,9 @@
 /** 댓글 API 클라이언트 */
 
-import type { CommentItemData } from "@/src/components/interaction/comment-types";
+import type {
+  CommentItemData,
+  CommentTrackData,
+} from "@/src/components/interaction/comment-types";
 import { fetchJson } from "@/src/lib/http/client";
 
 export {
@@ -48,14 +51,22 @@ export async function createCommentApi(
   postId?: string,
   reviewId?: string,
   parentId?: string,
-  playlistId?: string
+  playlistId?: string,
+  trackId?: string | null
 ) {
   return fetchJson<{ ok: true; data: { comment?: { id: string }; id?: string } }>(
     "/api/comments",
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ content, postId, reviewId, playlistId, parentId }),
+      body: JSON.stringify({
+        content,
+        postId,
+        reviewId,
+        playlistId,
+        parentId,
+        trackId: trackId ?? null,
+      }),
     }
   );
 }
@@ -78,13 +89,32 @@ export async function deleteCommentApi(commentId: string) {
   );
 }
 
-export async function editCommentApi(commentId: string, content: string) {
-  return fetchJson<{ ok: true; data: { id?: string; content?: string } }>(
-    `/api/comments/${encodeURIComponent(commentId)}`,
-    {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ content }),
-    }
-  );
+export async function editCommentApi(
+  commentId: string,
+  content: string,
+  trackId: string | null
+) {
+  return fetchJson<{
+    ok: true;
+    data: { id?: string; content?: string; track?: CommentItemData["track"] };
+  }>(`/api/comments/${encodeURIComponent(commentId)}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ content, trackId }),
+  });
+}
+
+export async function searchCommentTracksApi(term: string) {
+  const search = new URLSearchParams({ term });
+  return fetchJson<{
+    ok: true;
+    data: { tracks: CommentTrackData[]; throttled: boolean };
+  }>(`/api/itunes/songs?${search}`);
+}
+
+export async function fetchCommentTrackApi(trackId: string) {
+  return fetchJson<{
+    ok: true;
+    data: { track: CommentTrackData | null };
+  }>(`/api/itunes/songs/${encodeURIComponent(trackId)}`);
 }

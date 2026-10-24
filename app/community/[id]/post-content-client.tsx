@@ -57,10 +57,15 @@ export function PostContentClient({
   const router = useRouter();
   const { data: session } = useSession();
   const [displayedViews, setDisplayedViews] = useState(initialViews);
+  const [commentCount, setCommentCount] = useState(initialCommentCount);
 
   useEffect(() => {
     setDisplayedViews(initialViews);
   }, [initialViews]);
+
+  useEffect(() => {
+    setCommentCount(initialCommentCount);
+  }, [initialCommentCount]);
 
   useEffect(() => {
     const storageKey = `post-${postId}-view-incremented`;
@@ -102,7 +107,7 @@ export function PostContentClient({
         profileImage={postAuthorProfileImage}
         timeAgo={getTimeAgo(new Date(postCreatedAt))}
         views={displayedViews}
-        commentCount={initialCommentCount}
+        commentCount={commentCount}
       />
 
       <section className="text-[15px] leading-relaxed text-[var(--color-text-primary)]">
@@ -134,7 +139,12 @@ export function PostContentClient({
         />
       </div>
 
-      <CommentSection postId={postId} />
+      <CommentSection
+        key={postId}
+        postId={postId}
+        initialTotalCount={initialCommentCount}
+        onTotalCountChange={setCommentCount}
+      />
     </div>
   );
 }

@@ -1,5 +1,6 @@
 /** 댓글 목록 직렬화·트리 구성 */
 
+import type { CommentTrackData } from "@/src/components/interaction/comment-types";
 import type { Comment } from "@/src/lib/db/entities/Comment";
 
 export interface SerializedComment {
@@ -7,6 +8,7 @@ export interface SerializedComment {
   content: string;
   createdAt: Date;
   parentId: string | null;
+  track: CommentTrackData | null;
   user: {
     id: string;
     nickname: string;
@@ -16,6 +18,20 @@ export interface SerializedComment {
   liked: boolean;
   replyCount: number;
   replies: SerializedComment[];
+}
+
+export function commentTrackFromRow(comment: Comment): CommentTrackData | null {
+  if (!comment.trackId || !comment.trackName || !comment.artistName) return null;
+
+  return {
+    trackId: comment.trackId,
+    trackName: comment.trackName,
+    artistName: comment.artistName,
+    collectionId: comment.collectionId ?? null,
+    collectionName: comment.collectionName ?? null,
+    artworkUrl: comment.artworkUrl ?? null,
+    previewUrl: comment.previewUrl ?? null,
+  };
 }
 
 export function buildCommentTree(
@@ -31,6 +47,7 @@ export function buildCommentTree(
       content: comment.content,
       createdAt: comment.createdAt,
       parentId: comment.parentId ?? null,
+      track: commentTrackFromRow(comment),
       user: {
         id: comment.user.id,
         nickname: comment.user.nickname,

@@ -1,9 +1,12 @@
 "use client";
 /** 댓글 목록 */
 
+import { useEffect, useState } from "react";
 import { CommentDetailItem } from "@/src/components/interaction/CommentDetailItem";
 import { COMMENT_DETAIL_CLASS as styles } from "@/src/components/interaction/comment-detail-styles";
 import type { CommentItemData } from "@/src/components/interaction/comment-types";
+import { fetchJson } from "@/src/lib/http/client";
+import type { AlbumStreamingLinks, BatchStreamingLinksResponse } from "@/src/lib/streaming/types";
 
 interface CommentListProps {
   comments: CommentItemData[];
@@ -12,9 +15,41 @@ interface CommentListProps {
   isAdmin?: boolean;
   isLoggedIn: boolean;
   onDelete: (commentId: string) => void;
-  onEdit: (commentId: string, content: string) => Promise<boolean>;
+  onEdit: (
+    commentId: string,
+    content: string,
+    trackId: string | null
+  ) => Promise<boolean>;
   onLike: (commentId: string) => void;
-  onReply: (parentId: string, content: string) => Promise<boolean>;
+  onReply: (
+    parentId: string,
+    content: string,
+    trackId: string | null
+  ) => Promise<boolean>;
+}
+
+function collectTrackIds(comments: CommentItemData[]): string[] {
+  const ids: string[] = [];
+  const walk = (items: CommentItemData[]) => {
+    for (const item of items) {
+      if (item.track?.trackId) ids.push(item.track.trackId);
+      walk(item.replies);
+    }
+  };
+  walk(comments);
+  return [...new Set(ids)];
+}
+
+async function fetchStreamingLinks(trackIds: string[]) {
+  const links: Record<string, AlbumStreamingLinks> = {};
+  for (let index = 0; index < trackIds.length; index += 50) {
+    const slice = trackIds.slice(index, index + 50);
+    const response = await fetchJson<BatchStreamingLinksResponse>(
+      `/api/tracks/streaming-links?ids=${encodeURIComponent(slice.join(","))}`
+    );
+    Object.assign(links, response.data.links ?? {});
+  }
+  return links;
 }
 
 export function CommentList({
@@ -28,6 +63,31 @@ export function CommentList({
   onLike,
   onReply,
 }: CommentListProps) {
+  const [playingCommentId, setPlayingCommentId] = useState<string | null>(null);
+  const [streamingLinksByTrackId, setStreamingLinksByTrackId] = useState<
+    Record<string, AlbumStreamingLinks>
+  >({});
+  const trackIdsKey = collectTrackIds(comments).join(",");
+
+  useEffect(() => {
+    if (!trackIdsKey) return;
+
+    let cancelled = false;
+    void fetchStreamingLinks(trackIdsKey.split(","))
+      .then((links) => {
+        if (!cancelled) setStreamingLinksByTrackId(links);
+      })
+      .catch(() => {
+        if (!cancelled) setStreamingLinksByTrackId({});
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [trackIdsKey]);
+
+  const visibleStreamingLinks = trackIdsKey ? streamingLinksByTrackId : {};
+
   if (isLoading) {
     return (
       <div className={styles.listOffset}>
@@ -53,6 +113,18 @@ export function CommentList({
           currentUserId={currentUserId}
           isAdmin={isAdmin}
           isLoggedIn={isLoggedIn}
+          playingCommentId={playingCommentId}
+          streamingLinksByTrackId={visibleStreamingLinks}
+          onTogglePlay={(commentId) =>
+            setPlayingCommentId((previous) =>
+              previous === commentId ? null : commentId
+            )
+          }
+          onStopPlay={(commentId) =>
+            setPlayingCommentId((previous) =>
+              previous === commentId ? null : previous
+            )
+          }
           onDelete={onDelete}
           onEdit={onEdit}
           onLike={onLike}

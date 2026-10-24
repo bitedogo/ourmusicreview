@@ -3,14 +3,18 @@
 import { randomUUID } from "crypto";
 import type { DataSource, FindOptionsWhere } from "typeorm";
 import { In, IsNull } from "typeorm";
+import type { CommentTrackData } from "@/src/components/interaction/comment-types";
 import {
   buildCommentTree,
+  commentTrackFromRow,
   countAllComments,
 } from "@/src/lib/comments/comment-list-service";
 import { Comment } from "@/src/lib/db/entities/Comment";
 import { Like } from "@/src/lib/db/entities/Like";
 import { User } from "@/src/lib/db/entities/User";
 import { ServiceError } from "@/src/lib/http/service-error";
+import { resolveSongSnapshot } from "@/src/lib/itunes/song-snapshot";
+import { assertPlaylistReadable } from "@/src/lib/playlists/playlist-access";
 import { notifyCommentCreated, notifyCommentLiked } from "@/src/lib/notifications/activity-notifications";
 
 export interface CreateCommentInput {
@@ -19,6 +23,34 @@ export interface CreateCommentInput {
   reviewId?: unknown;
   playlistId?: unknown;
   parentId?: unknown;
+  trackId?: unknown;
+}
+
+function readTrackId(value: unknown): string | null {
+  if (value == null || value === "") return null;
+  if (typeof value !== "string" || !/^\d{1,20}$/.test(value.trim())) {
+    throw new ServiceError("곡 번호가 올바르지 않습니다.", 400);
+  }
+  return value.trim();
+}
+
+async function trackFromId(trackId: string | null): Promise<CommentTrackData | null> {
+  if (!trackId) return null;
+  const track = await resolveSongSnapshot(trackId);
+  if (!track) {
+    throw new ServiceError("추천할 곡을 찾지 못했습니다.", 400);
+  }
+  return track;
+}
+
+function assignCommentTrack(comment: Comment, track: CommentTrackData | null) {
+  comment.trackId = track?.trackId ?? null;
+  comment.trackName = track?.trackName ?? null;
+  comment.artistName = track?.artistName ?? null;
+  comment.collectionId = track?.collectionId ?? null;
+  comment.collectionName = track?.collectionName ?? null;
+  comment.artworkUrl = track?.artworkUrl ?? null;
+  comment.previewUrl = track?.previewUrl ?? null;
 }
 
 export async function createComment(
@@ -32,17 +64,16 @@ export async function createComment(
   const playlistId = body.playlistId;
   const parentId = body.parentId;
 
-  if (!contentRaw || (!postId && !reviewId && !playlistId)) {
+  if (!postId && !reviewId && !playlistId && !parentId) {
     throw new ServiceError("필수 정보가 누락되었습니다.", 400);
   }
 
-  const commentRepository = dataSource.getRepository(Comment);
   let resolvedPostId = postId ? String(postId) : null;
   let resolvedReviewId = reviewId ? String(reviewId) : null;
   let resolvedPlaylistId = playlistId ? String(playlistId) : null;
 
   if (parentId) {
-    const parent = await commentRepository.findOne({
+    const parent = await dataSource.getRepository(Comment).findOne({
       where: { id: String(parentId) },
     });
     if (!parent) {
@@ -56,9 +87,19 @@ export async function createComment(
     resolvedPlaylistId = parent.playlistId ?? null;
   }
 
-  const content = String(contentRaw).trim();
-  if (!content) {
-    throw new ServiceError("댓글 내용을 입력해주세요.", 400);
+  if (resolvedPlaylistId) {
+    await assertPlaylistReadable(dataSource, resolvedPlaylistId, userId);
+  }
+
+  const content = typeof contentRaw === "string" ? contentRaw.trim() : "";
+  const track = await trackFromId(readTrackId(body.trackId));
+  if ((content && track) || (!content && !track)) {
+    throw new ServiceError(
+      content && track
+        ? "글과 곡은 함께 등록할 수 없습니다."
+        : "댓글 내용을 입력하거나 곡을 골라주세요.",
+      400
+    );
   }
 
   const newComment = new Comment();
@@ -69,8 +110,9 @@ export async function createComment(
   newComment.reviewId = resolvedReviewId;
   newComment.playlistId = resolvedPlaylistId;
   newComment.parentId = parentId ? String(parentId) : null;
+  assignCommentTrack(newComment, track);
 
-  await commentRepository.save(newComment);
+  await dataSource.getRepository(Comment).save(newComment);
 
   const user = await dataSource.getRepository(User).findOne({
     where: { id: userId },
@@ -81,7 +123,8 @@ export async function createComment(
     userId,
     user?.nickname ?? "누군가",
     newComment,
-    content
+    content,
+    newComment.trackName
   );
 
   return newComment;
@@ -101,6 +144,10 @@ export async function listComments(
   const { postId, reviewId, playlistId, viewerUserId } = params;
   if (!postId && !reviewId && !playlistId) {
     throw new ServiceError("postId, reviewId 또는 playlistId가 필요합니다.", 400);
+  }
+
+  if (playlistId) {
+    await assertPlaylistReadable(dataSource, String(playlistId), viewerUserId);
   }
 
   const commentRepository = dataSource.getRepository(Comment);
@@ -212,12 +259,10 @@ export async function updateComment(
   dataSource: DataSource,
   commentId: string,
   actor: { userId: string; isAdmin: boolean },
-  content: string
+  content: string,
+  trackId?: unknown
 ) {
   const trimmed = content.trim();
-  if (!trimmed) {
-    throw new ServiceError("댓글 내용을 입력해주세요.", 400);
-  }
 
   const commentRepository = dataSource.getRepository(Comment);
   const comment = await commentRepository.findOne({ where: { id: commentId } });
@@ -229,8 +274,33 @@ export async function updateComment(
   }
 
   comment.content = trimmed;
+  if (trackId !== undefined) {
+    const nextTrackId = readTrackId(trackId);
+    const keepStoredTrack =
+      nextTrackId != null &&
+      nextTrackId === comment.trackId &&
+      comment.trackName != null &&
+      comment.artistName != null;
+    if (!keepStoredTrack) {
+      assignCommentTrack(comment, await trackFromId(nextTrackId));
+    }
+  }
+  const hasText = Boolean(trimmed);
+  const hasTrack = Boolean(comment.trackId);
+  if (hasText === hasTrack) {
+    throw new ServiceError(
+      hasText
+        ? "글과 곡은 함께 등록할 수 없습니다."
+        : "댓글 내용을 입력하거나 곡을 골라주세요.",
+      400
+    );
+  }
   await commentRepository.save(comment);
-  return { id: comment.id, content: comment.content };
+  return {
+    id: comment.id,
+    content: comment.content,
+    track: commentTrackFromRow(comment),
+  };
 }
 
 export async function deleteComment(
@@ -259,8 +329,16 @@ export async function toggleCommentLike(
     throw new ServiceError("commentId가 필요합니다.", 400);
   }
 
-  const likeRepository = dataSource.getRepository(Like);
   const id = String(commentId);
+  const comment = await dataSource.getRepository(Comment).findOne({
+    where: { id },
+    select: ["id", "postId", "reviewId", "playlistId"],
+  });
+  if (comment?.playlistId) {
+    await assertPlaylistReadable(dataSource, comment.playlistId, userId);
+  }
+
+  const likeRepository = dataSource.getRepository(Like);
   const existingLike = await likeRepository.findOne({
     where: { userId, commentId: id },
   });
@@ -281,10 +359,6 @@ export async function toggleCommentLike(
   });
   await likeRepository.save(newLike);
 
-  const comment = await dataSource.getRepository(Comment).findOne({
-    where: { id },
-    select: ["id", "postId", "reviewId", "playlistId"],
-  });
   if (comment) {
     await notifyCommentLiked(dataSource, userId, comment);
   }
@@ -300,6 +374,18 @@ export async function getCommentLikeStatus(
 ) {
   if (!commentId) {
     throw new ServiceError("commentId가 필요합니다.", 400);
+  }
+
+  const comment = await dataSource.getRepository(Comment).findOne({
+    where: { id: commentId },
+    select: ["id", "playlistId"],
+  });
+  if (comment?.playlistId) {
+    await assertPlaylistReadable(
+      dataSource,
+      comment.playlistId,
+      viewerUserId
+    );
   }
 
   const likeRepository = dataSource.getRepository(Like);

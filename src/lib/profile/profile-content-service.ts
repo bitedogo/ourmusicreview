@@ -67,6 +67,7 @@ export async function listMyProfileComments(
     return {
       id: comment.id,
       content: comment.content,
+      trackName: comment.trackName,
       createdAt: comment.createdAt,
       targetType: hasPost ? "BOARD" : hasReview ? "REVIEW" : "UNKNOWN",
       post: hasPost

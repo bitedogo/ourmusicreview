@@ -29,12 +29,6 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   distDir: process.env.NEXT_DIST_DIR?.trim() || ".next",
-  outputFileTracingIncludes: {
-    "/developer": ["./developer/**/*.md"],
-    "/developer/[slug]": ["./developer/**/*.md"],
-    "/designer": ["./designer/**/*.md"],
-    "/designer/[slug]": ["./designer/**/*.md"],
-  },
   images: {
     // Vercel Image Optimization 캐시 — 원본 Storage Egress 감소
     minimumCacheTTL: 60 * 60 * 24 * 30,
